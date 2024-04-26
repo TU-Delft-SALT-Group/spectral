@@ -41,4 +41,6 @@
 
 ## Additional notes for MRs
 
+- Try to merge MRs in 3 days or less. The limit is 5 days to merge an MR, otherwise we will just close it, as we don't want to clutter the repo with stale MRs (barring exceptional cases, that should be justified). To facilitate this...
+- Make MRs as small as possible and generally self-contained.
 - Squash commits if history is messy/too detailed. 
