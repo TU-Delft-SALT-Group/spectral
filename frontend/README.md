@@ -13,6 +13,10 @@ pnpm dev
 pnpm dev -- --open
 ```
 
+### Adding components
+
+We use [shadcn-svelte](https://www.shadcn-svelte.com/docs) to add components. Search for a component there and run the appropriate command to install the component. 
+
 ## Building
 
 Create a production version of the app:
