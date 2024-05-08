@@ -2,9 +2,7 @@
 
 Contributions (pull requests) are very welcome! Here's how to get started.
 
----
-
-**Getting started**
+## Getting started
 
 First fork the library on GitHub (or GitLab).
 
@@ -17,7 +15,7 @@ cd spectral
 
 There are two main components: the frontend and the backend. Each of them have a separate CONTRIBUTING.md, however there are also some general guidelines that apply to both. Here we continue with the general guidelines.
 
-Install the pre-commit hook:
+Install the [pre-commit hook](https://pre-commit.com/#install). For example:
 
 ```bash
 pip install pre-commit
@@ -26,9 +24,7 @@ pre-commit install
 
 These hooks use ruff to format the Python backend code, and pyright to lint it. For svelte we use ESLint and Prettier.
 
----
-
-**If you're making changes to the code:**
+## Making code changes 
 
 Now make your changes. Make sure to include additional tests if necessary.
 
@@ -46,9 +42,7 @@ git push
 
 Finally, open a pull request on GitHub (or GitLab)!
 
----
-
-**If you're making changes to the documentation:**
+## Making documentation changes
 
 Make your changes. You can then build the documentation by doing
 
@@ -56,10 +50,13 @@ Make your changes. You can then build the documentation by doing
 pip install -r docs/requirements.txt
 mkdocs serve
 ```
+
 Then doing `Control-C`, and running:
+
 ```
 mkdocs serve
 ```
+
 (So you run `mkdocs serve` twice.)
 
 You can then see your local copy of the documentation by navigating to `localhost:8000` in a web browser.
