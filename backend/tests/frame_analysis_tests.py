@@ -53,4 +53,4 @@ def test_formants_empty_frame():
     formants = calculate_frame_f1_f2([],0)
     assert len(formants)==2
     assert math.isnan(formants[0])
-    assert math.isnan(formants[0])
+    assert math.isnan(formants[1])
