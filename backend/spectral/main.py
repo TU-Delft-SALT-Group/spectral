@@ -1,11 +1,19 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from .frame_analysis import *
 from pydantic import BaseModel
+import orjson
 
-app = FastAPI()
+class ORJSONResponse(JSONResponse):
+    media_type = "application/json"
+
+    def render(self, content) -> bytes:
+        return orjson.dumps(content)
+
+app = FastAPI(default_response_class=ORJSONResponse)
 
 class Frame(BaseModel):
-    data: list = []
+    data: list
     fs: float
 
 @app.post("/frames/analyze")
