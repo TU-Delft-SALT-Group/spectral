@@ -24,6 +24,13 @@ pre-commit install
 
 These hooks use ruff to format the Python backend code, and pyright to lint it. For svelte we use ESLint and Prettier.
 
+### conventional-pre-commit
+To use the conventional-pre-commit, which enforces [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), run the following command:
+
+```bash
+pre-commit install --hook-type commit-msg
+```
+
 ## Making code changes 
 
 Now make your changes. Make sure to include additional tests if necessary.
