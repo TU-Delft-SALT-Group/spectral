@@ -27,6 +27,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
+numpy = "^1.26.4"
+pytest = "^8.2.0"
+fastapi = "^0.111.0"
+praat-parselmouth = "^0.4.3"
+orjson = "^3.10.3"
+pydantic = "^2.7.1"
 
 
 [build-system]
