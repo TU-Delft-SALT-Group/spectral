@@ -60,3 +60,21 @@ export const flyAndScale = (
 		easing: cubicOut
 	};
 };
+
+/**
+ * Unwrap a value that is possibly null or undefined
+ */
+export function unwrap<T>(
+	value: T | null | undefined,
+	message = 'Tried to unwrap a null value'
+): T {
+	if (value === null || value === undefined) {
+		throw new Error(message);
+	}
+
+	return value;
+}
+
+export function todo(message: string = 'Not implemented'): any {
+	throw new Error(message);
+}
