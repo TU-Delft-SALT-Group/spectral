@@ -14,6 +14,7 @@ from .frame_analysis import (
 )
 from pydantic import BaseModel
 import orjson
+from typing import Optional
 
 
 class ORJSONResponse(JSONResponse):
@@ -34,11 +35,11 @@ class Frame(BaseModel):
 class Signal(BaseModel):
     data: list
     fs: float
-    pitch_time_step: float | None
+    pitch_time_step: Optional[float] = None
     spectogram_time_step: float = 0.002
     spectogram_window_length: float = 0.005
     spectogram_frequency_step: float = 20.0
-    formants_time_step: float | None
+    formants_time_step: Optional[float] = None
     formants_window_length: float = 0.025
 
 
@@ -60,7 +61,7 @@ async def frame_fundamental_features(frame: Frame):
         )
 
 
-@app.post("/signal/analyze")
+@app.post("/signals/analyze")
 async def signal_fundamental_features(signal: Signal):
     try:
         sound = signal_to_sound(signal.data, signal.fs)

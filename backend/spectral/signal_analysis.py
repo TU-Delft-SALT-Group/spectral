@@ -61,11 +61,11 @@ def calculate_sound_pitch(sound, time_step=None):
     ```
     """
     try:
-        pitch = sound.to_pitch()
+        pitch = sound.to_pitch(time_step=time_step)
         return {
-            "time_step": time_step,
+            "time_step": pitch.time_step,
             "start_time": pitch.get_time_from_frame_number(1),
-            "data": pitch.selected_array["frequency"],
+            "data": pitch.selected_array["frequency"].tolist(),
         }
     except Exception as _:
         return None
@@ -102,13 +102,13 @@ def calculate_sound_spectrogram(
             frequency_step=frequency_step,
         )
         return {
-            "time_step": time_step,
+            "time_step": spectrogram.time_step,
             "window_length": window_length,
             "frequency_step": frequency_step,
             "start_time": spectrogram.get_time_from_frame_number(1),
-            "data": spectrogram.values,
+            "data": spectrogram.values.tolist(),
         }
-    except Exception as _:
+    except Exception:
         return None
 
 
