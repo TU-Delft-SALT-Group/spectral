@@ -1,6 +1,6 @@
 import parselmouth
 import numpy as np
-from scipy.io import wavfile as wv
+
 
 def signal_to_sound(signal, fs):
     """
@@ -18,7 +18,10 @@ def signal_to_sound(signal, fs):
     result = signal_to_sound(signal, fs)
     ```
     """
-    return parselmouth.Sound(values=np.array(signal).astype("float64"), sampling_frequency=fs)
+    return parselmouth.Sound(
+        values=np.array(signal).astype("float64"), sampling_frequency=fs
+    )
+
 
 def calculate_signal_duration(signal, fs):
     """
@@ -36,7 +39,8 @@ def calculate_signal_duration(signal, fs):
     result = calculate_signal_duration(signal, fs)
     ```
     """
-    return len(signal)/fs
+    return len(signal) / fs
+
 
 def calculate_sound_pitch(sound, time_step=None):
     """
@@ -58,11 +62,18 @@ def calculate_sound_pitch(sound, time_step=None):
     """
     try:
         pitch = sound.to_pitch()
-        return {"time_step": time_step, "start_time": pitch.get_time_from_frame_number(1), "data": pitch.selected_array['frequency']}
-    except:
+        return {
+            "time_step": time_step,
+            "start_time": pitch.get_time_from_frame_number(1),
+            "data": pitch.selected_array["frequency"],
+        }
+    except Exception as _:
         return None
 
-def calculate_sound_spectrogram(sound, time_step=0.002, window_length=0.005, frequency_step=20.0):
+
+def calculate_sound_spectrogram(
+    sound, time_step=0.002, window_length=0.005, frequency_step=20.0
+):
     """
     This method calculates the spectrogram of a sound fragment.
 
@@ -70,7 +81,7 @@ def calculate_sound_spectrogram(sound, time_step=0.002, window_length=0.005, fre
     - sound (parselmouth.Sound): Sound object representing a speech fragment.
     - time_step (float): Time between the center of the frames.
     - window_length (float): Duration of the analysis window.
-    - frequency_step (float): Frequency resolution.  
+    - frequency_step (float): Frequency resolution.
 
     Returns:
     - time_step (float): Time between spectogram samples.
@@ -85,13 +96,23 @@ def calculate_sound_spectrogram(sound, time_step=0.002, window_length=0.005, fre
     ```
     """
     try:
-        spectrogram = sound.to_spectrogram(time_step=time_step, window_length=window_length, frequency_step=frequency_step)
-        return {"time_step": time_step, "window_length": window_length, "frequency_step": frequency_step, "start_time": spectrogram.get_time_from_frame_number(1), "data": spectrogram.values}
-    except:
+        spectrogram = sound.to_spectrogram(
+            time_step=time_step,
+            window_length=window_length,
+            frequency_step=frequency_step,
+        )
+        return {
+            "time_step": time_step,
+            "window_length": window_length,
+            "frequency_step": frequency_step,
+            "start_time": spectrogram.get_time_from_frame_number(1),
+            "data": spectrogram.values,
+        }
+    except Exception as _:
         return None
 
 
-def calculate_sound_f1_f2(sound, time_step=None, window_length = 0.025):
+def calculate_sound_f1_f2(sound, time_step=None, window_length=0.025):
     """
     This method calculates the first and second formant of a sound fragment.
 
@@ -112,13 +133,26 @@ def calculate_sound_f1_f2(sound, time_step=None, window_length = 0.025):
     ```
     """
     try:
-        formants = sound.to_formant_burg(time_step=time_step, window_length = window_length)
+        formants = sound.to_formant_burg(
+            time_step=time_step, window_length=window_length
+        )
         data = []
-        for frame in np.arange(1,len(formants)+1):
-            data.append([formants.get_value_at_time(formant_number = 1, time=formants.frame_number_to_time(frame)),formants.get_value_at_time(formant_number = 2, time=formants.frame_number_to_time(frame))])
-        return {"time_step": formants.time_step, 'window_length':window_length, "start_time": formants.get_time_from_frame_number(1), "data": data}
-    except:
+        for frame in np.arange(1, len(formants) + 1):
+            data.append(
+                [
+                    formants.get_value_at_time(
+                        formant_number=1, time=formants.frame_number_to_time(frame)
+                    ),
+                    formants.get_value_at_time(
+                        formant_number=2, time=formants.frame_number_to_time(frame)
+                    ),
+                ]
+            )
+        return {
+            "time_step": formants.time_step,
+            "window_length": window_length,
+            "start_time": formants.get_time_from_frame_number(1),
+            "data": data,
+        }
+    except Exception as _:
         return None
-    
-# fs, xx = wv.read("C:/Users/Thijs/TU Delft/Software project/speech_data/MC02_control_head_sentence1.wav")
-# print(calculate_sound_f1_f2(signal_to_sound(np.zeros(4*fs),fs)))
