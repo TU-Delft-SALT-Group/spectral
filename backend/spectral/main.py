@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from .frame_analysis import *
+from .signal_analysis import *
 from pydantic import BaseModel
 import orjson
 
@@ -15,6 +16,18 @@ app = FastAPI(default_response_class=ORJSONResponse)
 class Frame(BaseModel):
     data: list
     fs: float
+    
+class Signal(BaseModel):
+    data: list
+    fs: float
+    pitch_time_step: float|None
+    spectogram_time_step: float = 0.002
+    spectogram_window_length: float = 0.005
+    spectogram_frequency_step: float = 20.0
+    formants_time_step:float|None 
+    formants_window_length: float = 0.025
+    
+    
 
 @app.post("/frames/analyze")
 async def frame_fundamental_features(frame: Frame):
@@ -23,5 +36,17 @@ async def frame_fundamental_features(frame: Frame):
         pitch = calculate_frame_pitch(frame=frame.data,fs=frame.fs)
         formants = calculate_frame_f1_f2(frame=frame.data,fs=frame.fs)
         return {"duration":duration,"pitch":pitch,"f1":formants[0],"f2":formants[1]}
+    except:
+        raise HTTPException(status_code=400, detail="Input data did not meet requirements")
+    
+@app.post("/signal/analyze")
+async def frame_fundamental_features(signal: Signal):
+    try:
+        sound = signal_to_sound(signal.data, signal.fs)
+        duration = calculate_frame_duration(sound)
+        pitch = calculate_sound_pitch(sound, time_step=signal.pitch_time_step)
+        spectrogram = calculate_sound_spectrogram(sound, time_step=signal.spectogram_time_step, window_length=signal.spectogram_window_length, frequency_step=signal.spectogram_frequency_step)
+        formants = calculate_sound_f1_f2(sound, time_step=signal.formants_time_step, window_length=signal.formants_window_length)
+        return {"duration":duration,"pitch":pitch,"spectogram":spectrogram,"formants":formants}
     except:
         raise HTTPException(status_code=400, detail="Input data did not meet requirements")
