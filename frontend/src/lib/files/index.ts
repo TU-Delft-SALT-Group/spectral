@@ -11,7 +11,7 @@ export type FilebrowserFile = {
 	type: 'file' | 'folder';
 };
 
-export function getFileIcon(type: FilebrowserFile["type"]): ComponentType {
+export function getFileIcon(type: FilebrowserFile['type']): ComponentType {
 	switch (type) {
 		case 'file':
 			return FileIcon;

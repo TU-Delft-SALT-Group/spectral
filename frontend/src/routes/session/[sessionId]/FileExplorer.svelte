@@ -15,7 +15,7 @@
 	<ol>
 		{#each files as file}
 			<li>
-				<Button class="flex-2 flex w-full justify-start gap-2 rounded-none" variant="default" >
+				<Button class="flex-2 flex w-full justify-start gap-2 rounded-none" variant="default">
 					<svelte:component this={getFileIcon(file.type)}></svelte:component>
 					<span>
 						{file.name}

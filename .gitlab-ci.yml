@@ -1,0 +1,58 @@
+include:
+  - remote: 'https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml'
+
+.pre_pnpm: &pre_pnpm
+  - cd frontend
+  - corepack enable
+  - corepack prepare pnpm@latest-9 --activate
+  - pnpm config set store-dir .pnpm-store
+  - pnpm set verify-store-integrity false
+
+stages:
+  - build
+  - lint
+  - test
+    
+build:app:
+  stage: build
+  image: 'node:22.1.0-slim'
+  script:
+    - *pre_pnpm
+    -  pnpm install
+  cache:
+    key:
+      files:
+        - frontend/pnpm-lock.yaml
+    paths:
+      - frontend/.pnpm-store
+
+lint:app:
+  stage: lint
+  image: 'node:22.1.0-slim'
+  script:
+    - *pre_pnpm 
+    - pnpm install --prefer-offline
+    - pnpm lint
+  cache:
+    key:
+      files:
+        - frontend/pnpm-lock.yaml
+    paths:
+      - frontend/.pnpm-store
+
+
+# tests in general can be expanded depending on every test that we will have
+test:app:
+  stage: test
+  image: 'node:22.1.0-slim'
+  script: 
+    - *pre_pnpm
+    -  pnpm install --prefer-offline
+    -  pnpm test:unit --coverage
+  cache:
+    key:
+      files:
+        - frontend/pnpm-lock.yaml
+    paths:
+      - frontend/.pnpm-store
+

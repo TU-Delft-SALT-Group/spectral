@@ -5,7 +5,7 @@
 import { env } from '$env/dynamic/public';
 import { todo, unwrap } from '$lib/utils';
 import type { Mode, ModeData } from '$lib/analysis/modes';
-import type { Frame } from '$lib/analysis/engine/framing'
+import type { Frame } from '$lib/analysis/engine/framing';
 
 const ORIGIN = unwrap(
 	env.PUBLIC_ENGINE_ORIGIN,
@@ -29,14 +29,17 @@ export async function fetchEngine(path: string): Promise<Response> {
  * Fetches the data for a specific mode
  */
 export async function getData({
+	// eslint-disable-next-line
 	fileId,
+	// eslint-disable-next-line
 	mode,
-	frame,
+	// eslint-disable-next-line
+	frame
 }: {
 	mode: Mode;
 	fileId: string;
 	frame: Frame;
 }): Promise<ModeData> {
 	// TODO: Actually implement this
-	return todo("Python bridge not implemented");
+	return todo('Python bridge not implemented');
 }

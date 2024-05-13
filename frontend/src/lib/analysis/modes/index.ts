@@ -4,7 +4,6 @@ import SimpleInfo from './simple-info/SimpleInfo.svelte';
 import Waveform from './waveform/Waveform.svelte';
 import Unimplemented from './Unimplemented.svelte';
 
-import type { Icon } from 'lucide-svelte';
 import AudioWaveformIcon from 'lucide-svelte/icons/audio-waveform';
 import CircleHelpIcon from 'lucide-svelte/icons/circle-help';
 import InfoIcon from 'lucide-svelte/icons/info';
