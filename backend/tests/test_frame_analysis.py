@@ -6,9 +6,10 @@ from spectral.frame_analysis import (
     calculate_frame_f1_f2,
 )
 import json
+import os
 
 # Load the JSON file
-with open("data/frames.json", "r") as file:
+with open(os.path.join(os.path.realpath(__file__),"../data/frames.json"), "r") as file:
     frame_data = json.load(file)
 
 
