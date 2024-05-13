@@ -1,5 +1,5 @@
-include:
-  - remote: 'https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml'
+# include:
+#   - remote: 'https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml'
 
 .pre_pnpm: &pre_pnpm
   - cd frontend
