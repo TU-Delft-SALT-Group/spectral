@@ -2,7 +2,7 @@ Frontend for the application, using [SvelteKit](https://kit.svelte.dev/).
 
 ## Developing
 
-We use pnpm. Install pnpm following [the instructions on the website](https://pnpm.io/installation). 
+We use pnpm. Install pnpm following [the instructions on the website](https://pnpm.io/installation).
 
 Then install dependencies with `pnpm install` (or `pnpm i`). Run the dev server with
 
@@ -15,7 +15,7 @@ pnpm dev -- --open
 
 ### Adding components
 
-We use [shadcn-svelte](https://www.shadcn-svelte.com/docs) to add components. Search for a component there and run the appropriate command to install the component. 
+We use [shadcn-svelte](https://www.shadcn-svelte.com/docs) to add components. Search for a component there and run the appropriate command to install the component.
 
 ## Building
 

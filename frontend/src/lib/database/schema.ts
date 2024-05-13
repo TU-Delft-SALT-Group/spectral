@@ -6,7 +6,7 @@ export const userTable = pgTable('user', {
 	email: text('email').unique().notNull(),
 	username: text('username').notNull(),
 	hashedPassword: text('hashed_password').notNull(),
-	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`),
+	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const sessionTable = pgTable('session', {
@@ -16,14 +16,14 @@ export const sessionTable = pgTable('session', {
 		.references(() => userTable.id),
 	expiresAt: timestamp('expires_at', {
 		withTimezone: true,
-		mode: 'date',
-	}).notNull(),
+		mode: 'date'
+	}).notNull()
 });
 
 const byteArray = customType<{ data: Uint8Array }>({
 	dataType() {
 		return 'bytea';
-	},
+	}
 });
 
 export const filesTable = pgTable('files', {
@@ -32,6 +32,8 @@ export const filesTable = pgTable('files', {
 	data: byteArray('data'),
 	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`),
 	modifiedTime: timestamp('modified_time').default(sql`CURRENT_TIMESTAMP`),
-	uploader: text('id').notNull().references(() => userTable.id),
-	ephemeral: boolean('ephemeral'),
+	uploader: text('id')
+		.notNull()
+		.references(() => userTable.id),
+	ephemeral: boolean('ephemeral')
 });

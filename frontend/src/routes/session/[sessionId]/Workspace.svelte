@@ -1,6 +1,6 @@
 <script lang="ts">
-	import AnalysisPane from "$lib/analysis/AnalysisPane.svelte";
-	import type { WorkspaceState } from "./workspace";
+	import AnalysisPane from '$lib/analysis/AnalysisPane.svelte';
+	import type { WorkspaceState } from './workspace';
 
 	export let state: WorkspaceState;
 </script>
@@ -10,5 +10,3 @@
 		<AnalysisPane bind:state={pane}></AnalysisPane>
 	{/each}
 </div>
-
-

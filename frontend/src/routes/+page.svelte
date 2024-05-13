@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 </script>
 
-<div class="h-full grid place-content-center">
+<div class="grid h-full place-content-center">
 	<div class="mb-4">
 		<h1 class="text-[12vw] font-bold">Spectral</h1>
 		<p class="text-lg opacity-70">Toolkit for atypical speech</p>

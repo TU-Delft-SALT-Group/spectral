@@ -7,4 +7,3 @@
 
 	<Button href="session/sample-torgo">Load sample session</Button>
 </div>
-
