@@ -33,6 +33,7 @@ fastapi = "^0.111.0"
 praat-parselmouth = "^0.4.3"
 orjson = "^3.10.3"
 pydantic = "^2.7.1"
+scipy = "^1.13.0"
 
 
 [build-system]
