@@ -41,6 +41,12 @@ Verify that the tests are passing! The CI will run the tests, but you can might 
 ???
 ```
 
+Also, feel free to run the whole server locally with:
+
+```bash
+docker-compose up --build
+```
+
 After you are done with the feature, you can push your changes back to your fork:
 
 ```bash
