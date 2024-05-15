@@ -5,5 +5,5 @@
 <div>
 	<div>Log in to see your sessions</div>
 
-	<Button href="session/sample-torgo"> Load sample session </Button>
+	<Button href="session/sample-torgo">Load sample session</Button>
 </div>

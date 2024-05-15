@@ -9,7 +9,6 @@ import { fail } from '@sveltejs/kit';
 import { uploadFile } from '$lib/server/database/files';
 
 const sampleState: WorkspaceState = {
-
 	panes: [
 		{
 			mode: 'waveform',
@@ -20,11 +19,11 @@ const sampleState: WorkspaceState = {
 			}))
 		}
 	]
-}
+};
 
 async function getFilesAndState(sessionId: string): Promise<{
-	files: FilebrowserFile[],
-	state: WorkspaceState,
+	files: FilebrowserFile[];
+	state: WorkspaceState;
 }> {
 	const result = await db.query.filesTable.findMany({
 		where: eq(filesTable.session, sessionId)
@@ -40,17 +39,14 @@ async function getFilesAndState(sessionId: string): Promise<{
 	return { files, state: sampleState };
 }
 
-export const load = (async ({
-	params: { sessionId }
-}) => {
+export const load = (async ({ params: { sessionId } }) => {
 	const { files, state } = await getFilesAndState(sessionId);
 
 	return {
 		files,
-		state,
-	}
+		state
+	};
 }) satisfies PageServerLoad;
-
 
 export const actions = {
 	default: async ({ request, params: { sessionId } }) => {
@@ -58,9 +54,9 @@ export const actions = {
 
 		const file = formData.get('file');
 		if (!(file instanceof File)) {
-			return fail(400, { message: 'No file provided' })
+			return fail(400, { message: 'No file provided' });
 		}
 
 		uploadFile(file, sessionId);
-	},
+	}
 } satisfies Actions;

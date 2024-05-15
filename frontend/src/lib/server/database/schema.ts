@@ -21,35 +21,42 @@ export const userSessionTable = pgTable('user_session', {
 });
 
 export const byteArray = customType<{ data: Buffer }>({
-  dataType() {
-    return "bytea";
-  },
-  fromDriver(value) {
-    if (typeof value === "object" && value instanceof Uint8Array) {
-      return Buffer.from(value);
-    }
+	dataType() {
+		return 'bytea';
+	},
+	fromDriver(value) {
+		if (typeof value === 'object' && value instanceof Uint8Array) {
+			return Buffer.from(value);
+		}
 
-    throw new Error("Expected Uint8Array");
-  },
-  toDriver(buffer) {
-    return sql`decode(${buffer.toString("base64")}, 'base64')`;
-  },
+		throw new Error('Expected Uint8Array');
+	},
+	toDriver(buffer) {
+		return sql`decode(${buffer.toString('base64')}, 'base64')`;
+	}
 });
 
 export const filesTable = pgTable('files', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	data: byteArray('data').notNull(),
-	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`).notNull(),
-	modifiedTime: timestamp('modified_time').default(sql`CURRENT_TIMESTAMP`).notNull(),
-	uploader: text('uploader')
-		.references(() => userTable.id),
-	session: text('session').references(() => sessionTable.id).notNull(),
-	ephemeral: boolean('ephemeral').notNull().default(false),
+	creationTime: timestamp('creation_time')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+	modifiedTime: timestamp('modified_time')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+	uploader: text('uploader').references(() => userTable.id),
+	session: text('session')
+		.references(() => sessionTable.id)
+		.notNull(),
+	ephemeral: boolean('ephemeral').notNull().default(false)
 });
 
 export const sessionTable = pgTable('session', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
-	owner: text('owner').notNull().references(() => userTable.id),
-})
+	owner: text('owner')
+		.notNull()
+		.references(() => userTable.id)
+});
