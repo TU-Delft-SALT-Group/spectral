@@ -18,6 +18,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/frontend
+      - /frontend/node_modules/
     expose:
       - "5173"
     depends_on:
