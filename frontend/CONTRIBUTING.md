@@ -81,6 +81,24 @@ pnpm test
 
 As part of our standard, we require that non-trivial code to be explained with comments. Make sure the comments are reasonably written with your judgement.
 
+### Adding a new mode
+
+In order to add a new mode for all users to be able to access, there are several steps required.
+
+First of all, a new "type" should be added under the type `ModeData` in `src/lib/analysis/modes/index.ts`, where the name of the mode should be specified, and all required data for the mode is inserted (look at the code for examples). Afterwards, add the name of the mode in the `modes` variable in the same file.
+
+Afterwards, a new folder with the name of the mode should be created in `src/lib/analysis/modes` which should have the following variable in the script tag:
+
+```ts
+export let data: SpecificModeData<'your-mode-here'>[];
+```
+
+From this, all of the data of the open audio files which are required should be available.
+
+Finally, the functions `getComponent` and `getIcon` inside of `src/lib/analysis/modes/index.ts` should be changed in order to include the new mode.
+
+### Finishing off
+
 After you are done with the feature, and made sure to follow what we said previously, you can push your changes back to your fork:
 
 ```bash
