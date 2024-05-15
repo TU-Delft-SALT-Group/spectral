@@ -10,6 +10,9 @@ services:
       - postgres_data:/data
 
   frontend:
+    environment:
+      PUBLIC_ENGINE_ORIGIN: temp
+      PG_CONNECTION_STRING: postgres://user:password@postgres:5432/your_db
     build:
       context: ./frontend
       dockerfile: Dockerfile
