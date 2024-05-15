@@ -38,7 +38,7 @@ export async function getData({
 }: {
 	mode: Mode;
 	fileId: string;
-	frame: Frame;
+	frame: Frame | null;
 }): Promise<ModeData> {
 	// TODO: Actually implement this
 	return todo('Python bridge not implemented');
