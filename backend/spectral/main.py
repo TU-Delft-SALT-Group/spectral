@@ -24,7 +24,7 @@ class ORJSONResponse(JSONResponse):
         return orjson.dumps(content)
 
 
-app = FastAPI(default_response_class=ORJSONResponse)
+app: FastAPI = FastAPI(default_response_class=ORJSONResponse)
 
 
 class Frame(BaseModel):
