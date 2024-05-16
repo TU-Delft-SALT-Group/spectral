@@ -1,6 +1,10 @@
 import parselmouth
 import numpy as np
 
+def simple_info(signal, fs):
+    duration = calculate_signal_duration(signal=signal,fs=fs)
+    avg_pitch = np.mean(calculate_sound_pitch(signal_to_sound(signal=signal,fs=fs))["data"]).item()
+    return {"duration":duration,"avg_pitch":avg_pitch}
 
 def signal_to_sound(signal, fs):
     """

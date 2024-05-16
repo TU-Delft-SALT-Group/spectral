@@ -6,15 +6,21 @@ from .signal_analysis import (
     calculate_sound_spectrogram,
     calculate_sound_f1_f2,
     signal_to_sound,
+    simple_info
 )
 from .frame_analysis import (
     calculate_frame_duration,
     calculate_frame_pitch,
     calculate_frame_f1_f2,
 )
+from .database import Database
 from pydantic import BaseModel
 import orjson
 from typing import Optional
+from scipy.io import wavfile as wv 
+import io
+
+database = Database("user","password","postgres",5432,"your_db")
 
 
 class ORJSONResponse(JSONResponse):
@@ -24,7 +30,7 @@ class ORJSONResponse(JSONResponse):
         return orjson.dumps(content)
 
 
-app = FastAPI(default_response_class=ORJSONResponse)
+app = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 
 class Frame(BaseModel):
@@ -87,4 +93,23 @@ async def signal_fundamental_features(signal: Signal):
     except Exception as _:
         raise HTTPException(
             status_code=400, detail="Input data did not meet requirements"
+        )
+
+@app.get("/signals/modes/{mode}/{id}")
+async def hey(mode, id):
+    print(mode)
+    try:
+        file = database.fetch_file(id)
+        fs, data = wv.read(io.BytesIO(file["data"]))
+        match mode:
+            case "simple-info":
+                return simple_info(data,fs)                
+            case _:
+                raise HTTPException(
+                    status_code=400, detail="Mode not found"
+                )
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=404, detail="File not found"
         )
