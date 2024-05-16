@@ -3,26 +3,26 @@
  */
 
 import { env } from '$env/dynamic/public';
-import { todo, unwrap } from '$lib/utils';
-import type { Mode, ModeData } from '$lib/analysis/modes';
+import { unwrap } from '$lib/utils';
+import { modeDataValidator, type Mode, type ModeData } from '$lib/analysis/modes';
 import type { Frame } from '$lib/analysis/engine/framing';
+import { error } from '@sveltejs/kit';
 
 const ORIGIN = unwrap(
-	env.PUBLIC_ENGINE_ORIGIN,
-	'engine origin not given (example: `https://192.168.0.5:6942`, without a trailing slash)'
+	env.PUBLIC_KERNEL_ORIGIN,
+	'Python kernel origin not given (example: `https://192.168.0.5:6942`, without a trailing slash)'
 );
 
 /**
  * Main way to fetch stuff for backend
  */
-export async function fetchEngine(path: string): Promise<Response> {
+export function getURL(path: string): URL {
 	// Remove leading slash
 	if (path.startsWith('/')) {
 		path = path.slice(1);
 	}
 
-	const url = new URL(`${ORIGIN}/${path}`);
-	return fetch(url);
+	return new URL(`${ORIGIN}/${path}`);
 }
 
 /**
@@ -40,6 +40,24 @@ export async function getData({
 	fileId: string;
 	frame: Frame | null;
 }): Promise<ModeData> {
-	// TODO: Actually implement this
-	return todo('Python bridge not implemented');
+	const url = getURL(`analyze/${mode}/${fileId}`);
+
+	url.searchParams.set('frame', JSON.stringify(frame));
+
+	const response = await fetch(url);
+
+	const result = modeDataValidator.safeParse(await response.json());
+
+	if (!result.success) {
+		const { error: zodError } = result;
+
+		throw error(500, zodError);
+	}
+
+	const { data } = result;
+
+	return {
+		...data,
+		fileId
+	};
 }
