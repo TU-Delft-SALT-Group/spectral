@@ -31,9 +31,6 @@ To use the conventional-pre-commit, which enforces [Conventional Commits](https:
 pre-commit install --hook-type commit-msg
 ```
 
-### typos
-A pre-commit hook we have is checking for typos in the entire project. To install this please follow the [installation instructions](https://github.com/crate-ci/typos/blob/master/README.md#install) from the official typos github repository.
-
 ## Making code changes 
 
 Now make your changes. Make sure to include additional tests if necessary.
