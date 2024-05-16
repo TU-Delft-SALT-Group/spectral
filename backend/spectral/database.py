@@ -13,14 +13,9 @@ class Database:
         self.cursor = self.conn.cursor()
     
     def fetch_file(self,id):
-        self.cursor.execute("SELECT * FROM files")
+        self.cursor.execute("SELECT * FROM files WHERE id = %s",[id])
         res = self.cursor.fetchone()
-        print(res)
-        # self.cursor.execute("SELECT * FROM files WHERE id = %s",id)
-        return {"name":res[0],"data":res[2]}
-        # with open("/backend/tests/data/torgo-dataset/MC02_control_head_sentence1.wav", 'rb') as fd:
-        #     contents = fd.read()  
-        # return {"data":contents}
+        return {"name":res[1],"data":res[2]}
     
     def close(self):
         self.cursor.close()
