@@ -6,7 +6,8 @@ from .signal_analysis import (
     calculate_sound_spectrogram,
     calculate_sound_f1_f2,
     signal_to_sound,
-    simple_info
+    simple_signal_info,
+    signal_features
 )
 from .frame_analysis import (
     calculate_frame_duration,
@@ -103,7 +104,9 @@ async def hey(mode, id):
         fs, data = wv.read(io.BytesIO(file["data"]))
         match mode:
             case "simple-info":
-                return simple_info(data,fs)                
+                return simple_signal_info(data,fs)   
+            case "spectogram":
+                return signal_features(data,fs)  
             case _:
                 raise HTTPException(
                     status_code=400, detail="Mode not found"

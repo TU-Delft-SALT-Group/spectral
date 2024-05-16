@@ -1,10 +1,24 @@
 import parselmouth
 import numpy as np
 
-def simple_info(signal, fs):
+def simple_signal_info(signal, fs):
     duration = calculate_signal_duration(signal=signal,fs=fs)
     avg_pitch = np.mean(calculate_sound_pitch(signal_to_sound(signal=signal,fs=fs))["data"]).item()
     return {"duration":duration,"avg_pitch":avg_pitch}
+
+def signal_features(signal, fs):
+    sound = signal_to_sound(signal, fs)
+    duration = calculate_signal_duration(signal, fs)
+    pitch = calculate_sound_pitch(sound)
+    spectrogram = calculate_sound_spectrogram(sound)
+    formants = calculate_sound_f1_f2(sound)
+    return {
+        "duration": duration,
+        "pitch": pitch,
+        "spectogram": spectrogram,
+        "formants": formants,
+    }
+    
 
 def signal_to_sound(signal, fs):
     """
