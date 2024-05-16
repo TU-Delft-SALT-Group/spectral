@@ -6,9 +6,9 @@
 
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { getFileIcon, type File } from '$lib/files';
+	import { getFileIcon, type FilebrowserFile } from '$lib/files';
 
-	export let files: File[];
+	export let files: FilebrowserFile[];
 </script>
 
 <div class="h-full w-64 bg-secondary">

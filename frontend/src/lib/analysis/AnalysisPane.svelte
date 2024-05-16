@@ -15,7 +15,7 @@
 	export let state: PaneState;
 
 	$: dataPromise = Promise.all(
-		state.files.map((file) => getData({ mode: state.mode, fileId: file.id, frame: state.frame }))
+		state.files.map((file) => getData({ mode: state.mode, fileId: file.id, frame: file.frame }))
 	);
 
 	$: component = getComponent(state.mode);
