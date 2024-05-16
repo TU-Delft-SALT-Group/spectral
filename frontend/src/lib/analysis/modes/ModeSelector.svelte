@@ -5,7 +5,7 @@
 	export let mode: Mode;
 </script>
 
-<div class="absolute right-4 top-4 flex flex-col">
+<div class="absolute right-4 top-4 z-30 flex flex-col">
 	{#each modes as currentMode}
 		<Button
 			on:click={() => (mode = currentMode)}
