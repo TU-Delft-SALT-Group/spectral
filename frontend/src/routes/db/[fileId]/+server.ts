@@ -20,7 +20,7 @@ export const GET: RequestHandler = async ({ params }) => {
 
 		return new Response(row.data, {
 			headers: {
-				'Content-Type': 'audio/wav'
+				'Content-Type': 'audio'
 			}
 		});
 	} catch (e) {
