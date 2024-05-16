@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from typing import Annotated, Optional
+from fastapi import FastAPI, HTTPException, Path
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
     calculate_signal_duration,
@@ -14,11 +15,17 @@ from .frame_analysis import (
     calculate_frame_pitch,
     calculate_frame_f1_f2,
 )
+from .data_objects import (
+    Frame,
+    Signal
+)
 from .database import Database
-from pydantic import BaseModel
 import orjson
-from typing import Optional
-from scipy.io import wavfile as wv 
+from scipy.io import wavfile as wv  
+from .mode_handler import (
+    simple_info_mode,
+    spectogram_mode
+)
 import io
 
 database = Database("user","password","postgres",5432,"your_db")
@@ -32,23 +39,6 @@ class ORJSONResponse(JSONResponse):
 
 
 app = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
-
-
-class Frame(BaseModel):
-    data: list
-    fs: float
-
-
-class Signal(BaseModel):
-    data: list
-    fs: float
-    pitch_time_step: Optional[float] = None
-    spectogram_time_step: float = 0.002
-    spectogram_window_length: float = 0.005
-    spectogram_frequency_step: float = 20.0
-    formants_time_step: Optional[float] = None
-    formants_window_length: float = 0.025
-
 
 @app.post("/frames/analyze")
 async def frame_fundamental_features(frame: Frame):
@@ -97,22 +87,50 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 @app.get("/signals/modes/{mode}/{id}")
-async def hey(mode, id):
-    print(mode)
-    try:
-        file = database.fetch_file(id)
-        fs, data = wv.read(io.BytesIO(file["data"]))
-        match mode:
-            case "simple-info":
-                return simple_signal_info(data,fs)   
-            case "spectogram":
-                return signal_features(data,fs)  
-            case _:
-                raise HTTPException(
-                    status_code=400, detail="Mode not found"
-                )
-    except Exception as e:
-        print(e)
+async def hey(
+    mode: Annotated[str, Path(title="The analysis mode")],
+    id: Annotated[str, Path(title="The ID of the signal")],
+    startIndex: Optional[int] = None,
+    endIndex: Optional[int] = None):
+    # try:
+    file = database.fetch_file(id)
+    fs, data = wv.read(io.BytesIO(file["data"]))
+    frame_index = create_frame_index(data,startIndex,endIndex)
+    match mode:
+        case "simple-info":
+            return simple_info_mode(data,fs,file,frame_index)   
+        case "spectogram":
+            return spectogram_mode(data,fs,frame_index)  
+        case _:
+            raise HTTPException(
+                status_code=400, detail="Mode not found"
+            )
+    # except Exception as e:
+    #     raise HTTPException(
+    #         status_code=404, detail="File not found"
+    #     )
+        
+def create_frame_index(data, start_index, end_index):
+    if start_index is None and end_index is None:
+        return None
+    if start_index is None:
         raise HTTPException(
-            status_code=404, detail="File not found"
+            status_code=400, detail="no startIndex provided"
         )
+    if end_index is None:
+        raise HTTPException(
+            status_code=400, detail="no endIndex provided"
+        )
+    if start_index>=end_index:
+        raise HTTPException(
+            status_code=400, detail="startIndex should be strictly lower than endIndex"
+        )
+    if start_index < 0:
+        raise HTTPException(
+            status_code=400, detail="startIndex should be larger or equal to 0"
+        )
+    if end_index > len(data):
+        raise HTTPException(
+            status_code=400, detail="endIndex should be lower than the file length"
+        )
+    return {"startIndex": start_index, "endIndex": end_index}

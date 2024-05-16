@@ -4,7 +4,7 @@ import numpy as np
 def simple_signal_info(signal, fs):
     duration = calculate_signal_duration(signal=signal,fs=fs)
     avg_pitch = np.mean(calculate_sound_pitch(signal_to_sound(signal=signal,fs=fs))["data"]).item()
-    return {"duration":duration,"avg_pitch":avg_pitch}
+    return {"duration":duration,"averagePitch":avg_pitch}
 
 def signal_features(signal, fs):
     sound = signal_to_sound(signal, fs)

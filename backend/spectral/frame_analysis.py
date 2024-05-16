@@ -1,6 +1,18 @@
 import parselmouth
 import numpy as np
 
+def simple_frame_info(frame, fs, frame_info):
+    if frame_info is None:
+        return None
+    data = frame[frame_info["startIndex"]:frame_info["endIndex"]]
+    res = {}
+    res["duration"] = calculate_frame_duration(data,fs)
+    res["pitch"] = calculate_frame_pitch(data,fs) 
+    formants = calculate_frame_f1_f2(data,fs) 
+    res["f1"] = formants[0]
+    res["f2"] = formants[1]
+    return res
+      
 
 def calculate_frame_duration(frame, fs):
     """
