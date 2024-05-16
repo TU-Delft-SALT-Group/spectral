@@ -7,7 +7,8 @@ Contributions (pull requests) to the app are very welcome! Here's how to get sta
 First fork the library on GitHub (or GitLab).
 
 Then clone the library and go to the app folder.
-// TODO: change it to `app` when the time comes
+
+<!-- TODO: change it to `app` when the time comes -->
 
 ```bash
 git clone https://github.com/your-username-here/spectral.git
@@ -64,7 +65,7 @@ This should launch a vite server that auto-updates the app when a write to any f
 While making code changes, it might be required to be in contact with another service other than frontend. To simulate this, we provide a docker-compose file in the root directory of this project. To run the docker services, go to _project's root folder_ and write:
 
 ```bash
-docker compose up
+docker compose up --build
 ```
 
 The frontend service should be accessible from `http://localhost`.
@@ -83,19 +84,21 @@ As part of our standard, we require that non-trivial code to be explained with c
 
 ### Adding a new mode
 
-In order to add a new mode for all users to be able to access, there are several steps required.
+In order to add a new mode for all users to be able to access, there are several steps required. At every step, you can look at how other modes are implemented in case there's any confusion.
 
-First of all, a new "type" should be added under the type `ModeData` in `src/lib/analysis/modes/index.ts`, where the name of the mode should be specified, and all required data for the mode is inserted (look at the code for examples). Afterwards, add the name of the mode in the `modes` variable in the same file.
+First, create a folder `src/lib/analysis/modes/{your-mode}/`. Create an `index.ts` inside that exports a zod validator object with the necessary data to render that mode. Then, create a new component in that folder called `YourMode.svelte`, that takes in a `data` prop, as so:
 
-Afterwards, a new folder with the name of the mode should be created in `src/lib/analysis/modes` which should have the following variable in the script tag:
-
-```ts
-export let data: SpecificModeData<'your-mode-here'>[];
+```svelte
+<script lang="ts">
+	export let data: SpecificModeData<'your-mode'>[];
+</script>
 ```
 
-From this, all of the data of the open audio files which are required should be available.
+It is convenient to re-export the svelte component from `index.ts`.
 
-Finally, the functions `getComponent` and `getIcon` inside of `src/lib/analysis/modes/index.ts` should be changed in order to include the new mode.
+Then you need to register the mode. You do this in `src/lib/analysis/modes/index.ts`. Add your zod validator to the union named `modeDataValidator`. Add the name of the mode to the `modes` string array. Finally, return the corresponding svelte component in `getComponent` and an appropriate icon in `getIcon`.
+
+The Python server will need to be updated to have an appropriate endpoint for that mode, that returns the specified data.
 
 ### Finishing off
 
