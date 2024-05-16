@@ -37,20 +37,20 @@ export async function getData({
 	fileId: string;
 	frame: Frame | null;
 }): Promise<ModeData> {
-	const url = getURL(`analyze/${mode}/${fileId}`);
-
+	const url = getURL(`signals/modes/${mode}/${fileId}`);
 	url.searchParams.set('frame', JSON.stringify(frame));
 
 	const response = await fetch(url);
 
-	const result = modeDataValidator.safeParse(await response.json());
+	const json = await response.json();
+	const result = modeDataValidator.safeParse({ ...json, mode });
 
 	if (!result.success) {
 		const { error: zodError } = result;
-
+		console.error(zodError);
 		throw error(500, zodError);
 	}
-
+	console.log(result);
 	const { data } = result;
 
 	return {

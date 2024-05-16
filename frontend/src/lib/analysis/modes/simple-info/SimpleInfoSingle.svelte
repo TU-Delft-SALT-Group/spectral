@@ -8,7 +8,7 @@
 		{ label: 'Duration', value: `${data.duration.toFixed(2)} seconds` },
 		{ label: 'File size', value: `${data.fileSize} bytes` },
 		{ label: 'Average pitch', value: `${data.averagePitch.toFixed(2)} Hz` },
-		{ label: 'Date creatd', value: `${data.fileCreationDate.toLocaleString('en-US')}` }
+		{ label: 'Date created', value: `${data.fileCreationDate.toLocaleString('en-US')}` }
 	];
 
 	$: frameData = data.frame
