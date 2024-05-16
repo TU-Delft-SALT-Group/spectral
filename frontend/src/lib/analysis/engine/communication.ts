@@ -50,7 +50,7 @@ export async function getData({
 		console.error(zodError);
 		throw error(500, zodError);
 	}
-	console.log(result);
+
 	const { data } = result;
 
 	return {
