@@ -6,9 +6,7 @@ from .signal_analysis import (
     calculate_sound_pitch,
     calculate_sound_spectrogram,
     calculate_sound_f1_f2,
-    signal_to_sound,
-    simple_signal_info,
-    signal_features
+    signal_to_sound
 )
 from .frame_analysis import (
     calculate_frame_duration,
@@ -24,7 +22,8 @@ import orjson
 from scipy.io import wavfile as wv  
 from .mode_handler import (
     simple_info_mode,
-    spectogram_mode
+    spectogram_mode,
+    vowel_space_mode
 )
 import io
 
@@ -92,7 +91,6 @@ async def hey(
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
     endIndex: Optional[int] = None):
-    # try:
     file = database.fetch_file(id)
     fs, data = wv.read(io.BytesIO(file["data"]))
     frame_index = create_frame_index(data,startIndex,endIndex)
@@ -101,14 +99,12 @@ async def hey(
             return simple_info_mode(data,fs,file,frame_index)   
         case "spectogram":
             return spectogram_mode(data,fs,frame_index)  
+        case "vowel-space":
+            return vowel_space_mode(data,fs,frame_index)
         case _:
             raise HTTPException(
                 status_code=400, detail="Mode not found"
             )
-    # except Exception as e:
-    #     raise HTTPException(
-    #         status_code=404, detail="File not found"
-    #     )
         
 def create_frame_index(data, start_index, end_index):
     if start_index is None and end_index is None:
