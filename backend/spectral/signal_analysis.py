@@ -1,6 +1,58 @@
 import parselmouth
 import numpy as np
 
+def simple_signal_info(signal, fs):
+    """
+    Extracts and returns basic information from a given audio signal.
+
+    This function calculates the duration and average pitch of the provided audio signal.
+
+    Parameters:
+    - signal (list of int): The audio signal data.
+    - fs (float): The sample frequency of the audio signal.
+
+    Returns:
+    - dict: A dictionary containing the duration and average pitch of the signal.
+
+    Example:
+    ```python
+    result = simple_signal_info(signal, fs)
+    ```
+    """
+    duration = calculate_signal_duration(signal=signal,fs=fs)
+    avg_pitch = np.mean(calculate_sound_pitch(signal_to_sound(signal=signal,fs=fs))["data"]).item()
+    return {"duration":duration,"averagePitch":avg_pitch}
+
+def signal_features(signal, fs):
+    """
+    Extracts and returns various features from a given audio signal.
+
+    This function calculates the duration, pitch, spectrogram, and formants of the provided audio signal.
+
+    Parameters:
+    - signal (list of int): The audio signal data.
+    - fs (float): The sample frequency of the audio signal.
+
+    Returns:
+    - dict: A dictionary containing the duration, pitch, spectrogram, and formants of the signal.
+
+    Example:
+    ```python
+    result = signal_features(signal, fs)
+    ```
+    """
+    sound = signal_to_sound(signal, fs)
+    duration = calculate_signal_duration(signal, fs)
+    pitch = calculate_sound_pitch(sound)
+    spectrogram = calculate_sound_spectrogram(sound)
+    formants = calculate_sound_f1_f2(sound)
+    return {
+        "duration": duration,
+        "pitch": pitch,
+        "spectogram": spectrogram,
+        "formants": formants,
+    }
+    
 
 def signal_to_sound(signal, fs):
     """

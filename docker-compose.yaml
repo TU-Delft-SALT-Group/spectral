@@ -3,7 +3,7 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_DB: your_db
+      POSTGRES_DB: spectral_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
@@ -11,8 +11,8 @@ services:
 
   frontend:
     environment:
-      PUBLIC_ENGINE_ORIGIN: temp
-      PG_CONNECTION_STRING: postgres://user:password@postgres:5432/your_db
+      PUBLIC_KERNEL_ORIGIN: http://backend
+      PG_CONNECTION_STRING: postgres://user:password@postgres:5432/spectral_db
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -44,6 +44,12 @@ services:
       - "8000"
     depends_on:
       - postgres
+    environment:
+      POSTGRES_DB: spectral_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
 
 volumes:
   postgres_data:

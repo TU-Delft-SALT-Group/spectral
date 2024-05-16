@@ -21,9 +21,7 @@
 	$: component = getComponent(state.mode);
 </script>
 
-<section class="relative">
-	Current mode is {state.mode}.
-
+<section class="relative h-full">
 	<ModeSelector bind:mode={state.mode}></ModeSelector>
 
 	{#await dataPromise}
