@@ -48,8 +48,6 @@ export const modes = ['simple-info', 'waveform'] as const satisfies Array<ModeDa
 export type SpecificModeData<Mode> = ModeData & { mode: Mode };
 
 export function getComponent(mode: Mode): ComponentType {
-	console.log('mode:', mode);
-
 	switch (mode) {
 		case 'simple-info':
 			return SimpleInfo;
