@@ -2,6 +2,32 @@ import parselmouth
 import numpy as np
 
 def simple_frame_info(frame, fs, frame_info):
+    """
+    Extracts and returns basic information from a given audio frame.
+
+    This function calculates and returns the duration, pitch, and first two formants (f1 and f2)
+    of a specified segment within the audio frame.
+
+    Parameters:
+    - frame (list of int): The audio frame data.
+    - fs (float): The sample frequency of the audio signal.
+    - frame_info (dict): A dictionary containing the 'startIndex' and 'endIndex' that specify
+                         the segment of the frame to analyze.
+
+    Returns:
+    - dict or None: A dictionary with the following keys and their corresponding values if
+                    `frame_info` is provided, otherwise returns None:
+                    - "duration" (float): Duration of the frame segment.
+                    - "pitch" (float): Pitch of the frame segment.
+                    - "f1" (float): The first formant frequency of the frame segment.
+                    - "f2" (float): The second formant frequency of the frame segment.
+
+    Example:
+    ```python
+    frame_info = {"startIndex": 0, "endIndex": 1000}
+    result = simple_frame_info(frame, fs, frame_info)
+    ```
+    """
     if frame_info is None:
         return None
     data = frame[frame_info["startIndex"]:frame_info["endIndex"]]

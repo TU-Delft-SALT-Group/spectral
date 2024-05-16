@@ -31,6 +31,9 @@ database = Database("user","password","postgres",5432,"your_db")
 
 
 class ORJSONResponse(JSONResponse):
+    """
+    Custom JSONResponse class using ORJSON to handle nan's.
+    """
     media_type = "application/json"
 
     def render(self, content) -> bytes:
@@ -41,6 +44,20 @@ app = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 @app.post("/frames/analyze")
 async def frame_fundamental_features(frame: Frame):
+    """
+    Analyze fundamental features of an audio frame.
+
+    This endpoint calculates the duration, pitch, and formants (f1, f2) of the provided audio frame.
+
+    Parameters:
+    - frame (Frame): Frame object containing the data and sample frequency of the audio frame.
+
+    Returns:
+    - dict: A dictionary containing the duration, pitch, f1, and f2 of the frame.
+
+    Raises:
+    - HTTPException: If the input data does not meet requirements.
+    """
     try:
         duration = calculate_frame_duration(frame=frame.data, fs=frame.fs)
         pitch = calculate_frame_pitch(frame=frame.data, fs=frame.fs)
@@ -59,6 +76,20 @@ async def frame_fundamental_features(frame: Frame):
 
 @app.post("/signals/analyze")
 async def signal_fundamental_features(signal: Signal):
+    """
+    Analyze fundamental features of an audio signal.
+
+    This endpoint calculates the duration, pitch, spectrogram, and formants of the provided audio signal.
+
+    Parameters:
+    - signal (Signal): Signal object containing the data, sample frequency, and optional analysis parameters.
+
+    Returns:
+    - dict: A dictionary containing the duration, pitch, spectrogram, and formants of the signal.
+
+    Raises:
+    - HTTPException: If the input data does not meet requirements.
+    """
     try:
         sound = signal_to_sound(signal.data, signal.fs)
         duration = calculate_signal_duration(signal.data, signal.fs)
@@ -86,14 +117,31 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 @app.get("/signals/modes/{mode}/{id}")
-async def hey(
+async def analyze_signal_mode(
     mode: Annotated[str, Path(title="The analysis mode")],
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
     endIndex: Optional[int] = None):
+    """
+    Analyze an audio signal in different modes.
+
+    This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
+
+    Parameters:
+    - mode (str): The analysis mode (e.g., "simple-info", "spectogram", "vowel-space").
+    - id (str): The ID of the signal to analyze.
+    - startIndex (Optional[int]): The start index of the frame to analyze.
+    - endIndex (Optional[int]): The end index of the frame to analyze.
+
+    Returns:
+    - dict: The result of the analysis based on the selected mode.
+
+    Raises:
+    - HTTPException: If the mode is not found or input data is invalid.
+    """
     file = database.fetch_file(id)
     fs, data = wv.read(io.BytesIO(file["data"]))
-    frame_index = create_frame_index(data,startIndex,endIndex)
+    frame_index = validate_frame_index(data,startIndex,endIndex)
     match mode:
         case "simple-info":
             return simple_info_mode(data,fs,file,frame_index)   
@@ -106,7 +154,26 @@ async def hey(
                 status_code=400, detail="Mode not found"
             )
         
-def create_frame_index(data, start_index, end_index):
+def validate_frame_index(data, start_index, end_index):
+    """
+    Validates a frame index for a segment of the audio data and creates a dictionary for those values.
+
+    Parameters:
+    - data (list of int): The audio signal data.
+    - start_index (int): The start index of the frame.
+    - end_index (int): The end index of the frame.
+
+    Returns:
+    - dict: A dictionary containing the startIndex and endIndex.
+
+    Raises:
+    - HTTPException: If the startIndex or endIndex are invalid.
+
+    Example:
+    ```python
+    frame_index = create_frame_index(data, 0, 100)
+    ```
+    """
     if start_index is None and end_index is None:
         return None
     if start_index is None:
