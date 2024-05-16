@@ -6,60 +6,43 @@ from .signal_analysis import (
     calculate_sound_pitch,
     calculate_sound_spectrogram,
     calculate_sound_f1_f2,
-    signal_to_sound
+    signal_to_sound,
 )
 from .frame_analysis import (
     calculate_frame_duration,
     calculate_frame_pitch,
     calculate_frame_f1_f2,
 )
-from .data_objects import (
-    Frame,
-    Signal
-)
+from .data_objects import Frame, Signal
 from .database import Database
 import orjson
-from scipy.io import wavfile as wv  
-from .mode_handler import (
-    simple_info_mode,
-    spectogram_mode,
-    vowel_space_mode
-)
+from scipy.io import wavfile as wv
+from .mode_handler import simple_info_mode, spectogram_mode, vowel_space_mode
 import io
 import os
 
-database = Database(os.getenv('POSTGRES_USER'),os.getenv('POSTGRES_PASSWORD'),os.getenv('POSTGRES_HOST'),os.getenv('POSTGRES_PORT'),os.getenv('POSTGRES_DB'))
+database = Database(
+    os.getenv("POSTGRES_USER"),
+    os.getenv("POSTGRES_PASSWORD"),
+    os.getenv("POSTGRES_HOST"),
+    os.getenv("POSTGRES_PORT"),
+    os.getenv("POSTGRES_DB"),
+)
 
 
 class ORJSONResponse(JSONResponse):
     """
     Custom JSONResponse class using ORJSON to handle nan's.
     """
+
     media_type = "application/json"
 
     def render(self, content) -> bytes:
         return orjson.dumps(content)
 
 
-app:FastApi = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
+app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
-
-class Frame(BaseModel):
-    data: list
-    fs: float
-
-
-class Signal(BaseModel):
-    data: list
-    fs: float
-    pitch_time_step: Optional[float] = None
-    spectogram_time_step: float = 0.002
-    spectogram_window_length: float = 0.005
-    spectogram_frequency_step: float = 20.0
-    formants_time_step: Optional[float] = None
-    formants_window_length: float = 0.025
-
->>>>>>> dev
 
 @app.post("/frames/analyze")
 async def frame_fundamental_features(frame: Frame):
@@ -135,12 +118,14 @@ async def signal_fundamental_features(signal: Signal):
             status_code=400, detail="Input data did not meet requirements"
         )
 
+
 @app.get("/signals/modes/{mode}/{id}")
 async def analyze_signal_mode(
     mode: Annotated[str, Path(title="The analysis mode")],
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
-    endIndex: Optional[int] = None):
+    endIndex: Optional[int] = None,
+):
     """
     Analyze an audio signal in different modes.
 
@@ -160,19 +145,18 @@ async def analyze_signal_mode(
     """
     file = database.fetch_file(id)
     fs, data = wv.read(io.BytesIO(file["data"]))
-    frame_index = validate_frame_index(data,startIndex,endIndex)
+    frame_index = validate_frame_index(data, startIndex, endIndex)
     match mode:
         case "simple-info":
-            return simple_info_mode(data,fs,file,frame_index)   
+            return simple_info_mode(data, fs, file, frame_index)
         case "spectogram":
-            return spectogram_mode(data,fs,frame_index)  
+            return spectogram_mode(data, fs, frame_index)
         case "vowel-space":
-            return vowel_space_mode(data,fs,frame_index)
+            return vowel_space_mode(data, fs, frame_index)
         case _:
-            raise HTTPException(
-                status_code=400, detail="Mode not found"
-            )
-        
+            raise HTTPException(status_code=400, detail="Mode not found")
+
+
 def validate_frame_index(data, start_index, end_index):
     """
     Validates a frame index for a segment of the audio data and creates a dictionary for those values.
@@ -196,14 +180,10 @@ def validate_frame_index(data, start_index, end_index):
     if start_index is None and end_index is None:
         return None
     if start_index is None:
-        raise HTTPException(
-            status_code=400, detail="no startIndex provided"
-        )
+        raise HTTPException(status_code=400, detail="no startIndex provided")
     if end_index is None:
-        raise HTTPException(
-            status_code=400, detail="no endIndex provided"
-        )
-    if start_index>=end_index:
+        raise HTTPException(status_code=400, detail="no endIndex provided")
+    if start_index >= end_index:
         raise HTTPException(
             status_code=400, detail="startIndex should be strictly lower than endIndex"
         )
