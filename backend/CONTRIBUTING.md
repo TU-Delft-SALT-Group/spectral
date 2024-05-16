@@ -2,7 +2,7 @@
 
 Contributions (pull requests) are very welcome! Here's how to get started on the backend.
 
-## Dependecies
+## Dependencies
 
 For dependency management we use poetry. To install poetry run:
 

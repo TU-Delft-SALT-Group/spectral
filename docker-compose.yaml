@@ -37,6 +37,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    stop_grace_period: 500ms
     volumes:
       - ./backend:/backend
     expose:
