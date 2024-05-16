@@ -26,8 +26,9 @@ from .mode_handler import (
     vowel_space_mode
 )
 import io
+import os
 
-database = Database("user","password","postgres",5432,"your_db")
+database = Database(os.getenv('POSTGRES_USER'),os.getenv('POSTGRES_PASSWORD'),os.getenv('POSTGRES_HOST'),os.getenv('POSTGRES_PORT'),os.getenv('POSTGRES_DB'))
 
 
 class ORJSONResponse(JSONResponse):
