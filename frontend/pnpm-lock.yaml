@@ -41,6 +41,9 @@ importers:
       tailwind-variants:
         specifier: ^0.2.1
         version: 0.2.1(tailwindcss@3.4.3)
+      wavesurfer.js:
+        specifier: ^7.7.14
+        version: 7.7.14
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -2830,6 +2833,9 @@ packages:
       jsdom:
         optional: true
 
+  wavesurfer.js@7.7.14:
+    resolution: {integrity: sha512-sbd48yHnOVDEbZwsnD3dWzBj4SF2q2rsPysmPE8spoR2XwKVkU/POtZg/L0wPi6ypqXb7brQLftSeOovJNToPQ==}
+
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
@@ -5388,6 +5394,8 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  wavesurfer.js@7.7.14: {}
 
   which@2.0.2:
     dependencies:
