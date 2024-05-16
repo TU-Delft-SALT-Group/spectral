@@ -21,14 +21,17 @@ export const simpleInfoData = z.object({
 	/**
 	 * Postgres timestamp of when the file was created
 	 */
-	fileCreationDate: z.date(),
+	fileCreationDate: z.string().pipe(z.coerce.date()),
 
-	frame: z.object({
-		duration: z.number(),
-		pitch: z.union([z.number(), z.null()]),
-		f1: z.union([z.number(), z.null()]),
-		f2: z.union([z.number(), z.null()])
-	})
+	frame: z.union([
+		z.object({
+			duration: z.number(),
+			pitch: z.union([z.number(), z.null()]),
+			f1: z.union([z.number(), z.null()]),
+			f2: z.union([z.number(), z.null()])
+		}),
+		z.null()
+	])
 });
 
 export { default as SimpleInfo } from './SimpleInfo.svelte';
