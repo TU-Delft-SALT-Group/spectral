@@ -18,3 +18,7 @@ repos:
         name: pnpm lint
         language: system
         entry: bash -c 'cd frontend; pnpm prettier --write . && pnpm eslint --fix .' 
+      - id: typos
+        name: typos
+        language: system
+        entry: bash -c 'typos'
