@@ -44,7 +44,6 @@ def deepgram_transcription(data):
     """
     try:
         # STEP 1: Create a Deepgram client using the API key
-        print(os.getenv("DG_KEY"))
         deepgram = DeepgramClient(os.getenv("DG_KEY"))
 
         payload: FileSource = {

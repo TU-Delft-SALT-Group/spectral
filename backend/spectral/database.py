@@ -81,14 +81,12 @@ class Database:
         Returns:
             list: A list of lists containing transcription entries, where each inner list represents a file transcription and contains dictionaries with "start", "end", and "value" keys.
         """
-        print(file_id)
         self.cursor.execute("""
                            SELECT id FROM file_transcription
                            WHERE file = %s 
                            """,[file_id])
         file_transcriptions = self.cursor.fetchall()
         res = []
-        print(file_transcriptions)
         for file_transcription in file_transcriptions:
             self.cursor.execute("""
                            SELECT start, "end", value FROM transcription
