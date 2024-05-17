@@ -25,6 +25,7 @@ import orjson
 from scipy.io import wavfile as wv
 import io
 import os
+from pydub import AudioSegment
 
 database = Database(
     os.getenv("POSTGRES_USER"),
@@ -154,7 +155,11 @@ async def analyze_signal_mode(
         raise HTTPException(
             status_code=404, detail="File not found"
         )
-    fs, data = wv.read(io.BytesIO(file["data"]))
+        
+    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
+    fs = audio.frame_rate
+    data = audio.get_array_of_samples()
+    # fs, data = wv.read(io.BytesIO(file["data"]))
     frame_index = validate_frame_index(data, startIndex, endIndex)
     match mode:
         case "simple-info":
@@ -165,7 +170,6 @@ async def analyze_signal_mode(
             return vowel_space_mode(data, fs, frame_index)
         case _:
             raise HTTPException(status_code=400, detail="Mode not found")
-
 
 
 
