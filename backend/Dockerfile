@@ -1,5 +1,5 @@
 # Dockerfile for Python Backend
-FROM python:3.12
+FROM python:3.12-bookworm
 
 # Install Poetry
 RUN pip install poetry
