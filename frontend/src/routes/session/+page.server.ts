@@ -25,6 +25,10 @@ export const actions: Actions = {
 			error(400, { message: '`sessionName` is not a string' });
 		}
 
+		if (sessionName.length < 1) {
+			error(400, { message: "`sessionName` can't be empty" });
+		}
+
 		// TODO: Change this when we have auth and user-sessions
 		const userId = 'sample-user';
 

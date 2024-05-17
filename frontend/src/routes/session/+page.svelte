@@ -38,7 +38,7 @@
 			<Dialog.Description>
 				<form method="POST" use:enhance>
 					<Label>
-						<Input type="text" name="sessionName"></Input>
+						<Input type="text" name="sessionName" minlength={1} required></Input>
 					</Label>
 				</form>
 			</Dialog.Description>
