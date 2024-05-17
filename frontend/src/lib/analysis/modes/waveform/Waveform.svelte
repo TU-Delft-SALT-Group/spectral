@@ -1,74 +1,60 @@
+<script lang="ts" context="module">
+	let selected: WaveSurfer | null = null;
+</script>
+
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
 	import type { SpecificModeData } from '..';
-	import { onMount } from 'svelte';
+	import type { WaveColor } from '.';
+	import WaveformSingle from './WaveformSingle.svelte';
 
 	export let data: SpecificModeData<'waveform'>[];
-	let lastSelected: WaveSurfer | null = null;
 
-	type waveColour = {
-		wave: string;
-		progress: string;
-	};
-
-	const selected: waveColour = {
+	const selectedColor: WaveColor = {
 		wave: '#aaaaaa',
 		progress: '#ffffff'
 	};
 
-	const other: waveColour = {
+	const deselectedColor: WaveColor = {
 		wave: '#444444',
 		progress: '#999999'
 	};
 
+	function interaction(wavesurfer: WaveSurfer) {
+		selected?.setOptions({
+			waveColor: deselectedColor.wave,
+			progressColor: deselectedColor.progress
+		});
+
+		wavesurfer.setOptions({
+			waveColor: selectedColor.wave,
+			progressColor: selectedColor.progress
+		});
+
+		selected = wavesurfer;
+	}
+
 	function keybinds(e: KeyboardEvent) {
 		switch (e.key) {
 			case ' ':
-				if (lastSelected === null) return;
-				lastSelected.playPause();
+				e.preventDefault();
+				selected?.playPause();
 				break;
 			case 'Escape':
-				lastSelected?.setOptions({
-					waveColor: other.wave,
-					progressColor: other.progress
+				selected?.setOptions({
+					waveColor: deselectedColor.wave,
+					progressColor: deselectedColor.progress
 				});
 
-				lastSelected = null;
+				selected = null;
 				break;
 		}
 	}
-
-	onMount(() =>
-		data.forEach((item) => {
-			let wavesurfer = new WaveSurfer({
-				container: `#${item.fileId}-waveform`,
-				url: `/db/${item.fileId}`,
-				waveColor: other.wave,
-				progressColor: other.progress
-			});
-
-			wavesurfer.on('interaction', () => {
-				if (lastSelected) {
-					lastSelected.setOptions({
-						progressColor: other.progress,
-						waveColor: other.wave
-					});
-				}
-
-				lastSelected = wavesurfer;
-
-				lastSelected.setOptions({
-					progressColor: selected.progress,
-					waveColor: selected.wave
-				});
-			});
-		})
-	);
 </script>
 
 <section class="w-full pr-20">
 	{#each data as item}
-		<div id={`${item.fileId}-waveform`}></div>
+		<WaveformSingle {item} onInteract={interaction} color={deselectedColor}></WaveformSingle>
 	{/each}
 </section>
 
