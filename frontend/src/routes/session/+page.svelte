@@ -9,6 +9,7 @@
 	import { Label } from '$lib/components/ui/label';
 
 	import { PlusIcon } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
 
 	export let data: PageData;
 </script>
@@ -35,7 +36,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="text-3xl">Enter new session name</Dialog.Title>
 			<Dialog.Description>
-				<form method="POST">
+				<form method="POST" use:enhance>
 					<Label>
 						<Input type="text" name="sessionName"></Input>
 					</Label>
