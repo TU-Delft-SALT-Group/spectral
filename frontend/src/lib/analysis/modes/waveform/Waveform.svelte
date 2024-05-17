@@ -52,7 +52,7 @@
 	}
 </script>
 
-<section class="w-full pr-20">
+<section class="flex h-full w-full flex-col pr-20">
 	{#each data as item}
 		<WaveformSingle {item} onInteract={interaction} color={deselectedColor}></WaveformSingle>
 	{/each}
