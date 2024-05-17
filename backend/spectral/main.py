@@ -25,7 +25,6 @@ from .transcription import (
 from .data_objects import Frame, Signal
 from .database import Database
 import orjson
-from scipy.io import wavfile as wv
 import io
 import os
 from pydub import AudioSegment
@@ -141,7 +140,7 @@ async def analyze_signal_mode(
     This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
 
     Parameters:
-    - mode (str): The analysis mode (e.g., "simple-info", "spectogram", "vowel-space").
+    - mode (str): The analysis mode (e.g., "simple-info", "spectogram", "wave-form", "vowel-space", "transcription").
     - id (str): The ID of the signal to analyze.
     - startIndex (Optional[int]): The start index of the frame to analyze.
     - endIndex (Optional[int]): The end index of the frame to analyze.
@@ -184,6 +183,21 @@ async def transcribe_file(
     # startIndex: Optional[int] = None,
     # endIndex: Optional[int] = None,
 ):
+    """
+    Transcribe an audio file.
+
+    This endpoint transcribes an audio file using the specified model.
+
+    Parameters:
+    - model (str): The transcription model to use.
+    - id (str): The ID of the file to transcribe.
+
+    Returns:
+    - list: A list of dictionaires with keys 'start', 'end' and 'value' containing the transcription of the audio file.
+
+    Raises:
+    - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
+    """
     try:
         file = database.fetch_file(id)
     except Exception as _:
@@ -197,7 +211,6 @@ async def transcribe_file(
         raise HTTPException(
             status_code=500, detail="Something went wrong while storing the transcription"
         )
-    print("yo")
     return transcription
 
 

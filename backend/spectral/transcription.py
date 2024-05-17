@@ -3,6 +3,21 @@ from fastapi import HTTPException
 import os
 
 def get_transcription(model, file):
+    """
+    Get transcription of an audio file using the specified model.
+
+    This function gets the transcription of an audio file using the specified model.
+
+    Parameters:
+    - model (str): The transcription model to use.
+    - file (dict): The file object containing the audio data.
+
+    Returns:
+    - list: A list of transcriptions containing words with their start and end times.
+
+    Raises:
+    - HTTPException: If the specified model is not found.
+    """
     match model:
         case "deepgram":
             return deepgram_transcription(file["data"])
@@ -13,6 +28,20 @@ def get_transcription(model, file):
             
 
 def deepgram_transcription(data):
+    """
+    Transcribe audio data using Deepgram API.
+
+    This function transcribes audio data using the Deepgram API.
+
+    Parameters:
+    - data (bytes): The audio data to transcribe.
+
+    Returns:
+    - list: A list of transcriptions containing words with their start and end times.
+
+    Raises:
+    - Exception: If an error occurs during the transcription process.
+    """
     try:
         # STEP 1: Create a Deepgram client using the API key
         print(os.getenv("DG_KEY"))

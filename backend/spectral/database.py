@@ -53,6 +53,13 @@ class Database:
         return {"id":res[0],"name":res[1],"data":res[2],"creationTime":res[3],"modifiedTime":res[4],"uploader":res[5],"session":res[6],"emphemeral":res[7]}
     
     def store_transcription(self, file_id, file_transcription):
+        """
+        Stores a transcription record in the database.
+
+        Args:
+            file_id (string): The ID of the file associated with the transcription.
+            file_transcription (list): A list of transcription entries to store, each containing "start", "end", and "value" keys.
+        """
         file_transcription_id = str(uuid.uuid4())
         self.cursor.execute("""
                             INSERT INTO file_transcription (id, file)
@@ -65,6 +72,15 @@ class Database:
                             """,[str(uuid.uuid4()),file_transcription_id,transcription["start"],transcription["end"],transcription["value"]])
     
     def get_transcriptions(self, file_id):
+        """
+        Fetches transcriptions associated with a file from the database.
+
+        Args:
+            file_id (string): The ID of the file to fetch transcriptions for.
+
+        Returns:
+            list: A list of lists containing transcription entries, where each inner list represents a file transcription and contains dictionaries with "start", "end", and "value" keys.
+        """
         print(file_id)
         self.cursor.execute("""
                            SELECT id FROM file_transcription
