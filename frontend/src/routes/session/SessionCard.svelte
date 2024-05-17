@@ -18,7 +18,7 @@
 					{session.name}
 				</h2>
 
-				<span class="mb-3 text-xs opacity-30">
+				<span class="mb-3 text-xs text-muted-foreground">
 					{session.id}
 				</span>
 
