@@ -58,5 +58,11 @@ export const sessionTable = pgTable('session', {
 	name: text('name').notNull(),
 	owner: text('owner')
 		.notNull()
-		.references(() => userTable.id)
+		.references(() => userTable.id),
+	creationTime: timestamp('creation_time')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+	modifiedTime: timestamp('modified_time')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull()
 });

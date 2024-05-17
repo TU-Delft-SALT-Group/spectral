@@ -1,8 +1,8 @@
-import { db } from '$lib/server/database';
+import { db } from '$lib/database';
 import { count } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { filesTable, sessionTable, userTable } from '$lib/server/database/schema';
-import { seedSampleUser, seedSampleSession, seedSampleTorgo } from '$lib/server/database/seeding';
+import { filesTable, sessionTable, userTable } from '$lib/database/schema';
+import { seedSampleUser, seedSampleSession, seedSampleTorgo } from '$lib/database/seeding';
 
 export const load: PageServerLoad = async () => {
 	return {

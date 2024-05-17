@@ -1,5 +1,5 @@
-import { db } from '$lib/server/database';
-import { filesTable } from '$lib/server/database/schema';
+import { db } from '$lib/database';
+import { filesTable } from '$lib/database/schema';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { eq } from 'drizzle-orm';
