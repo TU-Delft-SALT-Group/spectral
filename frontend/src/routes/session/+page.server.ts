@@ -1,5 +1,5 @@
 import { db } from '$lib/database';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { sessionTable } from '$lib/database/schema';
 import { error, redirect } from '@sveltejs/kit';
@@ -11,7 +11,12 @@ export const load: PageServerLoad = async () => {
 
 	return {
 		sessions: await db.query.sessionTable.findMany({
-			where: eq(sessionTable.owner, userId)
+			where: eq(sessionTable.owner, userId),
+			orderBy: [
+				desc(sessionTable.modifiedTime),
+				desc(sessionTable.creationTime),
+				desc(sessionTable.name)
+			]
 		})
 	};
 };
