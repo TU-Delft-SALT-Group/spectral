@@ -13,11 +13,16 @@ from .frame_analysis import (
     calculate_frame_pitch,
     calculate_frame_f1_f2,
 )
+from .mode_handler import (
+    simple_info_mode, 
+    spectogram_mode, 
+    vowel_space_mode
+)
+from .transcription import deepgram_transcription
 from .data_objects import Frame, Signal
 from .database import Database
 import orjson
 from scipy.io import wavfile as wv
-from .mode_handler import simple_info_mode, spectogram_mode, vowel_space_mode
 import io
 import os
 
@@ -143,7 +148,12 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
-    file = database.fetch_file(id)
+    try:
+        file = database.fetch_file(id)
+    except Exception as _:
+        raise HTTPException(
+            status_code=404, detail="File not found"
+        )
     fs, data = wv.read(io.BytesIO(file["data"]))
     frame_index = validate_frame_index(data, startIndex, endIndex)
     match mode:
@@ -155,6 +165,8 @@ async def analyze_signal_mode(
             return vowel_space_mode(data, fs, frame_index)
         case _:
             raise HTTPException(status_code=400, detail="Mode not found")
+
+
 
 
 def validate_frame_index(data, start_index, end_index):
