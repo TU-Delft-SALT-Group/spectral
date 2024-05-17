@@ -24,9 +24,7 @@
 <section class="relative h-full">
 	<ModeSelector bind:mode={state.mode}></ModeSelector>
 
-	{#await dataPromise}
-		<p>Loading...</p>
-	{:then data}
+	{#await dataPromise then data}
 		<svelte:component this={component} {data}></svelte:component>
 	{:catch error}
 		<p>Error: {error.message}</p>
