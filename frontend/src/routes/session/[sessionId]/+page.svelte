@@ -6,7 +6,7 @@
 	export let data: PageServerData;
 </script>
 
-<div class="flex h-full">
+<div class="grid h-full w-screen grid-cols-[auto,1fr]">
 	<FileExplorer files={data.files}></FileExplorer>
 	<Workspace bind:state={data.state}></Workspace>
 </div>

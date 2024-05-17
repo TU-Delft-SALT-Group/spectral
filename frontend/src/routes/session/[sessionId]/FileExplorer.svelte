@@ -11,7 +11,7 @@
 	export let files: FilebrowserFile[];
 </script>
 
-<div class="h-full w-64 bg-secondary">
+<div id="FileExplorer" class="h-full w-64 bg-secondary">
 	<ol>
 		{#each files as file}
 			<li>

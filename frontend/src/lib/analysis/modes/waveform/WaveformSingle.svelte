@@ -45,4 +45,4 @@
 	});
 </script>
 
-<div id={`${item.fileId}-waveform`} class="flex-1"></div>
+<div id={`${item.fileId}-waveform`} class="flex-1 overflow-x-scroll" role="region"></div>
