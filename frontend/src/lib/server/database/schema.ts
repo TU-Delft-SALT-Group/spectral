@@ -1,4 +1,11 @@
-import { boolean, customType, pgTable, text, timestamp, integer } from 'drizzle-orm/pg-core';
+import {
+	boolean,
+	customType,
+	pgTable,
+	text,
+	timestamp,
+	doublePrecision
+} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const userTable = pgTable('user', {
@@ -68,12 +75,12 @@ export const fileTranscriptionTable = pgTable('file_transcription', {
 		.references(() => filesTable.id)
 });
 
-export const transcriptionEntryTable = pgTable('transciption', {
+export const transcriptionTable = pgTable('transcription', {
 	id: text('id').primaryKey(),
 	fileTranscription: text('file_transcription')
 		.notNull()
 		.references(() => fileTranscriptionTable.id),
-	start: integer('start').notNull(),
-	end: integer('end').notNull(),
-	entry: text('transcription')
+	start: doublePrecision('start').notNull(),
+	end: doublePrecision('end').notNull(),
+	value: text('value')
 });

@@ -1,4 +1,5 @@
 import psycopg 
+import uuid
 
 class Database:
     """
@@ -50,6 +51,39 @@ class Database:
         self.cursor.execute("SELECT * FROM files WHERE id = %s",[id])
         res = self.cursor.fetchone()
         return {"id":res[0],"name":res[1],"data":res[2],"creationTime":res[3],"modifiedTime":res[4],"uploader":res[5],"session":res[6],"emphemeral":res[7]}
+    
+    def store_transcription(self, file_id, file_transcription):
+        file_transcription_id = str(uuid.uuid4())
+        self.cursor.execute("""
+                            INSERT INTO file_transcription (id, file)
+                            VALUES (%s, %s);
+                            """,[file_transcription_id,file_id])
+        for transcription in file_transcription:
+            self.cursor.execute("""
+                            INSERT INTO transcription (id, file_transcription, start, "end", value)
+                            VALUES (%s, %s, %s, %s, %s);
+                            """,[str(uuid.uuid4()),file_transcription_id,transcription["start"],transcription["end"],transcription["value"]])
+    
+    def get_transcriptions(self, file_id):
+        print(file_id)
+        self.cursor.execute("""
+                           SELECT id FROM file_transcription
+                           WHERE file = %s 
+                           """,[file_id])
+        file_transcriptions = self.cursor.fetchall()
+        res = []
+        print(file_transcriptions)
+        for file_transcription in file_transcriptions:
+            self.cursor.execute("""
+                           SELECT start, "end", value FROM transcription
+                           WHERE file_transcription = %s 
+                           """,[file_transcription[0]])
+            transcriptions = self.cursor.fetchall()
+            parsed_file_transcriptions = []
+            for transcription in transcriptions:
+                parsed_file_transcriptions.append({"start":transcription[0],"end":transcription[1],"value":transcription[2]})
+            res.append(parsed_file_transcriptions)
+        return res
     
     def close(self):
         """
