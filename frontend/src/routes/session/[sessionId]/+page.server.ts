@@ -2,11 +2,11 @@ import type { PageServerLoad, Actions } from './$types';
 import { sampleTorgo } from '$lib/files/samples';
 import type { FilebrowserFile } from '$lib/files';
 import type { WorkspaceState } from './workspace';
-import { db } from '$lib/server/database';
-import { filesTable } from '$lib/server/database/schema';
+import { db } from '$lib/database';
+import { filesTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
-import { uploadFile } from '$lib/server/database/files';
+import { uploadFile } from '$lib/database/files';
 
 const sampleState: WorkspaceState = {
 	panes: [

@@ -7,9 +7,9 @@
 
 <ModeWatcher></ModeWatcher>
 
-<main class="grid h-screen w-screen grid-rows-[auto_2fr]">
+<main class="grid h-screen w-screen grid-rows-[auto_2fr] overflow-x-hidden">
 	<NavBar></NavBar>
-	<div class="h-full">
+	<div class="overflow-none h-full">
 		<slot></slot>
 	</div>
 </main>
