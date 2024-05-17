@@ -3,7 +3,7 @@ services:
     image: postgres:latest
     restart: always
     env_file:
-       - 'variables.env'
+       - '.variables.env'
     volumes:
       - postgres_data:/data
 
