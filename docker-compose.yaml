@@ -10,6 +10,7 @@ services:
       - postgres_data:/data
 
   frontend:
+    restart: unless-stopped
     environment:
       PUBLIC_KERNEL_ORIGIN: http://backend
       PG_CONNECTION_STRING: postgres://user:password@postgres:5432/spectral_db
@@ -34,6 +35,7 @@ services:
       - frontend
 
   backend:
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: Dockerfile
