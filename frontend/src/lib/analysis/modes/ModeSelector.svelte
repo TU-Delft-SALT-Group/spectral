@@ -7,7 +7,7 @@
 	$: selectedIndex = modes.indexOf(mode);
 </script>
 
-<div class="main absolute right-4 top-4 z-30 flex flex-col gap-2 shadow transition-all">
+<div class="main absolute right-4 top-4 z-30 flex flex-col gap-2 transition-all">
 	{#each modes as currentMode, i}
 		<div
 			class:z-40={mode === currentMode}
@@ -18,7 +18,7 @@
 			<Button
 				on:click={() => (mode = currentMode)}
 				variant={mode === currentMode ? 'default' : 'ghost'}
-				class="h-10 w-16"
+				class="h-10 w-16 shadow"
 			>
 				<svelte:component this={getIcon(currentMode)} class="w-12"></svelte:component>
 			</Button>
