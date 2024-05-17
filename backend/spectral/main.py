@@ -168,6 +168,8 @@ async def analyze_signal_mode(
             return simple_info_mode(data, fs, file, frame_index)
         case "spectogram":
             return spectogram_mode(data, fs, frame_index)
+        case "waveform":
+            return None
         case "vowel-space":
             return vowel_space_mode(data, fs, frame_index)
         case "transcription":
