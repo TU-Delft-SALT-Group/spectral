@@ -16,9 +16,12 @@ from .frame_analysis import (
 from .mode_handler import (
     simple_info_mode, 
     spectogram_mode, 
-    vowel_space_mode
+    vowel_space_mode,
+    transcription_mode
 )
-from .transcription import deepgram_transcription
+from .transcription import (
+    get_transcription
+)
 from .data_objects import Frame, Signal
 from .database import Database
 import orjson
@@ -159,7 +162,6 @@ async def analyze_signal_mode(
     audio = AudioSegment.from_file(io.BytesIO(file["data"]))
     fs = audio.frame_rate
     data = audio.get_array_of_samples()
-    # fs, data = wv.read(io.BytesIO(file["data"]))
     frame_index = validate_frame_index(data, startIndex, endIndex)
     match mode:
         case "simple-info":
@@ -168,9 +170,33 @@ async def analyze_signal_mode(
             return spectogram_mode(data, fs, frame_index)
         case "vowel-space":
             return vowel_space_mode(data, fs, frame_index)
+        case "transcription":
+            return transcription_mode(id, database)
         case _:
             raise HTTPException(status_code=400, detail="Mode not found")
 
+@app.get("/transcription/{model}/{id}")
+async def transcribe_file(
+    model: Annotated[str, Path(title="The transcription model")],
+    id: Annotated[str, Path(title="The ID of the file")],
+    # startIndex: Optional[int] = None,
+    # endIndex: Optional[int] = None,
+):
+    try:
+        file = database.fetch_file(id)
+    except Exception as _:
+        raise HTTPException(
+            status_code=404, detail="File not found"
+        )
+    transcription = get_transcription(model,file)
+    try:
+        database.store_transcription(id,transcription)
+    except Exception as _:
+        raise HTTPException(
+            status_code=500, detail="Something went wrong while storing the transcription"
+        )
+    print("yo")
+    return transcription
 
 
 def validate_frame_index(data, start_index, end_index):
