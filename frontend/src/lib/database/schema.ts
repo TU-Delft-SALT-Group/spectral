@@ -1,4 +1,11 @@
-import { boolean, customType, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+	boolean,
+	customType,
+	pgTable,
+	text,
+	timestamp,
+	doublePrecision
+} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const userTable = pgTable('user', {
@@ -65,4 +72,21 @@ export const sessionTable = pgTable('session', {
 	modifiedTime: timestamp('modified_time')
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull()
+});
+
+export const fileTranscriptionTable = pgTable('file_transcription', {
+	id: text('id').primaryKey(),
+	file: text('file')
+		.notNull()
+		.references(() => filesTable.id)
+});
+
+export const transcriptionTable = pgTable('transcription', {
+	id: text('id').primaryKey(),
+	fileTranscription: text('file_transcription')
+		.notNull()
+		.references(() => fileTranscriptionTable.id),
+	start: doublePrecision('start').notNull(),
+	end: doublePrecision('end').notNull(),
+	value: text('value')
 });

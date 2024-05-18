@@ -74,6 +74,28 @@ def vowel_space_mode(data,fs,frame_index):
     frame_data = data[frame_index["startIndex"]:frame_index["endIndex"]]
     formants = calculate_frame_f1_f2(frame_data,fs)
     return {"f1":formants[0],"f2":formants[1]}
-    
+
+def transcription_mode(id,database):
+    """
+    Retrieve transcriptions of a file from the database.
+
+    This function retrieves transcriptions associated with a file from the database.
+
+    Parameters:
+    - id (str): The ID of the file.
+    - database (Database): An instance of the Database class for interacting with the database.
+
+    Returns:
+    - list: A list of transcriptions associated with the file.
+
+    Raises:
+    - HTTPException: If something goes wrong when retrieving the transcriptions of the file.
+    """
+    try:
+        return database.get_transcriptions(id)
+    except Exception as _:
+        raise HTTPException(
+            status_code=500, detail="Something went wrong when retrieving the transcriptions of this file"
+        )
     
     

@@ -2,10 +2,8 @@ services:
   postgres:
     image: postgres:latest
     restart: always
-    environment:
-      POSTGRES_DB: spectral_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+    env_file:
+       - '.variables.env'
     volumes:
       - postgres_data:/data
 
@@ -46,12 +44,10 @@ services:
       - "8000"
     depends_on:
       - postgres
-    environment:
-      POSTGRES_DB: spectral_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
+    env_file:
+       - '.variables.env'
+       - '.apikeys.env'
+      
 
 volumes:
   postgres_data:

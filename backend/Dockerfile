@@ -1,6 +1,9 @@
 # Dockerfile for Python Backend
 FROM python:3.12-bookworm
 
+# Install ffmpeg
+RUN apt-get -y update && apt-get -y upgrade && apt-get install -y --no-install-recommends ffmpeg
+
 # Install Poetry
 RUN pip install poetry
 
