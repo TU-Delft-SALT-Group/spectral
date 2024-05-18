@@ -1,26 +1,44 @@
+<script lang="ts" context="module">
+	let selected: Writable<WaveSurfer | null> = writable(null);
+</script>
+
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import type { SpecificModeData } from '..';
 	import WaveSurfer from 'wavesurfer.js';
-	import type { WaveColor } from '.';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js';
+	import { Button } from '$lib/components/ui/button';
+	import { PauseIcon, PlayIcon } from 'lucide-svelte';
+	import * as Select from '$lib/components/ui/select';
+	import { Separator } from '$lib/components/ui/separator';
+	import { writable, type Writable } from 'svelte/store';
 
-	export let onInteract: (w: WaveSurfer) => void;
 	export let item: SpecificModeData<'waveform'>;
-	export let color: WaveColor;
+
 	let wavesurfer: WaveSurfer;
+	let currentTime = 0;
+	let duration = 0;
 	let regions: RegionsPlugin;
+	let playing = false;
+	let speed: { label?: string; value: number } = { value: 1 };
+	let speedOptions: number[] = [];
+
+	for (let i = 0.25; i <= 2.0; i += 0.25) {
+		speedOptions.push(i);
+	}
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
 			container: `#${item.fileId}-waveform`,
 			url: `/db/${item.fileId}`,
-			waveColor: color.wave,
-			progressColor: color.progress,
 			height: 'auto'
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
+
+		wavesurfer.on('decode', () => {
+			duration = wavesurfer.getDuration();
+		});
 
 		regions.enableDragSelection({
 			color: 'rgba(255, 0, 0, 0.1)'
@@ -33,8 +51,20 @@
 			});
 		});
 
+		wavesurfer.on('timeupdate', (time: number) => {
+			currentTime = time;
+		});
+
 		wavesurfer.on('interaction', () => {
-			onInteract(wavesurfer);
+			$selected = wavesurfer;
+		});
+
+		wavesurfer.on('play', () => {
+			playing = true;
+		});
+
+		wavesurfer.on('pause', () => {
+			playing = false;
 		});
 	});
 
@@ -43,6 +73,78 @@
 
 		wavesurfer.destroy();
 	});
+
+	// TODO: implement a better method manually
+	function numberToTime(current: number): string {
+		let time = new Date(current * 1000);
+
+		return time.toLocaleString('en-GB', {
+			minute: '2-digit',
+			second: '2-digit',
+			fractionalSecondDigits: 3
+		});
+	}
+
+	function keyHandler(e: KeyboardEvent) {
+		switch (e.key) {
+			case 'Escape':
+				$selected = null;
+				break;
+		}
+	}
+
+	function speedChanger(newSelection: { label?: string; value: number } | undefined) {
+		if (!newSelection) return;
+
+		speed.value = newSelection.value;
+
+		wavesurfer.setPlaybackRate(speed.value);
+	}
 </script>
 
-<div id={`${item.fileId}-waveform`} class="flex-1 overflow-x-scroll" role="region"></div>
+<section class="flex w-full flex-1 flex-col transition" class:opacity-80={$selected !== wavesurfer}>
+	<div class="flex w-full flex-1">
+		<Button
+			class="h-full w-16 rounded-none rounded-l"
+			variant="default"
+			on:click={() => {
+				wavesurfer.playPause();
+				$selected = wavesurfer;
+			}}
+		>
+			{#if playing}
+				<PauseIcon />
+			{:else}
+				<PlayIcon />
+			{/if}
+		</Button>
+
+		<div class="flex w-full flex-col">
+			<div
+				id={`${item.fileId}-waveform`}
+				class="waveform flex-1 overflow-x-scroll rounded-tr bg-secondary"
+				role="region"
+			></div>
+
+			<div class="flex flex-row rounded-b bg-secondary bg-opacity-20 px-2 py-1 font-mono">
+				<div>
+					{numberToTime(currentTime)}/{numberToTime(duration)}
+				</div>
+				<Separator orientation="vertical" class="mx-2" />
+
+				<Select.Root selected={speed} onSelectedChange={speedChanger}>
+					<Select.Trigger class="h-5 w-fit bg-primary text-primary-foreground">
+						{speed?.value.toFixed(2)}x
+					</Select.Trigger>
+					<Select.Content class="bg-primary text-primary-foreground">
+						{#each speedOptions as speedItem}
+							<Select.Item value={speedItem}>{speedItem.toFixed(2)}x</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			</div>
+		</div>
+	</div>
+</section>
+
+<svelte:window on:keydown={keyHandler} />
