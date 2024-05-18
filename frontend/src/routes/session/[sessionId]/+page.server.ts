@@ -2,11 +2,11 @@ import type { PageServerLoad, Actions } from './$types';
 import { sampleTorgo } from '$lib/files/samples';
 import type { FilebrowserFile } from '$lib/files';
 import type { WorkspaceState } from './workspace';
-import { db } from '$lib/server/database';
-import { filesTable } from '$lib/server/database/schema';
+import { db } from '$lib/database';
+import { filesTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
-import { uploadFile } from '$lib/server/database/files';
+import { uploadFile } from '$lib/database/files';
 
 const sampleState: WorkspaceState = {
 	panes: [
@@ -49,7 +49,7 @@ export const load = (async ({ params: { sessionId } }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	default: async ({ request, params: { sessionId } }) => {
+	uploadFile: async ({ request, params: { sessionId } }) => {
 		const formData = await request.formData();
 
 		const file = formData.get('file');
@@ -57,6 +57,15 @@ export const actions = {
 			return fail(400, { message: 'No file provided' });
 		}
 
-		uploadFile(file, sessionId);
+		await uploadFile(file, sessionId);
+	},
+
+	deleteFile: async ({ request }) => {
+		const json = await request.json();
+		if (!('fileId' in json) || typeof json.fileId !== 'string') {
+			return fail(400, { message: 'Invalid fileId' });
+		}
+
+		await db.delete(filesTable).where(eq(filesTable.id, json.fileId));
 	}
 } satisfies Actions;

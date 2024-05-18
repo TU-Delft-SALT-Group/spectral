@@ -13,13 +13,21 @@ from .frame_analysis import (
     calculate_frame_pitch,
     calculate_frame_f1_f2,
 )
+from .mode_handler import (
+    simple_info_mode, 
+    spectogram_mode, 
+    vowel_space_mode,
+    transcription_mode
+)
+from .transcription import (
+    get_transcription
+)
 from .data_objects import Frame, Signal
 from .database import Database
 import orjson
-from scipy.io import wavfile as wv
-from .mode_handler import simple_info_mode, spectogram_mode, vowel_space_mode
 import io
 import os
+from pydub import AudioSegment
 
 database = Database(
     os.getenv("POSTGRES_USER"),
@@ -132,7 +140,7 @@ async def analyze_signal_mode(
     This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
 
     Parameters:
-    - mode (str): The analysis mode (e.g., "simple-info", "spectogram", "vowel-space").
+    - mode (str): The analysis mode (e.g., "simple-info", "spectogram", "wave-form", "vowel-space", "transcription").
     - id (str): The ID of the signal to analyze.
     - startIndex (Optional[int]): The start index of the frame to analyze.
     - endIndex (Optional[int]): The end index of the frame to analyze.
@@ -143,18 +151,67 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
-    file = database.fetch_file(id)
-    fs, data = wv.read(io.BytesIO(file["data"]))
+    try:
+        file = database.fetch_file(id)
+    except Exception as _:
+        raise HTTPException(
+            status_code=404, detail="File not found"
+        )
+        
+    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
+    fs = audio.frame_rate
+    data = audio.get_array_of_samples()
     frame_index = validate_frame_index(data, startIndex, endIndex)
     match mode:
         case "simple-info":
             return simple_info_mode(data, fs, file, frame_index)
         case "spectogram":
             return spectogram_mode(data, fs, frame_index)
+        case "waveform":
+            return None
         case "vowel-space":
             return vowel_space_mode(data, fs, frame_index)
+        case "transcription":
+            return transcription_mode(id, database)
         case _:
             raise HTTPException(status_code=400, detail="Mode not found")
+
+@app.get("/transcription/{model}/{id}")
+async def transcribe_file(
+    model: Annotated[str, Path(title="The transcription model")],
+    id: Annotated[str, Path(title="The ID of the file")],
+    # startIndex: Optional[int] = None,
+    # endIndex: Optional[int] = None,
+):
+    """
+    Transcribe an audio file.
+
+    This endpoint transcribes an audio file using the specified model.
+
+    Parameters:
+    - model (str): The transcription model to use.
+    - id (str): The ID of the file to transcribe.
+
+    Returns:
+    - list: A list of dictionaires with keys 'start', 'end' and 'value' containing the transcription of the audio file.
+
+    Raises:
+    - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
+    """
+    try:
+        file = database.fetch_file(id)
+    except Exception as _:
+        raise HTTPException(
+            status_code=404, detail="File not found"
+        )
+    transcription = get_transcription(model,file)
+    try:
+        database.store_transcription(id,transcription)
+    except Exception as _:
+        raise HTTPException(
+            status_code=500, detail="Something went wrong while storing the transcription"
+        )
+    return transcription
 
 
 def validate_frame_index(data, start_index, end_index):
