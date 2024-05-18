@@ -49,8 +49,6 @@ async function fetchData(fileId: string): Promise<Response> {
 }
 
 export const GET: RequestHandler = async ({ params, url }) => {
-	console.log(url);
-
 	if (url.searchParams.has('name')) {
 		return fetchName(params.fileId);
 	} else {
