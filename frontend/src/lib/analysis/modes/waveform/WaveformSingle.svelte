@@ -90,6 +90,9 @@
 			case 'Escape':
 				$selected = null;
 				break;
+			case ' ':
+				$selected?.playPause();
+				break;
 		}
 	}
 
