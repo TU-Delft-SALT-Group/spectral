@@ -151,20 +151,26 @@
 
 		wavesurfer.setPlaybackRate(speed.value);
 	}
+
+	function buttonPressEvent() {
+		if ($selectedWavesurfer === wavesurfer) {
+			wavesurfer.playPause();
+		} else {
+			setAsSelected();
+			wavesurfer.play();
+		}
+	}
 </script>
 
 <section
 	class="flex w-full flex-1 flex-col transition"
 	class:opacity-80={$selectedWavesurfer !== wavesurfer}
 >
-	<div class="flex w-full flex-1">
+	<div class="flex w-full flex-1 overflow-x-scroll">
 		<Button
 			class="h-full w-16 rounded-none rounded-l"
 			variant="default"
-			on:click={() => {
-				setAsSelected();
-				wavesurfer.playPause();
-			}}
+			on:click={buttonPressEvent}
 		>
 			{#if playing}
 				<PauseIcon />
@@ -176,7 +182,7 @@
 		<div class="flex w-full flex-col">
 			<div
 				id={`${item.fileId}-waveform`}
-				class="waveform flex-1 overflow-x-scroll rounded-tr bg-secondary"
+				class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 				role="region"
 			></div>
 
