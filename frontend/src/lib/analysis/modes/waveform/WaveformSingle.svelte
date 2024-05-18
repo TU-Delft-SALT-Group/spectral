@@ -1,5 +1,36 @@
 <script lang="ts" context="module">
-	let selected: Writable<WaveSurfer | null> = writable(null);
+	let selectedWavesurfer: Writable<WaveSurfer | null> = writable(null);
+	let selectedRegion: Writable<RegionsPlugin | null> = writable(null);
+
+	let selectedRegionValue: RegionsPlugin | null = null;
+	let selectedWavesurferValue: WaveSurfer | null = null;
+
+	selectedRegion.subscribe((value) => {
+		selectedRegionValue = value;
+	});
+	selectedWavesurfer.subscribe((value) => {
+		selectedWavesurferValue = value;
+	});
+
+	if (browser) {
+		window.addEventListener('keydown', (e: KeyboardEvent) => {
+			switch (e.key) {
+				case 'Escape':
+					if (selectedWavesurferValue === null) return;
+
+					if (selectedRegionValue?.getRegions().length !== 0) {
+						selectedRegionValue?.clearRegions();
+					} else {
+						selectedWavesurfer.set(null);
+						selectedRegion.set(null);
+					}
+					break;
+				case ' ':
+					selectedWavesurferValue?.playPause();
+					break;
+			}
+		});
+	}
 </script>
 
 <script lang="ts">
@@ -12,6 +43,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { Separator } from '$lib/components/ui/separator';
 	import { writable, type Writable } from 'svelte/store';
+	import { browser } from '$app/environment';
 
 	export let item: SpecificModeData<'waveform'>;
 
@@ -49,6 +81,8 @@
 				if (r.id === region.id) return;
 				r.remove();
 			});
+
+			setAsSelected();
 		});
 
 		wavesurfer.on('timeupdate', (time: number) => {
@@ -56,14 +90,16 @@
 		});
 
 		wavesurfer.on('interaction', () => {
-			$selected = wavesurfer;
+			setAsSelected();
 		});
 
 		wavesurfer.on('play', () => {
 			playing = true;
+			console.log('playing!');
 		});
 
 		wavesurfer.on('pause', () => {
+			console.log('not!');
 			playing = false;
 		});
 	});
@@ -73,6 +109,11 @@
 
 		wavesurfer.destroy();
 	});
+
+	function setAsSelected() {
+		$selectedWavesurfer = wavesurfer;
+		$selectedRegion = regions;
+	}
 
 	// TODO: implement a better method manually
 	function numberToTime(current: number): string {
@@ -85,17 +126,6 @@
 		});
 	}
 
-	function keyHandler(e: KeyboardEvent) {
-		switch (e.key) {
-			case 'Escape':
-				$selected = null;
-				break;
-			case ' ':
-				$selected?.playPause();
-				break;
-		}
-	}
-
 	function speedChanger(newSelection: { label?: string; value: number } | undefined) {
 		if (!newSelection) return;
 
@@ -105,14 +135,17 @@
 	}
 </script>
 
-<section class="flex w-full flex-1 flex-col transition" class:opacity-80={$selected !== wavesurfer}>
+<section
+	class="flex w-full flex-1 flex-col transition"
+	class:opacity-80={$selectedWavesurfer !== wavesurfer}
+>
 	<div class="flex w-full flex-1">
 		<Button
 			class="h-full w-16 rounded-none rounded-l"
 			variant="default"
 			on:click={() => {
+				setAsSelected();
 				wavesurfer.playPause();
-				$selected = wavesurfer;
 			}}
 		>
 			{#if playing}
@@ -160,5 +193,3 @@
 		</div>
 	</div>
 </section>
-
-<svelte:window on:keydown={keyHandler} />
