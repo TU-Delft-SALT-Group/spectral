@@ -129,22 +129,33 @@
 				role="region"
 			></div>
 
-			<div class="flex flex-row rounded-b bg-secondary bg-opacity-20 px-2 py-1 font-mono">
+			<div
+				class="flex h-8 flex-row items-center rounded-b bg-secondary bg-opacity-50 px-3 py-1 font-mono"
+			>
 				<div>
 					{numberToTime(currentTime)}/{numberToTime(duration)}
 				</div>
+
 				<Separator orientation="vertical" class="mx-2" />
 
 				<Select.Root selected={speed} onSelectedChange={speedChanger}>
-					<Select.Trigger class="h-5 w-fit bg-primary text-primary-foreground">
+					<Select.Trigger class="m-0 h-full w-fit bg-secondary text-secondary-foreground">
 						{speed?.value.toFixed(2)}x
 					</Select.Trigger>
-					<Select.Content class="bg-primary text-primary-foreground">
+					<Select.Content class="bg-secondary text-secondary-foreground">
 						{#each speedOptions as speedItem}
 							<Select.Item value={speedItem}>{speedItem.toFixed(2)}x</Select.Item>
 						{/each}
 					</Select.Content>
 				</Select.Root>
+
+				<div class="flex-1"></div>
+
+				<Separator orientation="vertical" class="mx-2" />
+
+				<div class="text-muted-foreground">
+					{item.name}
+				</div>
 			</div>
 		</div>
 	</div>

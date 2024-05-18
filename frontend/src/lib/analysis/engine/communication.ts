@@ -26,11 +26,8 @@ export function getURL(path: string): URL {
  * Fetches the data for a specific mode
  */
 export async function getData({
-	// eslint-disable-next-line
 	fileId,
-	// eslint-disable-next-line
 	mode,
-	// eslint-disable-next-line
 	frame
 }: {
 	mode: Mode;
@@ -53,8 +50,21 @@ export async function getData({
 
 	const { data } = result;
 
+	const nameURL = new URL(`db/${fileId}`, window.location.origin);
+	nameURL.searchParams.set('name', 'lmao');
+
+	const nameRes = await fetch(nameURL);
+
+	if (nameRes.status != 200) {
+		console.error(`Couldn't fetch the name of ${fileId}.`);
+		throw error(500, `Couldn't fetch the name of ${fileId}.`);
+	}
+
+	const name = await nameRes.json();
+
 	return {
 		...data,
-		fileId
+		fileId,
+		name
 	};
 }
