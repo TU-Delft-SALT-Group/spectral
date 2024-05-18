@@ -72,9 +72,12 @@
 			duration = wavesurfer.getDuration();
 		});
 
-		regions.enableDragSelection({
-			color: 'rgba(255, 0, 0, 0.1)'
-		});
+		regions.enableDragSelection(
+			{
+				color: 'rgba(255, 0, 0, 0.1)'
+			},
+			10
+		);
 
 		regions.on('region-created', (region: Region) => {
 			regions.getRegions().forEach((r) => {
