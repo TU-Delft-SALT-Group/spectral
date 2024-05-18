@@ -44,7 +44,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend:/backend
-      - pip_store:/opt/volume/
+      - pip_cache:/backend/.venv
     expose:
       - "8000"
     depends_on:
@@ -55,8 +55,8 @@ services:
       
 volumes:
   postgres_data:
-  pip_store:
   node_modules:
+  pip_cache:
 
 networks:
   default:

@@ -44,22 +44,10 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # copy project requirement files here to ensure they will be cached.
 WORKDIR $PYSETUP_PATH
+
+RUN poetry self add poetry-plugin-export
+
 COPY poetry.lock pyproject.toml ./
-
-# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
-RUN poetry install --only main --no-interaction
-
-# `development` image is used during development / testing
-FROM python-base as development
-ENV FASTAPI_ENV=development
-WORKDIR $PYSETUP_PATH
-
-# copy in our built poetry + venv
-COPY --from=builder-base $POETRY_HOME $POETRY_HOME
-COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
-
-# quicker install as runtime deps are already installed
-RUN poetry install --no-root --no-interaction 
 
 # will become mountpoint of our code
 WORKDIR /backend
@@ -68,8 +56,8 @@ WORKDIR /backend
 EXPOSE 8000
 
 # Command to run the application
-CMD poetry install --only main --no-interaction && \
-    poetry run uvicorn spectral.main:app --host 0.0.0.0 --proxy-headers --reload --timeout-graceful-shutdown 1
+CMD poetry export -f requirements.txt --without-hashes | poetry run pip3 install -r /dev/stdin && \
+ poetry run uvicorn spectral.main:app --host 0.0.0.0 --proxy-headers --reload --timeout-graceful-shutdown 1
 
 # `production` image used for runtime
 # FROM python-base as production
