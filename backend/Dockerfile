@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED=1 \
     # https://python-poetry.org/docs/configuration/#using-environment-variables
     POETRY_VERSION=1.8.3 \
     # make poetry install to this location
-    POETRY_HOME="/opt/poetry" \
+    POETRY_HOME="/opt/volume/poetry" \
     # make poetry create the virtual environment in the project's root
     # it gets named `.venv`
     POETRY_VIRTUALENVS_IN_PROJECT=true \
@@ -23,8 +23,8 @@ ENV PYTHONUNBUFFERED=1 \
     \
     # paths
     # this is where our requirements + virtual environment will live
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+    PYSETUP_PATH="/opt/volume/pysetup" \
+    VENV_PATH="/opt/volume/pysetup/.venv"
 
 
 # prepend poetry and venv to path
