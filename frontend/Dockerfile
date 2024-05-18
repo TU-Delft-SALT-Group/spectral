@@ -4,13 +4,15 @@ FROM node:20-alpine
 # Set the working directory
 WORKDIR /frontend
 
+RUN corepack enable
+
 # Copy package.json and pnpm lock
 COPY package.json pnpm-lock.yaml ./
-
-RUN corepack enable && corepack prepare pnpm@latest-9 --activate
+ 
+RUN pnpm fetch 
 
 # Install dependencies
-RUN pnpm install
+RUN pnpm install -r --offline
 
 # Expose port 5173 for the service
 EXPOSE 5173
