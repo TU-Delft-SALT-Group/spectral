@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/frontend
-      - /frontend/node_modules/      
+      - node_modules:/frontend/node_modules/      
     expose:
       - "5173"
     depends_on:
@@ -44,7 +44,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend:/backend
-      - /opt/volume/
+      - pip_store:/opt/volume/
     expose:
       - "8000"
     depends_on:
@@ -55,6 +55,8 @@ services:
       
 volumes:
   postgres_data:
+  pip_store:
+  node_modules:
 
 networks:
   default:

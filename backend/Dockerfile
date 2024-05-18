@@ -68,7 +68,8 @@ WORKDIR /backend
 EXPOSE 8000
 
 # Command to run the application
-CMD poetry run uvicorn spectral.main:app --host 0.0.0.0 --proxy-headers --reload --timeout-graceful-shutdown 1
+CMD poetry install --only main --no-interaction && \
+    poetry run uvicorn spectral.main:app --host 0.0.0.0 --proxy-headers --reload --timeout-graceful-shutdown 1
 
 # `production` image used for runtime
 # FROM python-base as production
