@@ -19,6 +19,11 @@ export interface BaseModeData {
 	 * The unique id of this file
 	 */
 	fileId: string;
+
+	/**
+	 * The name of the file
+	 */
+	name: string;
 }
 
 export const modeDataValidator = z.union([simpleInfoData, waveformData]);
