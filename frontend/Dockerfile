@@ -17,4 +17,4 @@ RUN pnpm install -r --offline
 # Expose port 5173 for the service
 EXPOSE 5173
 
-CMD pnpm run dev --host
+CMD pnpm install -r --offline --frozen-lockfile && pnpm run dev --host
