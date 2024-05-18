@@ -50,18 +50,6 @@ Now make your changes. Make sure to include additional tests if necessary.
 
 ### Running the application
 
-#### Running frontend service only
-
-If you don't require other services, there's no need to run everything! Instead, you can launch the app in dev mode with the following command:
-
-```bash
-pnpm dev
-```
-
-This should launch a vite server that auto-updates the app when a write to any file (in the app folder) gets changed.
-
-#### Running all services locally
-
 While making code changes, it might be required to be in contact with another service other than frontend. To simulate this, we provide a docker-compose file in the root directory of this project. To run the docker services, go to _project's root folder_ and write:
 
 ```bash
