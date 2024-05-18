@@ -5,6 +5,8 @@
 	let selectedRegionValue: RegionsPlugin | null = null;
 	let selectedWavesurferValue: WaveSurfer | null = null;
 
+	const step = 0.5;
+
 	selectedRegion.subscribe((value) => {
 		selectedRegionValue = value;
 	});
@@ -15,6 +17,18 @@
 	if (browser) {
 		window.addEventListener('keydown', (e: KeyboardEvent) => {
 			switch (e.key) {
+				case 'ArrowRight':
+					if (selectedWavesurferValue === null) return;
+
+					selectedWavesurferValue.skip(step);
+
+					break;
+				case 'ArrowLeft':
+					if (selectedWavesurferValue === null) return;
+
+					selectedWavesurferValue.skip(-step);
+
+					break;
 				case 'Escape':
 					if (selectedWavesurferValue === null) return;
 
