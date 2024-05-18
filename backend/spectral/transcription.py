@@ -2,6 +2,7 @@ from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
 import os
 
+
 def get_transcription(model, file):
     """
     Get transcription of an audio file using the specified model.
@@ -22,10 +23,8 @@ def get_transcription(model, file):
         case "deepgram":
             return deepgram_transcription(file["data"])
         case _:
-            raise HTTPException(
-                status_code=404, detail="Model was not found"
-            )
-            
+            raise HTTPException(status_code=404, detail="Model was not found")
+
 
 def deepgram_transcription(data):
     """
@@ -44,7 +43,12 @@ def deepgram_transcription(data):
     """
     try:
         # STEP 1: Create a Deepgram client using the API key
-        deepgram = DeepgramClient(os.getenv("DG_KEY"))
+        key = os.getenv("DG_KEY")
+        deepgram = None
+        if key is None:
+            raise Exception("No API key for Deepgram is found")
+        else:
+            deepgram = DeepgramClient(key)
 
         payload: FileSource = {
             "buffer": data,
@@ -59,10 +63,12 @@ def deepgram_transcription(data):
 
         # STEP 3: Call the transcribe_file method with the text payload and options
         response = deepgram.listen.prerecorded.v("1").transcribe_file(payload, options)
-        
+
         res = []
         for word in response["results"]["channels"][0]["alternatives"][0]["words"]:
-            res.append({"value":word["word"],"start":word["start"],"end":word["end"]})
+            res.append(
+                {"value": word["word"], "start": word["start"], "end": word["end"]}
+            )
         return res
 
     except Exception as e:

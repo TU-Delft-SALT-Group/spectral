@@ -3,7 +3,7 @@
 
 	A pane of analysis. TODO: Expand docs
 
-	The analysis pane is responsible for fetching the data that the mode components need. 
+	The analysis pane is responsible for fetching the data that the mode components need.
 -->
 
 <script lang="ts">

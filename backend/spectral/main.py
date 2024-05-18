@@ -14,18 +14,18 @@ from .frame_analysis import (
     calculate_frame_f1_f2,
 )
 from .mode_handler import (
-    simple_info_mode, 
-    spectogram_mode, 
+    simple_info_mode,
+    spectogram_mode,
     vowel_space_mode,
-    transcription_mode
+    transcription_mode,
 )
-from .transcription import (
-    get_transcription
-)
+from .transcription import get_transcription
 from .data_objects import Frame, Signal
 from .database import Database
 import orjson
 import io
+
+
 import os
 from pydub import AudioSegment
 
@@ -154,10 +154,8 @@ async def analyze_signal_mode(
     try:
         file = database.fetch_file(id)
     except Exception as _:
-        raise HTTPException(
-            status_code=404, detail="File not found"
-        )
-        
+        raise HTTPException(status_code=404, detail="File not found")
+
     audio = AudioSegment.from_file(io.BytesIO(file["data"]))
     fs = audio.frame_rate
     data = audio.get_array_of_samples()
@@ -176,6 +174,7 @@ async def analyze_signal_mode(
         case _:
             raise HTTPException(status_code=400, detail="Mode not found")
 
+
 @app.get("/transcription/{model}/{id}")
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
@@ -193,7 +192,7 @@ async def transcribe_file(
     - id (str): The ID of the file to transcribe.
 
     Returns:
-    - list: A list of dictionaires with keys 'start', 'end' and 'value' containing the transcription of the audio file.
+    - list: A list of dictionaries with keys 'start', 'end' and 'value' containing the transcription of the audio file.
 
     Raises:
     - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
@@ -201,15 +200,14 @@ async def transcribe_file(
     try:
         file = database.fetch_file(id)
     except Exception as _:
-        raise HTTPException(
-            status_code=404, detail="File not found"
-        )
-    transcription = get_transcription(model,file)
+        raise HTTPException(status_code=404, detail="File not found")
+    transcription = get_transcription(model, file)
     try:
-        database.store_transcription(id,transcription)
+        database.store_transcription(id, transcription)
     except Exception as _:
         raise HTTPException(
-            status_code=500, detail="Something went wrong while storing the transcription"
+            status_code=500,
+            detail="Something went wrong while storing the transcription",
         )
     return transcription
 

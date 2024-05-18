@@ -1,12 +1,10 @@
 from fastapi import HTTPException
 
 from .signal_analysis import simple_signal_info
-from .frame_analysis import (
-    simple_frame_info,
-    calculate_frame_f1_f2
-)
+from .frame_analysis import simple_frame_info, calculate_frame_f1_f2
 
-def simple_info_mode(data,fs,file,frame_index):
+
+def simple_info_mode(data, fs, file, frame_index):
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -28,22 +26,22 @@ def simple_info_mode(data,fs,file,frame_index):
     result = simple_info_mode(data, fs, file, frame_index)
     ```
     """
-    result = simple_signal_info(data,fs)
+    result = simple_signal_info(data, fs)
     result["fileSize"] = len(file["data"])
     result["fileCreationDate"] = file["creationTime"]
-    result["frame"] = simple_frame_info(data,fs,frame_index)
+    result["frame"] = simple_frame_info(data, fs, frame_index)
     return result
-    
-def spectogram_mode(data,fs,frame_index):
-    """ TBD
+
+
+def spectogram_mode(data, fs, frame_index):
+    """TBD
     Raises:
         HTTPException: 501 not implemented
     """
-    raise HTTPException(
-        status_code=501, detail="spectogram_mode is not implemented"
-    )
+    raise HTTPException(status_code=501, detail="spectogram_mode is not implemented")
 
-def vowel_space_mode(data,fs,frame_index):
+
+def vowel_space_mode(data, fs, frame_index):
     """
     Extracts and returns the first and second formants of a specified frame.
 
@@ -71,11 +69,12 @@ def vowel_space_mode(data,fs,frame_index):
         raise HTTPException(
             status_code=400, detail="Vowel-space mode was not given frame"
         )
-    frame_data = data[frame_index["startIndex"]:frame_index["endIndex"]]
-    formants = calculate_frame_f1_f2(frame_data,fs)
-    return {"f1":formants[0],"f2":formants[1]}
+    frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
+    formants = calculate_frame_f1_f2(frame_data, fs)
+    return {"f1": formants[0], "f2": formants[1]}
 
-def transcription_mode(id,database):
+
+def transcription_mode(id, database):
     """
     Retrieve transcriptions of a file from the database.
 
@@ -95,7 +94,6 @@ def transcription_mode(id,database):
         return database.get_transcriptions(id)
     except Exception as _:
         raise HTTPException(
-            status_code=500, detail="Something went wrong when retrieving the transcriptions of this file"
+            status_code=500,
+            detail="Something went wrong when retrieving the transcriptions of this file",
         )
-    
-    
