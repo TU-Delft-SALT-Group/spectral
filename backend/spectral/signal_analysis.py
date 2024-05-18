@@ -1,6 +1,7 @@
 import parselmouth
 import numpy as np
 
+
 def simple_signal_info(signal, fs):
     """
     Extracts and returns basic information from a given audio signal.
@@ -19,9 +20,12 @@ def simple_signal_info(signal, fs):
     result = simple_signal_info(signal, fs)
     ```
     """
-    duration = calculate_signal_duration(signal=signal,fs=fs)
-    avg_pitch = np.mean(calculate_sound_pitch(signal_to_sound(signal=signal,fs=fs))["data"]).item()
-    return {"duration":duration,"averagePitch":avg_pitch}
+    duration = calculate_signal_duration(signal=signal, fs=fs)
+    avg_pitch = np.mean(
+        calculate_sound_pitch(signal_to_sound(signal=signal, fs=fs))["data"]  # type: ignore
+    ).item()
+    return {"duration": duration, "averagePitch": avg_pitch}
+
 
 def signal_features(signal, fs):
     """
@@ -52,7 +56,7 @@ def signal_features(signal, fs):
         "spectogram": spectrogram,
         "formants": formants,
     }
-    
+
 
 def signal_to_sound(signal, fs):
     """

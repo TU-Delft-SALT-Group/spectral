@@ -1,4 +1,10 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.2.0
     hooks:
@@ -10,15 +16,27 @@ repos:
       - id: ruff
         types_or: [python, pyi, jupyter]
         args: [--fix]
+        stages: [pre-commit]
       - id: ruff-format
         types_or: [python, pyi, jupyter]
+        stages: [pre-commit]
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.351
+    hooks:
+    - id: pyright
+      types_or: [python, pyi, jupyter]
+      additional_dependencies: [numpy, pytest, fastapi, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python]
+      stages: [pre-commit]
   - repo: https://github.com/crate-ci/typos
     rev: v1.21.0
     hooks:
       - id: typos
+        stages: [pre-commit]
   - repo: local
     hooks:
       - id: pnpm-lint
         name: pnpm lint
         language: system
-        entry: bash -c 'cd frontend; pnpm prettier --write . && pnpm eslint --fix .' 
+        stages: [pre-commit]
+        types_or: [ts, javascript, svelte]
+        entry: bash -c 'cd frontend; pnpm prettier --write . && pnpm eslint --fix .'

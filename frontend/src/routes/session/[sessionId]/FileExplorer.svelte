@@ -1,7 +1,7 @@
 <!--
 	@component
 
-	File explorer for the audio files. 
+	File explorer for the audio files.
 -->
 
 <script lang="ts">

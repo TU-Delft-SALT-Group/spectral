@@ -67,7 +67,7 @@ services:
     env_file:
        - '.variables.env'
        - '.apikeys.env'
-      
+
 volumes:
   postgres_data:
   node_modules:
@@ -76,4 +76,3 @@ volumes:
 networks:
   default:
     external: false
-

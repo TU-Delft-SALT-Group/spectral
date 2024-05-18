@@ -1,21 +1,24 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class Frame(BaseModel):
     """
     Frame model representing a frame of data with its sampling frequency.
-    
+
     Attributes:
         data (list): The data contained in the frame.
         fs (float): The sampling frequency of the data.
     """
+
     data: list
     fs: float
 
+
 class Signal(BaseModel):
     """
-    Signal model representing a signal which contains both various attributes related to its 
-    sampling frequency and values, and paramaters for calculating the pitches, spectogram and formants
+    Signal model representing a signal which contains both various attributes related to its
+    sampling frequency and values, and parameters for calculating the pitches, spectogram and formants
 
     Attributes:
         data (list): The data contained in the signal.
@@ -27,6 +30,7 @@ class Signal(BaseModel):
         formants_time_step (Optional[float]): The time step for formants analysis. Defaults to None.
         formants_window_length (float): The window length for formants analysis. Defaults to 0.025 seconds.
     """
+
     data: list
     fs: float
     pitch_time_step: Optional[float] = None

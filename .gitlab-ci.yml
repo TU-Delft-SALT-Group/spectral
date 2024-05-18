@@ -12,7 +12,7 @@ stages:
   - build
   - lint
   - test
-    
+
 build:app:
   stage: build
   image: 'node:22.1.0-slim'
@@ -30,7 +30,7 @@ lint:app:
   stage: lint
   image: 'node:22.1.0-slim'
   script:
-    - *pre_pnpm 
+    - *pre_pnpm
     - pnpm install --prefer-offline
     - pnpm lint
   cache:
@@ -45,7 +45,7 @@ lint:app:
 test:app:
   stage: test
   image: 'node:22.1.0-slim'
-  script: 
+  script:
     - *pre_pnpm
     -  pnpm install --prefer-offline
     -  pnpm test:unit --coverage
@@ -55,4 +55,3 @@ test:app:
         - frontend/pnpm-lock.yaml
     paths:
       - frontend/.pnpm-store
-

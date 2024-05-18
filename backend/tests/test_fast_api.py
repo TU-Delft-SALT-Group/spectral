@@ -8,11 +8,14 @@ import os
 client = TestClient(app)
 
 # Load the JSON file
-with open(os.path.join(os.path.realpath(__file__),"../data/frames.json"), "r") as file:
+with open(os.path.join(os.path.realpath(__file__), "../data/frames.json"), "r") as file:
     frame_data = json.load(file)
 
 typical_1_fs, typical_1_data = wv.read(
-    os.path.join(os.path.realpath(__file__),"../data/torgo-dataset/MC02_control_head_sentence1.wav")
+    os.path.join(
+        os.path.realpath(__file__),
+        "../data/torgo-dataset/MC02_control_head_sentence1.wav",
+    )
 )
 typical_1_data = typical_1_data.tolist()
 

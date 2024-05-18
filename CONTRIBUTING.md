@@ -31,7 +31,7 @@ To use the conventional-pre-commit, which enforces [Conventional Commits](https:
 pre-commit install --hook-type commit-msg
 ```
 
-## Making code changes 
+## Making code changes
 
 Now make your changes. Make sure to include additional tests if necessary.
 
