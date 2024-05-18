@@ -74,11 +74,9 @@
 				name="file"
 				type="file"
 				multiple
+				accept="audio/*"
 				class={cn(buttonVariants({ variant: 'ghost' }))}
-				on:change={() => {
-					submitButton.click();
-					console.log('clicked');
-				}}
+				on:change={() => submitButton.click()}
 			/>
 			<input bind:this={submitButton} type="submit" class="hidden" />
 		</form>
