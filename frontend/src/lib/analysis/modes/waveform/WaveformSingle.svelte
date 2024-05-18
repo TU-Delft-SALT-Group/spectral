@@ -40,6 +40,7 @@
 					}
 					break;
 				case ' ':
+					e.preventDefault();
 					selectedWavesurferValue?.playPause();
 					break;
 			}
@@ -112,11 +113,9 @@
 
 		wavesurfer.on('play', () => {
 			playing = true;
-			console.log('playing!');
 		});
 
 		wavesurfer.on('pause', () => {
-			console.log('not!');
 			playing = false;
 		});
 	});
@@ -128,6 +127,8 @@
 	});
 
 	function setAsSelected() {
+		$selectedWavesurfer?.pause();
+
 		$selectedWavesurfer = wavesurfer;
 		$selectedRegion = regions;
 	}
