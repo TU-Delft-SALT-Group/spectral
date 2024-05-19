@@ -29,12 +29,17 @@ import io
 import os
 from pydub import AudioSegment
 
-database = Database(
-    os.getenv("POSTGRES_USER"),
-    os.getenv("POSTGRES_PASSWORD"),
-    os.getenv("POSTGRES_HOST"),
-    os.getenv("POSTGRES_PORT"),
-    os.getenv("POSTGRES_DB"),
+# Don't initialize the database if running tests
+database: Database = (  # type: ignore
+    None
+    if "PYTEST_VERSION" in os.environ
+    else Database(
+        os.getenv("POSTGRES_USER"),
+        os.getenv("POSTGRES_PASSWORD"),
+        os.getenv("POSTGRES_HOST"),
+        os.getenv("POSTGRES_PORT"),
+        os.getenv("POSTGRES_DB"),
+    )
 )
 
 

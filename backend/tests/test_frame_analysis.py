@@ -9,7 +9,7 @@ import json
 import os
 
 # Load the JSON file
-with open(os.path.join(os.path.realpath(__file__), "../data/frames.json"), "r") as file:
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"data/frames.json"), "r") as file:
     frame_data = json.load(file)
 
 
