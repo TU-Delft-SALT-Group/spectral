@@ -1,17 +1,19 @@
 # include:
 #   - remote: 'https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml'
 
+stages:
+  - build
+  - lint
+  - test
+
+# App
+
 .pre_pnpm: &pre_pnpm
   - cd frontend
   - corepack enable
   - corepack prepare pnpm@latest-9 --activate
   - pnpm config set store-dir .pnpm-store
   - pnpm set verify-store-integrity false
-
-stages:
-  - build
-  - lint
-  - test
 
 build:app:
   stage: build
@@ -40,8 +42,6 @@ lint:app:
     paths:
       - frontend/.pnpm-store
 
-
-# tests in general can be expanded depending on every test that we will have
 test:app:
   stage: test
   image: 'node:22.1.0-slim'
@@ -55,3 +55,47 @@ test:app:
         - frontend/pnpm-lock.yaml
     paths:
       - frontend/.pnpm-store
+
+# Kernel
+
+.pre_poetry: &pre_poetry
+  - cd backend
+  - pip install poetry
+  - poetry config virtualenvs.in-project true
+
+build:kernel:
+  stage: build
+  image: python:3.12
+  script:
+    - *pre_poetry
+    - poetry install
+  cache:
+    paths:
+      - /backend/.venv
+
+lint:kernel:
+  stage: lint
+  image: python:3.12
+  script:
+    - *pre_poetry
+    - poetry install
+    - pip install ruff
+    - ruff check
+  cache:
+    paths:
+      - /backend/.venv
+
+test:kernel:
+  stage: test
+  image: python:3.12
+  script:
+    - *pre_poetry
+    - poetry install --with=dev
+    - poetry run coverage run -m pytest
+    - poetry run coverage report -m
+    - poetry run coverage xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  allow_failure: false
+  cache:
+    paths:
+      - /backend/.venv
