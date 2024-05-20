@@ -6,7 +6,7 @@ import json
 from scipy.io import wavfile as wv
 import os
 from spectral.database import Database
-from mock import Mock, MagicMock
+from mock import Mock, MagicMock, patch
 
 dbMock = None
 
@@ -157,8 +157,8 @@ def override_get_db():
     yield dbMock
        
 def test_signal_correct_mode_file_not_found():
+    setup_db_mock()
     global dbMock
-    dbMock = MagicMock()
     dbMock.fetch_file.side_effect = HTTPException(status_code=500, detail='database error')
     app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/wrongmode/1")
@@ -214,6 +214,15 @@ def test_signal_correct_transcription():
     assert result[0]["value"] == "hi"
     assert result[0]["start"] == 0
     assert result[0]["end"] == 1
+    assert dbMock.fetch_file.call_count == 1
+    assert dbMock.get_transcriptions.call_count == 1
+    
+def test_signal_transcription_not_found():
+    setup_db_mock()
+    global dbMock
+    dbMock.get_transcriptions.side_effect = HTTPException(status_code=500, detail='database error')
+    response = client.get("/signals/modes/transcription/1")
+    assert response.status_code == 500
     assert dbMock.fetch_file.call_count == 1
     assert dbMock.get_transcriptions.call_count == 1
     
@@ -276,3 +285,55 @@ def test_signal_mode_vowel_space_mode_with_frame():
     assert result["f1"] == pytest.approx(623.19,0.1)
     assert result["f2"] == pytest.approx(1635.4,0.1)
     assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_mode_transcription_db_problem():
+    setup_db_mock()
+    global dbMock
+    dbMock.fetch_file.side_effect = HTTPException(status_code=500, detail='database error')
+    response = client.get("/transcription/deepgram/1")
+    assert response.status_code == 404
+    assert dbMock.fetch_file.call_count == 1
+
+def test_transcription_model_found():
+    setup_db_mock()
+    with patch("spectral.transcription.deepgram_transcription") as mock_deepgram_transcription:
+        mock_deepgram_transcription.return_value = [
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+        ]
+
+        response = client.get("/transcription/deepgram/1")
+        
+        assert response.status_code == 200
+        
+        result = response.json()
+        
+        assert result == [
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+        ]
+        assert dbMock.fetch_file.call_count == 1
+        assert dbMock.store_transcription.call_count == 1
+        
+def test_transcription_storing_error():
+    setup_db_mock()
+    global dbMock
+    dbMock.store_transcription.side_effect = HTTPException(status_code=500, detail='database error')
+    with patch("spectral.transcription.deepgram_transcription") as mock_deepgram_transcription:
+        mock_deepgram_transcription.return_value = [
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+        ]
+
+        response = client.get("/transcription/deepgram/1")
+        
+        assert response.status_code == 500
+        assert dbMock.fetch_file.call_count == 1
+        assert dbMock.store_transcription.call_count == 1
+        
+def test_transcription_model_not_found():
+    setup_db_mock()
+    response = client.get("/transcription/non_existant_model/1")
+    assert response.status_code == 404
+    assert dbMock.fetch_file.call_count == 1
+    

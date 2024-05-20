@@ -30,7 +30,7 @@ import io
 import os
 from pydub import AudioSegment
 
-def get_db():
+def get_db(): # pragma: no cover
     try:
         db = Database(
             os.getenv("POSTGRES_USER"),
