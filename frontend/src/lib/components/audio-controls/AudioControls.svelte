@@ -15,6 +15,7 @@
 
 					if (selected.clearRegions()) return;
 
+					selected.pause();
 					selectedStore.set(null);
 					break;
 				case ' ':
