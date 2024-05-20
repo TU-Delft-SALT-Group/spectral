@@ -10,7 +10,7 @@
 <div class="flex h-full">
 	<Resizable.PaneGroup direction="horizontal">
 		<Resizable.Pane defaultSize={20} minSize={11}>
-			<FileExplorer files={data.files}></FileExplorer>
+			<FileExplorer files={data.files} sessionId={data.sessionId}></FileExplorer>
 		</Resizable.Pane>
 
 		<Resizable.Handle withHandle />
