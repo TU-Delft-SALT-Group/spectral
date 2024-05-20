@@ -5,6 +5,7 @@ export const waveformData = z.object({
 });
 
 export { default as Waveform } from './Waveform.svelte';
+export { default as WaveformPlugin } from './WaveformPlugin.svelte';
 
 export type WaveColor = {
 	wave: string;
