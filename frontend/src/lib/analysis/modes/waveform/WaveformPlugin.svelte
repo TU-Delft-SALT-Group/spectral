@@ -1,8 +1,8 @@
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
 	import type { SpecificModeData } from '..';
-	import type { ControlRequirements } from '../audio-controls';
 	import { onDestroy, onMount } from 'svelte';
+	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 
 	export let item: SpecificModeData<'waveform'>;
