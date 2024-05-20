@@ -38,8 +38,6 @@ export async function getData({
 	url.searchParams.set('startIndex', frame?.startIndex.toString() ?? '');
 	url.searchParams.set('endIndex', frame?.endIndex.toString() ?? '');
 
-	console.log(url.toString());
-
 	const response = await fetch(url);
 
 	const json = await response.json();
