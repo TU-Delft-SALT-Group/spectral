@@ -6,6 +6,7 @@ import { waveformData, Waveform } from './waveform';
 import AudioWaveformIcon from 'lucide-svelte/icons/audio-waveform';
 import InfoIcon from 'lucide-svelte/icons/info';
 import { z } from 'zod';
+import { VowelSpace, VowelSpaceIcon, vowelSpaceData } from './vowel-space';
 
 export type Mode = ModeData['mode'];
 
@@ -26,7 +27,7 @@ export interface BaseModeData {
 	name: string;
 }
 
-export const modeDataValidator = z.union([simpleInfoData, waveformData]);
+export const modeDataValidator = z.union([simpleInfoData, waveformData, vowelSpaceData]);
 
 /**
  * Data for a specific mode of analysis.
@@ -40,7 +41,9 @@ export type ModeData = z.infer<typeof modeDataValidator> & BaseModeData;
  *
  * We do have the guarantee that every entry of `modes` is a valid mode of `ModeData`. However, I haven't found a way to do the oppossite (i.e., the code compiles even if `modes` doesn't contain all modes of `ModeData`).
  */
-export const modes = ['simple-info', 'waveform'] as const satisfies Array<ModeData['mode']>;
+export const modes = ['simple-info', 'waveform', 'vowel-space'] as const satisfies Array<
+	ModeData['mode']
+>;
 
 /**
  * Helper type to get the specific type of data for a mode
@@ -58,6 +61,8 @@ export function getComponent(mode: Mode): ComponentType {
 			return SimpleInfo;
 		case 'waveform':
 			return Waveform;
+		case 'vowel-space':
+			return VowelSpace;
 	}
 }
 
@@ -69,5 +74,7 @@ export function getIcon(mode: Mode): ComponentType {
 			return InfoIcon;
 		case 'waveform':
 			return AudioWaveformIcon;
+		case 'vowel-space':
+			return VowelSpaceIcon;
 	}
 }

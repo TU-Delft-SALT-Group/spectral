@@ -35,7 +35,8 @@ export async function getData({
 	frame: Frame | null;
 }): Promise<ModeData> {
 	const url = getURL(`signals/modes/${mode}/${fileId}`);
-	url.searchParams.set('frame', JSON.stringify(frame));
+	url.searchParams.set('startIndex', frame?.startIndex.toString() ?? '');
+	url.searchParams.set('endIndex', frame?.endIndex.toString() ?? '');
 
 	const response = await fetch(url);
 
