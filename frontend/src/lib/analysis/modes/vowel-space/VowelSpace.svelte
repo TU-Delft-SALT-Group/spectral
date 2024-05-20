@@ -12,6 +12,9 @@
 	let showLegend = true;
 
 	function d3Action(node: Node) {
+		const foreground = window && window.getComputedStyle(container).getPropertyValue('color');
+		// const background = window && window.getComputedStyle(container).getPropertyValue('background-color')
+
 		// Declare the chart dimensions and margins.
 		const width = container.clientWidth;
 		const height = container.clientHeight;
@@ -43,7 +46,7 @@
 			.attr('text-anchor', 'middle')
 			.attr('x', width / 2)
 			.attr('y', marginTop / 2)
-			.style('fill', '#fff')
+			.style('fill', foreground)
 			.style('font-weight', 'bold')
 			.text('F2 - F1');
 
@@ -58,7 +61,7 @@
 			.attr('text-anchor', 'middle')
 			.attr('x', width - marginRight / 2)
 			.attr('y', height / 2)
-			.style('fill', '#fff')
+			.style('fill', foreground)
 			.style('font-weight', 'bold')
 			.text('F1');
 
@@ -83,7 +86,7 @@
 				.attr('x', x(f1) + 10)
 				.attr('y', y(f2 - f1) + 17)
 				.text(name)
-				.attr('fill', '#fff')
+				.attr('fill', foreground)
 				.attr('font-size', '0.9rem')
 				.attr('alignment-baseline', 'middle');
 
@@ -99,7 +102,7 @@
 				.attr('x', marginLeft + 12)
 				.attr('y', height - marginBottom - 50 - 30 * i)
 				.text(name)
-				.attr('fill', '#fff')
+				.attr('fill', foreground)
 				.attr('font-size', '1rem')
 				.attr('alignment-baseline', 'middle');
 		}
