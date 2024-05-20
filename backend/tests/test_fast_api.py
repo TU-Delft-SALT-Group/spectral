@@ -173,10 +173,10 @@ def setup_db_mock():
         dbMock.fetch_file.return_value = {"data": f.read(), "creationTime": 1}
     
     dbMock.get_transcriptions.return_value = [{"value":"hi", "start": 0, "end": 1}]    
+    app.dependency_overrides[get_db] = override_get_db
            
 def test_signal_correct_simple_info():
     setup_db_mock()
-    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/simple-info/1")
     assert response.status_code == 200
     result = response.json()
@@ -187,14 +187,12 @@ def test_signal_correct_simple_info():
     
 def test_signal_correct_spectogram():
     setup_db_mock()
-    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/spectogram/1")
     assert response.status_code == 501
     assert dbMock.fetch_file.call_count == 1
     
 def test_signal_correct_waveform():
     setup_db_mock()
-    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/waveform/1")
     assert response.status_code == 200
     result = response.json()
@@ -203,14 +201,12 @@ def test_signal_correct_waveform():
 
 def test_signal_correct_vowel_space():
     setup_db_mock()
-    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/vowel-space/1")
     assert response.status_code == 400
     assert dbMock.fetch_file.call_count == 1
     
 def test_signal_correct_transcription():
     setup_db_mock()
-    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/transcription/1")
     assert response.status_code == 200
     result = response.json()
@@ -223,7 +219,60 @@ def test_signal_correct_transcription():
     
 def test_signal_mode_wrong_mode():
     setup_db_mock()
-    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/wrongmode/1")
     assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+
+
+def test_signal_mode_frame_start_index_missing():
+    setup_db_mock()
+    response = client.get("/signals/modes/simple-info/1", params={"endIndex": 1})
+    assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+
+def test_signal_mode_frame_end_index_missing():
+    setup_db_mock()
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": 1})
+    assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_mode_frame_start_index_bigger_than_end_index():
+    setup_db_mock()
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": 2,"endIndex": 1})
+    assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_mode_frame_negative_start_index():
+    setup_db_mock()
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": -1,"endIndex": 1})
+    assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_mode_frame_too_large_end_index():
+    setup_db_mock()
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": 2,"endIndex": len(dbMock.fetch_file.return_value["data"])})
+    assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_mode_simple_info_with_frame():
+    setup_db_mock()
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": 22500,"endIndex": 23250})
+    assert response.status_code == 200
+    result = response.json()
+    assert result["fileSize"] == 146124
+    assert result["fileCreationDate"] == 1
+    assert result["frame"] is not None
+    assert result["frame"]["duration"] == pytest.approx(0.046875)
+    assert result["frame"]["f1"] == pytest.approx(623.19,0.1)
+    assert result["frame"]["f2"] == pytest.approx(1635.4,0.1)
+    assert result["frame"]["pitch"] == pytest.approx(591.6,0.1)
+    assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_mode_vowel_space_mode_with_frame():
+    setup_db_mock()
+    response = client.get("/signals/modes/vowel-space/1", params={"startIndex": 22500,"endIndex": 23250})
+    assert response.status_code == 200
+    result = response.json()
+    assert result["f1"] == pytest.approx(623.19,0.1)
+    assert result["f2"] == pytest.approx(1635.4,0.1)
     assert dbMock.fetch_file.call_count == 1
