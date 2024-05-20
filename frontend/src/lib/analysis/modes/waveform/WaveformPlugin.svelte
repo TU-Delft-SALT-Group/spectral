@@ -3,9 +3,12 @@
 	import type { SpecificModeData } from '..';
 	import type { ControlRequirements } from '../audio-controls';
 	import { onDestroy, onMount } from 'svelte';
-	import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
+	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 
 	export let item: SpecificModeData<'waveform'>;
+
+	// This is disabled because for some reason it complains that it is not being used
+	// when in reality it is bound in the AudioControls.svelte
 	// eslint-disable-next-line
 	export let controls: ControlRequirements = {
 		setSpeed(speed: number) {
@@ -46,6 +49,22 @@
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
+
+		regions.enableDragSelection(
+			{
+				color: 'rgba(255, 0, 0, 0.1)'
+			},
+			10
+		);
+
+		regions.on('region-created', (region: Region) => {
+			regions.getRegions().forEach((r) => {
+				if (r.id === region.id) return;
+				r.remove();
+			});
+
+			setAsSelected();
+		});
 
 		wavesurfer.on('decode', () => {
 			duration = wavesurfer.getDuration();

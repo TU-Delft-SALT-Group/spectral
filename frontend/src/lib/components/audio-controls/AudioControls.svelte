@@ -18,6 +18,7 @@
 					selectedStore.set(null);
 					break;
 				case ' ':
+					e.preventDefault();
 					if (selected === null) return;
 					selected.togglePlay();
 					break;
@@ -37,10 +38,10 @@
 	import * as Select from '$lib/components/ui/select';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
-	import type { SpecificModeData } from '..';
 	import { browser } from '$app/environment';
 	import { getVisual, type ControlRequirements, type VisualizationType } from '.';
 	import { writable, type Writable } from 'svelte/store';
+	import type { SpecificModeData } from '$lib/analysis/modes';
 
 	export let visualization: VisualizationType;
 	export let item: SpecificModeData<'waveform'>;

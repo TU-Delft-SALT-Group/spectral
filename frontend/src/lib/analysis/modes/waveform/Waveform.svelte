@@ -1,6 +1,6 @@
 <script lang="ts">
+	import AudioControls from '$lib/components/audio-controls/AudioControls.svelte';
 	import type { SpecificModeData } from '..';
-	import AudioControls from '../audio-controls/AudioControls.svelte';
 
 	export let data: SpecificModeData<'waveform'>[];
 </script>

@@ -1,5 +1,5 @@
+import { WaveformPlugin } from '$lib/analysis/modes/waveform';
 import type { ComponentType } from 'svelte';
-import { WaveformPlugin } from '../waveform';
 
 export type VisualizationType = 'waveform';
 
