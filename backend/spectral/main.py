@@ -1,3 +1,4 @@
+
 from typing import Annotated, Optional
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
@@ -38,6 +39,7 @@ def get_db():
             os.getenv("POSTGRES_PORT"),
             os.getenv("POSTGRES_DB"),
         )
+        db.connect()
         yield db
     finally:
         db.close()

@@ -1,9 +1,12 @@
 import pytest
-from spectral.main import app
+from spectral.main import app, get_db
 from fastapi.testclient import TestClient
+from fastapi import HTTPException
 import json
 from scipy.io import wavfile as wv
 import os
+from spectral.database import Database
+from mock import Mock, MagicMock
 
 client = TestClient(app)
 
@@ -147,3 +150,52 @@ def test_fundamental_features_empty_signal():
     assert result["pitch"] is None
     assert result["spectogram"] is None
     assert result["formants"] is None
+ 
+def override_no_match_get_db():
+    dbMock = MagicMock()
+    dbMock.fetch_file.side_effect = HTTPException(status_code=500, detail='database error')
+    yield dbMock
+       
+def test_signal_correct_mode_file_not_found():
+    app.dependency_overrides[get_db] = override_no_match_get_db
+    response = client.get("/signals/modes/wrongmode/1")
+    assert response.status_code == 404
+    
+def override_match_get_db():
+    dbMock = MagicMock()
+    
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"data/torgo-dataset/MC02_control_head_sentence1.wav"), mode="rb") as f:
+        dbMock.fetch_file.return_value = {"data": f.read(), "creationTime": 1}
+        
+    yield dbMock
+           
+def test_signal_correct_simple_info():
+    app.dependency_overrides[get_db] = override_match_get_db
+    response = client.get("/signals/modes/simple-info/1")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["fileSize"] == 146124
+    assert result["fileCreationDate"] == 1
+    assert result["frame"] is None
+    
+def test_signal_correct_spectogram():
+    app.dependency_overrides[get_db] = override_match_get_db
+    response = client.get("/signals/modes/spectogram/1")
+    assert response.status_code == 501
+    
+def test_signal_correct_waveform():
+    app.dependency_overrides[get_db] = override_match_get_db
+    response = client.get("/signals/modes/waveform/1")
+    assert response.status_code == 200
+    result = response.json()
+    assert result is None
+
+def test_signal_correct_vowel_space():
+    app.dependency_overrides[get_db] = override_match_get_db
+    response = client.get("/signals/modes/vowel_space/1")
+    assert response.status_code == 400
+    
+def test_signal_mode_wrong_mode():
+    app.dependency_overrides[get_db] = override_match_get_db
+    response = client.get("/signals/modes/wrongmode/1")
+    assert response.status_code == 400
