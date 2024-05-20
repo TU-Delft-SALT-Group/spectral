@@ -4,8 +4,10 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
+	import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
+	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 
-	export let item: SpecificModeData<'waveform'>;
+	export let item: SpecificModeData<'spectrogram'>;
 
 	// This is disabled because for some reason it complains that it is not being used
 	// when in reality it is bound in the AudioControls.svelte
@@ -40,15 +42,22 @@
 
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
+	let spectrogram: SpectrogramPlugin;
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${item.fileId}-waveform`,
+			container: `#${item.fileId}-spectrogram`,
 			url: `/db/${item.fileId}`,
-			height: 'auto'
+			height: 0
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
+		spectrogram = wavesurfer.registerPlugin(
+			Spectrogram.create({
+				labels: true,
+				labelsColor: 'black'
+			})
+		);
 
 		regions.enableDragSelection(
 			{
@@ -66,6 +75,10 @@
 			setAsSelected();
 		});
 
+		wavesurfer.on('interaction', () => {
+			setAsSelected();
+		});
+
 		wavesurfer.on('decode', () => {
 			duration = wavesurfer.getDuration();
 			current = wavesurfer.getCurrentTime();
@@ -73,10 +86,6 @@
 
 		wavesurfer.on('timeupdate', () => {
 			current = wavesurfer.getCurrentTime();
-		});
-
-		wavesurfer.on('interaction', () => {
-			setAsSelected();
 		});
 
 		wavesurfer.on('play', () => {
@@ -89,6 +98,7 @@
 	});
 
 	onDestroy(() => {
+		spectrogram.destroy();
 		regions.destroy();
 
 		wavesurfer.destroy();
@@ -96,7 +106,7 @@
 </script>
 
 <div
-	id={`${item.fileId}-waveform`}
+	id={`${item.fileId}-spectrogram`}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

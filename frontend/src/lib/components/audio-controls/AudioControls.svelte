@@ -41,10 +41,9 @@
 	import { browser } from '$app/environment';
 	import { getVisual, type ControlRequirements, type VisualizationType } from '.';
 	import { writable, type Writable } from 'svelte/store';
-	import type { SpecificModeData } from '$lib/analysis/modes';
 
 	export let visualization: VisualizationType;
-	export let item: SpecificModeData<'waveform'>;
+	export let item;
 
 	let component = getVisual(visualization);
 	let controls: ControlRequirements;
