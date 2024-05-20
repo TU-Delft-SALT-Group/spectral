@@ -55,7 +55,8 @@
 		spectrogram = wavesurfer.registerPlugin(
 			Spectrogram.create({
 				labels: true,
-				labelsColor: 'black'
+				labelsColor: 'black',
+				height: 232
 			})
 		);
 
