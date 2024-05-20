@@ -5,8 +5,7 @@ from fastapi import HTTPException
 import json
 from scipy.io import wavfile as wv
 import os
-from spectral.database import Database
-from mock import Mock, MagicMock, patch
+from mock import MagicMock, patch
 
 dbMock = None
 
