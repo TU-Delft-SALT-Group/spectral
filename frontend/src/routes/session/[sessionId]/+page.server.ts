@@ -15,7 +15,10 @@ const sampleState: WorkspaceState = {
 			files: sampleTorgo.slice(0, 3).map((id) => ({
 				id,
 				name: id,
-				frame: null
+				frame: {
+					startIndex: 0,
+					endIndex: 100
+				}
 			}))
 		}
 	]
