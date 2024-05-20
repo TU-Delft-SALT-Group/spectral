@@ -8,6 +8,8 @@ import os
 from spectral.database import Database
 from mock import Mock, MagicMock
 
+dbMock = None
+
 client = TestClient(app)
 
 # Load the JSON file
@@ -151,51 +153,77 @@ def test_fundamental_features_empty_signal():
     assert result["spectogram"] is None
     assert result["formants"] is None
  
-def override_no_match_get_db():
-    dbMock = MagicMock()
-    dbMock.fetch_file.side_effect = HTTPException(status_code=500, detail='database error')
+def override_get_db():
     yield dbMock
        
 def test_signal_correct_mode_file_not_found():
-    app.dependency_overrides[get_db] = override_no_match_get_db
+    global dbMock
+    dbMock = MagicMock()
+    dbMock.fetch_file.side_effect = HTTPException(status_code=500, detail='database error')
+    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/wrongmode/1")
     assert response.status_code == 404
+    assert dbMock.fetch_file.call_count == 1
     
-def override_match_get_db():
+def setup_db_mock():
+    global dbMock
     dbMock = MagicMock()
     
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),"data/torgo-dataset/MC02_control_head_sentence1.wav"), mode="rb") as f:
         dbMock.fetch_file.return_value = {"data": f.read(), "creationTime": 1}
-        
-    yield dbMock
+    
+    dbMock.get_transcriptions.return_value = [{"value":"hi", "start": 0, "end": 1}]    
            
 def test_signal_correct_simple_info():
-    app.dependency_overrides[get_db] = override_match_get_db
+    setup_db_mock()
+    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/simple-info/1")
     assert response.status_code == 200
     result = response.json()
     assert result["fileSize"] == 146124
     assert result["fileCreationDate"] == 1
     assert result["frame"] is None
+    assert dbMock.fetch_file.call_count == 1
     
 def test_signal_correct_spectogram():
-    app.dependency_overrides[get_db] = override_match_get_db
+    setup_db_mock()
+    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/spectogram/1")
     assert response.status_code == 501
+    assert dbMock.fetch_file.call_count == 1
     
 def test_signal_correct_waveform():
-    app.dependency_overrides[get_db] = override_match_get_db
+    setup_db_mock()
+    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/waveform/1")
     assert response.status_code == 200
     result = response.json()
     assert result is None
+    assert dbMock.fetch_file.call_count == 1
 
 def test_signal_correct_vowel_space():
-    app.dependency_overrides[get_db] = override_match_get_db
-    response = client.get("/signals/modes/vowel_space/1")
+    setup_db_mock()
+    app.dependency_overrides[get_db] = override_get_db
+    response = client.get("/signals/modes/vowel-space/1")
     assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
+    
+def test_signal_correct_transcription():
+    setup_db_mock()
+    app.dependency_overrides[get_db] = override_get_db
+    response = client.get("/signals/modes/transcription/1")
+    assert response.status_code == 200
+    result = response.json()
+    assert len(result) == 1
+    assert result[0]["value"] == "hi"
+    assert result[0]["start"] == 0
+    assert result[0]["end"] == 1
+    assert dbMock.fetch_file.call_count == 1
+    assert dbMock.get_transcriptions.call_count == 1
     
 def test_signal_mode_wrong_mode():
-    app.dependency_overrides[get_db] = override_match_get_db
+    setup_db_mock()
+    app.dependency_overrides[get_db] = override_get_db
     response = client.get("/signals/modes/wrongmode/1")
     assert response.status_code == 400
+    assert dbMock.fetch_file.call_count == 1
