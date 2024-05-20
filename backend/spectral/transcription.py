@@ -26,7 +26,7 @@ def get_transcription(model, file):
             raise HTTPException(status_code=404, detail="Model was not found")
 
 
-def deepgram_transcription(data):
+def deepgram_transcription(data): 
     """
     Transcribe audio data using Deepgram API.
 

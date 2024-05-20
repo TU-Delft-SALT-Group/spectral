@@ -1,5 +1,6 @@
+
 from typing import Annotated, Optional
-from fastapi import FastAPI, HTTPException, Path
+from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
     calculate_signal_duration,
@@ -29,18 +30,19 @@ import io
 import os
 from pydub import AudioSegment
 
-# Don't initialize the database if running tests
-database: Database = (  # type: ignore
-    None
-    if "PYTEST_VERSION" in os.environ
-    else Database(
-        os.getenv("POSTGRES_USER"),
-        os.getenv("POSTGRES_PASSWORD"),
-        os.getenv("POSTGRES_HOST"),
-        os.getenv("POSTGRES_PORT"),
-        os.getenv("POSTGRES_DB"),
-    )
-)
+def get_db(): # pragma: no cover
+    try:
+        db = Database(
+            os.getenv("POSTGRES_USER"),
+            os.getenv("POSTGRES_PASSWORD"),
+            os.getenv("POSTGRES_HOST"),
+            os.getenv("POSTGRES_PORT"),
+            os.getenv("POSTGRES_DB"),
+        )
+        db.connect()
+        yield db
+    finally:
+        db.close()
 
 
 class ORJSONResponse(JSONResponse):
@@ -138,6 +140,7 @@ async def analyze_signal_mode(
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
     endIndex: Optional[int] = None,
+    database = Depends(get_db)
 ):
     """
     Analyze an audio signal in different modes.
@@ -186,6 +189,7 @@ async def transcribe_file(
     id: Annotated[str, Path(title="The ID of the file")],
     # startIndex: Optional[int] = None,
     # endIndex: Optional[int] = None,
+    database = Depends(get_db)
 ):
     """
     Transcribe an audio file.

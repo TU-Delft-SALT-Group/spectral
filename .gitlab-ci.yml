@@ -90,6 +90,8 @@ test:kernel:
   image: python:3.12
   script:
     - *pre_poetry
+    - apt update
+    - apt install ffmpeg -y
     - poetry install --with=dev
     - poetry run coverage run -m pytest
     - poetry run coverage report -m
