@@ -15,7 +15,10 @@ const sampleState: WorkspaceState = {
 			files: sampleTorgo.slice(0, 3).map((id) => ({
 				id,
 				name: id,
-				frame: null
+				frame: {
+					startIndex: 0,
+					endIndex: 100
+				}
 			}))
 		}
 	]
@@ -44,7 +47,8 @@ export const load = (async ({ params: { sessionId } }) => {
 
 	return {
 		files,
-		state
+		state,
+		sessionId
 	};
 }) satisfies PageServerLoad;
 
