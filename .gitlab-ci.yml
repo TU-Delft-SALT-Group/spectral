@@ -91,7 +91,7 @@ test:kernel:
   script:
     - *pre_poetry
     - apt update
-    - apt install ffmpeg
+    - apt install ffmpeg -y
     - poetry install --with=dev
     - poetry run coverage run -m pytest
     - poetry run coverage report -m
