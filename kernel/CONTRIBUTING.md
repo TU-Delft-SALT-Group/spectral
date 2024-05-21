@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions (pull requests) are very welcome! Here's how to get started on the backend.
+Contributions (pull requests) are very welcome! Here's how to get started on the kernel.
 
 ## Dependencies
 

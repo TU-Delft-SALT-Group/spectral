@@ -19,7 +19,7 @@ Ideally, of course, we want a 10. However, the grade that we have decided we wou
 
 ## Products
 
-In the end, we should deliver a web application that can be accessed on the website [spectral.ewi.tudelft.nl](http://spectral.ewi.tudelft.nl/). It will be hosted on a TU Delft server just like the backend and documentation website that we will create. The code will be stored on both the EEMCS Gitlab server and Github, where the goal for Github is to open-source the project.
+In the end, we should deliver a web application that can be accessed on the website [spectral.ewi.tudelft.nl](http://spectral.ewi.tudelft.nl/). It will be hosted on a TU Delft server just like the kernel and documentation website that we will create. The code will be stored on both the EEMCS Gitlab server and Github, where the goal for Github is to open-source the project.
 
 We will also have to create a final report about the project that will be handed in on Brightspace. We will create this report throughout the project by handing in the sub-assignments on Brightspace as well. We will work on the report using Typst, which allows us to work on the project together in real-time.
 

@@ -1,4 +1,4 @@
-import type { Frame } from '$lib/analysis/engine/framing';
+import type { Frame } from '$lib/analysis/kernel/framing';
 import { FileIcon, FolderIcon } from 'lucide-svelte';
 import type { ComponentType } from 'svelte';
 

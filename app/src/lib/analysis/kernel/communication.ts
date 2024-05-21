@@ -1,14 +1,14 @@
 /**
- * Entry point for communicating with the Python engine
+ * Entry point for communicating with the Python kernel
  */
 
 import { modeDataValidator, type Mode, type ModeData } from '$lib/analysis/modes';
-import type { Frame } from '$lib/analysis/engine/framing';
+import type { Frame } from '$lib/analysis/kernel/framing';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 
 /**
- * Main way to fetch stuff for backend
+ * Main way to fetch stuff for kernel
  */
 export function getURL(path: string): URL {
 	if (!browser) {

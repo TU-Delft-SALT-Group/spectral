@@ -13,7 +13,7 @@ git clone https://github.com/your-username-here/spectral.git
 cd spectral
 ```
 
-There are two main components: the frontend and the backend. Each of them have a separate CONTRIBUTING.md, however there are also some general guidelines that apply to both. Here we continue with the general guidelines.
+There are two main components: the app and the kernel. Each of them have a separate CONTRIBUTING.md, however there are also some general guidelines that apply to both. Here we continue with the general guidelines.
 
 Install the [pre-commit hook](https://pre-commit.com/#install). For example:
 
@@ -22,7 +22,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-These hooks use ruff to format the Python backend code, and pyright to lint it. For svelte we use ESLint and Prettier.
+These hooks use ruff to format the Python kernel code, and pyright to lint it. For svelte we use ESLint and Prettier.
 
 ### conventional-pre-commit
 To use the conventional-pre-commit, which enforces [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), run the following command:

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "spectral"
 version = "0.0.1"
-description = "Backend for spectral: atypical speech analysis and recognition platform"
+description = "kernel for spectral: atypical speech analysis and recognition platform"
 authors = [
 		"Roman Knyazhitskiy <mail@knyaz.tech>",
 		"Ody Machairas",
