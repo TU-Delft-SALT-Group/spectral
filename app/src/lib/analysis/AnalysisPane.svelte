@@ -8,7 +8,7 @@
 
 <script lang="ts">
 	import { getComponent, type Mode, type ModeData } from '$lib/analysis/modes';
-	import { getData } from '$lib/analysis/engine/communication';
+	import { getData } from '$lib/analysis/kernel/communication';
 	import type { PaneState } from './analysis-pane';
 	import ModeSelector from './modes/ModeSelector.svelte';
 	import type { AnalysisFile } from '$lib/files';
