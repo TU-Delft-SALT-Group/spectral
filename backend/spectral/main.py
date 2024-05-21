@@ -39,7 +39,7 @@ def get_db(): # pragma: no cover
             os.getenv("POSTGRES_PORT"),
             os.getenv("POSTGRES_DB"),
         )
-        db.connect()
+        db.connection()
         yield db
     finally:
         db.close()
