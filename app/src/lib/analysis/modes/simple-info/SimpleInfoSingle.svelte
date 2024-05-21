@@ -14,9 +14,15 @@
 	$: frameData = data.frame
 		? [
 				{ label: 'Frame Duration', value: `${data.frame.duration.toFixed(2)} seconds` },
-				{ label: 'Frame Pitch', value: `${data.frame.pitch} pitch` },
-				{ label: 'Frame F1 formant', value: `${data.frame.f1} Hz` },
-				{ label: 'Frame F2 formant', value: `${data.frame.f2} Hz` }
+				{
+					label: 'Frame Pitch',
+					value: data.frame.pitch === null ? 'N/A' : `${data.frame.pitch} pitch`
+				},
+				{
+					label: 'Frame F1 formant',
+					value: data.frame.f1 === null ? 'N/A' : `${data.frame.f1} Hz`
+				},
+				{ label: 'Frame F2 formant', value: data.frame.f2 === null ? 'N/A' : `${data.frame.f2} Hz` }
 			]
 		: null;
 </script>
@@ -34,7 +40,7 @@
 	{/each}
 
 	{#if frameData}
-		{#each displayData as { label, value }}
+		{#each frameData as { label, value }}
 			<section class="flex items-baseline opacity-80">
 				<h2 class="mr-2 text-lg">{label}:</h2>
 				<span class="h-full">
