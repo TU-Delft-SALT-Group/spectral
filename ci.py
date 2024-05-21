@@ -4,12 +4,12 @@ import sys
 
 stages = {
     "app": """
-            cd frontend &&
+            cd app &&
             pnpm lint &&
             pnpm exec vitest run --coverage &&
             cd ..
     """,
-    "backend": [],
+    "kernel": [],
     "end-to-end": [],
 }
 

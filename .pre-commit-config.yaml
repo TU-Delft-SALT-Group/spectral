@@ -39,4 +39,4 @@ repos:
         language: system
         stages: [pre-commit]
         types_or: [ts, javascript, svelte]
-        entry: bash -c 'cd frontend; pnpm prettier --write . && pnpm eslint --fix .'
+        entry: bash -c 'cd app; pnpm prettier --write . && pnpm eslint --fix .'

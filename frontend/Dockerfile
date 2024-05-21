@@ -1,8 +1,8 @@
-# Dockerfile for Svelte Frontend
+# Dockerfile for Svelte app
 FROM node:20-alpine
 
 # Set the working directory
-WORKDIR /frontend
+WORKDIR /app
 
 RUN corepack enable
 

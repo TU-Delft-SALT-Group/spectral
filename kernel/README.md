@@ -1,8 +1,8 @@
-# Spectral backend
+# Spectral kernel
 
-## Run backend locally
+## Run kernel locally
 
-For the backend we are using fastapi. To start up the server locally run:
+For the kernel we are using fastapi. To start up the server locally run:
 
 ```bash
 fastapi dev spectral/main.py

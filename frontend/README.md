@@ -1,4 +1,4 @@
-Frontend for the application, using [SvelteKit](https://kit.svelte.dev/).
+app for the application, using [SvelteKit](https://kit.svelte.dev/).
 
 ## Developing
 

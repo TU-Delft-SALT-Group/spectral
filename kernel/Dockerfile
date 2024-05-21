@@ -50,7 +50,7 @@ RUN poetry self add poetry-plugin-export
 COPY poetry.lock pyproject.toml ./
 
 # will become mountpoint of our code
-WORKDIR /backend
+WORKDIR /kernel
 
 # Expose the necessary port
 EXPOSE 8000

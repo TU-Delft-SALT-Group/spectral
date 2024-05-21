@@ -22,9 +22,9 @@
         - `P2(eventually)`
         - `P3(not-scheduled)`
     - `domain::` one of
-        - `backend`
-        - `frontend`
-        - `docs` (have priority over the frontend/backend)
+        - `kernel`
+        - `app`
+        - `docs` (have priority over the app/kernel)
     - `question`: Contains a question that needs to be answered to move forward the issue
     - `duplicate`: Seems to be a duplicate of another issue
     - `refactoring`: Rewrite that doesn’t change functionality

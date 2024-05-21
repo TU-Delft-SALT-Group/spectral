@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "spectral"
 version = "0.0.1"
-description = "Backend for spectral: atypical speech analysis and recognition platform"
+description = "kernel for spectral: atypical speech analysis and recognition platform"
 authors = [
 		"Roman Knyazhitskiy <mail@knyaz.tech>",
 		"Ody Machairas",
@@ -48,4 +48,4 @@ coverage = "^7.5.1"
 
 [build-system]
 requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+build-kernel = "poetry.core.masonry.api"

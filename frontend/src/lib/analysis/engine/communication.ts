@@ -8,7 +8,7 @@ import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 
 /**
- * Main way to fetch stuff for backend
+ * Main way to fetch stuff for kernel
  */
 export function getURL(path: string): URL {
 	if (!browser) {
