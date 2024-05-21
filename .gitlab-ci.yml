@@ -1,18 +1,20 @@
 # include:
 #   - remote: 'https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml'
 
+stages:
+  - build
+  - lint
+  - test
+
+# App
+
 .pre_pnpm: &pre_pnpm
-  - cd frontend
+  - cd app
   - corepack enable
   - corepack prepare pnpm@latest-9 --activate
   - pnpm config set store-dir .pnpm-store
   - pnpm set verify-store-integrity false
 
-stages:
-  - build
-  - lint
-  - test
-    
 build:app:
   stage: build
   image: 'node:22.1.0-slim'
@@ -22,37 +24,80 @@ build:app:
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - app/pnpm-lock.yaml
     paths:
-      - frontend/.pnpm-store
+      - app/.pnpm-store
 
 lint:app:
   stage: lint
   image: 'node:22.1.0-slim'
   script:
-    - *pre_pnpm 
+    - *pre_pnpm
     - pnpm install --prefer-offline
     - pnpm lint
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - app/pnpm-lock.yaml
     paths:
-      - frontend/.pnpm-store
+      - app/.pnpm-store
 
-
-# tests in general can be expanded depending on every test that we will have
 test:app:
   stage: test
   image: 'node:22.1.0-slim'
-  script: 
+  script:
     - *pre_pnpm
     -  pnpm install --prefer-offline
     -  pnpm test:unit --coverage
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - app/pnpm-lock.yaml
     paths:
-      - frontend/.pnpm-store
+      - app/.pnpm-store
 
+# Kernel
+
+.pre_poetry: &pre_poetry
+  - cd kernel
+  - pip install poetry
+  - poetry config virtualenvs.in-project true
+
+build:kernel:
+  stage: build
+  image: python:3.12
+  script:
+    - *pre_poetry
+    - poetry install
+  cache:
+    paths:
+      - /kernel/.venv
+
+lint:kernel:
+  stage: lint
+  image: python:3.12
+  script:
+    - *pre_poetry
+    - poetry install
+    - pip install ruff
+    - ruff check
+  cache:
+    paths:
+      - /kernel/.venv
+
+test:kernel:
+  stage: test
+  image: python:3.12
+  script:
+    - *pre_poetry
+    - apt update
+    - apt install ffmpeg -y
+    - poetry install --with=dev
+    - poetry run coverage run -m pytest
+    - poetry run coverage report -m
+    - poetry run coverage xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  allow_failure: false
+  cache:
+    paths:
+      - /kernel/.venv

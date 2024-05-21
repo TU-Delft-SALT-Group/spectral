@@ -3,7 +3,7 @@
 - **Type**: Choose Incident if it’s a bug, otherwise just a normal issue
 - **Description**: Follow a template
 - **Assignees**: assign yourself. if there is a person who is an expert in the topic, and will help you, you should also assign them
-- **Reviewers**: Assign two people. If there is a particular person that should review, assign them. Otherwise assign people pseudo-arbitrarily, while trying to keep it evenly distributed. 
+- **Reviewers**: Assign two people. If there is a particular person that should review, assign them. Otherwise assign people pseudo-arbitrarily, while trying to keep it evenly distributed.
 - **Milestone**: one of MVP (0.1), 1.0
 - **Iteration**: Corresponds to each weekly sprint (from 1 to 10, deadlines are on Mondays)
 - **Labels**: any number of
@@ -22,9 +22,9 @@
         - `P2(eventually)`
         - `P3(not-scheduled)`
     - `domain::` one of
-        - `backend`
-        - `frontend`
-        - `docs` (have priority over the frontend/backend)
+        - `kernel`
+        - `app`
+        - `docs` (have priority over the app/kernel)
     - `question`: Contains a question that needs to be answered to move forward the issue
     - `duplicate`: Seems to be a duplicate of another issue
     - `refactoring`: Rewrite that doesn’t change functionality
@@ -43,4 +43,4 @@
 
 - Try to merge MRs in 3 days or less. The limit is 5 days to merge an MR, otherwise we will just close it, as we don't want to clutter the repo with stale MRs (barring exceptional cases, that should be justified). To facilitate this...
 - Make MRs as small as possible and generally self-contained.
-- Squash commits if history is messy/too detailed. 
+- Squash commits if history is messy/too detailed.

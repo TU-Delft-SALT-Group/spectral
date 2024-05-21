@@ -1,49 +1,78 @@
 services:
+  log:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_BASE: /log
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
   postgres:
     image: postgres:latest
-    restart: always
-    environment:
-      POSTGRES_DB: your_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+    restart: unless-stopped
+    stop_grace_period: 1s
+    env_file:
+       - '.variables.env'
     volumes:
       - postgres_data:/data
 
-  frontend:
+  app:
+    restart: unless-stopped
+    stop_grace_period: 500ms
+    environment:
+      PUBLIC_KERNEL_ORIGIN: http://kernel
+      PG_CONNECTION_STRING: postgres://user:password@postgres:5432/spectral_db
     build:
-      context: ./frontend
+      context: ./app
       dockerfile: Dockerfile
     volumes:
-      - ./frontend:/frontend
+      - ./app:/app
+      - node_modules:/app/node_modules/      
     expose:
       - "5173"
     depends_on:
-      - backend
+      - kernel
 
   nginx:
     image: nginx:latest
+    restart: unless-stopped
+    stop_grace_period: 200ms
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - frontend
+      - app
 
-  backend:
+  kernel:
+    restart: unless-stopped
+    stop_grace_period: 500ms
     build:
-      context: ./backend
+      context: ./kernel
       dockerfile: Dockerfile
     volumes:
-      - ./backend:/backend
+      - ./kernel:/kernel
+      - pip_cache:/kernel/.venv
     expose:
       - "8000"
     depends_on:
       - postgres
+    env_file:
+       - '.variables.env'
+       - '.apikeys.env'
 
 volumes:
   postgres_data:
+  node_modules:
+  pip_cache:
 
 networks:
   default:
     external: false
-
