@@ -356,3 +356,50 @@ def test_transcription_model_not_found(db_mock):
     response = client.get("/transcription/non_existant_model/1")
     assert response.status_code == 404
     assert db_mock.fetch_file.call_count == 1
+
+
+def test_frame_analyze_invalid_data():
+    response = client.post("/frames/analyze", json={"data": "invalid", "fs": 48000})
+    assert response.status_code == 422
+
+
+def test_signal_analyze_invalid_data():
+    response = client.post("/signals/analyze", json={"data": "invalid", "fs": 48000})
+    assert response.status_code == 422
+
+
+def test_analyze_signal_mode_invalid_mode(db_mock):
+    response = client.get("/signals/modes/invalid_mode/1")
+    assert response.status_code == 400
+    assert db_mock.fetch_file.call_count == 1
+
+
+def test_analyze_signal_mode_invalid_id(db_mock):
+    db_mock.fetch_file.side_effect = Exception("Database error")
+    response = client.get("/signals/modes/simple-info/invalid_id")
+    assert response.status_code == 404
+    assert db_mock.fetch_file.call_count == 1
+
+
+def test_transcribe_file_invalid_model(db_mock):
+    response = client.get("/transcription/invalid_model/1")
+    assert response.status_code == 404
+    assert db_mock.fetch_file.call_count == 1
+
+
+@pytest.mark.skip(reason="Not implemented")
+def test_transcribe_file_no_api_key(db_mock):
+    with patch("spectral.transcription.os.getenv") as mock_getenv:
+        mock_getenv.return_value = None
+        response = client.get("/transcription/deepgram/1")
+        assert response.status_code == 500
+        assert db_mock.fetch_file.call_count == 1
+
+
+@pytest.fixture
+def mock_db(mocker):
+    mock_db_class = mocker.patch("spectral.database.Database")
+    mock_db_instance = mock_db_class.return_value
+    mock_db_instance.connection = Mock()
+    mock_db_instance.close = Mock()
+    return mock_db_instance

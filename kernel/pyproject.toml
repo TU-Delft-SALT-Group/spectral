@@ -46,6 +46,7 @@ mock = "^5.1.0"
 mutmut = "^2.5.0"
 pytest-xdist = "^3.6.1"
 pytest-testmon = "^2.1.1"
+pytest-mock = "^3.14.0"
 
 
 [tool.mutmut]
