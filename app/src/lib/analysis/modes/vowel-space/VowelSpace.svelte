@@ -57,7 +57,7 @@
 			.call(d3.axisRight(y));
 		svg
 			.append('text')
-			.attr('class', 'x label')
+			.attr('class', 'y label')
 			.attr('text-anchor', 'middle')
 			.attr('x', width - marginRight / 2)
 			.attr('y', height / 2)
@@ -73,8 +73,8 @@
 
 			svg
 				.append('circle')
-				.attr('cx', x(f1))
-				.attr('cy', y(f2 - f1))
+				.attr('cx', x(f2 - f1))
+				.attr('cy', y(f1))
 				.attr('r', 10)
 				.attr('fill', color)
 				.attr('cursor', 'pointer')
@@ -83,8 +83,8 @@
 
 			svg
 				.append('text')
-				.attr('x', x(f1) + 10)
-				.attr('y', y(f2 - f1) + 17)
+				.attr('x', x(f2 - f1) + 10)
+				.attr('y', y(f1) + 17)
 				.text(name)
 				.attr('fill', foreground)
 				.attr('font-size', '0.9rem')
