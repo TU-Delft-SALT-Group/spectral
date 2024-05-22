@@ -1,5 +1,5 @@
 from typing import Annotated, Optional
-from fastapi import FastAPI, HTTPException, Path
+from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
     calculate_signal_duration,
@@ -29,18 +29,22 @@ import io
 import os
 from pydub import AudioSegment
 
-# Don't initialize the database if running tests
-database: Database = (  # type: ignore
-    None
-    if "PYTEST_VERSION" in os.environ
-    else Database(
-        os.getenv("POSTGRES_USER"),
-        os.getenv("POSTGRES_PASSWORD"),
-        os.getenv("POSTGRES_HOST"),
-        os.getenv("POSTGRES_PORT"),
-        os.getenv("POSTGRES_DB"),
-    )
-)
+
+def get_db():  # pragma: no cover
+    db = None
+    try:
+        db = Database(
+            os.getenv("POSTGRES_USER"),
+            os.getenv("POSTGRES_PASSWORD"),
+            os.getenv("POSTGRES_HOST"),
+            os.getenv("POSTGRES_PORT"),
+            os.getenv("POSTGRES_DB"),
+        )
+        db.connection()
+        yield db
+    finally:
+        if db is not None:
+            db.close()
 
 
 class ORJSONResponse(JSONResponse):
@@ -138,6 +142,7 @@ async def analyze_signal_mode(
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
     endIndex: Optional[int] = None,
+    database=Depends(get_db),
 ):
     """
     Analyze an audio signal in different modes.
@@ -165,19 +170,18 @@ async def analyze_signal_mode(
     fs = audio.frame_rate
     data = audio.get_array_of_samples()
     frame_index = validate_frame_index(data, startIndex, endIndex)
-    match mode:
-        case "simple-info":
-            return simple_info_mode(data, fs, file, frame_index)
-        case "spectogram":
-            return spectogram_mode(data, fs, frame_index)
-        case "waveform":
-            return None
-        case "vowel-space":
-            return vowel_space_mode(data, fs, frame_index)
-        case "transcription":
-            return transcription_mode(id, database)
-        case _:
-            raise HTTPException(status_code=400, detail="Mode not found")
+
+    if mode == "simple-info":
+        return simple_info_mode(data, fs, file, frame_index)
+    if mode == "spectogram":
+        return spectogram_mode(data, fs, frame_index)
+    if mode == "waveform":
+        return None
+    if mode == "vowel-space":
+        return vowel_space_mode(data, fs, frame_index)
+    if mode == "transcription":
+        return transcription_mode(id, database)
+    raise HTTPException(status_code=400, detail="Mode not found")
 
 
 @app.get("/transcription/{model}/{id}")
@@ -186,6 +190,7 @@ async def transcribe_file(
     id: Annotated[str, Path(title="The ID of the file")],
     # startIndex: Optional[int] = None,
     # endIndex: Optional[int] = None,
+    database=Depends(get_db),
 ):
     """
     Transcribe an audio file.

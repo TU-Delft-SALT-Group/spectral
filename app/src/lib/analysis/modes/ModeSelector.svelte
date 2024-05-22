@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { flip } from 'svelte/animate';
-	import { modeNames, modeComponents, type Mode } from '.';
+	import { modeNames, modeComponents, type mode as modeType } from '.';
 
-	export let mode: Mode.Name;
-	export let onModeHover: (mode: Mode.Name) => void = () => {};
+	export let mode: modeType.Name;
+	export let onModeHover: (mode: modeType.Name) => void = () => {};
 </script>
 
 <div class="main absolute right-4 top-4 z-30 flex flex-col gap-2 transition-all">

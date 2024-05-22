@@ -19,11 +19,9 @@ def get_transcription(model, file):
     Raises:
     - HTTPException: If the specified model is not found.
     """
-    match model:
-        case "deepgram":
-            return deepgram_transcription(file["data"])
-        case _:
-            raise HTTPException(status_code=404, detail="Model was not found")
+    if model == "deepgram":
+        return deepgram_transcription(file["data"])
+    raise HTTPException(status_code=404, detail="Model was not found")
 
 
 def deepgram_transcription(data):

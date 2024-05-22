@@ -1,0 +1,5 @@
+**/__pycache__/**
+.mutmut-cache
+.testmondata*
+deps.json
+**.bak

@@ -1,12 +1,16 @@
 <script lang="ts">
-	import type { RendererProps } from '..';
-	import WaveformSingle from './WaveformSingle.svelte';
+	import type { ModeComponentProps } from '..';
+	import AudioControls from '$lib/components/audio-controls/AudioControls.svelte';
+	import used from '$lib/utils';
 
-	export let props: RendererProps<'waveform'>;
+	export let fileData: ModeComponentProps<'waveform'>['fileData'];
+	export let modeState: ModeComponentProps<'waveform'>['modeState'];
+
+	used(modeState);
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 p-6">
-	{#each props as { data, state, frame }}
-		<WaveformSingle {item} bind:frame></WaveformSingle>
+	{#each fileData as { fileState, computedData }}
+		<AudioControls visualization="waveform" {fileState} {computedData} />
 	{/each}
 </section>

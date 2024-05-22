@@ -3,13 +3,14 @@
 
 stages:
   - build
+  - check
   - lint
   - test
 
 # App
 
 .pre_pnpm: &pre_pnpm
-  - cd frontend
+  - cd app
   - corepack enable
   - corepack prepare pnpm@latest-9 --activate
   - pnpm config set store-dir .pnpm-store
@@ -20,13 +21,27 @@ build:app:
   image: 'node:22.1.0-slim'
   script:
     - *pre_pnpm
-    -  pnpm install
+    - pnpm install
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - app/pnpm-lock.yaml
     paths:
-      - frontend/.pnpm-store
+      - app/.pnpm-store
+
+check:app:
+  stage: build
+  image: 'node:22.1.0-slim'
+  script:
+    - *pre_pnpm
+    - pnpm install --prefer-offline
+    - pnpm check
+  cache:
+    key:
+      files:
+        - app/pnpm-lock.yaml
+    paths:
+      - app/.pnpm-store
 
 lint:app:
   stage: lint
@@ -38,9 +53,9 @@ lint:app:
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - app/pnpm-lock.yaml
     paths:
-      - frontend/.pnpm-store
+      - app/.pnpm-store
 
 test:app:
   stage: test
@@ -52,14 +67,14 @@ test:app:
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - app/pnpm-lock.yaml
     paths:
-      - frontend/.pnpm-store
+      - app/.pnpm-store
 
 # Kernel
 
 .pre_poetry: &pre_poetry
-  - cd backend
+  - cd kernel
   - pip install poetry
   - poetry config virtualenvs.in-project true
 
@@ -71,7 +86,7 @@ build:kernel:
     - poetry install
   cache:
     paths:
-      - /backend/.venv
+      - /kernel/.venv
 
 lint:kernel:
   stage: lint
@@ -83,13 +98,15 @@ lint:kernel:
     - ruff check
   cache:
     paths:
-      - /backend/.venv
+      - /kernel/.venv
 
 test:kernel:
   stage: test
   image: python:3.12
   script:
     - *pre_poetry
+    - apt update
+    - apt install ffmpeg -y
     - poetry install --with=dev
     - poetry run coverage run -m pytest
     - poetry run coverage report -m
@@ -98,4 +115,4 @@ test:kernel:
   allow_failure: false
   cache:
     paths:
-      - /backend/.venv
+      - /kernel/.venv

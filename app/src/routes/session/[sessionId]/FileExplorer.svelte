@@ -12,12 +12,13 @@
 	import { getFileIcon, type FilebrowserFile } from '$lib/files';
 	import { cn } from '$lib/utils';
 	import { enhance } from '$app/forms';
-	import { MicIcon } from 'lucide-svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
+	import Recorder from './Recorder.svelte';
 
 	export let files: FilebrowserFile[];
+	export let sessionId: string;
 
 	let submitButton: HTMLInputElement;
 
@@ -56,7 +57,7 @@
 
 	<Separator class=""></Separator>
 
-	<div class="h-fit p-4">
+	<div class="relative h-fit p-4">
 		<form
 			method="POST"
 			use:enhance
@@ -75,9 +76,6 @@
 			<input bind:this={submitButton} type="submit" class="hidden" />
 		</form>
 
-		<Button class="w-full bg-red-800 bg-opacity-80 text-white shadow hover:bg-red-700">
-			<MicIcon class="h-5 w-5"></MicIcon>
-			<span class="pl-2"> Record </span>
-		</Button>
+		<Recorder {sessionId}></Recorder>
 	</div>
 </div>

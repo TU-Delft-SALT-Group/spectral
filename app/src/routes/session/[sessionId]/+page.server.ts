@@ -51,7 +51,8 @@ export const load = (async ({ params: { sessionId } }) => {
 
 	return {
 		files,
-		state
+		state,
+		sessionId
 	};
 }) satisfies PageServerLoad;
 

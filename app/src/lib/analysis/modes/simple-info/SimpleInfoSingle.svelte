@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Mode } from '..';
+	import type { mode } from '..';
 
-	export let computedData: Mode.ComputedData<'simple-info'>;
-	export let fileState: Mode.FileState<'simple-info'>;
+	export let computedData: mode.ComputedData<'simple-info'>;
+	export let fileState: mode.FileState<'simple-info'>;
 
 	$: displayData = [
 		{ label: 'Duration', value: `${computedData.duration.toFixed(2)} seconds` },

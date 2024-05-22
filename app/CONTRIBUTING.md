@@ -12,7 +12,7 @@ Then clone the library and go to the app folder.
 
 ```bash
 git clone https://github.com/your-username-here/spectral.git
-cd spectral/frontend
+cd spectral/app
 ```
 
 ## Contributing
@@ -50,13 +50,13 @@ Now make your changes. Make sure to include additional tests if necessary.
 
 ### Running the application
 
-While making code changes, it might be required to be in contact with another service other than frontend. To simulate this, we provide a docker-compose file in the root directory of this project. To run the docker services, go to _project's root folder_ and write:
+While making code changes, it might be required to be in contact with another service other than app. To simulate this, we provide a docker-compose file in the root directory of this project. To run the docker services, go to _project's root folder_ and write:
 
 ```bash
 docker compose up --build
 ```
 
-The frontend service should be accessible from `http://localhost`.
+The app service should be accessible from `http://localhost`.
 
 ### Before committing!!
 

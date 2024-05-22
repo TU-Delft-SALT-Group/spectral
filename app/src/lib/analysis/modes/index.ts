@@ -2,11 +2,12 @@ import type { ComponentType, SvelteComponent } from 'svelte';
 
 import { simpleInfoData, SimpleInfo } from './simple-info';
 import { waveformData, Waveform } from './waveform';
+import { spectrogramData, Spectrogram, SpectrogramIcon } from './spectrogram';
+import { vowelSpaceData, VowelSpace, VowelSpaceIcon } from './vowel-space';
 
 import AudioWaveformIcon from 'lucide-svelte/icons/audio-waveform';
 import InfoIcon from 'lucide-svelte/icons/info';
-import { ZodDefault, ZodSchema, z } from 'zod';
-import { fileState } from './file-state';
+import { ZodDefault, ZodSchema } from 'zod';
 
 import type * as mode from './types';
 export type * as mode from './types';
@@ -51,23 +52,9 @@ export type ModeValidator = {
  */
 export const modes = {
 	'simple-info': simpleInfoData,
-	waveform: {
-		computedFileData: waveformData,
-		modeState: z
-			.object({
-				syncFrame: z.boolean().default(true)
-			})
-			.default({}),
-
-		fileState: fileState
-			.pick({
-				fileId: true,
-				filename: true,
-				frame: true,
-				cycleEnabled: true
-			})
-			.default({})
-	}
+	waveform: waveformData,
+	spectrogram: spectrogramData,
+	'vowel-space': vowelSpaceData
 } as const satisfies Record<string, ModeValidator>;
 
 /**
@@ -101,7 +88,7 @@ export type ModeComponent<M extends mode.Name> = ComponentType<
 export const modeComponents: {
 	[M in keyof typeof modes]: {
 		component: ModeComponent<M>;
-		icon: ComponentType; // Workaround until https://github.com/lucide-icons/lucide/pull/2119
+		icon: ComponentType;
 	};
 } = {
 	'simple-info': {
@@ -112,5 +99,15 @@ export const modeComponents: {
 	waveform: {
 		component: Waveform,
 		icon: AudioWaveformIcon
+	},
+
+	spectrogram: {
+		component: Spectrogram,
+		icon: SpectrogramIcon
+	},
+
+	'vowel-space': {
+		component: VowelSpace,
+		icon: VowelSpaceIcon
 	}
 };

@@ -76,7 +76,8 @@ export function todo(message: string = 'Not implemented'): never {
 /**
  * Utility function to mark variables as used
  *
- * Mainly useful inside svelte, since I'm not aware of a way to tell it to not show warnings for unused variables
+ * Mainly useful inside svelte, since I'm not aware of a way to tell it to not show warnings for unused variables,
+ * which is sometimes necessary for a component to adhere to an interface
  */
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export default function used(...args: unknown[]) {}

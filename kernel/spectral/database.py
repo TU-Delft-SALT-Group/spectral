@@ -30,8 +30,19 @@ class Database:
             port (int): The port number for the database.
             dbname (str): The name of the database.
         """
+        self.user = user
+        self.password = password
+        self.host = host
+        self.port = port
+        self.dbname = dbname
+
+    def connection(self):
         self.conn = psycopg.connect(
-            dbname=dbname, user=user, password=password, host=host, port=port
+            dbname=self.dbname,
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
         )
         print("database connection opened")
         self.cursor = self.conn.cursor()
@@ -134,5 +145,8 @@ class Database:
         """
         Closes the database connection and cursor.
         """
-        self.cursor.close()
-        self.conn.close()
+        try:
+            self.cursor.close()
+            self.conn.close()
+        except NameError:
+            pass

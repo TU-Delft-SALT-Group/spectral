@@ -23,22 +23,22 @@ services:
     volumes:
       - postgres_data:/data
 
-  frontend:
+  app:
     restart: unless-stopped
     stop_grace_period: 500ms
     environment:
-      PUBLIC_KERNEL_ORIGIN: http://backend
+      PUBLIC_KERNEL_ORIGIN: http://kernel
       PG_CONNECTION_STRING: postgres://user:password@postgres:5432/spectral_db
     build:
-      context: ./frontend
+      context: ./app
       dockerfile: Dockerfile
     volumes:
-      - ./frontend:/frontend
-      - node_modules:/frontend/node_modules/      
+      - ./app:/app
+      - node_modules:/app/node_modules/      
     expose:
       - "5173"
     depends_on:
-      - backend
+      - kernel
 
   nginx:
     image: nginx:latest
@@ -49,17 +49,17 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - frontend
+      - app
 
-  backend:
+  kernel:
     restart: unless-stopped
     stop_grace_period: 500ms
     build:
-      context: ./backend
+      context: ./kernel
       dockerfile: Dockerfile
     volumes:
-      - ./backend:/backend
-      - pip_cache:/backend/.venv
+      - ./kernel:/kernel
+      - pip_cache:/kernel/.venv
     expose:
       - "8000"
     depends_on:

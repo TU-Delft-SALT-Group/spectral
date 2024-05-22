@@ -1,5 +1,5 @@
 /**
- * Entry point for communicating with the Python engine
+ * Entry point for communicating with the Python kernel
  */
 
 import { modes, type mode as modeType } from '$lib/analysis/modes';

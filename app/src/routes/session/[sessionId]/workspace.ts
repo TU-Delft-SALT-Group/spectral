@@ -1,4 +1,4 @@
-import { paneState, type PaneState } from '$lib/analysis/analysis-pane';
+import { paneState } from '$lib/analysis/analysis-pane';
 import { z } from 'zod';
 
 export const workspaceState = z
@@ -9,7 +9,4 @@ export const workspaceState = z
 		panes: [paneState.parse(undefined)]
 	});
 
-// TODO: Modify for tab support (it won't just be an array)
-export type WorkspaceState = {
-	panes: PaneState[];
-};
+export type WorkspaceState = z.infer<typeof workspaceState>;
