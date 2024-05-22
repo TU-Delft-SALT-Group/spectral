@@ -1,24 +1,36 @@
 <script lang="ts">
+	import { LOCALE } from '$lib/time';
 	import type { mode } from '..';
 
 	export let computedData: mode.ComputedData<'simple-info'>;
 	export let fileState: mode.FileState<'simple-info'>;
 
+	const display = (value: number | null, unit: string, decimals = 2) =>
+		value === null ? 'N/A' : `${value.toFixed(decimals)} ${unit}`;
+
 	$: displayData = [
-		{ label: 'Duration', value: `${computedData.duration.toFixed(2)} seconds` },
-		{ label: 'File size', value: `${computedData.fileSize} bytes` },
-		{ label: 'Average pitch', value: `${computedData.averagePitch.toFixed(2)} Hz` },
-		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString('en-US')}` }
+		{ label: 'Duration', value: display(computedData.duration, 'seconds') },
+		{ label: 'File size', value: display(computedData.fileSize, 'bytes', 0) }, // TODO: Display a logical unit of size
+		{ label: 'Average pitch', value: display(computedData.averagePitch, 'Hz') },
+		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` }
 	];
 
-	$: frameData = computedData.frame
-		? [
-				{ label: 'Frame Duration', value: `${computedData.frame.duration.toFixed(2)} seconds` },
-				{ label: 'Frame Pitch', value: `${computedData.frame.pitch} pitch` },
-				{ label: 'Frame F1 formant', value: `${computedData.frame.f1} Hz` },
-				{ label: 'Frame F2 formant', value: `${computedData.frame.f2} Hz` }
-			]
-		: null;
+	function getFrameData(frame: typeof computedData.frame) {
+		if (frame === null) {
+			return null;
+		}
+
+		const { duration, pitch, f1, f2 } = frame;
+
+		return [
+			{ label: 'Frame Duration', value: display(duration, 'seconds') },
+			{ label: 'Frame Pitch', value: display(pitch, 'pitch') },
+			{ label: 'Frame F1 formant', value: display(f1, 'Hz') },
+			{ label: 'Frame F2 formant', value: display(f2, 'Hz') }
+		];
+	}
+
+	$: frameData = getFrameData(computedData.frame);
 </script>
 
 <h1 class="text-xl font-bold">{fileState.fileId}</h1>
