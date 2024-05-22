@@ -1,16 +1,20 @@
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
-	import type { SpecificModeData } from '..';
 	import { onDestroy, onMount } from 'svelte';
 	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
+	import type { mode } from '..';
+	import used from '$lib/utils';
 
-	export let item: SpecificModeData<'waveform'>;
+	export let computedData: mode.ComputedData<'waveform'>;
+	export let fileState: mode.FileState<'waveform'>;
+
+	used(computedData);
 
 	// This is disabled because for some reason it complains that it is not being used
 	// when in reality it is bound in the AudioControls.svelte
 	// eslint-disable-next-line
-	export let controls: ControlRequirements = {
+	export const controls: ControlRequirements = {
 		setSpeed(speed: number) {
 			wavesurfer.setPlaybackRate(speed);
 		},
@@ -43,8 +47,8 @@
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${item.fileId}-waveform`,
-			url: `/db/${item.fileId}`,
+			container: `#${fileState.fileId}-waveform`,
+			url: `/db/file/${fileState.fileId}`,
 			height: 'auto'
 		});
 
@@ -96,7 +100,7 @@
 </script>
 
 <div
-	id={`${item.fileId}-waveform`}
+	id={`${fileState.fileId}-waveform`}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

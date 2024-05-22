@@ -1,4 +1,4 @@
-const LOCALE = 'en-GB';
+export const LOCALE = 'en-GB';
 
 /**
  * Converts a date to a human sensible date format.

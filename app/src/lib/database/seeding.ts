@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { db } from '.';
 import { filesTable, sessionTable, userTable } from './schema';
 import { eq } from 'drizzle-orm';
+import type { WorkspaceState } from '../../routes/session/[sessionId]/workspace';
 
 export async function seedSampleUser() {
 	const isSampleUserSeeded = await db.query.userTable.findFirst({
@@ -21,6 +22,44 @@ export async function seedSampleUser() {
 	return { isSampleUserSeeded };
 }
 
+const sampleSessionState: WorkspaceState = {
+	panes: [
+		{
+			mode: 'waveform',
+			files: [
+				{
+					frame: {
+						startIndex: 100,
+						endIndex: 1000
+					},
+					fileId: sampleTorgo[0],
+					filename: sampleTorgo[0],
+					cycleEnabled: false
+				},
+
+				{
+					frame: {
+						startIndex: 100,
+						endIndex: 1000
+					},
+					fileId: sampleTorgo[1],
+					filename: sampleTorgo[1],
+					cycleEnabled: true
+				}
+			],
+
+			modeState: {
+				'simple-info': {},
+				waveform: {},
+				spectrogram: {},
+				'vowel-space': {
+					showLegend: true
+				}
+			}
+		}
+	]
+};
+
 export async function seedSampleSession() {
 	const { isSampleUserSeeded } = await seedSampleUser();
 
@@ -32,7 +71,8 @@ export async function seedSampleSession() {
 		await db.insert(sessionTable).values({
 			id: 'sample-session',
 			name: 'Sample Session',
-			owner: 'sample-user'
+			owner: 'sample-user',
+			state: sampleSessionState
 		});
 	}
 

@@ -20,12 +20,6 @@
 	export let files: FilebrowserFile[];
 	export let sessionId: string;
 
-	new Date().toLocaleString('en-GB', {
-		minute: '2-digit',
-		second: '2-digit',
-		fractionalSecondDigits: 3
-	});
-
 	let submitButton: HTMLInputElement;
 
 	// Manual fetch because it's a hassle to set up the form

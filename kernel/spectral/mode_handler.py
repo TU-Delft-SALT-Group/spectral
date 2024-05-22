@@ -33,12 +33,11 @@ def simple_info_mode(data, fs, file, frame_index):
     return result
 
 
-def spectogram_mode(data, fs, frame_index):
-    """TBD
-    Raises:
-        HTTPException: 501 not implemented
+def spectrogram_mode(data, fs, frame_index):
     """
-    raise HTTPException(status_code=501, detail="spectogram_mode is not implemented")
+    TBD
+    """
+    return None
 
 
 def vowel_space_mode(data, fs, frame_index):

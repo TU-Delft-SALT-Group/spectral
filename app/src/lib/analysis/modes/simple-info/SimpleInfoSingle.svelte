@@ -1,27 +1,39 @@
 <script lang="ts">
-	import type { SpecificModeData } from '..';
+	import { LOCALE } from '$lib/time';
+	import type { mode } from '..';
 
-	// eslint-disable-next-line
-	export let data: SpecificModeData<'simple-info'>;
+	export let computedData: mode.ComputedData<'simple-info'>;
+	export let fileState: mode.FileState<'simple-info'>;
+
+	const display = (value: number | null, unit: string, decimals = 2) =>
+		value === null ? 'N/A' : `${value.toFixed(decimals)} ${unit}`;
 
 	$: displayData = [
-		{ label: 'Duration', value: `${data.duration.toFixed(2)} seconds` },
-		{ label: 'File size', value: `${data.fileSize} bytes` },
-		{ label: 'Average pitch', value: `${data.averagePitch.toFixed(2)} Hz` },
-		{ label: 'Date created', value: `${data.fileCreationDate.toLocaleString('en-US')}` }
+		{ label: 'Duration', value: display(computedData.duration, 'seconds') },
+		{ label: 'File size', value: display(computedData.fileSize, 'bytes', 0) }, // TODO: Display a logical unit of size
+		{ label: 'Average pitch', value: display(computedData.averagePitch, 'Hz') },
+		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` }
 	];
 
-	$: frameData = data.frame
-		? [
-				{ label: 'Frame Duration', value: `${data.frame.duration.toFixed(2)} seconds` },
-				{ label: 'Frame Pitch', value: `${data.frame.pitch} pitch` },
-				{ label: 'Frame F1 formant', value: `${data.frame.f1} Hz` },
-				{ label: 'Frame F2 formant', value: `${data.frame.f2} Hz` }
-			]
-		: null;
+	function getFrameData(frame: typeof computedData.frame) {
+		if (frame === null) {
+			return null;
+		}
+
+		const { duration, pitch, f1, f2 } = frame;
+
+		return [
+			{ label: 'Frame Duration', value: display(duration, 'seconds') },
+			{ label: 'Frame Pitch', value: display(pitch, 'pitch') },
+			{ label: 'Frame F1 formant', value: display(f1, 'Hz') },
+			{ label: 'Frame F2 formant', value: display(f2, 'Hz') }
+		];
+	}
+
+	$: frameData = getFrameData(computedData.frame);
 </script>
 
-<h1 class="text-xl font-bold">{data.fileId}</h1>
+<h1 class="text-xl font-bold">{fileState.fileId}</h1>
 
 <div class="flex flex-col flex-wrap opacity-80">
 	{#each displayData as { label, value }}
@@ -34,7 +46,7 @@
 	{/each}
 
 	{#if frameData}
-		{#each displayData as { label, value }}
+		{#each frameData as { label, value }}
 			<section class="flex items-baseline opacity-80">
 				<h2 class="mr-2 text-lg">{label}:</h2>
 				<span class="h-full">
