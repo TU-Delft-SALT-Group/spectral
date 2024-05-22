@@ -1,13 +1,11 @@
 import type { PageServerLoad, Actions } from './$types';
 import type { FilebrowserFile } from '$lib/files';
-import { workspaceState, type WorkspaceState } from './workspace';
+import { sessionState, type SessionState } from './workspace';
 import { db } from '$lib/database';
 import { filesTable, sessionTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { uploadFile } from '$lib/database/files';
-import { syncPaneStateToDb } from '$lib/database/sync';
-import { paneState } from '$lib/analysis/analysis-pane';
 
 async function getFiles(sessionId: string): Promise<FilebrowserFile[]> {
 	const result = await db.query.filesTable.findMany({
@@ -21,7 +19,7 @@ async function getFiles(sessionId: string): Promise<FilebrowserFile[]> {
 	}));
 }
 
-async function getState(sessionId: string): Promise<WorkspaceState> {
+async function getState(sessionId: string): Promise<SessionState> {
 	const result = await db.query.sessionTable.findFirst({
 		where: eq(sessionTable.id, sessionId),
 		columns: {
@@ -34,10 +32,10 @@ async function getState(sessionId: string): Promise<WorkspaceState> {
 	}
 
 	try {
-		return workspaceState.parse(result.state);
+		return sessionState.parse(result.state);
 	} catch (e) {
 		console.warn('Found invalid state in database, resetting to default');
-		const defaultState = workspaceState.parse(undefined);
+		const defaultState = sessionState.parse(undefined);
 
 		await db.update(sessionTable).set({
 			state: defaultState
@@ -76,9 +74,5 @@ export const actions = {
 		}
 
 		await db.delete(filesTable).where(eq(filesTable.id, json.fileId));
-	},
-
-	syncPaneState: async ({ request, params }) => {
-		syncPaneStateToDb(paneState.parse(await request.json()), params.sessionId);
 	}
 } satisfies Actions;

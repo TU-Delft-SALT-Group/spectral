@@ -3,13 +3,13 @@
 	import type { PageServerData } from './$types';
 	import FileExplorer from './FileExplorer.svelte';
 	import Workspace from './Workspace.svelte';
-	import type { WorkspaceState } from './workspace';
+	import type { SessionState } from './workspace';
 
 	export let data: PageServerData;
 	let lastUpdate: number = 0;
 	let timeout: ReturnType<typeof setTimeout> | null;
 
-	function attemptSync(state: WorkspaceState) {
+	function attemptSync(state: SessionState) {
 		if (!timeout) return;
 
 		let now = Date.now();
@@ -29,7 +29,7 @@
 		}
 	}
 
-	async function syncState(state: WorkspaceState) {
+	async function syncState(state: SessionState) {
 		await fetch(`/db/session/${data.sessionId}`, {
 			method: 'POST',
 			body: JSON.stringify(state)

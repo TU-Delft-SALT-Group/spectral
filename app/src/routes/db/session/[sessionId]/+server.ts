@@ -1,11 +1,11 @@
 import { db } from '$lib/database';
 import { sessionTable } from '$lib/database/schema';
 import { error, type RequestHandler } from '@sveltejs/kit';
-import { workspaceState, type WorkspaceState } from '../../../session/[sessionId]/workspace';
+import { sessionState, type SessionState } from '../../../session/[sessionId]/workspace';
 
 export const POST: RequestHandler = async ({ params, request }) => {
 	const json = await request.json();
-	const val: WorkspaceState = workspaceState.parse(json);
+	const val: SessionState = sessionState.parse(json);
 
 	try {
 		await db.update(sessionTable).set({

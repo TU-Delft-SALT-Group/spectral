@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { db } from '.';
 import { filesTable, sessionTable, userTable } from './schema';
 import { eq } from 'drizzle-orm';
-import type { WorkspaceState } from '../../routes/session/[sessionId]/workspace';
+import type { SessionState } from '../../routes/session/[sessionId]/workspace';
 
 export async function seedSampleUser() {
 	const isSampleUserSeeded = await db.query.userTable.findFirst({
@@ -22,7 +22,7 @@ export async function seedSampleUser() {
 	return { isSampleUserSeeded };
 }
 
-const sampleSessionState: WorkspaceState = {
+const sampleSessionState: SessionState = {
 	panes: [
 		{
 			mode: 'waveform',
