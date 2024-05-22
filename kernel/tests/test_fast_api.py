@@ -29,7 +29,7 @@ with open(
 def db_mock():
     mock = Mock()
     mock.fetch_file.return_value = {"data": control_sentence, "creationTime": 1}
-    mock.get_transcriptions.return_value = [{"value": "hi", "start": 0, "end": 1}]
+    mock.get_transcriptions.return_value = [[{"value": "hi", "start": 0, "end": 1}]]
     yield mock
 
 
@@ -197,7 +197,7 @@ def test_signal_correct_simple_info(db_mock):
     assert response.status_code == 200
     result = response.json()
     assert result["fileSize"] == 146124
-    assert result["fileCreationDate"] == 1
+    assert result["fileCreationDate"] == '1970-01-01T00:00:01Z'
     assert result["frame"] is None
     assert db_mock.fetch_file.call_count == 1
 
@@ -229,9 +229,9 @@ def test_signal_correct_transcription(db_mock):
     assert response.status_code == 200
     result = response.json()
     assert len(result) == 1
-    assert result[0]["value"] == "hi"
-    assert result[0]["start"] == 0
-    assert result[0]["end"] == 1
+    assert result[0][0]["value"] == "hi"
+    assert result[0][0]["start"] == 0
+    assert result[0][0]["end"] == 1
     assert db_mock.fetch_file.call_count == 1
     assert db_mock.get_transcriptions.call_count == 1
 
@@ -324,7 +324,7 @@ def test_signal_mode_simple_info_with_frame(db_mock):
     assert response.status_code == 200
     result = response.json()
     assert result["fileSize"] == 146124
-    assert result["fileCreationDate"] == 1
+    assert result["fileCreationDate"] == '1970-01-01T00:00:01Z'
     assert result["averagePitch"] == pytest.approx(34.38,0.1)
     assert result["duration"] == pytest.approx(4.565,0.01)
     assert result["frame"] is not None

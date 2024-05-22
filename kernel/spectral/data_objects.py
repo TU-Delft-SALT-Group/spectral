@@ -87,7 +87,7 @@ class SignalSpectrogram(BaseModel):
     window_length: float
     frequency_step: float
     start_time: float
-    data: List[float]
+    data: List[List[float]]
 
 class SignalFormants(BaseModel):
     """
@@ -117,9 +117,9 @@ class SignalAnalysisResponse(BaseModel):
     """
     
     duration: float
-    pitch: SignalPitch
-    spectrogram: SignalSpectrogram
-    formants: SignalFormants
+    pitch: SignalPitch | None
+    spectrogram: SignalSpectrogram | None
+    formants: SignalFormants | None
 
 class SimpleInfoResponse(BaseModel):
     """
@@ -137,7 +137,7 @@ class SimpleInfoResponse(BaseModel):
     averagePitch: float
     fileSize: int
     fileCreationDate: datetime
-    frame: FrameAnalysisResponse
+    frame: FrameAnalysisResponse | None
 
 class VowelSpaceResponse(BaseModel):
     """

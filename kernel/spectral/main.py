@@ -199,7 +199,7 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}", response_model=Union[SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]]], responses={
+@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]]], responses={
     200: {"content": {
                 "application/json": {
                     "examples": {
