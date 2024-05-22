@@ -16,7 +16,7 @@
 	} from '$lib/analysis/modes';
 	import { syncPaneStateToDb as syncPaneStateToDb } from '$lib/database/sync';
 	import type { PaneState } from './analysis-pane';
-	import { getComputedFileData } from './engine/communication';
+	import { getComputedFileData } from './kernel/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
 
 	export let state: PaneState;

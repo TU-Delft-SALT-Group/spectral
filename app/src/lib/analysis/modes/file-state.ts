@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { frame } from '../engine/framing';
+import { frame } from '../kernel/framing';
 
 export const fileState = z.object({
 	fileId: z.string().default('broken-file-id'),

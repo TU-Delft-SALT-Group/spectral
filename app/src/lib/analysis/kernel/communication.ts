@@ -3,7 +3,7 @@
  */
 
 import { modes, type mode as modeType } from '$lib/analysis/modes';
-import type { Frame } from '$lib/analysis/engine/framing';
+import type { Frame } from '$lib/analysis/kernel/framing';
 import { browser } from '$app/environment';
 
 /**
