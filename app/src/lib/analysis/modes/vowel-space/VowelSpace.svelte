@@ -12,7 +12,6 @@
 	used(modeState);
 
 	let container: HTMLDivElement;
-	let showLegend = true;
 
 	function d3Action(node: Node) {
 		const foreground = window && window.getComputedStyle(container).getPropertyValue('color');
@@ -115,7 +114,7 @@
 		node.appendChild(unwrap(svg.node()));
 	}
 
-	$: d3.select('.legend').style('opacity', showLegend ? 1 : 0);
+	$: d3.select('.legend').style('opacity', modeState.showLegend ? 1 : 0);
 </script>
 
 <section class="grid h-full w-full grid-rows-[auto,1fr]">
@@ -126,7 +125,7 @@
 				class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 				>Show legend</Label
 			>
-			<Checkbox id="terms" bind:checked={showLegend} />
+			<Checkbox id="terms" bind:checked={modeState.showLegend} />
 		</div>
 	</div>
 

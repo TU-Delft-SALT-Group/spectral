@@ -32,6 +32,7 @@ async function getState(sessionId: string): Promise<WorkspaceState> {
 	}
 
 	try {
+		console.log('State found: ', result.state);
 		return workspaceState.parse(result.state);
 	} catch (e) {
 		console.warn('Found invalid state in database, resetting to default');

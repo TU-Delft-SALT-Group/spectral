@@ -11,12 +11,12 @@
 		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString('en-US')}` }
 	];
 
-	$: frameData = computedData.frameData
+	$: frameData = computedData.frame
 		? [
-				{ label: 'Frame Duration', value: `${computedData.frameData.duration.toFixed(2)} seconds` },
-				{ label: 'Frame Pitch', value: `${computedData.frameData.pitch} pitch` },
-				{ label: 'Frame F1 formant', value: `${computedData.frameData.f1} Hz` },
-				{ label: 'Frame F2 formant', value: `${computedData.frameData.f2} Hz` }
+				{ label: 'Frame Duration', value: `${computedData.frame.duration.toFixed(2)} seconds` },
+				{ label: 'Frame Pitch', value: `${computedData.frame.pitch} pitch` },
+				{ label: 'Frame F1 formant', value: `${computedData.frame.f1} Hz` },
+				{ label: 'Frame F2 formant', value: `${computedData.frame.f2} Hz` }
 			]
 		: null;
 </script>

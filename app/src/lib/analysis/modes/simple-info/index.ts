@@ -24,12 +24,12 @@ export const simpleInfoData = {
 		 */
 		fileCreationDate: z.string().pipe(z.coerce.date()),
 
-		frameData: z
+		frame: z
 			.object({
 				duration: z.number(),
-				pitch: z.number().optional(),
-				f1: z.number().optional(),
-				f2: z.number().optional()
+				pitch: z.number().nullable(),
+				f1: z.number().nullable(),
+				f2: z.number().nullable()
 			})
 			.nullable()
 	}),

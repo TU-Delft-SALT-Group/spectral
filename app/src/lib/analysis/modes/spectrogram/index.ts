@@ -3,7 +3,7 @@ import type { ModeValidator } from '..';
 import { fileState } from '../file-state';
 
 export const spectrogramData = {
-	computedFileData: z.object({}),
+	computedFileData: z.null(),
 
 	fileState: fileState
 		.pick({

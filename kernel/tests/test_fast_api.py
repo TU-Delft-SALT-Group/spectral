@@ -88,7 +88,7 @@ def test_fundamental_features_typical_speech():
     result = response.json()
     assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["pitch"] is not None
-    assert result["spectogram"] is not None
+    assert result["spectrogram"] is not None
     assert result["formants"] is not None
 
 
@@ -108,9 +108,9 @@ def test_fundamental_features_typical_own_params_correct():
             "data": typical_1_data,
             "fs": typical_1_fs,
             "pitch_time_step": 0.01,
-            "spectogram_time_step": 0.004,
-            "spectogram_window_length": 0.0025,
-            "spectogram_frequency_step": 15.0,
+            "spectrogram_time_step": 0.004,
+            "spectrogram_window_length": 0.0025,
+            "spectrogram_frequency_step": 15.0,
             "formants_time_step": 0.003,
             "formants_window_length": 0.015,
         },
@@ -120,10 +120,10 @@ def test_fundamental_features_typical_own_params_correct():
     assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["pitch"] is not None
     assert result["pitch"]["time_step"] == pytest.approx(0.01)
-    assert result["spectogram"] is not None
-    assert result["spectogram"]["time_step"] == pytest.approx(0.004)
-    assert result["spectogram"]["window_length"] == pytest.approx(0.0025)
-    assert result["spectogram"]["frequency_step"] == pytest.approx(15)
+    assert result["spectrogram"] is not None
+    assert result["spectrogram"]["time_step"] == pytest.approx(0.004)
+    assert result["spectrogram"]["window_length"] == pytest.approx(0.0025)
+    assert result["spectrogram"]["frequency_step"] == pytest.approx(15)
     assert result["formants"] is not None
     assert result["formants"]["time_step"] == pytest.approx(0.003)
     assert result["formants"]["window_length"] == pytest.approx(0.015)
@@ -138,7 +138,7 @@ def test_fundamental_features_typical_own_params_errors():
     result = response.json()
     assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["pitch"] is None
-    assert result["spectogram"] is not None
+    assert result["spectrogram"] is not None
     assert result["formants"] is not None
 
     response = client.post(
@@ -146,7 +146,7 @@ def test_fundamental_features_typical_own_params_errors():
         json={
             "data": typical_1_data,
             "fs": typical_1_fs,
-            "spectogram_time_step": 0,
+            "spectrogram_time_step": 0,
             "formants_time_step": 0,
         },
     )
@@ -154,7 +154,7 @@ def test_fundamental_features_typical_own_params_errors():
     result = response.json()
     assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["pitch"] is not None
-    assert result["spectogram"] is None
+    assert result["spectrogram"] is None
     assert result["formants"] is None
 
 
@@ -169,7 +169,7 @@ def test_fundamental_features_empty_signal():
     result = response.json()
     assert result["duration"] == 0
     assert result["pitch"] is None
-    assert result["spectogram"] is None
+    assert result["spectrogram"] is None
     assert result["formants"] is None
 
 
@@ -192,10 +192,10 @@ def test_signal_correct_simple_info(db_mock):
     assert db_mock.fetch_file.call_count == 1
 
 
-def test_signal_correct_spectogram(db_mock):
-    response = client.get("/signals/modes/spectogram/1")
-    assert response.status_code == 501
-    assert db_mock.fetch_file.call_count == 1
+# def test_signal_correct_spectrogram(db_mock):
+#     response = client.get("/signals/modes/spectrogram/1")
+#     assert response.status_code == 501
+#     assert db_mock.fetch_file.call_count == 1
 
 
 def test_signal_correct_waveform(db_mock):

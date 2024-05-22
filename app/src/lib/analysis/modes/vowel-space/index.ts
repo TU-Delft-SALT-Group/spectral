@@ -18,11 +18,15 @@ export const vowelSpaceData = {
 
 	fileState: fileState
 		.pick({
-			filename: true,
-			vowelSpace: true
+			filename: true
 		})
 		.default({}),
-	modeState: z.object({}).default({})
+
+	modeState: z
+		.object({
+			showLegend: z.boolean().default(true)
+		})
+		.default({})
 } satisfies ModeValidator;
 
 export { default as VowelSpace } from './VowelSpace.svelte';

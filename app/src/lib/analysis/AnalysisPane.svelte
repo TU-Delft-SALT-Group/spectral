@@ -7,6 +7,7 @@
 -->
 
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import {
 		modeComponents,
 		type FileData,
@@ -63,7 +64,10 @@
 		return data[state.mode].props as ModeComponentProps<mode.Name>;
 	}
 
+	$: browser && getProps(state);
+
 	$: syncPaneStateToDb(state);
+	$: console.log(data);
 </script>
 
 <section class="relative h-full">

@@ -5,6 +5,8 @@
 import { modes, type mode as modeType } from '$lib/analysis/modes';
 import type { Frame } from '$lib/analysis/kernel/framing';
 import { browser } from '$app/environment';
+import { error } from '@sveltejs/kit';
+import { todo } from '$lib/utils';
 
 /**
  * Gets the URL for the backend API
@@ -34,9 +36,22 @@ export async function getComputedFileData<M extends modeType.Name>({
 	frame: Frame | null;
 }): Promise<modeType.ComputedData<M>> {
 	const url = getURL(`signals/modes/${mode}/${fileId}`);
-	url.searchParams.set('frame', JSON.stringify(frame));
+	if (frame) {
+		url.searchParams.set('startIndex', frame.startIndex.toString());
+		url.searchParams.set('endIndex', frame.endIndex.toString());
+	}
 
 	const response = await fetch(url);
+	console.log({ response });
 	const jsonResponse = (await response.json()) as unknown;
-	return modes[mode].computedFileData.parse(jsonResponse);
+	console.log({ jsonResponse });
+	const result = modes[mode].computedFileData.safeParse(jsonResponse);
+
+	if (!result.success) {
+		console.log(jsonResponse);
+		console.log(result.error);
+		error(400, todo());
+	}
+
+	return result.data;
 }
