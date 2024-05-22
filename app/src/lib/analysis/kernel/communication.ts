@@ -13,7 +13,7 @@ import { todo } from '$lib/utils';
  */
 export function getURL(path: string, base = 'api/'): URL {
 	if (!browser) {
-		throw Error('This function is only available in the browser');
+		todo('Make getURL work on the server');
 	}
 	// Remove leading slash
 	if (path.startsWith('/')) {
@@ -42,15 +42,11 @@ export async function getComputedFileData<M extends modeType.Name>({
 	}
 
 	const response = await fetch(url);
-	console.log({ response });
 	const jsonResponse = (await response.json()) as unknown;
-	console.log({ jsonResponse });
 	const result = modes[mode].computedFileData.safeParse(jsonResponse);
 
 	if (!result.success) {
-		console.log(jsonResponse);
-		console.log(result.error);
-		error(400, todo());
+		error(500, "Kernel response couldn't be parsed (response was ${jsonResponse})");
 	}
 
 	return result.data;

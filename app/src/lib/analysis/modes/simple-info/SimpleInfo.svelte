@@ -7,9 +7,6 @@
 	export let modeState: ModeComponentProps<'simple-info'>['modeState'];
 
 	used(modeState);
-
-	console.log('fileData', fileData);
-	console.log('modeState', modeState);
 </script>
 
 <div class="grid h-full grid-cols-3 items-center gap-4 p-4">

@@ -65,9 +65,7 @@
 	}
 
 	$: browser && getProps(state);
-
 	$: syncPaneStateToDb(state);
-	$: console.log(data);
 </script>
 
 <section class="relative h-full">
