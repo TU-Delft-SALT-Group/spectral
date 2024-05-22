@@ -48,7 +48,7 @@
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
 			container: `#${fileState.fileId}-spectrogram`,
-			url: `/db/${fileState.fileId}`,
+			url: `/db/file/${fileState.fileId}`,
 			height: 0
 		});
 

@@ -6,6 +6,8 @@ import { filesTable, sessionTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { uploadFile } from '$lib/database/files';
+import { syncPaneStateToDb } from '$lib/database/sync';
+import { paneState } from '$lib/analysis/analysis-pane';
 
 async function getFiles(sessionId: string): Promise<FilebrowserFile[]> {
 	const result = await db.query.filesTable.findMany({
@@ -74,5 +76,9 @@ export const actions = {
 		}
 
 		await db.delete(filesTable).where(eq(filesTable.id, json.fileId));
+	},
+
+	syncPaneState: async ({ request, params }) => {
+		syncPaneStateToDb(paneState.parse(await request.json()), params.sessionId);
 	}
 } satisfies Actions;
