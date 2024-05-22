@@ -1,93 +1,113 @@
-import type { ComponentType } from 'svelte';
+import type { ComponentType, SvelteComponent } from 'svelte';
 
 import { simpleInfoData, SimpleInfo } from './simple-info';
 import { waveformData, Waveform } from './waveform';
+import { spectrogramData, Spectrogram, SpectrogramIcon } from './spectrogram';
+import { vowelSpaceData, VowelSpace, VowelSpaceIcon } from './vowel-space';
 
 import AudioWaveformIcon from 'lucide-svelte/icons/audio-waveform';
 import InfoIcon from 'lucide-svelte/icons/info';
-import { z } from 'zod';
-import { Spectrogram, SpectrogramIcon, spectrogramData } from './spectrogram';
-import { VowelSpace, VowelSpaceIcon, vowelSpaceData } from './vowel-space';
+import { ZodDefault, ZodSchema } from 'zod';
 
-export type Mode = ModeData['mode'];
+import type * as mode from './types';
+export type * as mode from './types';
 
-export interface BaseModeData {
+export type ModeValidator = {
 	/**
-	 * The mode of analysis
+	 * Data that is computed from the audio file, given a file id and possibly a frame
 	 */
-	mode: string;
-
-	/**
-	 * The unique id of this file
-	 */
-	fileId: string;
+	computedFileData: ZodSchema<unknown>;
 
 	/**
-	 * The name of the file
+	 * State associated with the mode.
+	 *
+	 * This state is per-mode on a pane, meaning it doesn't depend on the file.
 	 */
-	name: string;
-}
+	modeState: ZodDefault<ZodSchema<unknown>>;
 
-export const modeDataValidator = z.union([
-	simpleInfoData,
-	waveformData,
-	spectrogramData,
-	vowelSpaceData
-]);
-
-/**
- * Data for a specific mode of analysis.
- *
- * This type is a union of all possible modes of analysis. Each mode has a different set of fields.
- */
-export type ModeData = z.infer<typeof modeDataValidator> & BaseModeData;
+	/**
+	 * State associated with files.
+	 *
+	 * This state is shared between all modes, meaning that if you set a value `foo` in
+	 * one mode, another mode can use that `foo` value. Keep in mind that these values
+	 * should be of the same type.
+	 */
+	fileState: ZodDefault<ZodSchema<unknown>>;
+};
 
 /**
- * List of all the mode names/ids. It would be nice to autogenerate this from `ModeData`, but that is currently not possible in TypeScript (https://stackoverflow.com/questions/44480644/string-union-to-string-array).
+ * The mode data and state schemas, necessary for the renderer to display the mode
  *
- * We do have the guarantee that every entry of `modes` is a valid mode of `ModeData`. However, I haven't found a way to do the oppossite (i.e., the code compiles even if `modes` doesn't contain all modes of `ModeData`).
+ * The data is the information that can be computed from the audio.
+ *
+ * The state is composed of extra parameters that the user sets which control the renderer.
+ * In other words, the state is the configuration of the renderer, or the necessary info that
+ * is not computed from the audio.
+ *
+ * Here you register modes. When adding a new mode, you also need to update the `modeComponents`
+ * record.
+ *
+ * It would be nice for that to be included here, but I have not found a way to strongly type
+ * object properties based on sibling properties.
  */
-export const modes = [
-	'simple-info',
-	'waveform',
-	'spectrogram',
-	'vowel-space'
-] as const satisfies Array<ModeData['mode']>;
+export const modes = {
+	'simple-info': simpleInfoData,
+	waveform: waveformData,
+	spectrogram: spectrogramData,
+	'vowel-space': vowelSpaceData
+} as const satisfies Record<string, ModeValidator>;
 
 /**
- * Helper type to get the specific type of data for a mode
+ * The names of the modes
  *
- * @example
- * ```ts
- * type WaveformData = SpecificModeData<'waveform'>;
- * ```
+ * This helper is useful because `Object.keys(modes)` returns a `string[]` instead of a `Mode.Name[]`.
  */
-export type SpecificModeData<Mode> = ModeData & { mode: Mode };
+export const modeNames: mode.Name[] = Object.keys(modes) as Array<keyof typeof modes>;
 
-export function getComponent(mode: Mode): ComponentType {
-	switch (mode) {
-		case 'simple-info':
-			return SimpleInfo;
-		case 'waveform':
-			return Waveform;
-		case 'spectrogram':
-			return Spectrogram;
-		case 'vowel-space':
-			return VowelSpace;
+export type FileState = mode.FileState<mode.Name>;
+
+export type FileData<M extends mode.Name> = {
+	computedData: mode.ComputedData<M>;
+	fileState: mode.FileState<M>;
+};
+
+export type ModeComponentProps<M extends mode.Name> = {
+	fileData: Array<FileData<M>>;
+	modeState: mode.ModeState<M>;
+};
+
+export type ModeComponent<M extends mode.Name> = ComponentType<
+	SvelteComponent<ModeComponentProps<M>>
+>;
+
+/**
+ * The components that render the modes.
+ *
+ * Modes are registered in the `modes` record.
+ */
+export const modeComponents: {
+	[M in keyof typeof modes]: {
+		component: ModeComponent<M>;
+		icon: ComponentType;
+	};
+} = {
+	'simple-info': {
+		component: SimpleInfo,
+		icon: InfoIcon
+	},
+
+	waveform: {
+		component: Waveform,
+		icon: AudioWaveformIcon
+	},
+
+	spectrogram: {
+		component: Spectrogram,
+		icon: SpectrogramIcon
+	},
+
+	'vowel-space': {
+		component: VowelSpace,
+		icon: VowelSpaceIcon
 	}
-}
-
-// TODO: Return type should be `ComponentType<Icon>`, but it is currently broken:
-// https://github.com/lucide-icons/lucide/pull/2119
-export function getIcon(mode: Mode): ComponentType {
-	switch (mode) {
-		case 'simple-info':
-			return InfoIcon;
-		case 'waveform':
-			return AudioWaveformIcon;
-		case 'spectrogram':
-			return SpectrogramIcon;
-		case 'vowel-space':
-			return VowelSpaceIcon;
-	}
-}
+};

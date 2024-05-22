@@ -15,7 +15,7 @@ from .frame_analysis import (
 )
 from .mode_handler import (
     simple_info_mode,
-    spectogram_mode,
+    spectrogram_mode,
     vowel_space_mode,
     transcription_mode,
 )
@@ -178,9 +178,9 @@ async def signal_fundamental_features(signal: Signal):
         pitch = calculate_sound_pitch(sound, time_step=signal.pitch_time_step)
         spectrogram = calculate_sound_spectrogram(
             sound,
-            time_step=signal.spectogram_time_step,
-            window_length=signal.spectogram_window_length,
-            frequency_step=signal.spectogram_frequency_step,
+            time_step=signal.spectrogram_time_step,
+            window_length=signal.spectrogram_window_length,
+            frequency_step=signal.spectrogram_frequency_step,
         )
         formants = calculate_sound_f1_f2(
             sound,
@@ -190,7 +190,7 @@ async def signal_fundamental_features(signal: Signal):
         return {
             "duration": duration,
             "pitch": pitch,
-            "spectogram": spectrogram,
+            "spectrogram": spectrogram,
             "formants": formants,
         }
     except Exception as _:
@@ -274,7 +274,7 @@ async def analyze_signal_mode(
     This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
 
     Parameters:
-    - mode (str): The analysis mode (e.g., "simple-info", "spectogram", "wave-form", "vowel-space", "transcription").
+    - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form", "vowel-space", "transcription").
     - id (str): The ID of the signal to analyze.
     - startIndex (Optional[int]): The start index of the frame to analyze.
     - endIndex (Optional[int]): The end index of the frame to analyze.
@@ -297,8 +297,8 @@ async def analyze_signal_mode(
 
     if mode == "simple-info":
         return simple_info_mode(data, fs, file, frame_index)
-    if mode == "spectogram":
-        return spectogram_mode(data, fs, frame_index)
+    if mode == "spectrogram":
+        return spectrogram_mode(data, fs, frame_index)
     if mode == "waveform":
         return None
     if mode == "vowel-space":
