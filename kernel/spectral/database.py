@@ -44,7 +44,6 @@ class Database:
             host=self.host,
             port=self.port,
         )
-        print("database connection opened")
         self.cursor = self.conn.cursor()
 
     def fetch_file(self, id):
