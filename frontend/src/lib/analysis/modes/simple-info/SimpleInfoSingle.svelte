@@ -1,27 +1,27 @@
 <script lang="ts">
-	import type { SpecificModeData } from '..';
+	import type { Mode } from '..';
 
-	// eslint-disable-next-line
-	export let data: SpecificModeData<'simple-info'>;
+	export let computedData: Mode.ComputedData<'simple-info'>;
+	export let fileState: Mode.FileState<'simple-info'>;
 
 	$: displayData = [
-		{ label: 'Duration', value: `${data.duration.toFixed(2)} seconds` },
-		{ label: 'File size', value: `${data.fileSize} bytes` },
-		{ label: 'Average pitch', value: `${data.averagePitch.toFixed(2)} Hz` },
-		{ label: 'Date created', value: `${data.fileCreationDate.toLocaleString('en-US')}` }
+		{ label: 'Duration', value: `${computedData.duration.toFixed(2)} seconds` },
+		{ label: 'File size', value: `${computedData.fileSize} bytes` },
+		{ label: 'Average pitch', value: `${computedData.averagePitch.toFixed(2)} Hz` },
+		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString('en-US')}` }
 	];
 
-	$: frameData = data.frame
+	$: frameData = computedData.frameData
 		? [
-				{ label: 'Frame Duration', value: `${data.frame.duration.toFixed(2)} seconds` },
-				{ label: 'Frame Pitch', value: `${data.frame.pitch} pitch` },
-				{ label: 'Frame F1 formant', value: `${data.frame.f1} Hz` },
-				{ label: 'Frame F2 formant', value: `${data.frame.f2} Hz` }
+				{ label: 'Frame Duration', value: `${computedData.frameData.duration.toFixed(2)} seconds` },
+				{ label: 'Frame Pitch', value: `${computedData.frameData.pitch} pitch` },
+				{ label: 'Frame F1 formant', value: `${computedData.frameData.f1} Hz` },
+				{ label: 'Frame F2 formant', value: `${computedData.frameData.f2} Hz` }
 			]
 		: null;
 </script>
 
-<h1 class="text-xl font-bold">{data.fileId}</h1>
+<h1 class="text-xl font-bold">{fileState.fileId}</h1>
 
 <div class="flex flex-col flex-wrap opacity-80">
 	{#each displayData as { label, value }}
@@ -34,7 +34,7 @@
 	{/each}
 
 	{#if frameData}
-		{#each displayData as { label, value }}
+		{#each frameData as { label, value }}
 			<section class="flex items-baseline opacity-80">
 				<h2 class="mr-2 text-lg">{label}:</h2>
 				<span class="h-full">

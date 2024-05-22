@@ -1,46 +1,53 @@
 import type { PageServerLoad, Actions } from './$types';
-import { sampleTorgo } from '$lib/files/samples';
 import type { FilebrowserFile } from '$lib/files';
-import type { WorkspaceState } from './workspace';
+import { workspaceState, type WorkspaceState } from './workspace';
 import { db } from '$lib/database';
-import { filesTable } from '$lib/database/schema';
+import { filesTable, sessionTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
-import { fail } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { uploadFile } from '$lib/database/files';
 
-const sampleState: WorkspaceState = {
-	panes: [
-		{
-			mode: 'waveform',
-			files: sampleTorgo.slice(0, 3).map((id) => ({
-				id,
-				name: id,
-				frame: null
-			}))
-		}
-	]
-};
-
-async function getFilesAndState(sessionId: string): Promise<{
-	files: FilebrowserFile[];
-	state: WorkspaceState;
-}> {
+async function getFiles(sessionId: string): Promise<FilebrowserFile[]> {
 	const result = await db.query.filesTable.findMany({
 		where: eq(filesTable.session, sessionId)
 	});
 
-	const files: FilebrowserFile[] = result.map((row) => ({
+	return result.map((row) => ({
 		id: row.id,
 		name: row.name,
 		type: 'file'
 	}));
+}
 
-	// TODO: Get workspace state from database
-	return { files, state: sampleState };
+async function getState(sessionId: string): Promise<WorkspaceState> {
+	const result = await db.query.sessionTable.findFirst({
+		where: eq(sessionTable.id, sessionId),
+		columns: {
+			state: true
+		}
+	});
+
+	if (!result) {
+		error(404, 'Session not found');
+	}
+
+	try {
+		return workspaceState.parse(result.state);
+	} catch (e) {
+		console.warn('Found invalid state in database, resetting to default');
+		console.log('State found: ', result.state);
+		const defaultState = workspaceState.parse(undefined);
+
+		await db.update(sessionTable).set({
+			state: defaultState
+		});
+
+		return defaultState;
+	}
 }
 
 export const load = (async ({ params: { sessionId } }) => {
-	const { files, state } = await getFilesAndState(sessionId);
+	const [files, state] = await Promise.all([getFiles(sessionId), getState(sessionId)]);
 
 	return {
 		files,

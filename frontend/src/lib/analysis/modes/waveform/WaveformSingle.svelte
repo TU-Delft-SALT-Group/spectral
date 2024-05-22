@@ -77,7 +77,7 @@
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
 			container: `#${item.fileId}-waveform`,
-			url: `/db/${item.fileId}`,
+			url: `/db/file/${item.fileId}`,
 			height: 'auto'
 		});
 

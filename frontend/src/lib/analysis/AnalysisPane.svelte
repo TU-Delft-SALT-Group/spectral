@@ -7,45 +7,74 @@
 -->
 
 <script lang="ts">
-	import { getComponent, type Mode, type ModeData } from '$lib/analysis/modes';
-	import { getData } from '$lib/analysis/engine/communication';
+	import {
+		modeComponents,
+		type FileData,
+		type mode,
+		type ModeComponent,
+		type ModeComponentProps
+	} from '$lib/analysis/modes';
+	import { syncPaneStateToDb as syncPaneStateToDb } from '$lib/database/sync';
 	import type { PaneState } from './analysis-pane';
+	import { getComputedFileData } from './engine/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
-	import type { AnalysisFile } from '$lib/files';
 
 	export let state: PaneState;
 
-	function populateDataPromisesForMode(state: PaneState) {
-		if (state.mode in dataPromises) {
-			return;
+	type RendererBundle<M extends mode.Name> = {
+		component: ModeComponent<M>;
+		props: ModeComponentProps<M> | null;
+	};
+
+	let data = Object.fromEntries(
+		Object.entries(modeComponents).map(([mode, { component }]) => {
+			return [
+				mode,
+				{
+					component,
+					props: null
+				}
+			];
+		})
+	) as {
+		[M in mode.Name]: RendererBundle<M>;
+	};
+
+	async function getProps(state: PaneState) {
+		if (data[state.mode].props === null) {
+			const modeState = state.modeState;
+			const fileData = state.files.map(
+				async (fileState): Promise<FileData<mode.Name>> => ({
+					fileState,
+					computedData: await getComputedFileData({
+						fileId: fileState.fileId,
+						mode: state.mode,
+						frame: fileState.frame ?? null
+					})
+				})
+			);
+
+			data[state.mode].props = {
+				modeState,
+				fileData: (await Promise.all(fileData)) as any // eslint-disable-line @typescript-eslint/no-explicit-any
+			};
 		}
 
-		const promises = state.files.map((file: AnalysisFile) =>
-			getData({ mode: state.mode, fileId: file.id, frame: file.frame })
-		);
-
-		dataPromises[state.mode] = Promise.all(promises);
+		return data[state.mode].props as ModeComponentProps<mode.Name>;
 	}
 
-	function getModeDataPromise(state: PaneState) {
-		populateDataPromisesForMode(state);
-		return dataPromises[state.mode];
-	}
-
-	let dataPromises: Partial<Record<Mode, Promise<ModeData[]>>> = {};
-
-	$: dataPromise = getModeDataPromise(state);
-
-	$: component = getComponent(state.mode);
+	$: syncPaneStateToDb(state);
 </script>
 
 <section class="relative h-full">
-	<ModeSelector bind:mode={state.mode} onModeHover={() => populateDataPromisesForMode(state)}
+	<ModeSelector bind:mode={state.mode} onModeHover={(mode) => getProps({ ...state, mode })}
 	></ModeSelector>
 
-	{#await dataPromise then data}
-		<svelte:component this={component} {data}></svelte:component>
-	{:catch error}
-		<p>Error: {error.message}</p>
-	{/await}
+	{#if data[state.mode].props !== null}
+		<svelte:component
+			this={(data[state.mode] as RendererBundle<mode.Name>).component}
+			bind:modeState={(data[state.mode].props as ModeComponentProps<mode.Name>).modeState}
+			bind:fileData={(data[state.mode].props as ModeComponentProps<mode.Name>).fileData}
+		></svelte:component>
+	{/if}
 </section>
