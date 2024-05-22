@@ -1,18 +1,19 @@
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
-	import type { SpecificModeData } from '..';
 	import { onDestroy, onMount } from 'svelte';
 	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
+	import type { mode } from '..';
+	import used from '$lib/utils';
 
-	export let item: SpecificModeData<'spectrogram'>;
+	export let computedData: mode.ComputedData<'spectrogram'>;
+	export let fileState: mode.FileState<'spectrogram'>;
 
-	// This is disabled because for some reason it complains that it is not being used
-	// when in reality it is bound in the AudioControls.svelte
-	// eslint-disable-next-line
-	export let controls: ControlRequirements = {
+	used(computedData);
+
+	export const controls: ControlRequirements = {
 		setSpeed(speed: number) {
 			wavesurfer.setPlaybackRate(speed);
 		},
@@ -46,8 +47,8 @@
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${item.fileId}-spectrogram`,
-			url: `/db/${item.fileId}`,
+			container: `#${fileState.fileId}-spectrogram`,
+			url: `/db/${fileState.fileId}`,
 			height: 0
 		});
 
@@ -107,7 +108,7 @@
 </script>
 
 <div
-	id={`${item.fileId}-spectrogram`}
+	id={`${fileState.fileId}-spectrogram`}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

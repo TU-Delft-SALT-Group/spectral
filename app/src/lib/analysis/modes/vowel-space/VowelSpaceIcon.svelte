@@ -1,3 +1,8 @@
+<script lang="ts">
+	// Using `export let` opts out of runes mode
+	export const disableRunes = true;
+</script>
+
 <!-- TODO: Change vowel space icon -->
 <svg
 	xmlns="http://www.w3.org/2000/svg"

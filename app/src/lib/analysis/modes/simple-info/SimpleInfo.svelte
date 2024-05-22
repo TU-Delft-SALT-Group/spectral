@@ -1,14 +1,18 @@
 <script lang="ts">
-	import type { SpecificModeData } from '..';
+	import used from '$lib/utils';
+	import type { ModeComponentProps } from '..';
 	import SimpleInfoSingle from './SimpleInfoSingle.svelte';
 
-	export let data: SpecificModeData<'simple-info'>[];
+	export let fileData: ModeComponentProps<'simple-info'>['fileData'];
+	export let modeState: ModeComponentProps<'simple-info'>['modeState'];
+
+	used(modeState);
 </script>
 
 <div class="grid h-full grid-cols-3 items-center gap-4 p-4">
-	{#each data as data}
+	{#each fileData as { fileState, computedData }}
 		<div class="w-fit max-w-2xl rounded p-4 text-secondary-foreground">
-			<SimpleInfoSingle {data}></SimpleInfoSingle>
+			<SimpleInfoSingle {computedData} {fileState}></SimpleInfoSingle>
 		</div>
 	{/each}
 </div>

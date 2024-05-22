@@ -4,7 +4,9 @@ import {
 	pgTable,
 	text,
 	timestamp,
-	doublePrecision
+	doublePrecision,
+	jsonb,
+	json
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
@@ -57,7 +59,10 @@ export const filesTable = pgTable('files', {
 	session: text('session')
 		.references(() => sessionTable.id)
 		.notNull(),
-	ephemeral: boolean('ephemeral').notNull().default(false)
+	ephemeral: boolean('ephemeral').notNull().default(false),
+	state: jsonb('state')
+		.notNull()
+		.default(sql`'{}'`)
 });
 
 export const sessionTable = pgTable('session', {
@@ -71,7 +76,8 @@ export const sessionTable = pgTable('session', {
 		.notNull(),
 	modifiedTime: timestamp('modified_time')
 		.default(sql`CURRENT_TIMESTAMP`)
-		.notNull()
+		.notNull(),
+	state: json('state').notNull().default({})
 });
 
 export const fileTranscriptionTable = pgTable('file_transcription', {
