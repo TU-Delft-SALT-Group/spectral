@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Union
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
@@ -20,7 +20,15 @@ from .mode_handler import (
     transcription_mode,
 )
 from .transcription import get_transcription
-from .data_objects import Frame, Signal
+from .data_objects import (
+    Frame, 
+    Signal,
+    FrameAnalysisResponse,
+    SignalAnalysisResponse,
+    SimpleInfoResponse,
+    VowelSpaceResponse,
+    TranscriptionSegment,
+)
 from .database import Database
 import orjson
 import io
@@ -61,7 +69,27 @@ class ORJSONResponse(JSONResponse):
 app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 
-@app.post("/frames/analyze")
+@app.post("/frames/analyze", response_model=FrameAnalysisResponse, responses={
+    200: {"content": {
+                "application/json": {
+                    "example": {
+                        "duration": 0.04,
+                        "pitch": 160.32,
+                        "f1": 523.32,
+                        "f2": 762.89     
+                    }
+                }
+            }
+          },
+    400: {"content": { 
+            "application/json": {
+                "example": {
+                    "detail": "error message"
+                    }
+                }
+            }
+        }
+    })
 async def frame_fundamental_features(frame: Frame):
     """
     Analyze fundamental features of an audio frame.
@@ -93,7 +121,42 @@ async def frame_fundamental_features(frame: Frame):
         )
 
 
-@app.post("/signals/analyze")
+@app.post("/signals/analyze", response_model= SignalAnalysisResponse, responses={
+    200: {"content": {
+                "application/json": {
+                    "example": {
+                        "duration": 4.0, 
+                        "pitch": {
+                            "time_step": 0.002,
+                            "start_time": 0.99,
+                            "data": [123,32]
+                            }, 
+                        "spectrogram":{
+                            "time_step": 0.002,
+                            "window_length": 0.005,
+                            "frequency_step": 20.0,
+                            "start_time": .99,
+                            "data": [123,32] 
+                            },
+                        "formants":{
+                            "time_step": 0.002,
+                            "window_length": 0.005,
+                            "start_time": .99,
+                            "data": [[20,30],[40,50]]
+                        }    
+                    }
+                }
+            }
+          },
+    400: {"content": { 
+            "application/json": {
+                "example": {
+                    "detail": "error message"
+                    }
+                }
+            }
+        }
+    })
 async def signal_fundamental_features(signal: Signal):
     """
     Analyze fundamental features of an audio signal.
@@ -136,7 +199,68 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}")
+@app.get("/signals/modes/{mode}/{id}", response_model=Union[SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]]], responses={
+    200: {"content": {
+                "application/json": {
+                    "examples": {
+                        "simple-info": {
+                            "summary": "Example for simple-info mode",
+                            "value": {
+                                "duration": 2.12,
+                                "averagePitch": 30.2,
+                                "fileSize": 123456,
+                                "fileCreationDate": "2024-05-21T09:58:42.263896",
+                                "frame": {
+                                    "duration": 0.04,
+                                    "pitch": 200.2,
+                                    "f1": 400.56,
+                                    "f2": 800.98
+                                }
+                            }
+                        },
+                        "spectrogram": {
+                            "summary": "Example for spectrogram mode",
+                            "value": "null (actual null value, fastapi currently doesn't support examples with just null)"
+                        },
+                        "waveform": {
+                            "summary": "Example for waveform mode",
+                            "value": "null (actual null value, fastapi currently doesn't support examples with just null)"
+                        },
+                        "vowel-space": {
+                            "summary": "Example for vowel-space mode",
+                            "value": {
+                                "f1": 400.56,
+                                "f2": 800.98
+                            }
+                        },
+                        "transcription": {
+                            "summary": "Example for transcription mode",
+                            "value": [[
+                                {"value": "foo", "start": 0, "end": 0.12},
+                                {"value": "bar", "start": 0.12, "end": 0.24}
+                                ]]
+                        }
+                    }
+                }
+            }
+        }, 
+    400: {"content": { 
+            "application/json": {
+                "example": {
+                    "detail": "error message"
+                    }
+                }
+            }
+        }, 
+    404: {"content": { 
+            "application/json": {
+                "example": {
+                    "detail": "error message"
+                    }
+                }
+            }
+        }
+    })
 async def analyze_signal_mode(
     mode: Annotated[str, Path(title="The analysis mode")],
     id: Annotated[str, Path(title="The ID of the signal")],
@@ -184,7 +308,30 @@ async def analyze_signal_mode(
     raise HTTPException(status_code=400, detail="Mode not found")
 
 
-@app.get("/transcription/{model}/{id}")
+@app.get("/transcription/{model}/{id}", response_model=list[TranscriptionSegment], responses={
+    200: {"content": {
+                "application/json": {
+                    "example": [{"value": "foo", "start": 0, "end": 0.12},{"value": "bar", "start": 0.12, "end": 0.24}]
+                }
+            }
+          }, 
+    404: {"content": { 
+            "application/json": {
+                "example": {
+                    "detail": "error message"
+                    }
+                }
+            }
+        }, 
+    500: {"content": { 
+            "application/json": {
+                "example": {
+                    "detail": "error message"
+                    }
+                }
+            }
+        }
+    })
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
     id: Annotated[str, Path(title="The ID of the file")],
