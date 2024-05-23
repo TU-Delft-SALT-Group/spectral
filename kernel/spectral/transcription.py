@@ -1,8 +1,64 @@
 from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
+from jiwer import wer, cer, process_words, process_characters, visualize_alignment
 import os
 
+def calculate_error_rates(reference, hypothesis):
+    
+    word_level = word_level_processing(reference, hypothesis)
+    character_level = character_level_processing(reference, hypothesis) 
+        
+    return {"wordLevel": word_level, "characterLevel": character_level}
+    
+def word_level_processing(reference, hypothesis):
+    
+    processed_data = process_words(reference=reference, hypothesis=hypothesis)
+    
+    result = {}
+    
+    result["wer"] = processed_data.wer
+    result["mer"] = processed_data.mer
+    result["wil"] = processed_data.wil
+    result["wip"] = processed_data.wip
+    result["hits"] = processed_data.hits
+    result["substitutions"] = processed_data.substitutions
+    result["insertions"] = processed_data.insertions
+    result["deletions"] = processed_data.deletions
+    result["reference"] = processed_data.references[0]
+    result["hypothesis"] = processed_data.hypotheses[0]
+    result["alignments"] = get_alignments(processed_data.alignments[0])
+    
+    return result
+    
+def character_level_processing(reference, hypothesis):
+    
+    processed_data = process_characters(reference=reference, hypothesis=hypothesis)
+    
+    result = {}
+    result["cer"] = processed_data.cer
+    result["hits"] = processed_data.hits
+    result["substitutions"] = processed_data.substitutions
+    result["insertions"] = processed_data.insertions
+    result["deletions"] = processed_data.deletions
+    result["alignments"] = get_alignments(processed_data.alignments[0])
+    
+    return result
 
+def get_alignments(unparsed_alignments):
+    
+    alignments = []
+    
+    for alignment in unparsed_alignments:
+        alignment_dict = {}
+        alignment_dict["type"] = alignment.type
+        alignment_dict["referenceStartIndex"] = alignment.ref_start_idx
+        alignment_dict["referenceEndIndex"] = alignment.ref_end_idx
+        alignment_dict["hypothesisStartIndex"] = alignment.hyp_start_idx
+        alignment_dict["hypothesisEndIndex"] = alignment.hyp_end_idx
+        alignments.append(alignment_dict)
+        
+    return alignments 
+        
 def get_transcription(model, file):
     """
     Get transcription of an audio file using the specified model.
