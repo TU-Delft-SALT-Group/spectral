@@ -98,7 +98,7 @@ export async function seedSampleTorgo() {
 			name: filename,
 			session: 'sample-session',
 			data: buffer,
-			groundTruth: "the quick brown fox jumps over the lazy dog"
+			groundTruth: 'the quick brown fox jumps over the lazy dog'
 		});
 	}
 

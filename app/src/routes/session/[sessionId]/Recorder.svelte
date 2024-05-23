@@ -7,7 +7,6 @@
 	import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Input } from '$lib/components/ui/input';
-	import { string } from 'zod';
 
 	export let sessionId: string;
 
@@ -54,7 +53,6 @@
 	}
 
 	async function uploadRecording() {
-
 		if (recordingBlob != null) {
 			const formData = new FormData();
 

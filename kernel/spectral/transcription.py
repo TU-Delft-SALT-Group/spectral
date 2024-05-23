@@ -1,6 +1,6 @@
 from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
-from jiwer import wer, cer, process_words, process_characters, visualize_alignment
+from jiwer import process_words, process_characters
 import os
 
 def calculate_error_rates(reference, annotations):

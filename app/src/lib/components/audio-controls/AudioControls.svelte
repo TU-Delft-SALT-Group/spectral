@@ -19,8 +19,11 @@
 					selectedStore.set(null);
 					break;
 				case ' ':
-					const target = e.target as HTMLTextAreaElement;
-					if (target.tagName.toUpperCase() == 'INPUT' || selected === null) return;
+					if (
+						(e.target as HTMLTextAreaElement).tagName.toUpperCase() == 'INPUT' ||
+						selected === null
+					)
+						return;
 					e.preventDefault();
 					selected.togglePlay();
 					break;

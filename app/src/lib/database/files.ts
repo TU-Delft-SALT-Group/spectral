@@ -9,12 +9,17 @@ export async function uploadFile(file: File, sessionId: string) {
 	await uploadFileAsBuffer(buffer, file.name, sessionId, null);
 }
 
-export async function uploadFileAsBuffer(buffer: Buffer, name: string, sessionId: string, groundTruth: string | null) {
+export async function uploadFileAsBuffer(
+	buffer: Buffer,
+	name: string,
+	sessionId: string,
+	groundTruth: string | null
+) {
 	await db.insert(filesTable).values({
 		name,
 		id: generateIdFromEntropySize(10),
 		data: buffer,
 		session: sessionId,
-		groundTruth: groundTruth,
+		groundTruth: groundTruth
 	});
 }
