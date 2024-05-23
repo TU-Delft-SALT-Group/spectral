@@ -56,18 +56,23 @@ class Database:
         Returns:
             dict: A dictionary containing the file record's details.
         """
+        
+        self.cursor.execute("""
+            SELECT column_name, ordinal_position
+            FROM information_schema.columns
+            WHERE table_name = 'files'
+        """)
+        colum_data = self.cursor.fetchall()        
         self.cursor.execute("SELECT * FROM files WHERE id = %s", [id])
-        res = self.cursor.fetchone()  # type: ignore
-        return {
-            "id": res[0],  # type: ignore
-            "name": res[1],  # type: ignore
-            "data": res[2],  # type: ignore
-            "creationTime": res[3],  # type: ignore
-            "modifiedTime": res[4],  # type: ignore
-            "uploader": res[5],  # type: ignore
-            "session": res[6],  # type: ignore
-            "emphemeral": res[7],  # type: ignore
-        }
+        db_res = self.cursor.fetchone()  # type: ignore
+        result = {}
+        for column in colum_data:
+            result[self.snake_to_camel(column[0])] = db_res[column[1]-1]
+        return result
+
+    def snake_to_camel(self, snake_case_str):
+        components = snake_case_str.split('_')
+        return components[0] + ''.join(x.title() for x in components[1:])
 
     def store_transcription(self, file_id, file_transcription):
         """
