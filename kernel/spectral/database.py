@@ -151,6 +151,7 @@ class Database:
         """
         try:
             self.cursor.close()
+            self.conn.commit()
             self.conn.close()
         except NameError:
             pass

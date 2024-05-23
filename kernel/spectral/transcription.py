@@ -3,12 +3,26 @@ from fastapi import HTTPException
 from jiwer import wer, cer, process_words, process_characters, visualize_alignment
 import os
 
-def calculate_error_rates(reference, hypothesis):
+def calculate_error_rates(reference, annotations):
+    
+    hypothesis = annotation_to_hypothesis(annotations)
     
     word_level = word_level_processing(reference, hypothesis)
     character_level = character_level_processing(reference, hypothesis) 
         
     return {"wordLevel": word_level, "characterLevel": character_level}
+
+def annotation_to_hypothesis(annotations):
+    
+    res = ""
+    
+    if len(annotations) == 0:
+        return res
+    
+    for annotation in annotations:
+        res += annotation["value"] + " "
+        
+    return res[:len(res)-1]
     
 def word_level_processing(reference, hypothesis):
     

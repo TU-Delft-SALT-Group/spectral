@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, Any
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
@@ -18,6 +18,7 @@ from .mode_handler import (
     spectrogram_mode,
     vowel_space_mode,
     transcription_mode,
+    error_rate_mode,
 )
 from .transcription import get_transcription
 from .data_objects import (
@@ -199,7 +200,7 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]]], responses={
+@app.get("/signals/modes/{mode}/{id}", response_model=Union[Any,None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]]], responses={
     200: {"content": {
                 "application/json": {
                     "examples": {
@@ -305,6 +306,8 @@ async def analyze_signal_mode(
         return vowel_space_mode(data, fs, frame_index)
     if mode == "transcription":
         return transcription_mode(id, database)
+    if mode == "error-rate":
+        return error_rate_mode(id, database, file)
     raise HTTPException(status_code=400, detail="Mode not found")
 
 
