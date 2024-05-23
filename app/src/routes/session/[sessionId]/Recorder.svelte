@@ -7,6 +7,7 @@
 	import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Input } from '$lib/components/ui/input';
+	import { string } from 'zod';
 
 	export let sessionId: string;
 
@@ -53,18 +54,29 @@
 	}
 
 	async function uploadRecording() {
-		await fetch(`${sessionId}/${filename}`, {
-			method: 'POST',
-			body: recordingBlob
-		});
+
+		if (recordingBlob != null) {
+			const formData = new FormData();
+
+			formData.append('recording', recordingBlob);
+
+			formData.append('groundTruth', groundTruth);
+
+			await fetch(`${sessionId}/${filename}?`, {
+				method: 'POST',
+				body: formData
+			});
+		}
 
 		filename = '';
+		groundTruth = '';
 
 		await invalidateAll();
 	}
 
 	let recordingBlob: Blob | null = null;
 	let filename = '';
+	let groundTruth = '';
 	let open = false;
 </script>
 
@@ -93,6 +105,10 @@
 			<AlertDialog.Title>Enter name for recording</AlertDialog.Title>
 			<AlertDialog.Description>
 				<Input type="text" name="filename" minlength={1} required bind:value={filename}></Input>
+			</AlertDialog.Description>
+			<AlertDialog.Title>Enter the ground truth</AlertDialog.Title>
+			<AlertDialog.Description>
+				<Input type="text" name="groundTruth" bind:value={groundTruth}></Input>
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 		<AlertDialog.Footer>

@@ -60,6 +60,7 @@ export const filesTable = pgTable('files', {
 		.references(() => sessionTable.id)
 		.notNull(),
 	ephemeral: boolean('ephemeral').notNull().default(false),
+	groundTruth: text('ground_truth'),
 	state: jsonb('state')
 		.notNull()
 		.default(sql`'{}'`)
