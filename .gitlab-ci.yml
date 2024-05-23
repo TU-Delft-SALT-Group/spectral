@@ -3,7 +3,7 @@
 
 stages:
   - build
-  - check
+  - typecheck
   - lint
   - test
 
@@ -29,8 +29,8 @@ build:app:
     paths:
       - app/.pnpm-store
 
-check:app:
-  stage: build
+typecheck:app:
+  stage: typecheck 
   image: 'node:22.1.0-slim'
   script:
     - *pre_pnpm
