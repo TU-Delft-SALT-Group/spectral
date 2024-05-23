@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Literal
 from datetime import datetime
 
 
@@ -164,3 +164,83 @@ class TranscriptionSegment(BaseModel):
     value: str
     start: float
     end: float
+    
+class Alignment(BaseModel):
+    """
+    Alignment model representing the type and indices of the alignment.
+    
+    Attributes:
+        type (Literal['insert', 'substitute', 'deletion, 'equal']): Type of the alignment.
+        referenceStartIndex (int): Starting index in the reference.
+        referenceEndIndex (int): Ending index in the reference.
+        hypothesisStartIndex (int): Starting index in the hypothesis.
+        hypothesisEndIndex (int): Ending index in the hypothesis.
+    """
+    
+    type: Literal['insert', 'substitute', 'deletion', 'equal']
+    referenceStartIndex: int
+    referenceEndIndex: int
+    hypothesisStartIndex: int
+    hypothesisEndIndex: int
+
+class WordLevelErrorRate(BaseModel):
+    """
+    WordLevelErrorRate model representing word-level error metrics.
+    
+    Attributes:
+        wer (float): Word Error Rate.
+        mer (float): Match Error Rate.
+        wil (float): Word Information Lost.
+        wip (float): Word Information Preserved.
+        hits (int): Number of correct words.
+        substitutions (int): Number of substituted words.
+        insertions (int): Number of inserted words.
+        deletions (int): Number of deleted words.
+        reference (List[str]): List of reference words.
+        hypothesis (List[str]): List of hypothesis words.
+        alignments (List[Alignment]): List of alignment objects.
+    """
+    
+    wer: float
+    mer: float
+    wil: float
+    wip: float
+    hits: int
+    substitutions: int
+    insertions: int
+    deletions: int
+    reference: List[str]
+    hypothesis: List[str]
+    alignments: List[Alignment]
+
+class CharacterLevelErrorRate(BaseModel):
+    """
+    CharacterLevelErrorRate model representing character-level error metrics.
+    
+    Attributes:
+        cer (float): Character Error Rate.
+        hits (int): Number of correct characters.
+        substitutions (int): Number of substituted characters.
+        insertions (int): Number of inserted characters.
+        deletions (int): Number of deleted characters.
+        alignments (List[Alignment]): List of alignment objects.
+    """
+    
+    cer: float
+    hits: int
+    substitutions: int
+    insertions: int
+    deletions: int
+    alignments: List[Alignment]
+
+class ErrorRateValue(BaseModel):
+    """
+    ErrorRateValue model representing both word-level and character-level error metrics.
+    
+    Attributes:
+        wordLevel (WordLevelErrorRate): Word-level error metrics.
+        characterLevel (CharacterLevelErrorRate): Character-level error metrics.
+    """
+    
+    wordLevel: WordLevelErrorRate
+    characterLevel: CharacterLevelErrorRate
