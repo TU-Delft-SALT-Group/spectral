@@ -29,7 +29,7 @@ with open(
 def db_mock():
     mock = Mock()
     mock.fetch_file.return_value = {"data": control_sentence, "creationTime": 1}
-    mock.get_transcriptions.return_value = [{"value": "hi", "start": 0, "end": 1}]
+    mock.get_transcriptions.return_value = [[{"value": "hi", "start": 0, "end": 1}]]
     yield mock
 
 
@@ -78,6 +78,7 @@ def test_missing_argument():
 def test_zero_fs():
     response = client.post("/frames/analyze", json={"data": [], "fs": 0})
     assert response.status_code == 400
+    assert response.json()["detail"] == "Input data did not meet requirements"
 
 
 def test_fundamental_features_typical_speech():
@@ -88,8 +89,15 @@ def test_fundamental_features_typical_speech():
     result = response.json()
     assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["pitch"] is not None
+    assert result["pitch"]["time_step"] is not None
+    assert result["pitch"]["start_time"] is not None
+    assert result["pitch"]["data"] is not None
     assert result["spectrogram"] is not None
     assert result["formants"] is not None
+    assert result["formants"]["time_step"] is not None
+    assert result["formants"]["window_length"] is not None
+    assert result["formants"]["start_time"] is not None
+    assert result["formants"]["data"] is not None
 
 
 def test_fundamental_features_missing_params():
@@ -161,6 +169,7 @@ def test_fundamental_features_typical_own_params_errors():
 def test_fundamental_features_fs_zero():
     response = client.post("/signals/analyze", json={"data": typical_1_data, "fs": 0})
     assert response.status_code == 400
+    assert response.json()["detail"] == "Input data did not meet requirements"
 
 
 def test_fundamental_features_empty_signal():
@@ -177,8 +186,9 @@ def test_signal_correct_mode_file_not_found(db_mock):
     db_mock.fetch_file.side_effect = HTTPException(
         status_code=500, detail="database error"
     )
-    response = client.get("/signals/modes/wrongmode/1")
+    response = client.get("/signals/modes/simple-info/1")
     assert response.status_code == 404
+    assert response.json()["detail"] == "File not found"
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -187,14 +197,15 @@ def test_signal_correct_simple_info(db_mock):
     assert response.status_code == 200
     result = response.json()
     assert result["fileSize"] == 146124
-    assert result["fileCreationDate"] == 1
+    assert result["fileCreationDate"] == '1970-01-01T00:00:01Z'
     assert result["frame"] is None
     assert db_mock.fetch_file.call_count == 1
 
 
-# def test_signal_correct_spectrogram(db_mock):
-#     response = client.get("/signals/modes/spectrogram/1")
+# def test_signal_correct_spectogram(db_mock):
+#     response = client.get("/signals/modes/spectogram/1")
 #     assert response.status_code == 501
+#     assert response.json()["detail"] == "spectogram_mode is not implemented"
 #     assert db_mock.fetch_file.call_count == 1
 
 
@@ -209,6 +220,7 @@ def test_signal_correct_waveform(db_mock):
 def test_signal_correct_vowel_space(db_mock):
     response = client.get("/signals/modes/vowel-space/1")
     assert response.status_code == 400
+    assert response.json()["detail"] == "Vowel-space mode was not given frame"
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -217,9 +229,9 @@ def test_signal_correct_transcription(db_mock):
     assert response.status_code == 200
     result = response.json()
     assert len(result) == 1
-    assert result[0]["value"] == "hi"
-    assert result[0]["start"] == 0
-    assert result[0]["end"] == 1
+    assert result[0][0]["value"] == "hi"
+    assert result[0][0]["start"] == 0
+    assert result[0][0]["end"] == 1
     assert db_mock.fetch_file.call_count == 1
     assert db_mock.get_transcriptions.call_count == 1
 
@@ -230,6 +242,7 @@ def test_signal_transcription_not_found(db_mock):
     )
     response = client.get("/signals/modes/transcription/1")
     assert response.status_code == 500
+    assert response.json()["detail"] == "Something went wrong when retrieving the transcriptions of this file"
     assert db_mock.fetch_file.call_count == 1
     assert db_mock.get_transcriptions.call_count == 1
 
@@ -237,18 +250,21 @@ def test_signal_transcription_not_found(db_mock):
 def test_signal_mode_wrong_mode(db_mock):
     response = client.get("/signals/modes/wrongmode/1")
     assert response.status_code == 400
+    assert response.json()["detail"] == "Mode not found"
     assert db_mock.fetch_file.call_count == 1
 
 
 def test_signal_mode_frame_start_index_missing(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"endIndex": 1})
     assert response.status_code == 400
+    assert response.json()["detail"] == "no startIndex provided"
     assert db_mock.fetch_file.call_count == 1
 
 
 def test_signal_mode_frame_end_index_missing(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"startIndex": 1})
     assert response.status_code == 400
+    assert response.json()["detail"] == "no endIndex provided"
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -257,14 +273,23 @@ def test_signal_mode_frame_start_index_bigger_than_end_index(db_mock):
         "/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 1}
     )
     assert response.status_code == 400
+    assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
     assert db_mock.fetch_file.call_count == 1
 
+def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(db_mock):
+    response = client.get(
+        "/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 2}
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    assert db_mock.fetch_file.call_count == 1
 
 def test_signal_mode_frame_negative_start_index(db_mock):
     response = client.get(
         "/signals/modes/simple-info/1", params={"startIndex": -1, "endIndex": 1}
     )
     assert response.status_code == 400
+    assert response.json()["detail"] == "startIndex should be larger or equal to 0"
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -272,11 +297,23 @@ def test_signal_mode_frame_too_large_end_index(db_mock):
     response = client.get(
         "/signals/modes/simple-info/1",
         params={
-            "startIndex": 2,
-            "endIndex": len(db_mock.fetch_file.return_value["data"]),
+            "startIndex": 0,
+            "endIndex": 73041,
         },
     )
     assert response.status_code == 400
+    assert response.json()["detail"] == "endIndex should be lower than the file length"
+    assert db_mock.fetch_file.call_count == 1
+    
+def test_signal_mode_frame_too_large_boundary(db_mock):
+    response = client.get(
+        "/signals/modes/simple-info/1",
+        params={
+            "startIndex": 0,
+            "endIndex": 73040,
+        },
+    )
+    assert response.status_code == 200
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -287,7 +324,9 @@ def test_signal_mode_simple_info_with_frame(db_mock):
     assert response.status_code == 200
     result = response.json()
     assert result["fileSize"] == 146124
-    assert result["fileCreationDate"] == 1
+    assert result["fileCreationDate"] == '1970-01-01T00:00:01Z'
+    assert result["averagePitch"] == pytest.approx(34.38,0.1)
+    assert result["duration"] == pytest.approx(4.565,0.01)
     assert result["frame"] is not None
     assert result["frame"]["duration"] == pytest.approx(0.046875)
     assert result["frame"]["f1"] == pytest.approx(623.19, 0.1)
@@ -313,6 +352,7 @@ def test_signal_mode_transcription_db_problem(db_mock):
     )
     response = client.get("/transcription/deepgram/1")
     assert response.status_code == 404
+    assert response.json()["detail"] == "File not found"
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -348,6 +388,7 @@ def test_transcription_storing_error(db_mock):
         ]
         response = client.get("/transcription/deepgram/1")
         assert response.status_code == 500
+        assert response.json()["detail"] == "Something went wrong while storing the transcription"
         assert db_mock.fetch_file.call_count == 1
         assert db_mock.store_transcription.call_count == 1
 
@@ -355,6 +396,7 @@ def test_transcription_storing_error(db_mock):
 def test_transcription_model_not_found(db_mock):
     response = client.get("/transcription/non_existant_model/1")
     assert response.status_code == 404
+    assert response.json()["detail"] == "Model was not found"
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -367,23 +409,18 @@ def test_signal_analyze_invalid_data():
     response = client.post("/signals/analyze", json={"data": "invalid", "fs": 48000})
     assert response.status_code == 422
 
-
-def test_analyze_signal_mode_invalid_mode(db_mock):
-    response = client.get("/signals/modes/invalid_mode/1")
-    assert response.status_code == 400
-    assert db_mock.fetch_file.call_count == 1
-
-
 def test_analyze_signal_mode_invalid_id(db_mock):
     db_mock.fetch_file.side_effect = Exception("Database error")
     response = client.get("/signals/modes/simple-info/invalid_id")
     assert response.status_code == 404
+    assert response.json()["detail"] == "File not found"
     assert db_mock.fetch_file.call_count == 1
 
 
 def test_transcribe_file_invalid_model(db_mock):
     response = client.get("/transcription/invalid_model/1")
     assert response.status_code == 404
+    assert response.json()["detail"] == "Model was not found"
     assert db_mock.fetch_file.call_count == 1
 
 
