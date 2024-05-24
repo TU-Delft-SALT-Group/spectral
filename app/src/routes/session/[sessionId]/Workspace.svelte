@@ -1,8 +1,8 @@
 <script lang="ts">
 	import AnalysisPane from '$lib/analysis/AnalysisPane.svelte';
-	import type { WorkspaceState } from './workspace';
+	import type { SessionState } from './workspace';
 
-	export let state: WorkspaceState;
+	export let state: SessionState;
 </script>
 
 <div class="h-full w-full">

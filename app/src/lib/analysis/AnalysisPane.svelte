@@ -15,7 +15,6 @@
 		type ModeComponent,
 		type ModeComponentProps
 	} from '$lib/analysis/modes';
-	import { syncPaneStateToDb as syncPaneStateToDb } from '$lib/database/sync';
 	import type { PaneState } from './analysis-pane';
 	import { getComputedFileData } from './kernel/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
@@ -65,7 +64,6 @@
 	}
 
 	$: browser && getProps(state);
-	$: syncPaneStateToDb(state);
 </script>
 
 <section class="relative h-full">

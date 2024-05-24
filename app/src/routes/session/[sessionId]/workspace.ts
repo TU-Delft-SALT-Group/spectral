@@ -1,7 +1,7 @@
 import { paneState } from '$lib/analysis/analysis-pane';
 import { z } from 'zod';
 
-export const workspaceState = z
+export const sessionState = z
 	.object({
 		panes: z.array(paneState)
 	})
@@ -9,4 +9,4 @@ export const workspaceState = z
 		panes: [paneState.parse(undefined)]
 	});
 
-export type WorkspaceState = z.infer<typeof workspaceState>;
+export type SessionState = z.infer<typeof sessionState>;
