@@ -206,7 +206,7 @@ def test_signal_correct_simple_info(db_mock):
 def test_signal_correct_spectrogram(db_mock):
     response = client.get("/signals/modes/spectrogram/1")
     assert response.status_code == 200
-    assert response.json() == None
+    assert response.json() is None
     assert db_mock.fetch_file.call_count == 1
 
 
