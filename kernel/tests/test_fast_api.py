@@ -28,8 +28,9 @@ with open(
 @pytest.fixture
 def db_mock():
     mock = Mock()
-    mock.fetch_file.return_value = {"data": control_sentence, "creationTime": 1}
+    mock.fetch_file.return_value = {"data": control_sentence, "creationTime": 1, "groundTruth": "hai test"}
     mock.get_transcriptions.return_value = [[{"value": "hi", "start": 0, "end": 1}]]
+
     yield mock
 
 
@@ -202,11 +203,11 @@ def test_signal_correct_simple_info(db_mock):
     assert db_mock.fetch_file.call_count == 1
 
 
-# def test_signal_correct_spectogram(db_mock):
-#     response = client.get("/signals/modes/spectogram/1")
-#     assert response.status_code == 501
-#     assert response.json()["detail"] == "spectogram_mode is not implemented"
-#     assert db_mock.fetch_file.call_count == 1
+def test_signal_correct_spectrogram(db_mock):
+    response = client.get("/signals/modes/spectrogram/1")
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.fetch_file.call_count == 1
 
 
 def test_signal_correct_waveform(db_mock):
@@ -249,9 +250,8 @@ def test_signal_transcription_not_found(db_mock):
 
 def test_signal_mode_wrong_mode(db_mock):
     response = client.get("/signals/modes/wrongmode/1")
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Mode not found"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 422
+    assert db_mock.fetch_file.call_count == 0
 
 
 def test_signal_mode_frame_start_index_missing(db_mock):
@@ -440,3 +440,91 @@ def mock_db(mocker):
     mock_db_instance.connection = Mock()
     mock_db_instance.close = Mock()
     return mock_db_instance
+
+def test_error_rate_no_ground_truth(db_mock):
+    db_mock.fetch_file.return_value["groundTruth"] = None
+    
+    response = client.get("/signals/modes/error-rate/1")
+    
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.fetch_file.call_count == 1
+    assert db_mock.get_transcriptions.call_count == 0
+    
+def test_analyze_error_rate_mode_transcription_retrieval_failure(db_mock):
+    db_mock.get_transcriptions.side_effect = Exception("Database error")
+    response = client.get("/signals/modes/error-rate/1")
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Something went wrong when retrieving the transcriptions of this file"
+    assert db_mock.fetch_file.call_count == 1
+    
+def test_error_rate_no_transcription(db_mock):
+    db_mock.get_transcriptions.return_value = [[]]
+    
+    response = client.get("/signals/modes/error-rate/1")
+    
+    assert response.status_code == 200
+    
+    result = response.json()
+    
+    assert result[0]["wordLevel"]["wer"] == 1.0
+    assert result[0]["wordLevel"]["mer"] == 1.0
+    assert result[0]["wordLevel"]["wil"] == 1.0
+    assert result[0]["wordLevel"]["wip"] == 0
+    assert result[0]["wordLevel"]["hits"] == 0
+    assert result[0]["wordLevel"]["substitutions"] == 0
+    assert result[0]["wordLevel"]["insertions"] == 0
+    assert result[0]["wordLevel"]["deletions"] == 2
+    assert result[0]["wordLevel"]["reference"] == ['hai', 'test']
+    assert result[0]["wordLevel"]["hypothesis"] == []
+    assert len(result[0]["wordLevel"]["alignments"]) == 1
+    assert result[0]["wordLevel"]["alignments"][0] == {'type': 'delete', 'referenceStartIndex': 0, 'referenceEndIndex': 2, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 0}
+    
+    assert result[0]["characterLevel"]["cer"] == 1
+    assert result[0]["characterLevel"]["hits"] == 0
+    assert result[0]["characterLevel"]["substitutions"] == 0
+    assert result[0]["characterLevel"]["insertions"] == 0
+    assert result[0]["characterLevel"]["deletions"] == 8
+    assert result[0]["characterLevel"]["reference"] == ['h', 'a', 'i', ' ', 't', 'e', 's', 't']
+    assert result[0]["characterLevel"]["hypothesis"] == []
+    assert len(result[0]["characterLevel"]["alignments"]) == 1
+    assert result[0]["characterLevel"]["alignments"][0] == {'type': 'delete', 'referenceStartIndex': 0, 'referenceEndIndex':8, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 0}
+    
+    assert db_mock.fetch_file.call_count == 1
+    assert db_mock.get_transcriptions.call_count == 1
+    
+def test_error_rate_ground_truth(db_mock):    
+    response = client.get("/signals/modes/error-rate/1")
+    
+    assert response.status_code == 200
+    result = response.json()
+    
+    assert result[0]["wordLevel"]["wer"] == 1.0
+    assert result[0]["wordLevel"]["mer"] == 1.0
+    assert result[0]["wordLevel"]["wil"] == 1.0
+    assert result[0]["wordLevel"]["wip"] == 0
+    assert result[0]["wordLevel"]["hits"] == 0
+    assert result[0]["wordLevel"]["substitutions"] == 1
+    assert result[0]["wordLevel"]["insertions"] == 0
+    assert result[0]["wordLevel"]["deletions"] == 1
+    assert result[0]["wordLevel"]["reference"] == ['hai', 'test']
+    assert result[0]["wordLevel"]["hypothesis"] == ['hi']
+    assert len(result[0]["wordLevel"]["alignments"]) == 2
+    assert result[0]["wordLevel"]["alignments"][0] == {'type': 'substitute', 'referenceStartIndex': 0, 'referenceEndIndex': 1, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 1}
+    assert result[0]["wordLevel"]["alignments"][1] == {'type': 'delete', 'referenceStartIndex': 1, 'referenceEndIndex': 2, 'hypothesisStartIndex': 1, 'hypothesisEndIndex': 1}
+    
+    assert result[0]["characterLevel"]["cer"] == 0.75
+    assert result[0]["characterLevel"]["hits"] == 2
+    assert result[0]["characterLevel"]["substitutions"] == 0
+    assert result[0]["characterLevel"]["insertions"] == 0
+    assert result[0]["characterLevel"]["deletions"] == 6
+    assert len(result[0]["characterLevel"]["alignments"]) == 4
+    assert result[0]["characterLevel"]["reference"] == ['h', 'a', 'i', ' ', 't', 'e', 's', 't']
+    assert result[0]["characterLevel"]["hypothesis"] == ['h', 'i']
+    assert result[0]["characterLevel"]["alignments"][0] == {'type': 'equal', 'referenceStartIndex': 0, 'referenceEndIndex': 1, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 1}
+    assert result[0]["characterLevel"]["alignments"][1] == {'type': 'delete', 'referenceStartIndex': 1, 'referenceEndIndex': 2, 'hypothesisStartIndex': 1, 'hypothesisEndIndex': 1}
+    assert result[0]["characterLevel"]["alignments"][2] == {'type': 'equal', 'referenceStartIndex': 2, 'referenceEndIndex': 3, 'hypothesisStartIndex': 1, 'hypothesisEndIndex': 2}
+    assert result[0]["characterLevel"]["alignments"][3] == {'type': 'delete', 'referenceStartIndex': 3, 'referenceEndIndex': 8, 'hypothesisStartIndex': 2, 'hypothesisEndIndex': 2}
+    
+    assert db_mock.fetch_file.call_count == 1
+    assert db_mock.get_transcriptions.call_count == 1

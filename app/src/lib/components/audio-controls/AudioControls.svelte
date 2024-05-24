@@ -19,8 +19,12 @@
 					selectedStore.set(null);
 					break;
 				case ' ':
+					if (
+						(e.target as HTMLTextAreaElement).tagName.toUpperCase() == 'INPUT' ||
+						selected === null
+					)
+						return;
 					e.preventDefault();
-					if (selected === null) return;
 					selected.togglePlay();
 					break;
 				case 'ArrowLeft':
