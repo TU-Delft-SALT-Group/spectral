@@ -102,8 +102,6 @@
 	onDestroy(() => {
 		spectrogram.destroy();
 		regions.destroy();
-
-		wavesurfer.destroy();
 	});
 </script>
 
