@@ -269,7 +269,9 @@ async def signal_fundamental_features(signal: Signal):
                                     'hits': 8, 
                                     'substitutions': 2, 
                                     'insertions': 10, 
-                                    'deletions': 0, 
+                                    'deletions': 0,
+                                    'reference': ['w', 'a', 's', ' ', 'a', ' ', 't', 'e', 's', 't'], 
+                                    'hypothesis': ['t', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 's', 'h', 'o', 'r', 't', ' ', 't', 'e', 's', 't'], 
                                     'alignments': [
                                         {'type': 'insert', 'referenceStartIndex': 0, 'referenceEndIndex': 0, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 1},
                                         {'type': 'substitute', 'referenceStartIndex': 0, 'referenceEndIndex': 2, 'hypothesisStartIndex': 1, 'hypothesisEndIndex': 3},

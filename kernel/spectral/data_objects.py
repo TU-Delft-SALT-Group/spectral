@@ -170,14 +170,14 @@ class Alignment(BaseModel):
     Alignment model representing the type and indices of the alignment.
     
     Attributes:
-        type (Literal['insert', 'substitute', 'deletion, 'equal']): Type of the alignment.
+        type (Literal['insert', 'substitute', 'delete, 'equal']): Type of the alignment.
         referenceStartIndex (int): Starting index in the reference.
         referenceEndIndex (int): Ending index in the reference.
         hypothesisStartIndex (int): Starting index in the hypothesis.
         hypothesisEndIndex (int): Ending index in the hypothesis.
     """
     
-    type: Literal['insert', 'substitute', 'deletion', 'equal']
+    type: Literal['insert', 'substitute', 'delete', 'equal']
     referenceStartIndex: int
     referenceEndIndex: int
     hypothesisStartIndex: int
@@ -231,6 +231,8 @@ class CharacterLevelErrorRate(BaseModel):
     substitutions: int
     insertions: int
     deletions: int
+    reference: List[str]
+    hypothesis: List[str]
     alignments: List[Alignment]
 
 class ErrorRateValue(BaseModel):

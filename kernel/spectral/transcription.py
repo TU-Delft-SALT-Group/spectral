@@ -47,13 +47,14 @@ def word_level_processing(reference, hypothesis):
 def character_level_processing(reference, hypothesis):
     
     processed_data = process_characters(reference=reference, hypothesis=hypothesis)
-    
     result = {}
     result["cer"] = processed_data.cer
     result["hits"] = processed_data.hits
     result["substitutions"] = processed_data.substitutions
     result["insertions"] = processed_data.insertions
     result["deletions"] = processed_data.deletions
+    result["reference"] = processed_data.references[0]
+    result["hypothesis"] = processed_data.hypotheses[0]
     result["alignments"] = get_alignments(processed_data.alignments[0])
     
     return result
