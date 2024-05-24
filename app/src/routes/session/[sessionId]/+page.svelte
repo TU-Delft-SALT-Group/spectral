@@ -9,6 +9,11 @@
 	let lastUpdate: number = 0;
 	let timeout: ReturnType<typeof setTimeout> | null;
 
+	/**
+	 * Attempt sync will try to sync with the following behaviour:
+	 * - If the last sync was over 5 seconds ago, it will send data immediately to the server.
+	 * - If the last sync was below 5 seconds ago, it will send data 5 seconds after the last sync.
+	 */
 	function attemptSync(state: SessionState) {
 		if (!timeout) return;
 
@@ -29,6 +34,9 @@
 		}
 	}
 
+	/**
+	 * This function simply sends session state to the database to be stored
+	 */
 	async function syncState(state: SessionState) {
 		await fetch(`/db/session/${data.sessionId}`, {
 			method: 'POST',
