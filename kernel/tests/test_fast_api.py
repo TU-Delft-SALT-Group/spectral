@@ -250,9 +250,8 @@ def test_signal_transcription_not_found(db_mock):
 
 def test_signal_mode_wrong_mode(db_mock):
     response = client.get("/signals/modes/wrongmode/1")
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Mode not found"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 422
+    assert db_mock.fetch_file.call_count == 0
 
 
 def test_signal_mode_frame_start_index_missing(db_mock):

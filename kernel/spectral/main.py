@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, Literal
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
@@ -19,6 +19,12 @@ from .mode_handler import (
     vowel_space_mode,
     transcription_mode,
     error_rate_mode,
+)
+from .response_examples import (
+    frame_analysis_response_examples,
+    signal_analysis_response_examples,
+    signal_modes_response_examples,
+    transcription_response_examples
 )
 from .transcription import get_transcription
 from .data_objects import (
@@ -71,27 +77,7 @@ class ORJSONResponse(JSONResponse):
 app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 
-@app.post("/frames/analyze", response_model=FrameAnalysisResponse, responses={
-    200: {"content": {
-                "application/json": {
-                    "example": {
-                        "duration": 0.04,
-                        "pitch": 160.32,
-                        "f1": 523.32,
-                        "f2": 762.89     
-                    }
-                }
-            }
-          },
-    400: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }
-    })
+@app.post("/frames/analyze", response_model=FrameAnalysisResponse, responses=frame_analysis_response_examples)
 async def frame_fundamental_features(frame: Frame):
     """
     Analyze fundamental features of an audio frame.
@@ -123,42 +109,7 @@ async def frame_fundamental_features(frame: Frame):
         )
 
 
-@app.post("/signals/analyze", response_model= SignalAnalysisResponse, responses={
-    200: {"content": {
-                "application/json": {
-                    "example": {
-                        "duration": 4.0, 
-                        "pitch": {
-                            "time_step": 0.002,
-                            "start_time": 0.99,
-                            "data": [123,32]
-                            }, 
-                        "spectrogram":{
-                            "time_step": 0.002,
-                            "window_length": 0.005,
-                            "frequency_step": 20.0,
-                            "start_time": .99,
-                            "data": [123,32] 
-                            },
-                        "formants":{
-                            "time_step": 0.002,
-                            "window_length": 0.005,
-                            "start_time": .99,
-                            "data": [[20,30],[40,50]]
-                        }    
-                    }
-                }
-            }
-          },
-    400: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }
-    })
+@app.post("/signals/analyze", response_model= SignalAnalysisResponse, responses=signal_analysis_response_examples)
 async def signal_fundamental_features(signal: Signal):
     """
     Analyze fundamental features of an audio signal.
@@ -201,112 +152,9 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],list[ErrorRateValue]], responses={
-    200: {"content": {
-                "application/json": {
-                    "examples": {
-                        "simple-info": {
-                            "summary": "Example for simple-info mode",
-                            "value": {
-                                "duration": 2.12,
-                                "averagePitch": 30.2,
-                                "fileSize": 123456,
-                                "fileCreationDate": "2024-05-21T09:58:42.263896",
-                                "frame": {
-                                    "duration": 0.04,
-                                    "pitch": 200.2,
-                                    "f1": 400.56,
-                                    "f2": 800.98
-                                }
-                            }
-                        },
-                        "spectrogram": {
-                            "summary": "Example for spectrogram mode",
-                            "value": "null (actual null value, fastapi currently doesn't support examples with just null)"
-                        },
-                        "waveform": {
-                            "summary": "Example for waveform mode",
-                            "value": "null (actual null value, fastapi currently doesn't support examples with just null)"
-                        },
-                        "vowel-space": {
-                            "summary": "Example for vowel-space mode",
-                            "value": {
-                                "f1": 400.56,
-                                "f2": 800.98
-                            }
-                        },
-                        "transcription": {
-                            "summary": "Example for transcription mode",
-                            "value": [[
-                                {"value": "foo", "start": 0, "end": 0.12},
-                                {"value": "bar", "start": 0.12, "end": 0.24}
-                                ]]
-                        },
-                        "error_rate": {
-                            "summary": "Example for error rate mode",
-                            "value": [{
-                                'wordLevel': {
-                                    'wer': 1.0, 
-                                    'mer': 0.6, 
-                                    'wil': 0.7333333333333334, 
-                                    'wip': 0.26666666666666666, 
-                                    'hits': 2, 
-                                    'substitutions': 1, 
-                                    'insertions': 2, 
-                                    'deletions': 0, 
-                                    'reference': ['was', 'a', 'test'], 
-                                    'hypothesis': ['this', 'is', 'a', 'short', 'test'], 
-                                    'alignments': [
-                                        {'type': 'insert', 'referenceStartIndex': 0, 'referenceEndIndex': 0, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 1}, 
-                                        {'type': 'substitute', 'referenceStartIndex': 0, 'referenceEndIndex': 1, 'hypothesisStartIndex': 1, 'hypothesisEndIndex': 2}, 
-                                        {'type': 'equal', 'referenceStartIndex': 1, 'referenceEndIndex': 2, 'hypothesisStartIndex': 2, 'hypothesisEndIndex': 3}, 
-                                        {'type': 'insert', 'referenceStartIndex': 2, 'referenceEndIndex': 2, 'hypothesisStartIndex': 3, 'hypothesisEndIndex': 4}, 
-                                        {'type': 'equal', 'referenceStartIndex': 2, 'referenceEndIndex': 3, 'hypothesisStartIndex': 4, 'hypothesisEndIndex': 5}
-                                        ]
-                                }, 
-                                'characterLevel': {
-                                    'cer': 1.2, 
-                                    'hits': 8, 
-                                    'substitutions': 2, 
-                                    'insertions': 10, 
-                                    'deletions': 0,
-                                    'reference': ['w', 'a', 's', ' ', 'a', ' ', 't', 'e', 's', 't'], 
-                                    'hypothesis': ['t', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 's', 'h', 'o', 'r', 't', ' ', 't', 'e', 's', 't'], 
-                                    'alignments': [
-                                        {'type': 'insert', 'referenceStartIndex': 0, 'referenceEndIndex': 0, 'hypothesisStartIndex': 0, 'hypothesisEndIndex': 1},
-                                        {'type': 'substitute', 'referenceStartIndex': 0, 'referenceEndIndex': 2, 'hypothesisStartIndex': 1, 'hypothesisEndIndex': 3},
-                                        {'type': 'equal', 'referenceStartIndex': 2, 'referenceEndIndex': 4, 'hypothesisStartIndex': 3, 'hypothesisEndIndex': 5},
-                                        {'type': 'insert', 'referenceStartIndex': 4, 'referenceEndIndex': 4, 'hypothesisStartIndex': 5, 'hypothesisEndIndex': 8},
-                                        {'type': 'equal', 'referenceStartIndex': 4, 'referenceEndIndex': 5, 'hypothesisStartIndex': 8, 'hypothesisEndIndex': 9},
-                                        {'type': 'insert', 'referenceStartIndex': 5, 'referenceEndIndex': 5, 'hypothesisStartIndex': 9, 'hypothesisEndIndex': 15},
-                                        {'type': 'equal', 'referenceStartIndex': 5, 'referenceEndIndex': 10, 'hypothesisStartIndex': 15, 'hypothesisEndIndex': 20}
-                                        ]
-                                    }
-                                }]
-                            }
-                        }
-                    }
-                }
-        }, 
-    400: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }, 
-    404: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }
-    })
+@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],list[ErrorRateValue]], responses=signal_modes_response_examples)
 async def analyze_signal_mode(
-    mode: Annotated[str, Path(title="The analysis mode")],
+    mode: Annotated[Literal['simple-info', 'spectrogram', 'waveform', 'vowel-space', 'transcription', 'error-rate'], Path(title="The analysis mode")],
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
     endIndex: Optional[int] = None,
@@ -318,7 +166,7 @@ async def analyze_signal_mode(
     This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
 
     Parameters:
-    - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form", "vowel-space", "transcription").
+    - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form", "vowel-space", "transcription", "error-rate").
     - id (str): The ID of the signal to analyze.
     - startIndex (Optional[int]): The start index of the frame to analyze.
     - endIndex (Optional[int]): The end index of the frame to analyze.
@@ -351,33 +199,8 @@ async def analyze_signal_mode(
         return transcription_mode(id, database)
     if mode == "error-rate":
         return error_rate_mode(id, database, file)
-    raise HTTPException(status_code=400, detail="Mode not found")
 
-
-@app.get("/transcription/{model}/{id}", response_model=list[TranscriptionSegment], responses={
-    200: {"content": {
-                "application/json": {
-                    "example": [{"value": "foo", "start": 0, "end": 0.12},{"value": "bar", "start": 0.12, "end": 0.24}]
-                }
-            }
-          }, 
-    404: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }, 
-    500: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }
-    })
+@app.get("/transcription/{model}/{id}", response_model=list[TranscriptionSegment], responses=transcription_response_examples)
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
     id: Annotated[str, Path(title="The ID of the file")],
