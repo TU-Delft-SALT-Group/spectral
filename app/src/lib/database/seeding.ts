@@ -28,20 +28,14 @@ const sampleSessionState: SessionState = {
 			mode: 'waveform',
 			files: [
 				{
-					frame: {
-						startIndex: 100,
-						endIndex: 1000
-					},
+					frame: null,
 					fileId: sampleTorgo[0],
 					filename: sampleTorgo[0],
 					cycleEnabled: false
 				},
 
 				{
-					frame: {
-						startIndex: 100,
-						endIndex: 1000
-					},
+					frame: null,
 					fileId: sampleTorgo[1],
 					filename: sampleTorgo[1],
 					cycleEnabled: true

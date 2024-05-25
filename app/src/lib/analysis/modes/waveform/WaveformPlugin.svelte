@@ -5,15 +5,13 @@
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import type { mode } from '..';
 	import used from '$lib/utils';
+	import type { Frame } from '$lib/analysis/kernel/framing';
 
 	export let computedData: mode.ComputedData<'waveform'>;
 	export let fileState: mode.FileState<'waveform'>;
 
 	used(computedData);
 
-	// This is disabled because for some reason it complains that it is not being used
-	// when in reality it is bound in the AudioControls.svelte
-	// eslint-disable-next-line
 	export const controls: ControlRequirements = {
 		setSpeed(speed: number) {
 			wavesurfer.setPlaybackRate(speed);
@@ -22,6 +20,7 @@
 			if (regions.getRegions().length === 0) return false;
 
 			regions.clearRegions();
+			fileState.frame = null;
 			return true;
 		},
 		play() {
@@ -67,12 +66,28 @@
 				r.remove();
 			});
 
+			let frame: Frame = {
+				startIndex: Math.floor(region.start * wavesurfer.options.sampleRate),
+				endIndex: Math.ceil(region.end * wavesurfer.options.sampleRate)
+			};
+
+			fileState.frame = frame;
 			setAsSelected();
 		});
 
 		wavesurfer.on('decode', () => {
 			duration = wavesurfer.getDuration();
 			current = wavesurfer.getCurrentTime();
+
+			if (fileState.frame !== null) {
+				regions.clearRegions();
+
+				regions.addRegion({
+					start: fileState.frame.startIndex / wavesurfer.options.sampleRate,
+					end: fileState.frame.endIndex / wavesurfer.options.sampleRate,
+					color: 'rgba(255, 0, 0, 0.1)'
+				});
+			}
 		});
 
 		wavesurfer.on('timeupdate', () => {

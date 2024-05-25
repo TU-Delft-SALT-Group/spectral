@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import * as Resizable from '$lib/components/ui/resizable';
 	import type { PageServerData } from './$types';
 	import FileExplorer from './FileExplorer.svelte';
@@ -7,6 +8,9 @@
 
 	export let data: PageServerData;
 	let lastUpdate: number = 0;
+
+	// for some reason it complains that timeout doesn't get used, even though it does
+	// eslint-disable-next-line
 	let timeout: ReturnType<typeof setTimeout> | null;
 
 	/**
@@ -15,7 +19,7 @@
 	 * - If the last sync was below 5 seconds ago, it will send data 5 seconds after the last sync.
 	 */
 	function attemptSync(state: SessionState) {
-		if (!timeout) return;
+		if (!browser || timeout !== null) return;
 
 		let now = Date.now();
 
