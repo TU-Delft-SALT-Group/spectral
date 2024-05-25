@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { LOCALE } from '$lib/time';
+	import { XIcon } from 'lucide-svelte';
 	import type { mode } from '..';
+	import { Button } from '$lib/components/ui/button';
 
 	export let computedData: mode.ComputedData<'simple-info'>;
 	export let fileState: mode.FileState<'simple-info'>;
+
+	export let onRemoveFile: () => void = () => {};
 
 	const display = (value: number | null, unit: string, decimals = 2) =>
 		value === null ? 'N/A' : `${value.toFixed(decimals)} ${unit}`;
@@ -33,7 +37,7 @@
 	$: frameData = getFrameData(computedData.frame);
 </script>
 
-<h1 class="text-xl font-bold">{fileState.id}</h1>
+<h1 class="overflow-hidden text-ellipsis text-xl font-bold">{fileState.id}</h1>
 
 <div class="flex flex-col flex-wrap opacity-80">
 	{#each displayData as { label, value }}
@@ -57,4 +61,8 @@
 	{:else}
 		<div class="pt-4 opacity-50">Select a frame in the waveform mode to view its information</div>
 	{/if}
+
+	<Button class="mx-auto mt-4 w-fit" variant="destructive" on:click={onRemoveFile}>
+		<XIcon></XIcon>
+	</Button>
 </div>

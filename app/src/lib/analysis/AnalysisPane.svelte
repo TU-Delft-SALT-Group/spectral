@@ -71,7 +71,15 @@
 		return data[state.mode].props as ModeComponentProps<mode.Name>;
 	}
 
-	$: browser && getProps(state);
+	function makeStale() {
+		for (const bundle of Object.values(data)) {
+			bundle.stale = true;
+		}
+	}
+
+	$: if (browser) {
+		getProps(state);
+	}
 </script>
 
 <section
@@ -89,11 +97,12 @@
 			const json = JSON.parse(transferredData);
 			const file = fileState.parse(json);
 
-			state.files.push(file);
-			state = state;
-			for (const bundle of Object.values(data)) {
-				bundle.stale = true;
+			if (state.files.some((f) => f.id === file.id)) {
+				return;
 			}
+
+			state.files = [...state.files, file];
+			makeStale();
 		}
 	}}
 	role="group"
@@ -112,6 +121,10 @@
 			this={(data[state.mode] as RendererBundle<mode.Name>).component}
 			bind:modeState={(data[state.mode].props as ModeComponentProps<mode.Name>).modeState}
 			bind:fileData={(data[state.mode].props as ModeComponentProps<mode.Name>).fileData}
+			onRemoveFile={(fileId) => {
+				state.files = state.files.filter((file) => file.id !== fileId);
+				makeStale();
+			}}
 		></svelte:component>
 	{/if}
 </section>

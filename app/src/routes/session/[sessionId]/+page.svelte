@@ -11,7 +11,7 @@
 
 	// for some reason it complains that timeout doesn't get used, even though it does
 	// eslint-disable-next-line
-	let timeout: ReturnType<typeof setTimeout> | null;
+	let timeout: ReturnType<typeof setTimeout> | null = null;
 
 	/**
 	 * Attempt sync will try to sync with the following behaviour:

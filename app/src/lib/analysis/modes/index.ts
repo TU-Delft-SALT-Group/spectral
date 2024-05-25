@@ -72,6 +72,7 @@ export type FileData<M extends mode.Name> = {
 export type ModeComponentProps<M extends mode.Name> = {
 	fileData: Array<FileData<M>>;
 	modeState: mode.ModeState<M>;
+	onRemoveFile?: (fileId: string) => void;
 };
 
 export type ModeComponent<M extends mode.Name> = ComponentType<
