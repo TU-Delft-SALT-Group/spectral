@@ -47,8 +47,8 @@
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${fileState.fileId}-spectrogram`,
-			url: `/db/file/${fileState.fileId}`,
+			container: `#${fileState.id}-spectrogram`,
+			url: `/db/file/${fileState.id}`,
 			height: 0
 		});
 
@@ -106,7 +106,7 @@
 </script>
 
 <div
-	id={`${fileState.fileId}-spectrogram`}
+	id={`${fileState.id}-spectrogram`}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

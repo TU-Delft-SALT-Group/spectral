@@ -36,8 +36,8 @@ export const simpleInfoData = {
 
 	fileState: fileState
 		.pick({
-			fileId: true,
-			filename: true,
+			id: true,
+			name: true,
 			frame: true
 		})
 		.default({}),

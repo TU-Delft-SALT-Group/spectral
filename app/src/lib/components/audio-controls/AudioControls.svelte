@@ -153,7 +153,7 @@
 				<Separator orientation="vertical" class="mx-2" />
 
 				<div class="text-muted-foreground">
-					{fileState.filename}
+					{fileState.name}
 				</div>
 			</div>
 		</div>

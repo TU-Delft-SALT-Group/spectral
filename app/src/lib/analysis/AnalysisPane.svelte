@@ -18,12 +18,14 @@
 	import type { PaneState } from './analysis-pane';
 	import { getComputedFileData } from './kernel/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
+	import { fileState } from './modes/file-state';
 
 	export let state: PaneState;
 
 	type RendererBundle<M extends mode.Name> = {
 		component: ModeComponent<M>;
 		props: ModeComponentProps<M> | null;
+		stale: boolean;
 	};
 
 	let data = Object.fromEntries(
@@ -32,7 +34,8 @@
 				mode,
 				{
 					component,
-					props: null
+					props: null,
+					stale: false
 				}
 			];
 		})
@@ -41,13 +44,13 @@
 	};
 
 	async function getProps(state: PaneState) {
-		if (data[state.mode].props === null) {
+		if (data[state.mode].props === null || data[state.mode].stale) {
 			const modeState = state.modeState;
 			const fileData = state.files.map(
 				async (fileState): Promise<FileData<mode.Name>> => ({
 					fileState,
 					computedData: await getComputedFileData({
-						fileId: fileState.fileId,
+						fileId: fileState.id,
 						mode: state.mode,
 						frame: fileState.frame ?? null
 					})
@@ -66,7 +69,30 @@
 	$: browser && getProps(state);
 </script>
 
-<section class="relative h-full">
+<section
+	class="relative h-full"
+	on:dragover={(event) => {
+		event.preventDefault();
+		if (event.dataTransfer) {
+			event.dataTransfer.dropEffect = 'copy';
+		}
+	}}
+	on:drop={async (event) => {
+		event.preventDefault();
+		if (event.dataTransfer) {
+			const transferredData = event.dataTransfer.getData('application/json');
+			const json = JSON.parse(transferredData);
+			const file = fileState.parse(json);
+
+			state.files.push(file);
+			state = state;
+			for (const bundle of Object.values(data)) {
+				bundle.stale = true;
+			}
+		}
+	}}
+	role="group"
+>
 	<ModeSelector bind:mode={state.mode} onModeHover={(mode) => getProps({ ...state, mode })}
 	></ModeSelector>
 

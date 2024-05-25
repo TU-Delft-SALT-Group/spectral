@@ -1,9 +1,18 @@
-import { sampleTorgo } from '$lib/files/samples';
 import { readFile } from 'node:fs/promises';
 import { db } from '.';
-import { filesTable, sessionTable, userTable } from './schema';
+import { fileTable, sessionTable, userTable } from './schema';
 import { eq } from 'drizzle-orm';
 import type { SessionState } from '../../routes/session/[sessionId]/workspace';
+
+const sampleTorgo = [
+	'F01_severe_head_sentence1',
+	'F03_moderate_head_sentence1',
+	'FC03_control_head_sentence1',
+	'M02_severe_head_sentence1',
+	'M03_mild_head_sentence1',
+	'M04_severe_head_sentence1',
+	'MC02_control_head_sentence1'
+];
 
 export async function seedSampleUser() {
 	const isSampleUserSeeded = await db.query.userTable.findFirst({
@@ -28,16 +37,16 @@ const sampleSessionState: SessionState = {
 			mode: 'waveform',
 			files: [
 				{
+					id: sampleTorgo[0],
+					name: sampleTorgo[0],
 					frame: null,
-					fileId: sampleTorgo[0],
-					filename: sampleTorgo[0],
 					cycleEnabled: false
 				},
 
 				{
+					id: sampleTorgo[1],
+					name: sampleTorgo[1],
 					frame: null,
-					fileId: sampleTorgo[1],
-					filename: sampleTorgo[1],
 					cycleEnabled: true
 				}
 			],
@@ -77,8 +86,8 @@ export async function seedSampleTorgo() {
 	const { isSampleUserSeeded, isSampleSessionSeeded } = await seedSampleSession();
 
 	for (const filename of sampleTorgo) {
-		const isFileSeeded = await db.query.filesTable.findFirst({
-			where: eq(filesTable.id, filename)
+		const isFileSeeded = await db.query.fileTable.findFirst({
+			where: eq(fileTable.id, filename)
 		});
 
 		if (isFileSeeded) {
@@ -87,7 +96,7 @@ export async function seedSampleTorgo() {
 
 		const buffer = await readFile(`./static/samples/torgo-dataset/${filename}.wav`);
 
-		await db.insert(filesTable).values({
+		await db.insert(fileTable).values({
 			id: filename,
 			name: filename,
 			session: 'sample-session',

@@ -8,7 +8,7 @@ import {
 	jsonb,
 	json
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 export const userTable = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -45,7 +45,7 @@ export const byteArray = customType<{ data: Buffer }>({
 	}
 });
 
-export const filesTable = pgTable('files', {
+export const fileTable = pgTable('files', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	data: byteArray('data').notNull(),
@@ -66,6 +66,13 @@ export const filesTable = pgTable('files', {
 		.default(sql`'{}'`)
 });
 
+export const fileRelations = relations(fileTable, ({ one }) => ({
+	session: one(sessionTable, {
+		fields: [fileTable.session],
+		references: [sessionTable.id]
+	})
+}));
+
 export const sessionTable = pgTable('session', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
@@ -81,11 +88,15 @@ export const sessionTable = pgTable('session', {
 	state: json('state').notNull().default({})
 });
 
+export const sessionRelations = relations(sessionTable, ({ many }) => ({
+	files: many(fileTable)
+}));
+
 export const fileTranscriptionTable = pgTable('file_transcription', {
 	id: text('id').primaryKey(),
 	file: text('file')
 		.notNull()
-		.references(() => filesTable.id)
+		.references(() => fileTable.id)
 });
 
 export const transcriptionTable = pgTable('transcription', {
