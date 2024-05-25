@@ -106,11 +106,11 @@ def test_fundamental_features_typical_speech():
 
 def test_fundamental_features_missing_params():
     response = client.post("/signals/analyze", json={"data": typical_1_data})
-    assert response.status_code == 422
+    assert response.status_code == 422, "Response status code should be 422"
     response = client.post("/signals/analyze", json={"fs": typical_1_fs})
-    assert response.status_code == 422
+    assert response.status_code == 422, "Response status code should be 422"
     response = client.post("/signals/analyze", json={})
-    assert response.status_code == 422
+    assert response.status_code == 422, "Response status code should be 422"
 
 
 def test_fundamental_features_typical_own_params_correct():
@@ -127,18 +127,32 @@ def test_fundamental_features_typical_own_params_correct():
             "formants_window_length": 0.015,
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is not None
-    assert result["pitch"]["time_step"] == pytest.approx(0.01)
-    assert result["spectrogram"] is not None
-    assert result["spectrogram"]["time_step"] == pytest.approx(0.004)
-    assert result["spectrogram"]["window_length"] == pytest.approx(0.0025)
-    assert result["spectrogram"]["frequency_step"] == pytest.approx(15)
-    assert result["formants"] is not None
-    assert result["formants"]["time_step"] == pytest.approx(0.003)
-    assert result["formants"]["window_length"] == pytest.approx(0.015)
+    assert result["duration"] == pytest.approx(
+        4.565, 0.01
+    ), "Duration should be approximately 4.565"
+    assert result["pitch"] is not None, "Pitch should not be None"
+    assert result["pitch"]["time_step"] == pytest.approx(
+        0.01
+    ), "Pitch time step should be approximately 0.01"
+    assert result["spectrogram"] is not None, "Spectrogram should not be None"
+    assert result["spectrogram"]["time_step"] == pytest.approx(
+        0.004
+    ), "Spectrogram time step should be approximately 0.004"
+    assert result["spectrogram"]["window_length"] == pytest.approx(
+        0.0025
+    ), "Spectrogram window length should be approximately 0.0025"
+    assert result["spectrogram"]["frequency_step"] == pytest.approx(
+        15
+    ), "Spectrogram frequency step should be approximately 15"
+    assert result["formants"] is not None, "Formants should not be None"
+    assert result["formants"]["time_step"] == pytest.approx(
+        0.003
+    ), "Formants time step should be approximately 0.003"
+    assert result["formants"]["window_length"] == pytest.approx(
+        0.015
+    ), "Formants window length should be approximately 0.015"
 
 
 def test_fundamental_features_typical_own_params_errors():
@@ -146,12 +160,14 @@ def test_fundamental_features_typical_own_params_errors():
         "/signals/analyze",
         json={"data": typical_1_data, "fs": typical_1_fs, "pitch_time_step": 0},
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is None
-    assert result["spectrogram"] is not None
-    assert result["formants"] is not None
+    assert result["duration"] == pytest.approx(
+        4.565, 0.01
+    ), "Duration should be approximately 4.565"
+    assert result["pitch"] is None, "Pitch should be None"
+    assert result["spectrogram"] is not None, "Spectrogram should not be None"
+    assert result["formants"] is not None, "Formants should not be None"
 
     response = client.post(
         "/signals/analyze",
@@ -162,134 +178,148 @@ def test_fundamental_features_typical_own_params_errors():
             "formants_time_step": 0,
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
     assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["pitch"] is not None
     assert result["spectrogram"] is None
     assert result["formants"] is None
 
+    assert result["duration"] == pytest.approx(
+        4.565, 0.01
+    ), "Duration should be approximately 4.565"
+    assert result["pitch"] is not None, "Pitch should not be None"
+    assert result["spectrogram"] is None, "Spectrogram should be None"
+    assert result["formants"] is None, "Formants should be None"
+
 
 def test_fundamental_features_fs_zero():
     response = client.post("/signals/analyze", json={"data": typical_1_data, "fs": 0})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Input data did not meet requirements"
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "Input data did not meet requirements"
+    ), "Error message should be 'Input data did not meet requirements'"
 
 
 def test_fundamental_features_empty_signal():
     response = client.post("/signals/analyze", json={"data": [], "fs": 48000})
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["duration"] == 0
-    assert result["pitch"] is None
-    assert result["spectrogram"] is None
-    assert result["formants"] is None
+    assert result["duration"] == 0, "Duration should be 0"
+    assert result["pitch"] is None, "Pitch should be None"
+    assert result["spectrogram"] is None, "Spectrogram should be None"
+    assert result["formants"] is None, "Formants should be None"
 
 
 def test_signal_correct_mode_file_not_found(db_mock):
     db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
     response = client.get("/signals/modes/simple-info/1")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "File not found"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 404, "Response status code should be 404"
+    assert response.json()["detail"] == "File not found", "Error message should be 'File not found'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_correct_simple_info(db_mock):
     response = client.get("/signals/modes/simple-info/1")
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["fileSize"] == 146124
-    assert result["fileCreationDate"] == 1
-    assert result["frame"] is None
-    assert db_mock.fetch_file.call_count == 1
-
-
-# def test_signal_correct_spectogram(db_mock):
-#     response = client.get("/signals/modes/spectogram/1")
-#     assert response.status_code == 501
-#     assert response.json()["detail"] == "spectogram_mode is not implemented"
-#     assert db_mock.fetch_file.call_count == 1
+    assert result["fileSize"] == 146124, "File size should be 146124"
+    assert result["fileCreationDate"] == 1, "File creation date should be 1"
+    assert result["frame"] is None, "Frame should be None"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_correct_waveform(db_mock):
     response = client.get("/signals/modes/waveform/1")
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result is None
-    assert db_mock.fetch_file.call_count == 1
+    assert result is None, "Result should be None"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_correct_vowel_space(db_mock):
     response = client.get("/signals/modes/vowel-space/1")
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Vowel-space mode was not given frame"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "Vowel-space mode was not given frame"
+    ), "Error message should be 'Vowel-space mode was not given frame'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_correct_transcription(db_mock):
     response = client.get("/signals/modes/transcription/1")
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert len(result) == 1
-    assert result[0]["value"] == "hi"
-    assert result[0]["start"] == 0
-    assert result[0]["end"] == 1
-    assert db_mock.fetch_file.call_count == 1
-    assert db_mock.get_transcriptions.call_count == 1
+    assert len(result) == 1, "Result should have length 1"
+    assert result[0]["value"] == "hi", "Value should be 'hi'"
+    assert result[0]["start"] == 0, "Start should be 0"
+    assert result[0]["end"] == 1, "End should be 1"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
+    assert db_mock.get_transcriptions.call_count == 1, "get_transcriptions should be called once"
 
 
 def test_signal_transcription_not_found(db_mock):
     db_mock.get_transcriptions.side_effect = HTTPException(status_code=500, detail="database error")
     response = client.get("/signals/modes/transcription/1")
-    assert response.status_code == 500
+    assert response.status_code == 500, "Response status code should be 500"
     assert (
         response.json()["detail"]
         == "Something went wrong when retrieving the transcriptions of this file"
-    )
-    assert db_mock.fetch_file.call_count == 1
-    assert db_mock.get_transcriptions.call_count == 1
+    ), "Error message should be 'Something went wrong when retrieving the transcriptions of this file'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
+    assert db_mock.get_transcriptions.call_count == 1, "get_transcriptions should be called once"
 
 
 def test_signal_mode_wrong_mode(db_mock):
     response = client.get("/signals/modes/wrongmode/1")
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Mode not found"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert response.json()["detail"] == "Mode not found", "Error message should be 'Mode not found'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_start_index_missing(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"endIndex": 1})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "no startIndex provided"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "no startIndex provided"
+    ), "Error message should be 'no startIndex provided'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_end_index_missing(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"startIndex": 1})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "no endIndex provided"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "no endIndex provided"
+    ), "Error message should be 'no endIndex provided'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_start_index_bigger_than_end_index(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 1})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    ), "Error message should be 'startIndex should be strictly lower than endIndex'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 2})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    ), "Error message should be 'startIndex should be strictly lower than endIndex'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_negative_start_index(db_mock):
     response = client.get("/signals/modes/simple-info/1", params={"startIndex": -1, "endIndex": 1})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "startIndex should be larger or equal to 0"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "startIndex should be larger or equal to 0"
+    ), "Error message should be 'startIndex should be larger or equal to 0'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_too_large_end_index(db_mock):
@@ -300,9 +330,11 @@ def test_signal_mode_frame_too_large_end_index(db_mock):
             "endIndex": 73041,
         },
     )
-    assert response.status_code == 400
-    assert response.json()["detail"] == "endIndex should be lower than the file length"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "endIndex should be lower than the file length"
+    ), "Error message should be 'endIndex should be lower than the file length'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_frame_too_large_boundary(db_mock):
@@ -313,45 +345,57 @@ def test_signal_mode_frame_too_large_boundary(db_mock):
             "endIndex": 73040,
         },
     )
-    assert response.status_code == 200
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 200, "Response status code should be 200"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_simple_info_with_frame(db_mock):
     response = client.get(
         "/signals/modes/simple-info/1", params={"startIndex": 22500, "endIndex": 23250}
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["fileSize"] == 146124
-    assert result["fileCreationDate"] == 1
-    assert result["averagePitch"] == pytest.approx(34.38, 0.1)
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["frame"] is not None
-    assert result["frame"]["duration"] == pytest.approx(0.046875)
-    assert result["frame"]["f1"] == pytest.approx(623.19, 0.1)
-    assert result["frame"]["f2"] == pytest.approx(1635.4, 0.1)
-    assert result["frame"]["pitch"] == pytest.approx(591.6, 0.1)
-    assert db_mock.fetch_file.call_count == 1
+    assert result["fileSize"] == 146124, "File size should be 146124"
+    assert result["fileCreationDate"] == 1, "File creation date should be 1"
+    assert result["averagePitch"] == pytest.approx(
+        34.38, 0.1
+    ), "Average pitch should be approximately 34.38"
+    assert result["duration"] == pytest.approx(
+        4.565, 0.01
+    ), "Duration should be approximately 4.565"
+    assert result["frame"] is not None, "Frame should not be None"
+    assert result["frame"]["duration"] == pytest.approx(
+        0.046875
+    ), "Frame duration should be approximately 0.046875"
+    assert result["frame"]["f1"] == pytest.approx(
+        623.19, 0.1
+    ), "Frame f1 should be approximately 623.19"
+    assert result["frame"]["f2"] == pytest.approx(
+        1635.4, 0.1
+    ), "Frame f2 should be approximately 1635.4"
+    assert result["frame"]["pitch"] == pytest.approx(
+        591.6, 0.1
+    ), "Frame pitch should be approximately 591.6"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_vowel_space_mode_with_frame(db_mock):
     response = client.get(
         "/signals/modes/vowel-space/1", params={"startIndex": 22500, "endIndex": 23250}
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["f1"] == pytest.approx(623.19, 0.1)
-    assert result["f2"] == pytest.approx(1635.4, 0.1)
-    assert db_mock.fetch_file.call_count == 1
+    assert result["f1"] == pytest.approx(623.19, 0.1), "f1 should be approximately 623.19"
+    assert result["f2"] == pytest.approx(1635.4, 0.1), "f2 should be approximately 1635.4"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_signal_mode_transcription_db_problem(db_mock):
     db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
     response = client.get("/transcription/deepgram/1")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "File not found"
-    assert db_mock.fetch_file.call_count == 1
+    assert response.status_code == 404, "Response status code should be 404"
+    assert response.json()["detail"] == "File not found", "Error message should be 'File not found'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_transcription_model_found(db_mock):
@@ -361,14 +405,19 @@ def test_transcription_model_found(db_mock):
             {"value": "word2", "start": 1.5, "end": 2.0},
         ]
         response = client.get("/transcription/deepgram/1")
-        assert response.status_code == 200
+        assert response.status_code == 200, "Response status code should be 200"
         result = response.json()
-        assert result == [
-            {"value": "word1", "start": 0.5, "end": 1.0},
-            {"value": "word2", "start": 1.5, "end": 2.0},
-        ]
-        assert db_mock.fetch_file.call_count == 1
-        assert db_mock.store_transcription.call_count == 1
+        assert (
+            result
+            == [
+                {"value": "word1", "start": 0.5, "end": 1.0},
+                {"value": "word2", "start": 1.5, "end": 2.0},
+            ]
+        ), "Result should be [{'value': 'word1', 'start': 0.5, 'end': 1.0}, {'value': 'word2', 'start': 1.5, 'end': 2.0}]"
+        assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
+        assert (
+            db_mock.store_transcription.call_count == 1
+        ), "store_transcription should be called once"
 
 
 def test_transcription_storing_error(db_mock):
@@ -381,10 +430,40 @@ def test_transcription_storing_error(db_mock):
             {"value": "word2", "start": 1.5, "end": 2.0},
         ]
         response = client.get("/transcription/deepgram/1")
-        assert response.status_code == 500
-        assert response.json()["detail"] == "Something went wrong while storing the transcription"
-        assert db_mock.fetch_file.call_count == 1
-        assert db_mock.store_transcription.call_count == 1
+        assert response.status_code == 500, "Response status code should be 500"
+        assert (
+            response.json()["detail"] == "Something went wrong while storing the transcription"
+        ), "Error message should be 'Something went wrong while storing the transcription'"
+        assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
+        assert (
+            db_mock.store_transcription.call_count == 1
+        ), "store_transcription should be called once"
+
+
+def test_analyze_signal_mode_invalid_id(db_mock):
+    db_mock.fetch_file.side_effect = Exception("Database error")
+    response = client.get("/signals/modes/simple-info/invalid_id")
+    assert response.status_code == 404, "Response status code should be 404"
+    assert response.json()["detail"] == "File not found", "Error message should be 'File not found'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
+
+
+def test_transcribe_file_invalid_model(db_mock):
+    response = client.get("/transcription/invalid_model/1")
+    assert response.status_code == 404, "Response status code should be 404"
+    assert (
+        response.json()["detail"] == "Model was not found"
+    ), "Error message should be 'Model was not found'"
+    assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
+
+
+@pytest.mark.skip(reason="Not implemented")
+def test_transcribe_file_no_api_key(db_mock):
+    with patch("spectral.transcription.os.getenv") as mock_getenv:
+        mock_getenv.return_value = None
+        response = client.get("/transcription/deepgram/1")
+        assert response.status_code == 500, "Response status code should be 500"
+        assert db_mock.fetch_file.call_count == 1, "fetch_file should be called once"
 
 
 def test_transcription_model_not_found(db_mock):
@@ -402,30 +481,6 @@ def test_frame_analyze_invalid_data():
 def test_signal_analyze_invalid_data():
     response = client.post("/signals/analyze", json={"data": "invalid", "fs": 48000})
     assert response.status_code == 422
-
-
-def test_analyze_signal_mode_invalid_id(db_mock):
-    db_mock.fetch_file.side_effect = Exception("Database error")
-    response = client.get("/signals/modes/simple-info/invalid_id")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "File not found"
-    assert db_mock.fetch_file.call_count == 1
-
-
-def test_transcribe_file_invalid_model(db_mock):
-    response = client.get("/transcription/invalid_model/1")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Model was not found"
-    assert db_mock.fetch_file.call_count == 1
-
-
-@pytest.mark.skip(reason="Not implemented")
-def test_transcribe_file_no_api_key(db_mock):
-    with patch("spectral.transcription.os.getenv") as mock_getenv:
-        mock_getenv.return_value = None
-        response = client.get("/transcription/deepgram/1")
-        assert response.status_code == 500
-        assert db_mock.fetch_file.call_count == 1
 
 
 @pytest.fixture
