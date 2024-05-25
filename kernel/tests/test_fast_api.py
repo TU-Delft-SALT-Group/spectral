@@ -19,9 +19,7 @@ typical_1_fs, typical_1_data = wv.read(
 )
 typical_1_data = typical_1_data.tolist()
 
-with open(
-    os.path.join(data_dir, "torgo-dataset/MC02_control_head_sentence1.wav"), mode="rb"
-) as f:
+with open(os.path.join(data_dir, "torgo-dataset/MC02_control_head_sentence1.wav"), mode="rb") as f:
     control_sentence = f.read()
 
 
@@ -42,62 +40,68 @@ def override_dependency(db_mock):
 
 def test_voiced_frame():
     response = client.post("/frames/analyze", json=frame_data["voiced-1"])
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     response_data = response.json()
-    assert response_data["duration"] == pytest.approx(0.04)
-    assert response_data["pitch"] == pytest.approx(115.64, 0.01)
-    assert response_data["f1"] == pytest.approx(474.43, 0.01)
-    assert response_data["f2"] == pytest.approx(1924.64, 0.01)
+    assert response_data["duration"] == pytest.approx(0.04), "Duration should be approximately 0.04"
+    assert response_data["pitch"] == pytest.approx(
+        115.64, 0.01
+    ), "Pitch should be approximately 115.64"
+    assert response_data["f1"] == pytest.approx(474.43, 0.01), "f1 should be approximately 474.43"
+    assert response_data["f2"] == pytest.approx(1924.64, 0.01), "f2 should be approximately 1924.64"
 
 
 def test_noise_frame():
     response = client.post("/frames/analyze", json=frame_data["noise-1"])
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     response_data = response.json()
-    assert response_data["duration"] == pytest.approx(0.04)
-    assert response_data["pitch"] is None
-    assert response_data["f1"] == pytest.approx(192.72, 0.01)
-    assert response_data["f2"] == pytest.approx(1864.27, 0.01)
+    assert response_data["duration"] == pytest.approx(0.04), "Duration should be approximately 0.04"
+    assert response_data["pitch"] is None, "Pitch should be None"
+    assert response_data["f1"] == pytest.approx(192.72, 0.01), "f1 should be approximately 192.72"
+    assert response_data["f2"] == pytest.approx(1864.27, 0.01), "f2 should be approximately 1864.27"
 
 
 def test_empty_frame():
     response = client.post("/frames/analyze", json={"data": [], "fs": 48000})
-    assert response.status_code == 200
+    assert response.status_code == 200, "Response status code should be 200"
     response_data = response.json()
-    assert response_data["duration"] == 0
-    assert response_data["pitch"] is None
-    assert response_data["f1"] is None
-    assert response_data["f2"] is None
+    assert response_data["duration"] == 0, "Duration should be 0"
+    assert response_data["pitch"] is None, "Pitch should be None"
+    assert response_data["f1"] is None, "f1 should be None"
+    assert response_data["f2"] is None, "f2 should be None"
 
 
 def test_missing_argument():
     response = client.post("/frames/analyze", json={"fs": 48000})
-    assert response.status_code == 422
+    assert response.status_code == 422, "Response status code should be 422"
 
 
 def test_zero_fs():
     response = client.post("/frames/analyze", json={"data": [], "fs": 0})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Input data did not meet requirements"
+    assert response.status_code == 400, "Response status code should be 400"
+    assert (
+        response.json()["detail"] == "Input data did not meet requirements"
+    ), "Error message should be 'Input data did not meet requirements'"
 
 
 def test_fundamental_features_typical_speech():
-    response = client.post(
-        "/signals/analyze", json={"data": typical_1_data, "fs": typical_1_fs}
-    )
-    assert response.status_code == 200
+    response = client.post("/signals/analyze", json={"data": typical_1_data, "fs": typical_1_fs})
+    assert response.status_code == 200, "Response status code should be 200"
     result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is not None
-    assert result["pitch"]["time_step"] is not None
-    assert result["pitch"]["start_time"] is not None
-    assert result["pitch"]["data"] is not None
-    assert result["spectrogram"] is not None
-    assert result["formants"] is not None
-    assert result["formants"]["time_step"] is not None
-    assert result["formants"]["window_length"] is not None
-    assert result["formants"]["start_time"] is not None
-    assert result["formants"]["data"] is not None
+    assert result["duration"] == pytest.approx(
+        4.565, 0.01
+    ), "Duration should be approximately 4.565"
+    assert result["pitch"] is not None, "Pitch should not be None"
+    assert result["pitch"]["time_step"] is not None, "Pitch time step should not be None"
+    assert result["pitch"]["start_time"] is not None, "Pitch start time should not be None"
+    assert result["pitch"]["data"] is not None, "Pitch data should not be None"
+    assert result["spectrogram"] is not None, "Spectrogram should not be None"
+    assert result["formants"] is not None, "Formants should not be None"
+    assert result["formants"]["time_step"] is not None, "Formants time step should not be None"
+    assert (
+        result["formants"]["window_length"] is not None
+    ), "Formants window length should not be None"
+    assert result["formants"]["start_time"] is not None, "Formants start time should not be None"
+    assert result["formants"]["data"] is not None, "Formants data should not be None"
 
 
 def test_fundamental_features_missing_params():
@@ -183,9 +187,7 @@ def test_fundamental_features_empty_signal():
 
 
 def test_signal_correct_mode_file_not_found(db_mock):
-    db_mock.fetch_file.side_effect = HTTPException(
-        status_code=500, detail="database error"
-    )
+    db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
     response = client.get("/signals/modes/simple-info/1")
     assert response.status_code == 404
     assert response.json()["detail"] == "File not found"
@@ -237,12 +239,13 @@ def test_signal_correct_transcription(db_mock):
 
 
 def test_signal_transcription_not_found(db_mock):
-    db_mock.get_transcriptions.side_effect = HTTPException(
-        status_code=500, detail="database error"
-    )
+    db_mock.get_transcriptions.side_effect = HTTPException(status_code=500, detail="database error")
     response = client.get("/signals/modes/transcription/1")
     assert response.status_code == 500
-    assert response.json()["detail"] == "Something went wrong when retrieving the transcriptions of this file"
+    assert (
+        response.json()["detail"]
+        == "Something went wrong when retrieving the transcriptions of this file"
+    )
     assert db_mock.fetch_file.call_count == 1
     assert db_mock.get_transcriptions.call_count == 1
 
@@ -269,25 +272,21 @@ def test_signal_mode_frame_end_index_missing(db_mock):
 
 
 def test_signal_mode_frame_start_index_bigger_than_end_index(db_mock):
-    response = client.get(
-        "/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 1}
-    )
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 1})
     assert response.status_code == 400
     assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
     assert db_mock.fetch_file.call_count == 1
+
 
 def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(db_mock):
-    response = client.get(
-        "/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 2}
-    )
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": 2, "endIndex": 2})
     assert response.status_code == 400
     assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
     assert db_mock.fetch_file.call_count == 1
 
+
 def test_signal_mode_frame_negative_start_index(db_mock):
-    response = client.get(
-        "/signals/modes/simple-info/1", params={"startIndex": -1, "endIndex": 1}
-    )
+    response = client.get("/signals/modes/simple-info/1", params={"startIndex": -1, "endIndex": 1})
     assert response.status_code == 400
     assert response.json()["detail"] == "startIndex should be larger or equal to 0"
     assert db_mock.fetch_file.call_count == 1
@@ -304,7 +303,8 @@ def test_signal_mode_frame_too_large_end_index(db_mock):
     assert response.status_code == 400
     assert response.json()["detail"] == "endIndex should be lower than the file length"
     assert db_mock.fetch_file.call_count == 1
-    
+
+
 def test_signal_mode_frame_too_large_boundary(db_mock):
     response = client.get(
         "/signals/modes/simple-info/1",
@@ -325,8 +325,8 @@ def test_signal_mode_simple_info_with_frame(db_mock):
     result = response.json()
     assert result["fileSize"] == 146124
     assert result["fileCreationDate"] == 1
-    assert result["averagePitch"] == pytest.approx(34.38,0.1)
-    assert result["duration"] == pytest.approx(4.565,0.01)
+    assert result["averagePitch"] == pytest.approx(34.38, 0.1)
+    assert result["duration"] == pytest.approx(4.565, 0.01)
     assert result["frame"] is not None
     assert result["frame"]["duration"] == pytest.approx(0.046875)
     assert result["frame"]["f1"] == pytest.approx(623.19, 0.1)
@@ -347,9 +347,7 @@ def test_signal_mode_vowel_space_mode_with_frame(db_mock):
 
 
 def test_signal_mode_transcription_db_problem(db_mock):
-    db_mock.fetch_file.side_effect = HTTPException(
-        status_code=500, detail="database error"
-    )
+    db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
     response = client.get("/transcription/deepgram/1")
     assert response.status_code == 404
     assert response.json()["detail"] == "File not found"
@@ -357,9 +355,7 @@ def test_signal_mode_transcription_db_problem(db_mock):
 
 
 def test_transcription_model_found(db_mock):
-    with patch(
-        "spectral.transcription.deepgram_transcription"
-    ) as mock_deepgram_transcription:
+    with patch("spectral.transcription.deepgram_transcription") as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = [
             {"value": "word1", "start": 0.5, "end": 1.0},
             {"value": "word2", "start": 1.5, "end": 2.0},
@@ -379,9 +375,7 @@ def test_transcription_storing_error(db_mock):
     db_mock.store_transcription.side_effect = HTTPException(
         status_code=500, detail="database error"
     )
-    with patch(
-        "spectral.transcription.deepgram_transcription"
-    ) as mock_deepgram_transcription:
+    with patch("spectral.transcription.deepgram_transcription") as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = [
             {"value": "word1", "start": 0.5, "end": 1.0},
             {"value": "word2", "start": 1.5, "end": 2.0},
@@ -408,6 +402,7 @@ def test_frame_analyze_invalid_data():
 def test_signal_analyze_invalid_data():
     response = client.post("/signals/analyze", json={"data": "invalid", "fs": 48000})
     assert response.status_code == 422
+
 
 def test_analyze_signal_mode_invalid_id(db_mock):
     db_mock.fetch_file.side_effect = Exception("Database error")
