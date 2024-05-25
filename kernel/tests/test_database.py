@@ -17,12 +17,14 @@ def db():
 @patch("spectral.database.psycopg.connect")
 def test_connection(mock_connect, db):
     db.connection()
-    mock_connect.assert_called_once_with(
-        dbname="test_db",
-        user="test_user",
-        password="test_pass",
-        host="test_host",
-        port=5432,
+    (
+        mock_connect.assert_called_once_with(
+            dbname="test_db",
+            user="test_user",
+            password="test_pass",
+            host="test_host",
+            port=5432,
+        )
     )
 
 
@@ -51,10 +53,8 @@ def test_fetch_file(db):
         "uploader": "uploader",
         "session": "session",
         "emphemeral": False,
-    }
-    mock_cursor.execute.assert_called_once_with(
-        "SELECT * FROM files WHERE id = %s", [1]
-    )
+    }, "Fetch file result does not match expected format"
+    mock_cursor.execute.assert_called_once_with("SELECT * FROM files WHERE id = %s", [1])
 
 
 def test_store_transcription(db):
@@ -65,7 +65,9 @@ def test_store_transcription(db):
     file_transcription = [{"start": 0.0, "end": 1.0, "value": "hello"}]
     db.store_transcription(1, file_transcription)
 
-    assert mock_cursor.execute.call_count == 2
+    assert (
+        mock_cursor.execute.call_count == 2
+    ), "Store transcription did not execute expected number of queries"
 
 
 def test_get_transcriptions(db):
@@ -75,7 +77,9 @@ def test_get_transcriptions(db):
     mock_cursor.fetchall.side_effect = [[(1,)], [(0.0, 1.0, "hello")]]
 
     result = db.get_transcriptions(1)
-    assert result == [[{"start": 0.0, "end": 1.0, "value": "hello"}]]
+    assert result == [
+        [{"start": 0.0, "end": 1.0, "value": "hello"}]
+    ], "Get transcriptions result does not match expected format"
     mock_cursor.execute.assert_called()
 
 
