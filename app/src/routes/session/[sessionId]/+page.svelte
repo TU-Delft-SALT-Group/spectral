@@ -19,7 +19,7 @@
 	 * - If the last sync was below 5 seconds ago, it will send data 5 seconds after the last sync.
 	 */
 	function attemptSync(state: SessionState) {
-		if (!browser) return;
+		if (!browser || timeout !== null) return;
 
 		let now = Date.now();
 
