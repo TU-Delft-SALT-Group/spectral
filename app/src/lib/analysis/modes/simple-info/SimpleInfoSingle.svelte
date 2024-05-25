@@ -33,7 +33,7 @@
 	$: frameData = getFrameData(computedData.frame);
 </script>
 
-<h1 class="text-xl font-bold">{fileState.fileId}</h1>
+<h1 class="text-xl font-bold">{fileState.id}</h1>
 
 <div class="flex flex-col flex-wrap opacity-80">
 	{#each displayData as { label, value }}

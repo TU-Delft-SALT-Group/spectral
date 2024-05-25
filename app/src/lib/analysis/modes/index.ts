@@ -64,8 +64,6 @@ export const modes = {
  */
 export const modeNames: mode.Name[] = Object.keys(modes) as Array<keyof typeof modes>;
 
-export type FileState = mode.FileState<mode.Name>;
-
 export type FileData<M extends mode.Name> = {
 	computedData: mode.ComputedData<M>;
 	fileState: mode.FileState<M>;

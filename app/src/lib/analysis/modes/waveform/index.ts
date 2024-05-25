@@ -7,8 +7,8 @@ export const waveformData = {
 
 	fileState: fileState
 		.pick({
-			fileId: true,
-			filename: true,
+			id: true,
+			name: true,
 			frame: true
 		})
 		.default({}),

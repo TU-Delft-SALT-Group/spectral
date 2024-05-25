@@ -72,7 +72,7 @@
 		for (let i = 0; i < fileData.length; i++) {
 			const {
 				computedData: { f1, f2 },
-				fileState: { filename }
+				fileState: { name }
 			} = fileData[i];
 			const color = getPaletteColor(i);
 
@@ -83,13 +83,13 @@
 				.attr('r', 10)
 				.attr('fill', color)
 				.attr('cursor', 'pointer')
-				.attr('title', filename);
+				.attr('title', name);
 
 			svg
 				.append('text')
 				.attr('x', x(f2 - f1) + 10)
 				.attr('y', y(f1) + 17)
-				.text(filename)
+				.text(name)
 				.attr('fill', foreground)
 				.attr('font-size', '0.9rem')
 				.attr('alignment-baseline', 'middle');
@@ -105,7 +105,7 @@
 				.append('text')
 				.attr('x', marginLeft + 12)
 				.attr('y', height - marginBottom - 50 - 30 * i)
-				.text(filename)
+				.text(name)
 				.attr('fill', foreground)
 				.attr('font-size', '1rem')
 				.attr('alignment-baseline', 'middle');

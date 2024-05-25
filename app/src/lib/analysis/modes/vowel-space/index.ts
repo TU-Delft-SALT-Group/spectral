@@ -18,7 +18,7 @@ export const vowelSpaceData = {
 
 	fileState: fileState
 		.pick({
-			filename: true
+			name: true
 		})
 		.default({}),
 

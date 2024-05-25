@@ -46,8 +46,8 @@
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${fileState.fileId}-waveform`,
-			url: `/db/file/${fileState.fileId}`,
+			container: `#${fileState.id}-waveform`,
+			url: `/db/file/${fileState.id}`,
 			height: 'auto'
 		});
 
@@ -115,7 +115,7 @@
 </script>
 
 <div
-	id={`${fileState.fileId}-waveform`}
+	id={`${fileState.id}-waveform`}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

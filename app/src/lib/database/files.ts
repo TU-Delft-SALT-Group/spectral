@@ -1,5 +1,5 @@
 import { db } from '.';
-import { filesTable } from './schema';
+import { fileTable } from './schema';
 import { generateIdFromEntropySize } from 'lucia';
 
 export async function uploadFile(file: File, sessionId: string) {
@@ -15,7 +15,7 @@ export async function uploadFileAsBuffer(
 	sessionId: string,
 	groundTruth: string | null
 ) {
-	await db.insert(filesTable).values({
+	await db.insert(fileTable).values({
 		name,
 		id: generateIdFromEntropySize(10),
 		data: buffer,

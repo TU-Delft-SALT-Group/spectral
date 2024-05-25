@@ -1,32 +1,71 @@
 import type { PageServerLoad, Actions } from './$types';
-import type { FilebrowserFile } from '$lib/files';
 import { sessionState, type SessionState } from './workspace';
 import { db } from '$lib/database';
-import { filesTable, sessionTable } from '$lib/database/schema';
+import { fileTable, sessionTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { uploadFile } from '$lib/database/files';
+import { fileState, type FileState } from '$lib/analysis/modes/file-state';
 
-async function getFiles(sessionId: string): Promise<FilebrowserFile[]> {
-	const result = await db.query.filesTable.findMany({
-		where: eq(filesTable.session, sessionId)
-	});
-
-	return result.map((row) => ({
-		id: row.id,
-		name: row.name,
-		type: 'file'
-	}));
-}
-
-async function getState(sessionId: string): Promise<SessionState> {
+export const load = (async ({ params: { sessionId } }) => {
 	const result = await db.query.sessionTable.findFirst({
 		where: eq(sessionTable.id, sessionId),
 		columns: {
 			state: true
+		},
+		with: {
+			files: {
+				columns: {
+					id: true,
+					name: true,
+					state: true
+				}
+			}
 		}
 	});
 
+	if (result === undefined) {
+		error(404, 'Session not found');
+	}
+
+	const [files, state] = await Promise.all([getFiles(result), getState(result)]);
+
+	return {
+		files,
+		state,
+		sessionId
+	};
+}) satisfies PageServerLoad;
+
+async function getFiles(result: {
+	files: { id: string; name: string; state: unknown }[];
+}): Promise<FileState[]> {
+	const promises = result.files.map(async (file) => {
+		try {
+			if (typeof file.state !== 'object') {
+				throw new Error('Invalid file state');
+			}
+
+			return fileState.parse({
+				...file.state,
+				id: file.id,
+				name: file.name
+			});
+		} catch (err) {
+			const defaultState = fileState.parse(undefined);
+
+			return {
+				...defaultState,
+				id: file.id,
+				name: file.name
+			};
+		}
+	});
+
+	return await Promise.all(promises);
+}
+
+async function getState(result: { state: unknown }): Promise<SessionState> {
 	if (!result) {
 		error(404, 'Session not found');
 	}
@@ -44,16 +83,6 @@ async function getState(sessionId: string): Promise<SessionState> {
 		return defaultState;
 	}
 }
-
-export const load = (async ({ params: { sessionId } }) => {
-	const [files, state] = await Promise.all([getFiles(sessionId), getState(sessionId)]);
-
-	return {
-		files,
-		state,
-		sessionId
-	};
-}) satisfies PageServerLoad;
 
 export const actions = {
 	uploadFile: async ({ request, params: { sessionId } }) => {
@@ -73,6 +102,6 @@ export const actions = {
 			return fail(400, { message: 'Invalid fileId' });
 		}
 
-		await db.delete(filesTable).where(eq(filesTable.id, json.fileId));
+		await db.delete(fileTable).where(eq(fileTable.id, json.fileId));
 	}
 } satisfies Actions;
