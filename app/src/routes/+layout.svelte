@@ -2,13 +2,13 @@
 	import '../app.pcss';
 
 	import { ModeWatcher } from 'mode-watcher';
-	import NavBar from './NavBar.svelte';
+	import Menubar from './Menubar.svelte';
 </script>
 
 <ModeWatcher></ModeWatcher>
 
 <main class="grid h-screen w-screen grid-rows-[auto_2fr] overflow-x-hidden">
-	<NavBar></NavBar>
+	<Menubar></Menubar>
 	<div class="overflow-none h-full">
 		<slot></slot>
 	</div>
