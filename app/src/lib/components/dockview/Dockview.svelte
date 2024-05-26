@@ -7,11 +7,12 @@
 		type DockviewFrameworkOptions,
 		type DockviewReadyEvent
 	} from 'dockview-core';
-	import { onDestroy, onMount } from 'svelte';
-	import { SvelteRenderer, simple } from '.';
+	import { onDestroy, onMount, type ComponentType } from 'svelte';
+	import { SvelteRenderer } from '.';
 	import used from '$lib/utils';
 
 	export let onReady: (event: DockviewReadyEvent) => void;
+	export let component: ComponentType;
 
 	let el: HTMLElement;
 	let instance: DockviewComponent | null;
@@ -27,7 +28,7 @@
 			parentElement: el,
 			createComponent(options) {
 				used(options);
-				return new SvelteRenderer(simple);
+				return new SvelteRenderer(component);
 			}
 		};
 
