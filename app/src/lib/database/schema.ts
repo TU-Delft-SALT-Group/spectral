@@ -13,7 +13,7 @@ import { relations, sql } from 'drizzle-orm';
 export const userTable = pgTable('user', {
 	id: text('id').primaryKey(),
 	email: text('email').unique().notNull(),
-	username: text('username').notNull(),
+	username: text('username').unique().notNull(),
 	hashedPassword: text('hashed_password').notNull(),
 	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`)
 });
@@ -22,7 +22,7 @@ export const userSessionTable = pgTable('user_session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
-		.references(() => userTable.id),
+		.references(() => userTable.id, { onDelete: 'cascade' }),
 	expiresAt: timestamp('expires_at', {
 		withTimezone: true,
 		mode: 'date'
@@ -96,14 +96,14 @@ export const fileTranscriptionTable = pgTable('file_transcription', {
 	id: text('id').primaryKey(),
 	file: text('file')
 		.notNull()
-		.references(() => fileTable.id)
+		.references(() => fileTable.id, { onDelete: 'cascade' })
 });
 
 export const transcriptionTable = pgTable('transcription', {
 	id: text('id').primaryKey(),
 	fileTranscription: text('file_transcription')
 		.notNull()
-		.references(() => fileTranscriptionTable.id),
+		.references(() => fileTranscriptionTable.id, { onDelete: 'cascade' }),
 	start: doublePrecision('start').notNull(),
 	end: doublePrecision('end').notNull(),
 	value: text('value')

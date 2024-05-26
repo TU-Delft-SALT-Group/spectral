@@ -2,7 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { db } from '.';
 import { fileTable, sessionTable, userTable } from './schema';
 import { eq } from 'drizzle-orm';
-import type { SessionState } from '../../routes/session/[sessionId]/workspace';
+import type { SessionState } from '../../routes/(protected)/session/[sessionId]/workspace';
+import { createUser } from './users';
 
 const sampleTorgo = [
 	'F01_severe_head_sentence1',
@@ -20,11 +21,11 @@ export async function seedSampleUser() {
 	});
 
 	if (!isSampleUserSeeded) {
-		await db.insert(userTable).values({
+		await createUser({
 			id: 'sample-user',
-			email: '',
-			hashedPassword: '',
-			username: 'Sample User'
+			username: 'Sample',
+			email: 'sample@example.com',
+			password: 'password'
 		});
 	}
 

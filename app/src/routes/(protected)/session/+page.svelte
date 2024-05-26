@@ -20,7 +20,7 @@
 		<ul class="grid grid-cols-3 gap-4 py-4">
 			<li>
 				<Dialog.Trigger class={cn(buttonVariants(), 'h-full w-full text-xl font-bold')}>
-					<PlusIcon class="h-16 w-16" strokeWidth={1.5}></PlusIcon>
+					<PlusIcon class="mx-12 my-8 h-16 w-16" strokeWidth={1.5}></PlusIcon>
 				</Dialog.Trigger>
 			</li>
 
