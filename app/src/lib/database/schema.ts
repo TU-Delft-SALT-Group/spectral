@@ -18,6 +18,10 @@ export const userTable = pgTable('user', {
 	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`)
 });
 
+export const userRelations = relations(userTable, ({ many }) => ({
+	files: many(fileTable)
+}));
+
 export const userSessionTable = pgTable('user_session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
@@ -70,6 +74,11 @@ export const fileRelations = relations(fileTable, ({ one }) => ({
 	session: one(sessionTable, {
 		fields: [fileTable.session],
 		references: [sessionTable.id]
+	}),
+
+	uploader: one(userTable, {
+		fields: [fileTable.uploader],
+		references: [userTable.id]
 	})
 }));
 

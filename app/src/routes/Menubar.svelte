@@ -24,7 +24,7 @@
 		</div>
 
 		<div class="flex flex-1 justify-end text-muted-foreground">
-			<Button href="profile" variant="ghost">
+			<Button href="/profile" variant="ghost">
 				<div class="pr-3">Profile</div>
 				<UserIcon></UserIcon>
 			</Button>

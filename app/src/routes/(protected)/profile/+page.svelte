@@ -10,11 +10,15 @@
 	<h1 class="text-5xl">
 		Hello, <strong>{data.user.username}</strong>!
 	</h1>
-	<p class="text-muted-foreground">
+	<p class="text-sm text-muted-foreground">
 		{data.user.email}
 	</p>
-	<p class="text-muted-foreground">
+	<p class="text-sm text-muted-foreground">
 		{data.user.id}
+	</p>
+
+	<p>
+		You have uploaded {data.fileCount} files and have {data.sessionCount} sessions.
 	</p>
 
 	<form class="pt-2" method="post" use:enhance action="?/logout">
