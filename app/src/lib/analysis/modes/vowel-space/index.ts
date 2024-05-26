@@ -4,17 +4,19 @@ import type { ModeValidator } from '..';
 import { fileState } from '../file-state';
 
 export const vowelSpaceData = {
-	computedFileData: z.object({
-		/**
-		 * First formant
-		 */
-		f1: z.number(),
+	computedFileData: z
+		.object({
+			/**
+			 * First formant
+			 */
+			f1: z.number(),
 
-		/**
-		 * Second formant
-		 */
-		f2: z.number()
-	}),
+			/**
+			 * Second formant
+			 */
+			f2: z.number()
+		})
+		.nullable(),
 
 	fileState: fileState
 		.pick({

@@ -220,8 +220,8 @@ def test_signal_correct_waveform(db_mock):
 
 def test_signal_correct_vowel_space(db_mock):
     response = client.get("/signals/modes/vowel-space/1")
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Vowel-space mode was not given frame"
+    assert response.status_code == 200
+    assert response.json() is None
     assert db_mock.fetch_file.call_count == 1
 
 
