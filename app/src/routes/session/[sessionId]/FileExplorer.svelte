@@ -18,6 +18,7 @@
 
 	export let files: FileState[];
 	export let sessionId: string;
+	export let onDeleteFile: (fileId: string) => void;
 
 	let submitButton: HTMLInputElement;
 </script>
@@ -37,7 +38,13 @@
 					}
 				}}
 			>
-				<FileEntry {file}></FileEntry>
+				<FileEntry
+					{file}
+					onDeleteFile={() => {
+						onDeleteFile(file.id);
+						files = files.filter((f) => f.id !== file.id);
+					}}
+				></FileEntry>
 			</li>
 		{:else}
 			<div class="text-muted-foreground w-full text-center py-3">No files yet!</div>

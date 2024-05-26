@@ -10,7 +10,7 @@
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 p-6">
-	{#each fileData as { fileState, computedData }}
+	{#each fileData as { fileState, computedData } (fileState.id)}
 		<AudioControls visualization="waveform" {fileState} {computedData} />
 	{/each}
 </section>
