@@ -8,8 +8,10 @@ import os
 def test_get_transcription_model_not_found():
     with pytest.raises(HTTPException) as excinfo:
         get_transcription("non_existent_model", {"data": b"audio data"})
-    assert excinfo.value.status_code == 404
-    assert excinfo.value.detail == "Model was not found"
+    assert excinfo.value.status_code == 404, "Incorrect status code: should be 404"
+    assert (
+        excinfo.value.detail == "Model was not found"
+    ), "Message is different from 'Model was not found'"
 
 
 @patch("spectral.transcription.deepgram_transcription")
@@ -22,7 +24,7 @@ def test_get_transcription_deepgram(mock_deepgram_transcription):
     assert result == [
         {"value": "word1", "start": 0.5, "end": 1.0},
         {"value": "word2", "start": 1.5, "end": 2.0},
-    ]
+    ], "The result does not match the expected output"
     mock_deepgram_transcription.assert_called_once_with(b"audio data")
 
 
@@ -47,16 +49,14 @@ def test_deepgram_transcription(mock_deepgram_client):
             ]
         }
     }
-    mock_client_instance.listen.prerecorded.v(
-        "1"
-    ).transcribe_file.return_value = mock_response
+    mock_client_instance.listen.prerecorded.v("1").transcribe_file.return_value = mock_response
 
     data = b"audio data"
     result = deepgram_transcription(data)
     assert result == [
         {"value": "word1", "start": 0.5, "end": 1.0},
         {"value": "word2", "start": 1.5, "end": 2.0},
-    ]
+    ], "The result does not match the expected output"
     mock_deepgram_client.assert_called_once_with("test_key")
     mock_client_instance.listen.prerecorded.v("1").transcribe_file.assert_called_once()
 
@@ -65,4 +65,6 @@ def test_deepgram_transcription(mock_deepgram_client):
 def test_deepgram_transcription_no_api_key(capfd):
     deepgram_transcription(b"audio data")
     captured = capfd.readouterr()
-    assert "No API key for Deepgram is found" in captured.out
+    assert (
+        "No API key for Deepgram is found" in captured.out
+    ), "The expected error message was not found"
