@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import * as ContextMenu from '$lib/components/ui/context-menu';
-	import { invalidateAll } from '$app/navigation';
 	import { FileIcon } from 'lucide-svelte';
 	import type { FileState } from '$lib/analysis/modes/file-state';
 
 	export let file: FileState;
+	export let onDeleteFile: (fileId: string) => void = () => {};
 
 	// Manual fetch because it's a hassle to set up the form
 	async function deleteFile(fileId: string) {
+		onDeleteFile(fileId);
 		await fetch('?/deleteFile', { method: 'POST', body: JSON.stringify({ fileId }) });
-		await invalidateAll();
 	}
 </script>
 

@@ -63,6 +63,7 @@
 					modeState,
 					fileData: (await Promise.all(fileData)) as any // eslint-disable-line @typescript-eslint/no-explicit-any
 				};
+				data[state.mode].stale = false;
 			} catch (error) {
 				data[state.mode].props = { error };
 			}
@@ -75,6 +76,11 @@
 		for (const bundle of Object.values(data)) {
 			bundle.stale = true;
 		}
+	}
+
+	export function removeFile(fileId: string) {
+		state.files = state.files.filter((file) => file.id !== fileId);
+		makeStale();
 	}
 
 	$: if (browser) {
@@ -97,6 +103,7 @@
 			const json = JSON.parse(transferredData);
 			const file = fileState.parse(json);
 
+			// Don't add files already present
 			if (state.files.some((f) => f.id === file.id)) {
 				return;
 			}
@@ -115,16 +122,15 @@
 	{:else if 'error' in data[state.mode].props!}
 		<div class="h-full w-full p-8 text-2xl">
 			Error: <Json json={(data[state.mode].props as { error: unknown }).error}></Json>
+
+			<!-- TODO:Add an option to reset session state  -->
 		</div>
 	{:else}
 		<svelte:component
 			this={(data[state.mode] as RendererBundle<mode.Name>).component}
 			bind:modeState={(data[state.mode].props as ModeComponentProps<mode.Name>).modeState}
 			bind:fileData={(data[state.mode].props as ModeComponentProps<mode.Name>).fileData}
-			onRemoveFile={(fileId) => {
-				state.files = state.files.filter((file) => file.id !== fileId);
-				makeStale();
-			}}
+			onRemoveFile={removeFile}
 		></svelte:component>
 	{/if}
 </section>
