@@ -70,10 +70,13 @@
 		const legend = svg.append('g').attr('class', 'legend').style('transition', 'all 0.2s ease');
 
 		for (let i = 0; i < fileData.length; i++) {
+			const fileItem = fileData[i];
+			if (fileItem.computedData === null) continue;
+
 			const {
 				computedData: { f1, f2 },
 				fileState: { name }
-			} = fileData[i];
+			} = fileItem;
 			const color = getPaletteColor(i);
 
 			svg

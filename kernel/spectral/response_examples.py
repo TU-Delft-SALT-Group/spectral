@@ -128,6 +128,10 @@ signal_modes_response_examples = {
                                 "f2": 800.98
                             }
                         },
+                        "vowel-space no frame": {
+                            "summary": "Example for vowel-space mode if no frame is provided",
+                            "value": None
+                        },
                         "transcription": {
                             "summary": "Example for transcription mode",
                             "value": [[

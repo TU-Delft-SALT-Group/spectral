@@ -14,7 +14,7 @@ export const vowelSpaceData = {
 		 * Second formant
 		 */
 		f2: z.number()
-	}),
+	}).nullable(),
 
 	fileState: fileState
 		.pick({

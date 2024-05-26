@@ -55,19 +55,13 @@ def vowel_space_mode(data, fs, frame_index):
     Returns:
     - dict: A dictionary containing the first formant (f1) and the second formant (f2).
 
-    Raises:
-    - HTTPException: If `frame_index` is None, raises an HTTPException with status code 400
-                     and a message indicating that a frame index was not provided.
-
     Example:
     ```python
     result = vowel_space_mode(data, fs, frame_index)
     ```
     """
     if frame_index is None:
-        raise HTTPException(
-            status_code=400, detail="Vowel-space mode was not given frame"
-        )
+        return None
     frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
     formants = calculate_frame_f1_f2(frame_data, fs)
     return {"f1": formants[0], "f2": formants[1]}
