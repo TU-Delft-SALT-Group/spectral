@@ -1,4 +1,10 @@
-<script setup lang="ts">
+<script
+	setup
+	lang="ts"
+	generics="
+	S extends Record<string, unknown>
+"
+>
 	import { error } from '@sveltejs/kit';
 	import {
 		DockviewApi,
@@ -7,12 +13,13 @@
 		type DockviewFrameworkOptions,
 		type DockviewReadyEvent
 	} from 'dockview-core';
-	import { onDestroy, onMount, type ComponentType } from 'svelte';
+	import { SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
 	import { SvelteRenderer } from '.';
 	import used from '$lib/utils';
 
 	export let onReady: (event: DockviewReadyEvent) => void;
-	export let component: ComponentType;
+	// eslint-disable-next-line
+	export let component: ComponentType<SvelteComponent<S>>;
 
 	let el: HTMLElement;
 	let instance: DockviewComponent | null;

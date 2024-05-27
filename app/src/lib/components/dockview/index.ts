@@ -9,21 +9,20 @@ import type {
 	Parameters
 } from 'dockview-core';
 
-import { mount, unmount, type ComponentType } from 'svelte';
-export { default as simple } from './simple.svelte';
+import { SvelteComponent, mount, unmount, type ComponentProps, type ComponentType } from 'svelte';
 
-export type DockviewSvelteComponentProps = {
-	params: IDockviewPanelHeaderProps;
+export type DockviewSvelteComponentProps<S extends Record<string, unknown>> = {
+	params: IDockviewPanelHeaderProps<S>;
 };
 
-export function mountComponent<S extends ComponentType>(
-	component: S,
-	props: DockviewSvelteComponentProps,
+export function mountComponent<S extends Record<string, unknown>>(
+	component: ComponentType<SvelteComponent<S>>,
+	props: DockviewSvelteComponentProps<ComponentProps<SvelteComponent<S>>>,
 	element: HTMLElement
 ) {
 	let mounted = mount(component, {
 		target: element,
-		props
+		props: props.params.params
 	});
 
 	return {
@@ -51,16 +50,16 @@ abstract class AbstractSvelteRenderer {
 	}
 }
 
-export class SvelteRenderer<S extends ComponentType>
+export class SvelteRenderer<S extends Record<string, unknown>>
 	extends AbstractSvelteRenderer
 	implements IContentRenderer, ITabRenderer
 {
-	readonly _component: S;
+	readonly _component: ComponentType<SvelteComponent<S>>;
 	private _renderDisposable: { update: (props: object) => void; dispose: () => void } | undefined;
 	private _api: DockviewPanelApi | undefined;
 	private _containerApi: DockviewApi | undefined;
 
-	constructor(component: S) {
+	constructor(component: ComponentType<SvelteComponent<S>>) {
 		super();
 		this._component = component;
 	}
