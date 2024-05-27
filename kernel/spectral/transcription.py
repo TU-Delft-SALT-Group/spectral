@@ -3,11 +3,12 @@ from fastapi import HTTPException
 from jiwer import process_words, process_characters
 import os
 
+
 def calculate_error_rates(reference, annotations):
     """
     Calculate error rates between the reference transcription and annotations.
 
-    This function calculates both word-level and character-level error rates 
+    This function calculates both word-level and character-level error rates
     based on the provided reference transcription and annotations.
 
     Parameters:
@@ -21,8 +22,9 @@ def calculate_error_rates(reference, annotations):
     hypothesis = annotation_to_hypothesis(annotations)
     word_level = word_level_processing(reference, hypothesis)
     character_level = character_level_processing(reference, hypothesis)
-    
+
     return {"wordLevel": word_level, "characterLevel": character_level}
+
 
 def annotation_to_hypothesis(annotations):
     """
@@ -40,11 +42,12 @@ def annotation_to_hypothesis(annotations):
     res = ""
     if len(annotations) == 0:
         return res
-    
+
     for annotation in annotations:
         res += annotation["value"] + " "
-        
-    return res[:len(res)-1]
+
+    return res[: len(res) - 1]
+
 
 def word_level_processing(reference, hypothesis):
     """
@@ -61,7 +64,7 @@ def word_level_processing(reference, hypothesis):
 
     """
     processed_data = process_words(reference=reference, hypothesis=hypothesis)
-    
+
     result = {
         "wer": processed_data.wer,
         "mer": processed_data.mer,
@@ -73,10 +76,11 @@ def word_level_processing(reference, hypothesis):
         "deletions": processed_data.deletions,
         "reference": processed_data.references[0],
         "hypothesis": processed_data.hypotheses[0],
-        "alignments": get_alignments(processed_data.alignments[0])
+        "alignments": get_alignments(processed_data.alignments[0]),
     }
-    
+
     return result
+
 
 def character_level_processing(reference, hypothesis):
     """
@@ -93,7 +97,7 @@ def character_level_processing(reference, hypothesis):
 
     """
     processed_data = process_characters(reference=reference, hypothesis=hypothesis)
-    
+
     result = {
         "cer": processed_data.cer,
         "hits": processed_data.hits,
@@ -102,16 +106,17 @@ def character_level_processing(reference, hypothesis):
         "deletions": processed_data.deletions,
         "reference": processed_data.references[0],
         "hypothesis": processed_data.hypotheses[0],
-        "alignments": get_alignments(processed_data.alignments[0])
+        "alignments": get_alignments(processed_data.alignments[0]),
     }
-    
+
     return result
+
 
 def get_alignments(unparsed_alignments):
     """
     Convert unparsed alignments into a structured format.
 
-    This function processes unparsed alignment data and converts it into a list of dictionaries 
+    This function processes unparsed alignment data and converts it into a list of dictionaries
     with detailed alignment information.
 
     Parameters:
@@ -122,19 +127,20 @@ def get_alignments(unparsed_alignments):
 
     """
     alignments = []
-    
+
     for alignment in unparsed_alignments:
         alignment_dict = {
             "type": alignment.type,
             "referenceStartIndex": alignment.ref_start_idx,
             "referenceEndIndex": alignment.ref_end_idx,
             "hypothesisStartIndex": alignment.hyp_start_idx,
-            "hypothesisEndIndex": alignment.hyp_end_idx
+            "hypothesisEndIndex": alignment.hyp_end_idx,
         }
         alignments.append(alignment_dict)
-        
-    return alignments 
-        
+
+    return alignments
+
+
 def get_transcription(model, file):
     """
     Get transcription of an audio file using the specified model.

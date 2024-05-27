@@ -30,7 +30,7 @@ build:app:
       - app/.pnpm-store
 
 typecheck:app:
-  stage: typecheck 
+  stage: typecheck
   image: 'node:22.1.0-slim'
   script:
     - *pre_pnpm
