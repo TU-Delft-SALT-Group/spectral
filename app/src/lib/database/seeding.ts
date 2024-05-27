@@ -57,7 +57,8 @@ const sampleSessionState: SessionState = {
 				spectrogram: {},
 				'vowel-space': {
 					showLegend: true
-				}
+				},
+				'error-rate': {}
 			}
 		}
 	]

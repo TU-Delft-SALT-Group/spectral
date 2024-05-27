@@ -218,4 +218,4 @@ export const errorRateData = {
 	modeState: z.object({}).optional().default({})
 } satisfies ModeValidator;
 
-export { default as ErrorRate } from './errorRate.svelte';
+export { default as ErrorRate } from './ErrorRate.svelte';
