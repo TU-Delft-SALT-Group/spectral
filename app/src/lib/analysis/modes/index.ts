@@ -4,6 +4,7 @@ import { simpleInfoData, SimpleInfo } from './simple-info';
 import { waveformData, Waveform } from './waveform';
 import { spectrogramData, Spectrogram, SpectrogramIcon } from './spectrogram';
 import { vowelSpaceData, VowelSpace, VowelSpaceIcon } from './vowel-space';
+import { errorRateData, ErrorRate } from './error-rates';
 
 import AudioWaveformIcon from 'lucide-svelte/icons/audio-waveform';
 import InfoIcon from 'lucide-svelte/icons/info';
@@ -54,7 +55,8 @@ export const modes = {
 	'simple-info': simpleInfoData,
 	waveform: waveformData,
 	spectrogram: spectrogramData,
-	'vowel-space': vowelSpaceData
+	'vowel-space': vowelSpaceData,
+	'error-rate': errorRateData
 } as const satisfies Record<string, ModeValidator>;
 
 /**
@@ -108,5 +110,10 @@ export const modeComponents: {
 	'vowel-space': {
 		component: VowelSpace,
 		icon: VowelSpaceIcon
+	},
+
+	'error-rate': {
+		component: ErrorRate,
+		icon: InfoIcon
 	}
 };
