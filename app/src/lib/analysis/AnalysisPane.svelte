@@ -54,7 +54,7 @@
 						computedData: await getComputedFileData({
 							fileId: fileState.id,
 							mode: state.mode,
-							frame: fileState.frame ?? null
+							fileState
 						})
 					})
 				);
