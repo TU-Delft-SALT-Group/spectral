@@ -1,19 +1,34 @@
 <script lang="ts">
 	import AnalysisPane from '$lib/analysis/AnalysisPane.svelte';
+	import { DockviewApi, type DockviewReadyEvent } from 'dockview-core';
 	import type { SessionState } from './workspace';
+	import Dockview from '$lib/components/dockview/Dockview.svelte';
 
 	export let state: SessionState;
-	let panes: (null | AnalysisPane)[] = state.panes.map(() => null);
+	let panesApi: DockviewApi;
 
 	export function deleteFile(fileId: string) {
-		for (const pane of panes) {
-			pane?.removeFile(fileId);
+		for (const panel of panesApi.panels) {
+			let instance = panel.api.getParameters().getInstance();
+			instance?.removeFile(fileId);
 		}
+	}
+
+	function onReady(event: DockviewReadyEvent) {
+		panesApi = event.api;
+
+		state.panes.forEach((pane) => {
+			panesApi.addPanel({
+				id: 'default',
+				component: 'default',
+				params: {
+					state: pane
+				}
+			});
+		});
 	}
 </script>
 
 <div class="h-full w-full">
-	{#each state.panes as paneState, i}
-		<AnalysisPane bind:this={panes[i]} bind:state={paneState}></AnalysisPane>
-	{/each}
+	<Dockview {onReady} component={AnalysisPane} />
 </div>

@@ -4,9 +4,7 @@ import type {
 	GroupPanelPartInitParameters,
 	IContentRenderer,
 	IDockviewPanelHeaderProps,
-	ITabRenderer,
-	PanelUpdateEvent,
-	Parameters
+	ITabRenderer
 } from 'dockview-core';
 
 import {
@@ -22,15 +20,14 @@ export function mountComponent<S extends Record<string, unknown>>(
 	props: IDockviewPanelHeaderProps<ComponentProps<SvelteComponent<S>>>,
 	element: HTMLElement
 ) {
-	console.log(props.params);
-	let mounted = mount(component, {
+	const mounted: ComponentType<SvelteComponent<S>> = mount(component, {
 		target: element,
 		props: props.params
 	});
 
 	return {
-		update: (newProps: object) => {
-			mounted = { ...mounted, ...newProps };
+		getInstance: () => {
+			return mounted;
 		},
 		dispose: () => {
 			unmount(mounted);
@@ -58,7 +55,9 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 	implements IContentRenderer, ITabRenderer
 {
 	readonly _component: ComponentType<SvelteComponent<S>>;
-	private _renderDisposable: { update: (props: object) => void; dispose: () => void } | undefined;
+	private _renderDisposable:
+		| { getInstance: () => ComponentType<SvelteComponent<S>>; dispose: () => void }
+		| undefined;
 	private _api: DockviewPanelApi | undefined;
 	private _containerApi: DockviewApi | undefined;
 
@@ -73,27 +72,14 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 
 		const panelHeaderProps: IDockviewPanelHeaderProps<S> = {
 			params: parameters.params as S,
-			api: parameters.api,
-			containerApi: parameters.containerApi
+			api: this._api,
+			containerApi: this._containerApi
 		};
 
 		this._renderDisposable?.dispose();
 		this._renderDisposable = mountComponent(this._component, panelHeaderProps, this._element);
-	}
-
-	update(event: PanelUpdateEvent<Parameters>): void {
-		if (this._api === undefined || this._containerApi === undefined) {
-			return;
-		}
-
-		const params = event.params;
-
-		this._renderDisposable?.update({
-			params: {
-				params,
-				api: this._api,
-				containerApi: this._containerApi
-			}
+		this._api.updateParameters({
+			getInstance: this._renderDisposable?.getInstance
 		});
 	}
 

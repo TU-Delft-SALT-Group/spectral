@@ -260,7 +260,8 @@ class ErrorRateValue(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
-    
+
+
 class ErrorRateResponse(BaseModel):
     """
     ErrorRateResponse model representing a files ground-truth and its error rates

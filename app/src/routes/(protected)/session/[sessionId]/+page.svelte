@@ -44,16 +44,11 @@
 		lastUpdate = Date.now();
 	}
 
-<<<<<<< HEAD:app/src/routes/(protected)/session/[sessionId]/+page.svelte
 	$: if (data.state) {
 		attemptSync();
 	}
 
 	let workspace: Workspace;
-=======
-	$: attemptSync(data.state);
-	$: console.log(data.state);
->>>>>>> 8b9de2f (feat: working panes in session):app/src/routes/session/[sessionId]/+page.svelte
 </script>
 
 <div class="flex h-full">
