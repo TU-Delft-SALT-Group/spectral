@@ -4,7 +4,7 @@ import { simpleInfoData, SimpleInfo } from './simple-info';
 import { waveformData, Waveform } from './waveform';
 import { spectrogramData, Spectrogram, SpectrogramIcon } from './spectrogram';
 import { vowelSpaceData, VowelSpace, VowelSpaceIcon } from './vowel-space';
-import { errorRateData, ErrorRate } from './error-rates';
+import { errorRateData, ErrorRate } from './error-rate';
 
 import AudioWaveformIcon from 'lucide-svelte/icons/audio-waveform';
 import InfoIcon from 'lucide-svelte/icons/info';
