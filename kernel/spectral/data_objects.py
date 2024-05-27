@@ -41,6 +41,7 @@ class Signal(BaseModel):
     formants_time_step: Optional[float] = None
     formants_window_length: float = 0.025
 
+
 class FrameAnalysisResponse(BaseModel):
     """
     FrameAnalysisResponse model representing the results of frame analysis.
@@ -51,11 +52,12 @@ class FrameAnalysisResponse(BaseModel):
         f1 (float): First formant frequency of the frame (in Hz).
         f2 (float): Second formant frequency of the frame (in Hz).
     """
-    
+
     duration: float
     pitch: float
     f1: float
     f2: float
+
 
 class SignalPitch(BaseModel):
     """
@@ -66,10 +68,11 @@ class SignalPitch(BaseModel):
         start_time (float): Starting time (in seconds) of the analysis.
         data (List[float]): List containing the pitch values (in Hz) for each time step.
     """
-    
+
     time_step: float
     start_time: float
     data: List[float]
+
 
 class SignalSpectrogram(BaseModel):
     """
@@ -78,16 +81,17 @@ class SignalSpectrogram(BaseModel):
     Attributes:
         time_step (float): Time step (in seconds) between spectrogram columns.
         window_length (float): Window length (in seconds) used for spectrogram analysis.
-        frequency_step (float): Frequency step (in Hz) between spectrogram rows. 
+        frequency_step (float): Frequency step (in Hz) between spectrogram rows.
         start_time (float): Starting time (in seconds) of the analysis.
         data (List[float]): List containing the spectrogram data in row-major order (time, frequency).
     """
-    
+
     time_step: float
     window_length: float
     frequency_step: float
     start_time: float
     data: List[List[float]]
+
 
 class SignalFormants(BaseModel):
     """
@@ -99,11 +103,12 @@ class SignalFormants(BaseModel):
         start_time (float): Starting time (in seconds) of the analysis.
         data (List[List[float]]): List containing formant frequencies (in Hz) for each time step (inner list represents multiple formants).
     """
-    
+
     time_step: float
     window_length: float
     start_time: float
     data: List[List[float]]
+
 
 class SignalAnalysisResponse(BaseModel):
     """
@@ -115,11 +120,12 @@ class SignalAnalysisResponse(BaseModel):
         spectrogram (SignalSpectrogram): Extracted spectrogram information for the signal.
         formants (SignalFormants): Extracted formant information for the signal.
     """
-    
+
     duration: float
     pitch: SignalPitch | None
     spectrogram: SignalSpectrogram | None
     formants: SignalFormants | None
+
 
 class SimpleInfoResponse(BaseModel):
     """
@@ -132,12 +138,13 @@ class SimpleInfoResponse(BaseModel):
         fileCreationDate (datetime): Date and time the signal file was created.
         frame (FrameAnalysisResponse): Frame analysis results for a representative frame of the signal.
     """
-    
+
     duration: float
     averagePitch: float
     fileSize: int
     fileCreationDate: datetime
     frame: FrameAnalysisResponse | None
+
 
 class VowelSpaceResponse(BaseModel):
     """
@@ -147,9 +154,10 @@ class VowelSpaceResponse(BaseModel):
         f1 (float): First formant frequency (in Hz).
         f2 (float): Second formant frequency (in Hz).
     """
-    
+
     f1: float
     f2: float
+
 
 class TranscriptionSegment(BaseModel):
     """
@@ -160,15 +168,16 @@ class TranscriptionSegment(BaseModel):
         start (float): Starting time (in seconds) of the segment.
         end (float): Ending time (in seconds) of the segment.
     """
-    
+
     value: str
     start: float
     end: float
-    
+
+
 class Alignment(BaseModel):
     """
     Alignment model representing the type and indices of the alignment.
-    
+
     Attributes:
         type (Literal['insert', 'substitute', 'delete, 'equal']): Type of the alignment.
         referenceStartIndex (int): Starting index in the reference.
@@ -176,17 +185,18 @@ class Alignment(BaseModel):
         hypothesisStartIndex (int): Starting index in the hypothesis.
         hypothesisEndIndex (int): Ending index in the hypothesis.
     """
-    
-    type: Literal['insert', 'substitute', 'delete', 'equal']
+
+    type: Literal["insert", "substitute", "delete", "equal"]
     referenceStartIndex: int
     referenceEndIndex: int
     hypothesisStartIndex: int
     hypothesisEndIndex: int
 
+
 class WordLevelErrorRate(BaseModel):
     """
     WordLevelErrorRate model representing word-level error metrics.
-    
+
     Attributes:
         wer (float): Word Error Rate.
         mer (float): Match Error Rate.
@@ -200,7 +210,7 @@ class WordLevelErrorRate(BaseModel):
         hypothesis (List[str]): List of hypothesis words.
         alignments (List[Alignment]): List of alignment objects.
     """
-    
+
     wer: float
     mer: float
     wil: float
@@ -213,10 +223,11 @@ class WordLevelErrorRate(BaseModel):
     hypothesis: List[str]
     alignments: List[Alignment]
 
+
 class CharacterLevelErrorRate(BaseModel):
     """
     CharacterLevelErrorRate model representing character-level error metrics.
-    
+
     Attributes:
         cer (float): Character Error Rate.
         hits (int): Number of correct characters.
@@ -225,7 +236,7 @@ class CharacterLevelErrorRate(BaseModel):
         deletions (int): Number of deleted characters.
         alignments (List[Alignment]): List of alignment objects.
     """
-    
+
     cer: float
     hits: int
     substitutions: int
@@ -235,14 +246,15 @@ class CharacterLevelErrorRate(BaseModel):
     hypothesis: List[str]
     alignments: List[Alignment]
 
+
 class ErrorRateValue(BaseModel):
     """
     ErrorRateValue model representing both word-level and character-level error metrics.
-    
+
     Attributes:
         wordLevel (WordLevelErrorRate): Word-level error metrics.
         characterLevel (CharacterLevelErrorRate): Character-level error metrics.
     """
-    
+
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate

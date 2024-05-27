@@ -1,4 +1,4 @@
-<!-- 
+<!--
 @component Renders a JSON object in a readable format.
 -->
 

@@ -4,6 +4,7 @@ from .signal_analysis import simple_signal_info
 from .frame_analysis import simple_frame_info, calculate_frame_f1_f2
 from .transcription import calculate_error_rates
 
+
 def simple_info_mode(data, fs, file, frame_index):
     """
     Extracts and returns basic information about a signal and its corresponding frame.
@@ -91,11 +92,11 @@ def transcription_mode(id, database):
             detail="Something went wrong when retrieving the transcriptions of this file",
         )
 
+
 def error_rate_mode(id, database, file):
-    
     if file["groundTruth"] is None:
         return None
-    
+
     try:
         transcriptions = database.get_transcriptions(id)
     except Exception as _:
@@ -103,10 +104,10 @@ def error_rate_mode(id, database, file):
             status_code=500,
             detail="Something went wrong when retrieving the transcriptions of this file",
         )
-        
+
     result = []
-    
+
     for transcription in transcriptions:
         result.append(calculate_error_rates(file["groundTruth"], transcription))
-        
+
     return result
