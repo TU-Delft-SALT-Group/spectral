@@ -1,140 +1,121 @@
 frame_analysis_response_examples = {
-    200: {"content": {
-                "application/json": {
-                    "example": {
-                        "duration": 0.04,
-                        "pitch": 160.32,
-                        "f1": 523.32,
-                        "f2": 762.89     
-                    }
-                }
-            }
-          },
-    400: {"content": { 
+    200: {
+        "content": {
             "application/json": {
                 "example": {
-                    "detail": "error message"
-                    }
+                    "duration": 0.04,
+                    "pitch": 160.32,
+                    "f1": 523.32,
+                    "f2": 762.89,
                 }
             }
         }
-    }
+    },
+    400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+}
 
 signal_analysis_response_examples = {
-    200: {"content": {
-                "application/json": {
-                    "example": {
-                        "duration": 4.0, 
-                        "pitch": {
-                            "time_step": 0.002,
-                            "start_time": 0.99,
-                            "data": [123,32]
-                            }, 
-                        "spectrogram":{
-                            "time_step": 0.002,
-                            "window_length": 0.005,
-                            "frequency_step": 20.0,
-                            "start_time": .99,
-                            "data": [123,32] 
-                            },
-                        "formants":{
-                            "time_step": 0.002,
-                            "window_length": 0.005,
-                            "start_time": .99,
-                            "data": [[20,30],[40,50]]
-                        }    
-                    }
-                }
-            }
-          },
-    400: {"content": { 
+    200: {
+        "content": {
             "application/json": {
                 "example": {
-                    "detail": "error message"
-                    }
+                    "duration": 4.0,
+                    "pitch": {
+                        "time_step": 0.002,
+                        "start_time": 0.99,
+                        "data": [123, 32],
+                    },
+                    "spectrogram": {
+                        "time_step": 0.002,
+                        "window_length": 0.005,
+                        "frequency_step": 20.0,
+                        "start_time": 0.99,
+                        "data": [123, 32],
+                    },
+                    "formants": {
+                        "time_step": 0.002,
+                        "window_length": 0.005,
+                        "start_time": 0.99,
+                        "data": [[20, 30], [40, 50]],
+                    },
                 }
             }
         }
-    }
+    },
+    400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+}
 
 signal_analysis_response_examples = {
-    200: {"content": {
-                "application/json": {
-                    "example": {
-                        "duration": 4.0, 
-                        "pitch": {
-                            "time_step": 0.002,
-                            "start_time": 0.99,
-                            "data": [123,32]
-                            }, 
-                        "spectrogram":{
-                            "time_step": 0.002,
-                            "window_length": 0.005,
-                            "frequency_step": 20.0,
-                            "start_time": .99,
-                            "data": [123,32] 
-                            },
-                        "formants":{
-                            "time_step": 0.002,
-                            "window_length": 0.005,
-                            "start_time": .99,
-                            "data": [[20,30],[40,50]]
-                        }    
-                    }
-                }
-            }
-          },
-    400: {"content": { 
+    200: {
+        "content": {
             "application/json": {
                 "example": {
-                    "detail": "error message"
-                    }
+                    "duration": 4.0,
+                    "pitch": {
+                        "time_step": 0.002,
+                        "start_time": 0.99,
+                        "data": [123, 32],
+                    },
+                    "spectrogram": {
+                        "time_step": 0.002,
+                        "window_length": 0.005,
+                        "frequency_step": 20.0,
+                        "start_time": 0.99,
+                        "data": [123, 32],
+                    },
+                    "formants": {
+                        "time_step": 0.002,
+                        "window_length": 0.005,
+                        "start_time": 0.99,
+                        "data": [[20, 30], [40, 50]],
+                    },
                 }
             }
         }
-    }
+    },
+    400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+}
 
 signal_modes_response_examples = {
-    200: {"content": {
-                "application/json": {
-                    "examples": {
-                        "simple-info": {
-                            "summary": "Example for simple-info mode",
-                            "value": {
-                                "duration": 2.12,
-                                "averagePitch": 30.2,
-                                "fileSize": 123456,
-                                "fileCreationDate": "2024-05-21T09:58:42.263896",
-                                "frame": {
-                                    "duration": 0.04,
-                                    "pitch": 200.2,
-                                    "f1": 400.56,
-                                    "f2": 800.98
-                                }
-                            }
-                        },
-                        "spectrogram": {
-                            "summary": "Example for spectrogram mode",
-                            "value": "null (actual null value, fastapi currently doesn't support examples with just null)"
-                        },
-                        "waveform": {
-                            "summary": "Example for waveform mode",
-                            "value": "null (actual null value, fastapi currently doesn't support examples with just null)"
-                        },
-                        "vowel-space": {
-                            "summary": "Example for vowel-space mode",
-                            "value": {
+    200: {
+        "content": {
+            "application/json": {
+                "examples": {
+                    "simple-info": {
+                        "summary": "Example for simple-info mode",
+                        "value": {
+                            "duration": 2.12,
+                            "averagePitch": 30.2,
+                            "fileSize": 123456,
+                            "fileCreationDate": "2024-05-21T09:58:42.263896",
+                            "frame": {
+                                "duration": 0.04,
+                                "pitch": 200.2,
                                 "f1": 400.56,
-                                "f2": 800.98
-                            }
+                                "f2": 800.98,
+                            },
                         },
-                        "vowel-space no frame": {
-                            "summary": "Example for vowel-space mode if no frame is provided",
-                            "value": None
-                        },
-                        "transcription": {
-                            "summary": "Example for transcription mode",
-                            "value": [[
+                    },
+                    "spectrogram": {
+                        "summary": "Example for spectrogram mode",
+                        "value": "null (actual null value, fastapi currently doesn't support examples with just null)",
+                    },
+                    "waveform": {
+                        "summary": "Example for waveform mode",
+                        "value": "null (actual null value, fastapi currently doesn't support examples with just null)",
+                    },
+                    "vowel-space": {
+                        "summary": "Example for vowel-space mode",
+                        "value": {"f1": 400.56, "f2": 800.98},
+                    },
+                    "vowel-space no frame": {
+                        "summary": "Example for vowel-space mode if no frame is provided",
+                        "value": None,
+                    },
+                    "transcription": {
+                        "summary": "Example for transcription mode",
+                        "value": [
+                            [
                                 {"value": "foo", "start": 0, "end": 0.12},
                                 {"value": "bar", "start": 0.12, "end": 0.24}
                                 ]]
@@ -184,49 +165,27 @@ signal_modes_response_examples = {
                                     }]
                                 }
                             }
-                        }
-                    }
-                }
-        }, 
-    400: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }, 
-    404: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
+                        ],
+                    },
                 }
             }
         }
-    }
+    },
+    400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+    404: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+}
 
 transcription_response_examples = {
-    200: {"content": {
-                "application/json": {
-                    "example": [{"value": "foo", "start": 0, "end": 0.12},{"value": "bar", "start": 0.12, "end": 0.24}]
-                }
-            }
-          }, 
-    404: {"content": { 
+    200: {
+        "content": {
             "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
-            }
-        }, 
-    500: {"content": { 
-            "application/json": {
-                "example": {
-                    "detail": "error message"
-                    }
-                }
+                "example": [
+                    {"value": "foo", "start": 0, "end": 0.12},
+                    {"value": "bar", "start": 0.12, "end": 0.24},
+                ]
             }
         }
-    }
+    },
+    404: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+    500: {"content": {"application/json": {"example": {"detail": "error message"}}}},
+}

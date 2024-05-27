@@ -8,8 +8,8 @@ RUN corepack enable
 
 # Copy package.json and pnpm lock
 COPY package.json pnpm-lock.yaml ./
- 
-RUN pnpm fetch 
+
+RUN pnpm fetch
 
 # Install dependencies
 RUN pnpm install -r --offline
@@ -17,4 +17,6 @@ RUN pnpm install -r --offline
 # Expose port 5173 for the service
 EXPOSE 5173
 
-CMD pnpm install -r --offline --frozen-lockfile && pnpm run dev --host
+RUN pnpm install -r --offline --frozen-lockfile
+
+CMD pnpm run dev --host | pnpm exec pino-pretty
