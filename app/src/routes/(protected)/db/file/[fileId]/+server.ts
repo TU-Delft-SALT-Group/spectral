@@ -2,16 +2,16 @@ import { db } from '$lib/database';
 import { fileTable } from '$lib/database/schema';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
-async function fetchName(fileId: string): Promise<Response> {
+async function fetchName(fileId: string, userId: string): Promise<Response> {
 	try {
 		const row = await db.query.fileTable.findFirst({
 			columns: {
 				id: true,
 				name: true
 			},
-			where: eq(fileTable.id, fileId)
+			where: and(eq(fileTable.id, fileId), eq(fileTable.uploader, userId))
 		});
 
 		if (row === undefined) {
@@ -24,14 +24,15 @@ async function fetchName(fileId: string): Promise<Response> {
 	}
 }
 
-async function fetchData(fileId: string): Promise<Response> {
+async function fetchData(fileId: string, userId: string): Promise<Response> {
+	console.log({ userId });
 	try {
 		const row = await db.query.fileTable.findFirst({
 			columns: {
 				id: true,
 				data: true
 			},
-			where: eq(fileTable.id, fileId)
+			where: and(eq(fileTable.id, fileId), eq(fileTable.uploader, userId))
 		});
 
 		if (row === undefined) {
@@ -48,10 +49,16 @@ async function fetchData(fileId: string): Promise<Response> {
 	}
 }
 
-export const GET: RequestHandler = async ({ params, url }) => {
+export const GET: RequestHandler = async ({ params: { fileId }, url, locals }) => {
+	const { user } = locals;
+
+	if (user === null) {
+		error(404, `${fileId} not found.`);
+	}
+
 	if (url.searchParams.has('name')) {
-		return fetchName(params.fileId);
+		return fetchName(fileId, user.id);
 	} else {
-		return fetchData(params.fileId);
+		return fetchData(fileId, user.id);
 	}
 };

@@ -59,7 +59,9 @@ export const fileTable = pgTable('files', {
 	modifiedTime: timestamp('modified_time')
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
-	uploader: text('uploader').references(() => userTable.id),
+	uploader: text('uploader')
+		.references(() => userTable.id)
+		.notNull(),
 	session: text('session')
 		.references(() => sessionTable.id)
 		.notNull(),

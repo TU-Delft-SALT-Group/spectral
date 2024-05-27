@@ -27,7 +27,7 @@ export const actions: Actions = {
 
 		const user = await verifyUser(form.data);
 
-		if (!user) {
+		if (user === null) {
 			setError(form, 'username', 'Invalid username or password');
 			setError(form, 'password', 'Invalid username or password');
 			return fail(400, {
