@@ -35,7 +35,7 @@ export const actions: Actions = {
 						form
 					});
 				case 'username-in-use':
-					setError(form, 'email', 'Email is already in use');
+					setError(form, 'username', 'Username is already in use');
 					return fail(400, {
 						form
 					});
