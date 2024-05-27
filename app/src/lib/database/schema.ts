@@ -1,13 +1,4 @@
-import {
-	boolean,
-	customType,
-	pgTable,
-	text,
-	timestamp,
-	doublePrecision,
-	jsonb,
-	json
-} from 'drizzle-orm/pg-core';
+import { boolean, customType, pgTable, text, timestamp, jsonb, json } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 
 export const userTable = pgTable('user', {
@@ -102,20 +93,3 @@ export const sessionTable = pgTable('session', {
 export const sessionRelations = relations(sessionTable, ({ many }) => ({
 	files: many(fileTable)
 }));
-
-export const fileTranscriptionTable = pgTable('file_transcription', {
-	id: text('id').primaryKey(),
-	file: text('file')
-		.notNull()
-		.references(() => fileTable.id, { onDelete: 'cascade' })
-});
-
-export const transcriptionTable = pgTable('transcription', {
-	id: text('id').primaryKey(),
-	fileTranscription: text('file_transcription')
-		.notNull()
-		.references(() => fileTranscriptionTable.id, { onDelete: 'cascade' }),
-	start: doublePrecision('start').notNull(),
-	end: doublePrecision('end').notNull(),
-	value: text('value')
-});
