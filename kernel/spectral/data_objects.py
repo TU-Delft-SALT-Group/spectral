@@ -223,6 +223,8 @@ class CharacterLevelErrorRate(BaseModel):
         substitutions (int): Number of substituted characters.
         insertions (int): Number of inserted characters.
         deletions (int): Number of deleted characters.
+        reference (List[str]): List of reference characters.
+        hypothesis (List[str]): List of hypothesis characters.
         alignments (List[Alignment]): List of alignment objects.
     """
     
@@ -246,3 +248,16 @@ class ErrorRateValue(BaseModel):
     
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
+    
+class ErrorRateResponse(BaseModel):
+    """
+    ErrorRateResponse model representing a files ground-truth and its error rates
+    
+    Attributes:
+        errorRates list(ErrorRatesValue): list of calculated error rate metrics
+        groundTruth (str): String of the ground-truth 
+    
+    """
+    
+    errorRates: list[ErrorRateValue]
+    groundTruth: str

@@ -104,9 +104,9 @@ def error_rate_mode(id, database, file):
             detail="Something went wrong when retrieving the transcriptions of this file",
         )
         
-    result = []
+    errorRates = []
     
     for transcription in transcriptions:
-        result.append(calculate_error_rates(file["groundTruth"], transcription))
+        errorRates.append(calculate_error_rates(file["groundTruth"], transcription))
         
-    return result
+    return {"groundTruth": file["groundTruth"], "errorRates": errorRates}

@@ -35,7 +35,7 @@ from .data_objects import (
     SimpleInfoResponse,
     VowelSpaceResponse,
     TranscriptionSegment,
-    ErrorRateValue
+    ErrorRateResponse
 )
 from .database import Database
 import orjson
@@ -152,7 +152,7 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],list[ErrorRateValue]], responses=signal_modes_response_examples)
+@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],ErrorRateResponse], responses=signal_modes_response_examples)
 async def analyze_signal_mode(
     mode: Annotated[Literal['simple-info', 'spectrogram', 'waveform', 'vowel-space', 'transcription', 'error-rate'], Path(title="The analysis mode")],
     id: Annotated[str, Path(title="The ID of the signal")],
