@@ -13,7 +13,7 @@
 		type DockviewFrameworkOptions,
 		type DockviewReadyEvent
 	} from 'dockview-core';
-	import { SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
+	import { type SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
 	import { SvelteRenderer } from '.';
 	import used from '$lib/utils';
 
@@ -59,4 +59,4 @@
 	});
 </script>
 
-<section bind:this={el} class="dockview-theme-dark h-screen w-screen"></section>
+<section bind:this={el} class="dockview-theme-dark h-full w-full"></section>

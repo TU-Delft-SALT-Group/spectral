@@ -9,20 +9,23 @@ import type {
 	Parameters
 } from 'dockview-core';
 
-import { SvelteComponent, mount, unmount, type ComponentProps, type ComponentType } from 'svelte';
-
-export type DockviewSvelteComponentProps<S extends Record<string, unknown>> = {
-	params: IDockviewPanelHeaderProps<S>;
-};
+import {
+	type SvelteComponent,
+	mount,
+	unmount,
+	type ComponentProps,
+	type ComponentType
+} from 'svelte';
 
 export function mountComponent<S extends Record<string, unknown>>(
 	component: ComponentType<SvelteComponent<S>>,
-	props: DockviewSvelteComponentProps<ComponentProps<SvelteComponent<S>>>,
+	props: IDockviewPanelHeaderProps<ComponentProps<SvelteComponent<S>>>,
 	element: HTMLElement
 ) {
+	console.log(props.params);
 	let mounted = mount(component, {
 		target: element,
-		props: props.params.params
+		props: props.params
 	});
 
 	return {
@@ -68,18 +71,14 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 		this._api = parameters.api;
 		this._containerApi = parameters.containerApi;
 
-		const panelHeaderProps: IDockviewPanelHeaderProps = {
-			params: parameters.params,
+		const panelHeaderProps: IDockviewPanelHeaderProps<S> = {
+			params: parameters.params as S,
 			api: parameters.api,
 			containerApi: parameters.containerApi
 		};
 
 		this._renderDisposable?.dispose();
-		this._renderDisposable = mountComponent(
-			this._component,
-			{ params: panelHeaderProps },
-			this._element
-		);
+		this._renderDisposable = mountComponent(this._component, panelHeaderProps, this._element);
 	}
 
 	update(event: PanelUpdateEvent<Parameters>): void {
