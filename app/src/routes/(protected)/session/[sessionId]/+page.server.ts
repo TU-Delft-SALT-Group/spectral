@@ -85,7 +85,12 @@ async function getState(result: { state: unknown }): Promise<SessionState> {
 }
 
 export const actions = {
-	uploadFile: async ({ request, params: { sessionId } }) => {
+	uploadFile: async ({ request, params: { sessionId }, locals }) => {
+		const { user } = locals;
+		if (!user) {
+			error(401, 'Not logged in');
+		}
+
 		const formData = await request.formData();
 
 		const file = formData.get('file');
@@ -93,7 +98,7 @@ export const actions = {
 			return fail(400, { message: 'No file provided' });
 		}
 
-		await uploadFile(file, sessionId);
+		await uploadFile(file, sessionId, user.id);
 	},
 
 	deleteFile: async ({ request }) => {

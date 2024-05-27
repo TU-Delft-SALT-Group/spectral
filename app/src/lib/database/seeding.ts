@@ -2,7 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { db } from '.';
 import { fileTable, sessionTable, userTable } from './schema';
 import { eq } from 'drizzle-orm';
-import type { SessionState } from '../../routes/session/[sessionId]/workspace';
+import type { SessionState } from '../../routes/(protected)/session/[sessionId]/workspace';
+import { createUser } from './users';
 
 const sampleTorgo = [
 	'F01_severe_head_sentence1',
@@ -14,18 +15,20 @@ const sampleTorgo = [
 	'MC02_control_head_sentence1'
 ];
 
+const sampleUser = {
+	id: 'sample-user',
+	username: 'Sample',
+	email: 'sample@example.com',
+	password: 'password'
+};
+
 export async function seedSampleUser() {
 	const isSampleUserSeeded = await db.query.userTable.findFirst({
-		where: eq(userTable.id, 'sample-user')
+		where: eq(userTable.id, sampleUser.id)
 	});
 
 	if (!isSampleUserSeeded) {
-		await db.insert(userTable).values({
-			id: 'sample-user',
-			email: '',
-			hashedPassword: '',
-			username: 'Sample User'
-		});
+		await createUser(sampleUser);
 	}
 
 	return { isSampleUserSeeded };
@@ -62,6 +65,12 @@ const sampleSessionState: SessionState = {
 		}
 	]
 };
+const sampleSession = {
+	id: 'sample-session',
+	name: 'Sample Session',
+	owner: sampleUser.id,
+	state: sampleSessionState
+};
 
 export async function seedSampleSession() {
 	const { isSampleUserSeeded } = await seedSampleUser();
@@ -71,12 +80,7 @@ export async function seedSampleSession() {
 	});
 
 	if (!isSampleSessionSeeded) {
-		await db.insert(sessionTable).values({
-			id: 'sample-session',
-			name: 'Sample Session',
-			owner: 'sample-user',
-			state: sampleSessionState
-		});
+		await db.insert(sessionTable).values(sampleSession);
 	}
 
 	return { isSampleUserSeeded, isSampleSessionSeeded };
@@ -99,8 +103,9 @@ export async function seedSampleTorgo() {
 		await db.insert(fileTable).values({
 			id: filename,
 			name: filename,
-			session: 'sample-session',
+			session: sampleSession.id,
 			data: buffer,
+			uploader: sampleUser.id,
 			groundTruth: 'the quick brown fox jumps over the lazy dog'
 		});
 	}

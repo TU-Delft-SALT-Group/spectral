@@ -4,14 +4,14 @@ import type { Actions, PageServerLoad } from './$types';
 import { sessionTable } from '$lib/database/schema';
 import { error, redirect } from '@sveltejs/kit';
 import { generateIdFromEntropySize } from 'lucia';
+import { unwrap } from '$lib/utils';
 
-export const load: PageServerLoad = async () => {
-	// TODO: Change this when we have auth and user-sessions
-	const userId = 'sample-user';
+export const load: PageServerLoad = async ({ parent }) => {
+	const { user } = await parent();
 
 	return {
 		sessions: await db.query.sessionTable.findMany({
-			where: eq(sessionTable.owner, userId),
+			where: eq(sessionTable.owner, user.id),
 			orderBy: [
 				desc(sessionTable.modifiedTime),
 				desc(sessionTable.creationTime),
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const sessionName = formData.get('sessionName');
 
@@ -34,8 +34,7 @@ export const actions: Actions = {
 			error(400, { message: "`sessionName` can't be empty" });
 		}
 
-		// TODO: Change this when we have auth and user-sessions
-		const userId = 'sample-user';
+		const userId = unwrap(locals.user).id;
 
 		const sessionId = generateIdFromEntropySize(10);
 
