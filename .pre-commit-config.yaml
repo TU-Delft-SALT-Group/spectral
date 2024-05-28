@@ -25,7 +25,7 @@ repos:
     hooks:
     - id: pyright
       types_or: [python, pyi, jupyter]
-      additional_dependencies: [numpy, pytest, fastapi, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python]
+      additional_dependencies: [numpy, pytest, fastapi, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python, jiwer]
       stages: [pre-commit]
   - repo: https://github.com/crate-ci/typos
     rev: v1.21.0

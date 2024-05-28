@@ -64,7 +64,6 @@ def word_level_processing(reference, hypothesis):
 
     """
     processed_data = process_words(reference=reference, hypothesis=hypothesis)
-
     result = {
         "wer": processed_data.wer,
         "mer": processed_data.mer,
