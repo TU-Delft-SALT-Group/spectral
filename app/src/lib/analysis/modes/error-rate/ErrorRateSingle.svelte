@@ -9,10 +9,10 @@
 	}
 </script>
 
-{#if computedData !== null}
-	<div class="min-w-sm h-fit max-w-4xl flex-1 rounded bg-secondary p-4 text-secondary-foreground">
-		<h2>name: {fileState.name}</h2>
-		<h2>id: {fileState.id}</h2>
+<div class="min-w-sm h-fit max-w-4xl flex-1 rounded bg-secondary p-4 text-secondary-foreground">
+	<h2>name: {fileState.name}</h2>
+	<h2>id: {fileState.id}</h2>
+	{#if computedData !== null}
 		<h2>ground truth: {computedData.groundTruth}</h2>
 		<div>
 			{#each computedData.errorRates as errorRate}
@@ -196,5 +196,7 @@
 				</div>
 			{/each}
 		</div>
-	</div>
-{/if}
+	{:else}
+		<h2>This file has no ground truth</h2>
+	{/if}
+</div>
