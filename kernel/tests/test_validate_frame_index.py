@@ -6,7 +6,7 @@ from spectral.main import validate_frame_index
 def test_validate_frame_index_valid():
     data = [0] * 100
     frame_index = validate_frame_index(data, 10, 20)
-    assert frame_index == {"startIndex": 10, "endIndex": 20}
+    assert frame_index == {"startIndex": 10, "endIndex": 20}, "Frame index should be 10:20"
 
 
 def test_validate_frame_index_missing_start_index():
