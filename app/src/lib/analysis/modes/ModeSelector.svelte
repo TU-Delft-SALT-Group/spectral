@@ -36,7 +36,9 @@
 
 <style>
 	.select {
-		transform: translateY(calc(-100% * var(--index)));
+		--percentage-plus-padding: calc(-100% - 0.5rem);
+		--move-offset: calc(var(--percentage-plus-padding) * var(--index));
+		transform: translateY(var(--move-offset));
 		transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1); /* exponential-ish in out */
 		transition-delay: 0.3s;
 		pointer-events: all;
