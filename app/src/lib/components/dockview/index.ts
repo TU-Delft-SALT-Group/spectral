@@ -1,39 +1,16 @@
+import used from '$lib/utils';
 import type {
 	DockviewApi,
-	DockviewPanelApi,
+	DockviewGroupPanel,
 	GroupPanelPartInitParameters,
 	IContentRenderer,
-	IDockviewPanelHeaderProps,
+	IGroupHeaderProps,
+	IHeaderActionsRenderer,
 	ITabRenderer
 } from 'dockview-core';
 
-import {
-	type SvelteComponent,
-	mount,
-	unmount,
-	type ComponentProps,
-	type ComponentType
-} from 'svelte';
-
-export function mountComponent<S extends Record<string, unknown>>(
-	component: ComponentType<SvelteComponent<S>>,
-	props: IDockviewPanelHeaderProps<ComponentProps<SvelteComponent<S>>>,
-	element: HTMLElement
-) {
-	const mounted: ComponentType<SvelteComponent<S>> = mount(component, {
-		target: element,
-		props: props.params
-	});
-
-	return {
-		getInstance: () => {
-			return mounted;
-		},
-		dispose: () => {
-			unmount(mounted);
-		}
-	};
-}
+import { type SvelteComponent, mount, unmount, type ComponentType } from 'svelte';
+import { paneState } from '$lib/analysis/analysis-pane';
 
 abstract class AbstractSvelteRenderer {
 	readonly _element: HTMLElement;
@@ -43,10 +20,9 @@ abstract class AbstractSvelteRenderer {
 	}
 
 	constructor() {
-		this._element = document.createElement('section');
+		this._element = document.createElement('div');
 		this.element.className = 'dv-vue-part';
 		this.element.style.height = '100%';
-		this.element.style.width = '100%';
 	}
 }
 
@@ -55,11 +31,7 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 	implements IContentRenderer, ITabRenderer
 {
 	readonly _component: ComponentType<SvelteComponent<S>>;
-	private _renderDisposable:
-		| { getInstance: () => ComponentType<SvelteComponent<S>>; dispose: () => void }
-		| undefined;
-	private _api: DockviewPanelApi | undefined;
-	private _containerApi: DockviewApi | undefined;
+	private _instance: ComponentType<SvelteComponent<S>> | undefined;
 
 	constructor(component: ComponentType<SvelteComponent<S>>) {
 		super();
@@ -67,23 +39,58 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 	}
 
 	init(parameters: GroupPanelPartInitParameters): void {
-		this._api = parameters.api;
-		this._containerApi = parameters.containerApi;
-
-		const panelHeaderProps: IDockviewPanelHeaderProps<S> = {
-			params: parameters.params as S,
-			api: this._api,
-			containerApi: this._containerApi
-		};
-
-		this._renderDisposable?.dispose();
-		this._renderDisposable = mountComponent(this._component, panelHeaderProps, this._element);
-		this._api.updateParameters({
-			getInstance: this._renderDisposable?.getInstance
-		});
+		this._instance = mount(this._component, {
+			target: this._element,
+			props: parameters.params as S
+		}) as ComponentType<SvelteComponent<S>>;
 	}
 
 	dispose(): void {
-		this._renderDisposable?.dispose();
+		if (this._instance !== undefined) {
+			unmount(this._instance);
+		}
+	}
+}
+
+type TabRequirements<T extends Record<string, unknown> = Record<string, unknown>> = {
+	containerApi: DockviewApi;
+	defaultProps: T;
+};
+
+export class SvelteTabActionRenderer
+	extends AbstractSvelteRenderer
+	implements IHeaderActionsRenderer
+{
+	private _params: IGroupHeaderProps | undefined;
+	protected _component: ComponentType<SvelteComponent<TabRequirements>>;
+	protected _instance: ComponentType<SvelteComponent<TabRequirements>> | undefined;
+
+	constructor(
+		component: ComponentType<SvelteComponent<TabRequirements>>,
+		group: DockviewGroupPanel
+	) {
+		super();
+		this._component = component;
+		used(group);
+	}
+
+	init(params: IGroupHeaderProps): void {
+		this._params = params;
+
+		const props: TabRequirements = {
+			containerApi: this._params.containerApi,
+			defaultProps: { state: paneState.parse(undefined) }
+		};
+
+		this._instance = mount(this._component, {
+			target: this._element,
+			props
+		}) as ComponentType<SvelteComponent<TabRequirements>>;
+	}
+
+	dispose(): void {
+		if (this._instance !== undefined) {
+			unmount(this._instance);
+		}
 	}
 }

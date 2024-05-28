@@ -14,8 +14,9 @@
 		type DockviewReadyEvent
 	} from 'dockview-core';
 	import { type SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
-	import { SvelteRenderer } from '.';
+	import { SvelteRenderer, SvelteTabActionRenderer } from '.';
 	import used from '$lib/utils';
+	import NewTabButton from './NewTabButton.svelte';
 
 	export let onReady: (event: DockviewReadyEvent) => void;
 	// eslint-disable-next-line
@@ -36,6 +37,13 @@
 			createComponent(options) {
 				used(options);
 				return new SvelteRenderer(component);
+			},
+			createTabComponent(options) {
+				used(options);
+				return new SvelteRenderer(component);
+			},
+			createLeftHeaderActionComponent(group) {
+				return new SvelteTabActionRenderer(NewTabButton, group);
 			}
 		};
 

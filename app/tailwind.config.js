@@ -47,6 +47,10 @@ const config = {
 				card: {
 					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
 					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
+				},
+				panes: {
+					color: 'hsl(var(--dv-activegroup-visiblepanel-tab-background-color) / <alpha-value>)',
+					foreground: 'hsl(var(--dv-activegroup-visiblepanel-tab-color) / <alpha-value>)'
 				}
 			},
 			borderRadius: {
