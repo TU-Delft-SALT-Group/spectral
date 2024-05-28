@@ -219,3 +219,4 @@ export const errorRateData = {
 } satisfies ModeValidator;
 
 export { default as ErrorRate } from './ErrorRate.svelte';
+export { default as ErrorRateIcon } from './ErrorRateIcon.svelte';
