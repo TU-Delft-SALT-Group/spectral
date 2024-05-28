@@ -9,7 +9,6 @@
 	export let fileData: ModeComponentProps<'simple-info'>['fileData'];
 	export let modeState: ModeComponentProps<'simple-info'>['modeState'];
 	export let onRemoveFile: (fileId: string) => void = () => {};
-
 	used(modeState);
 </script>
 

@@ -24,18 +24,18 @@ from .response_examples import (
     frame_analysis_response_examples,
     signal_analysis_response_examples,
     signal_modes_response_examples,
-    transcription_response_examples
+    transcription_response_examples,
 )
 from .transcription import get_transcription
 from .data_objects import (
-    Frame, 
+    Frame,
     Signal,
     FrameAnalysisResponse,
     SignalAnalysisResponse,
     SimpleInfoResponse,
     VowelSpaceResponse,
     TranscriptionSegment,
-    ErrorRateValue
+    ErrorRateResponse
 )
 from .database import Database
 import orjson
@@ -77,7 +77,11 @@ class ORJSONResponse(JSONResponse):
 app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 
-@app.post("/frames/analyze", response_model=FrameAnalysisResponse, responses=frame_analysis_response_examples)
+@app.post(
+    "/frames/analyze",
+    response_model=FrameAnalysisResponse,
+    responses=frame_analysis_response_examples,
+)
 async def frame_fundamental_features(frame: Frame):
     """
     Analyze fundamental features of an audio frame.
@@ -109,7 +113,11 @@ async def frame_fundamental_features(frame: Frame):
         )
 
 
-@app.post("/signals/analyze", response_model= SignalAnalysisResponse, responses=signal_analysis_response_examples)
+@app.post(
+    "/signals/analyze",
+    response_model=SignalAnalysisResponse,
+    responses=signal_analysis_response_examples,
+)
 async def signal_fundamental_features(signal: Signal):
     """
     Analyze fundamental features of an audio signal.
@@ -152,9 +160,19 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],list[ErrorRateValue]], responses=signal_modes_response_examples)
+@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],ErrorRateResponse], responses=signal_modes_response_examples)
 async def analyze_signal_mode(
-    mode: Annotated[Literal['simple-info', 'spectrogram', 'waveform', 'vowel-space', 'transcription', 'error-rate'], Path(title="The analysis mode")],
+    mode: Annotated[
+        Literal[
+            "simple-info",
+            "spectrogram",
+            "waveform",
+            "vowel-space",
+            "transcription",
+            "error-rate",
+        ],
+        Path(title="The analysis mode"),
+    ],
     id: Annotated[str, Path(title="The ID of the signal")],
     startIndex: Optional[int] = None,
     endIndex: Optional[int] = None,
@@ -200,7 +218,12 @@ async def analyze_signal_mode(
     if mode == "error-rate":
         return error_rate_mode(id, database, file)
 
-@app.get("/transcription/{model}/{id}", response_model=list[TranscriptionSegment], responses=transcription_response_examples)
+
+@app.get(
+    "/transcription/{model}/{id}",
+    response_model=list[TranscriptionSegment],
+    responses=transcription_response_examples,
+)
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
     id: Annotated[str, Path(title="The ID of the file")],

@@ -72,6 +72,8 @@
 		return data[state.mode].props as ModeComponentProps<mode.Name>;
 	}
 
+	$: browser && getProps(state);
+
 	function makeStale() {
 		for (const bundle of Object.values(data)) {
 			bundle.stale = true;

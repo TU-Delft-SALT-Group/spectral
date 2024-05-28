@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LOCALE } from '$lib/time';
-	import { XIcon } from 'lucide-svelte';
+	import XIcon from 'lucide-svelte/icons/x';
 	import type { mode } from '..';
 	import { Button } from '$lib/components/ui/button';
 

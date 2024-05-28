@@ -30,18 +30,18 @@ def test_fetch_file(db):
     mock_cursor = Mock()
     db.conn = Mock()
     db.cursor = mock_cursor
-    
+
     mock_cursor.fetchall.return_value = [
-        ("id",1),
-        ("name",2),
-        ("data",3),
-        ("creation_time",4),
-        ("modified_time",5),
-        ("uploader",6),
-        ("session",7),
-        ("emphemeral",8),
+        ("id", 1),
+        ("name", 2),
+        ("data", 3),
+        ("creation_time", 4),
+        ("modified_time", 5),
+        ("uploader", 6),
+        ("session", 7),
+        ("emphemeral", 8),
     ]
-    
+
     mock_cursor.fetchone.return_value = [
         1,
         "test_name",
@@ -64,9 +64,7 @@ def test_fetch_file(db):
         "session": "session",
         "emphemeral": False,
     }
-    mock_cursor.execute.assert_called_with(
-        "SELECT * FROM files WHERE id = %s", [1]
-    )
+    mock_cursor.execute.assert_called_with("SELECT * FROM files WHERE id = %s", [1])
 
 
 def test_store_transcription(db):

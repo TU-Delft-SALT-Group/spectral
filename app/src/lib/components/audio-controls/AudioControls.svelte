@@ -39,7 +39,8 @@
 </script>
 
 <script lang="ts">
-	import { PauseIcon, PlayIcon } from 'lucide-svelte';
+	import PauseIcon from 'lucide-svelte/icons/pause';
+	import PlayIcon from 'lucide-svelte/icons/play';
 	import * as Select from '$lib/components/ui/select';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';

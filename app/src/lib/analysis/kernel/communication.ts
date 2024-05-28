@@ -6,6 +6,7 @@ import { modes, type mode as modeType } from '$lib/analysis/modes';
 import { browser } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import { todo } from '$lib/utils';
+import { logger } from '$lib/logger';
 
 /**
  * Gets the URL for the backend API
@@ -42,6 +43,9 @@ export async function getComputedFileData<M extends modeType.Name>({
 	const result = modes[mode].computedFileData.safeParse(jsonResponse);
 
 	if (!result.success) {
+		logger.error(
+			`Kernel response could not be parsed (response was ${JSON.stringify(jsonResponse)})`
+		);
 		error(500, `Kernel response couldn't be parsed (response was ${JSON.stringify(jsonResponse)})`);
 	}
 
