@@ -8,7 +8,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 
-	import { PlusIcon } from 'lucide-svelte';
+	import PlusIcon from 'lucide-svelte/icons/plus';
 	import { enhance } from '$app/forms';
 
 	export let data: PageData;

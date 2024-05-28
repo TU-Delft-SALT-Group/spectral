@@ -3,7 +3,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
-	import { UserIcon } from 'lucide-svelte';
+	import UserIcon from 'lucide-svelte/icons/user';
 
 	$: segments = $page.url.pathname.split('/');
 

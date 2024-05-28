@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import * as ContextMenu from '$lib/components/ui/context-menu';
-	import { FileIcon } from 'lucide-svelte';
+	import FileIcon from 'lucide-svelte/icons/file';
 	import type { FileState } from '$lib/analysis/modes/file-state';
 
 	export let file: FileState;
