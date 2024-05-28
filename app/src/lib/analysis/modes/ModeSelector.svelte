@@ -19,7 +19,7 @@
 			<Button
 				on:click={() => (mode = currentMode)}
 				on:hover={() => onModeHover(currentMode)}
-				variant={mode === currentMode ? 'default' : 'ghost'}
+				variant={mode === currentMode ? 'default' : 'outline'}
 				class="h-10 w-16 shadow"
 			>
 				<svelte:component this={modeComponents[currentMode].icon} class="w-12"></svelte:component>
