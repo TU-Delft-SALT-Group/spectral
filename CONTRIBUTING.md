@@ -20,32 +20,34 @@ Install the [pre-commit hook](https://pre-commit.com/#install). For example:
 ```bash
 pip install pre-commit
 pre-commit install
-```
-
-These hooks use ruff to format the Python kernel code, and pyright to lint it. For svelte we use ESLint and Prettier.
-
-### conventional-pre-commit
-To use the conventional-pre-commit, which enforces [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), run the following command:
-
-```bash
 pre-commit install --hook-type commit-msg
 ```
 
+These hooks mainly run formatters and linters for Python and Svelte. They also enforce [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). In general, this project uses the conventional commits convention, so we expect all commits to follow it (except merge commits). If a PR does not follow conventional commits it will be squashed.
+
 ## Making code changes
 
-Now make your changes. Make sure to include additional tests if necessary.
+Spectral is divided in two parts, the app (SvelteKit) and the kernel (Python). You can refer to the readmes of the [app](app/README.md) and [kernel](/kernel/README.md) respectively to gain more insight into how to contribute.
+
+To try out your changes, you can run the whole application using docker. First install [docker](https://docs.docker.com/engine/install/) and [docker compose](https://docs.docker.com/compose/install/), and run:
+
+```bash
+docker compose up --build
+```
+
+Make sure to add tests when appropriate. Ideally, there should be a test that would fail without your PR. The `ci.py` script does all testing, typechecking and linting:
+
+```bash
+./ci.py
+```
 
 Verify that the tests are passing! The CI will run the tests, but you can might want to run them locally as well. You can run only integration tests by doing:
 
 ```bash
-???
+./ci.py integration
 ```
 
-Also, feel free to run the whole server locally with:
-
-```bash
-docker-compose up --build
-```
+Please make sure to keep a reasonable git history following conventional commits. If this is not the case in a PR, the PR will be squashed by the maintainers.
 
 After you are done with the feature, you can push your changes back to your fork:
 
@@ -53,7 +55,7 @@ After you are done with the feature, you can push your changes back to your fork
 git push
 ```
 
-Finally, open a pull request on GitHub (or GitLab)!
+Finally, open a pull request on GitHub!
 
 ## Making documentation changes
 
@@ -66,10 +68,14 @@ mkdocs serve
 
 Then doing `Control-C`, and running:
 
-```
+```bash
 mkdocs serve
 ```
 
 (So you run `mkdocs serve` twice.)
 
 You can then see your local copy of the documentation by navigating to `localhost:8000` in a web browser.
+
+## Documenting code
+
+As part of our standard, we require that non-trivial code to be explained with comments. Make sure the comments are reasonably written with your judgement.
