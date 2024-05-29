@@ -17,23 +17,33 @@
 	function onReady(event: DockviewReadyEvent) {
 		panesApi = event.api;
 
-		state.panes.forEach((pane) => {
+		for (const paneId in state.panes) {
+			const pane = state.panes[paneId];
+
 			panesApi.addPanel({
-				id: pane.id,
+				id: paneId,
 				title: pane.title,
 				component: 'default',
 				params: {
 					state: pane
 				}
 			});
-		});
+		}
 
 		panesApi.onDidAddPanel((event) => {
 			if (event.params === undefined) {
 				return;
 			}
 
-			state.panes.push(event.params.state);
+			state.panes[event.id] = event.params.state;
+		});
+
+		panesApi.onDidRemovePanel((event) => {
+			if (event.params === undefined) {
+				return;
+			}
+
+			delete state.panes[event.id];
 		});
 	}
 </script>

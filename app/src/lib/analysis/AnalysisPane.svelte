@@ -101,7 +101,13 @@
 		event.preventDefault();
 		if (event.dataTransfer) {
 			const transferredData = event.dataTransfer.getData('application/json');
-			const json = JSON.parse(transferredData);
+			let json;
+			try {
+				json = JSON.parse(transferredData);
+			} catch (e) {
+				// TODO: find a better fix
+				return; // this might be from the dockview
+			}
 			const file = fileState.parse(json);
 
 			// Don't add files already present

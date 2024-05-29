@@ -35,9 +35,8 @@ export async function seedSampleUser() {
 }
 
 const sampleSessionState: SessionState = {
-	panes: [
-		{
-			id: 'sample-session-id',
+	panes: {
+		'sample-session-id': {
 			title: 'sample',
 			mode: 'waveform',
 			files: [
@@ -68,7 +67,7 @@ const sampleSessionState: SessionState = {
 				'error-rate': {}
 			}
 		}
-	]
+	}
 };
 const sampleSession = {
 	id: 'sample-session',
