@@ -19,6 +19,7 @@
 	import { SvelteRenderer, SvelteTabActionRenderer } from '.';
 	import used from '$lib/utils';
 	import NewTabButton from './NewTabButton.svelte';
+	import Tab from './Tab.svelte';
 
 	export let onReady: (event: DockviewReadyEvent) => void;
 	// eslint-disable-next-line
@@ -40,14 +41,14 @@
 				used(options);
 				return new SvelteRenderer(component);
 			},
-			createTabComponent(options) {
-				used(options);
-				return new SvelteRenderer(component);
-			},
 			createLeftHeaderActionComponent(group) {
 				return new SvelteTabActionRenderer(NewTabButton, group, {
 					state: paneState.parse(undefined)
 				});
+			},
+			createTabComponent(options) {
+				used(options);
+				return new SvelteRenderer(Tab);
 			}
 		};
 

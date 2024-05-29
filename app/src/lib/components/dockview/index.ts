@@ -4,6 +4,7 @@ import type {
 	DockviewGroupPanel,
 	GroupPanelPartInitParameters,
 	IContentRenderer,
+	IDockviewGroupPanel,
 	IGroupHeaderProps,
 	IHeaderActionsRenderer,
 	ITabRenderer,
@@ -13,10 +14,12 @@ import type {
 
 import { type SvelteComponent, mount, unmount, type ComponentType } from 'svelte';
 
+type Component<P extends Record<string, unknown>> = ComponentType<SvelteComponent<P>>;
+
 abstract class AbstractSvelteRenderer<S extends Record<string, unknown>> {
 	readonly _element: HTMLElement;
-	readonly _component: ComponentType<SvelteComponent<S>>;
-	protected _instance: ComponentType<SvelteComponent<S>> | undefined;
+	readonly _component: Component<S>;
+	protected _instance: Component<S> | undefined;
 
 	get element() {
 		return this._element;
@@ -26,12 +29,18 @@ abstract class AbstractSvelteRenderer<S extends Record<string, unknown>> {
 		return this._component;
 	}
 
-	constructor(component: ComponentType<SvelteComponent<S>>) {
+	constructor(component: Component<S>) {
 		this._component = component;
 
 		this._element = document.createElement('div');
 		this.element.className = 'dv-vue-part';
 		this.element.style.height = '100%';
+	}
+
+	dispose(): void {
+		if (this._instance !== undefined) {
+			unmount(this._instance);
+		}
 	}
 }
 
@@ -41,7 +50,7 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 {
 	private _props: S | undefined;
 
-	constructor(component: ComponentType<SvelteComponent<S>>) {
+	constructor(component: Component<S>) {
 		super(component);
 	}
 
@@ -50,8 +59,8 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 
 		this._instance = mount(this._component, {
 			target: this._element,
-			props: this._props
-		}) as ComponentType<SvelteComponent<S>>;
+			props: { ...this._props, api: parameters.api, title: parameters.title }
+		}) as Component<S>;
 	}
 
 	update(event: PanelUpdateEvent<Parameters>): void {
@@ -62,16 +71,11 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 		const params = event.params.params as S;
 		this._props = { ...(this._props as S), ...params };
 	}
-
-	dispose(): void {
-		if (this._instance !== undefined) {
-			unmount(this._instance);
-		}
-	}
 }
 
 type TabRequirements<S = Record<string, unknown>> = {
 	containerApi: DockviewApi;
+	group: IDockviewGroupPanel;
 	defaultProps: S;
 };
 
@@ -82,7 +86,7 @@ export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 	private _defaultProps: P;
 
 	constructor(
-		component: ComponentType<SvelteComponent<TabRequirements<P>>>,
+		component: Component<TabRequirements<P>>,
 		group: DockviewGroupPanel,
 		defaultProps: P
 	) {
@@ -100,12 +104,6 @@ export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 		this._instance = mount(this._component, {
 			target: this._element,
 			props
-		}) as ComponentType<SvelteComponent<TabRequirements<P>>>;
-	}
-
-	dispose(): void {
-		if (this._instance !== undefined) {
-			unmount(this._instance);
-		}
+		}) as Component<TabRequirements<P>>;
 	}
 }

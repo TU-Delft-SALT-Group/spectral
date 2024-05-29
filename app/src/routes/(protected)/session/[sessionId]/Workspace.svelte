@@ -20,14 +20,19 @@
 		for (const paneId in state.panes) {
 			const pane = state.panes[paneId];
 
-			panesApi.addPanel({
+			const panel = panesApi.addPanel({
 				id: paneId,
 				title: pane.title,
 				component: 'default',
 				renderer: 'always',
 				params: {
 					state: pane
-				}
+				},
+				tabComponent: 'not default'
+			});
+
+			panel.api.onDidTitleChange((e) => {
+				state.panes[paneId].title = e.title;
 			});
 		}
 
