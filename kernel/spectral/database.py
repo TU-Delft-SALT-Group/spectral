@@ -1,5 +1,5 @@
 import psycopg
-import uuid
+import json
 
 
 class Database:
@@ -65,6 +65,10 @@ class Database:
         column_data = self.cursor.fetchall()
         self.cursor.execute("SELECT * FROM files WHERE id = %s", [id])
         db_res = self.cursor.fetchone()  # type: ignore
+
+        if db_res is None:
+            raise FileNotFoundError
+
         result = {}
         for column in column_data:
             result[self.snake_to_camel(column[0])] = db_res[column[1] - 1]
@@ -74,36 +78,23 @@ class Database:
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
-    def store_transcription(self, file_id, file_transcription):
-        """
-        Stores a transcription record in the database.
+    def store_transcription(self, file_id, state, file_transcription):
+        transcriptions = []
 
-        Args:
-            file_id (string): The ID of the file associated with the transcription.
-            file_transcription (list): A list of transcription entries to store, each containing "start", "end", and "value" keys.
-        """
-        file_transcription_id = str(uuid.uuid4())
+        if "transcriptions" in state:
+            transcriptions = state["transcriptions"]
+
+        transcriptions.append(file_transcription)
+
+        state["transcriptions"] = transcriptions
+
         self.cursor.execute(
-            """
-                            INSERT INTO file_transcription (id, file)
-                            VALUES (%s, %s);
-                            """,
-            [file_transcription_id, file_id],
+            "UPDATE files SET state = %s WHERE id = %s", [json.dumps(state), file_id]
         )
-        for transcription in file_transcription:
-            self.cursor.execute(
-                """
-                            INSERT INTO transcription (id, file_transcription, start, "end", value)
-                            VALUES (%s, %s, %s, %s, %s);
-                            """,
-                [
-                    str(uuid.uuid4()),
-                    file_transcription_id,
-                    transcription["start"],
-                    transcription["end"],
-                    transcription["value"],
-                ],
-            )
+
+        # print(self.fetch_file(file_id))
+
+        return transcriptions
 
     def get_transcriptions(self, file_id):
         """

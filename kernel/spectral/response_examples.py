@@ -1,4 +1,6 @@
-frame_analysis_response_examples = {
+from typing import Any, Dict
+
+frame_analysis_response_examples: Dict[int | str, Dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {
@@ -14,7 +16,7 @@ frame_analysis_response_examples = {
     400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
 }
 
-signal_analysis_response_examples = {
+signal_analysis_response_examples: Dict[int | str, Dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {
@@ -45,7 +47,7 @@ signal_analysis_response_examples = {
     400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
 }
 
-signal_analysis_response_examples = {
+signal_analysis_response_examples: Dict[int | str, Dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {
@@ -76,7 +78,7 @@ signal_analysis_response_examples = {
     400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
 }
 
-signal_modes_response_examples = {
+signal_modes_response_examples: Dict[int | str, Dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {
@@ -286,7 +288,7 @@ signal_modes_response_examples = {
     404: {"content": {"application/json": {"example": {"detail": "error message"}}}},
 }
 
-transcription_response_examples = {
+transcription_response_examples: Dict[int | str, Dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {

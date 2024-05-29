@@ -52,7 +52,6 @@
 					async (fileState): Promise<FileData<mode.Name>> => ({
 						fileState,
 						computedData: await getComputedFileData({
-							fileId: fileState.id,
 							mode: state.mode,
 							fileState
 						})

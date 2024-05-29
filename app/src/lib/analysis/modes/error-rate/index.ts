@@ -211,7 +211,8 @@ export const errorRateData = {
 	fileState: fileState
 		.pick({
 			id: true,
-			name: true
+			name: true,
+			transcriptions: true
 		})
 		.default({}),
 

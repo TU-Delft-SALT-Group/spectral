@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, Union, Literal
+from typing import Annotated, Union, Literal
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
@@ -35,13 +35,12 @@ from .data_objects import (
     SimpleInfoResponse,
     VowelSpaceResponse,
     TranscriptionSegment,
-    ErrorRateResponse
+    ErrorRateResponse,
 )
 from .database import Database
 import orjson
 import io
-
-
+import json
 import os
 from pydub import AudioSegment
 
@@ -160,7 +159,17 @@ async def signal_fundamental_features(signal: Signal):
         )
 
 
-@app.get("/signals/modes/{mode}/{id}", response_model=Union[None,SimpleInfoResponse,VowelSpaceResponse,list[list[TranscriptionSegment]],ErrorRateResponse], responses=signal_modes_response_examples)
+@app.get(
+    "/signals/modes/{mode}",
+    response_model=Union[
+        None,
+        SimpleInfoResponse,
+        VowelSpaceResponse,
+        list[list[TranscriptionSegment]],
+        ErrorRateResponse,
+    ],
+    responses=signal_modes_response_examples,
+)
 async def analyze_signal_mode(
     mode: Annotated[
         Literal[
@@ -173,9 +182,7 @@ async def analyze_signal_mode(
         ],
         Path(title="The analysis mode"),
     ],
-    id: Annotated[str, Path(title="The ID of the signal")],
-    startIndex: Optional[int] = None,
-    endIndex: Optional[int] = None,
+    fileState,
     database=Depends(get_db),
 ):
     """
@@ -195,15 +202,17 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
+    print("fileState: " + fileState)
+    fileState = json.loads(fileState)
     try:
-        file = database.fetch_file(id)
+        file = database.fetch_file(fileState["id"])
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 
     audio = AudioSegment.from_file(io.BytesIO(file["data"]))
     fs = audio.frame_rate
     data = audio.get_array_of_samples()
-    frame_index = validate_frame_index(data, startIndex, endIndex)
+    frame_index = validate_frame_index(data, fileState["frame"])
 
     if mode == "simple-info":
         return simple_info_mode(data, fs, file, frame_index)
@@ -216,7 +225,7 @@ async def analyze_signal_mode(
     if mode == "transcription":
         return transcription_mode(id, database)
     if mode == "error-rate":
-        return error_rate_mode(id, database, file)
+        return error_rate_mode(id, database, file, file["state"]["transcriptions"])
 
 
 @app.get(
@@ -252,7 +261,7 @@ async def transcribe_file(
         raise HTTPException(status_code=404, detail="File not found")
     transcription = get_transcription(model, file)
     try:
-        database.store_transcription(id, transcription)
+        database.store_transcription(id, file["state"], transcription)
     except Exception as _:
         raise HTTPException(
             status_code=500,
@@ -261,14 +270,13 @@ async def transcribe_file(
     return transcription
 
 
-def validate_frame_index(data, start_index, end_index):
+def validate_frame_index(data, frame):
     """
     Validates a frame index for a segment of the audio data and creates a dictionary for those values.
 
     Parameters:
     - data (list of int): The audio signal data.
-    - start_index (int): The start index of the frame.
-    - end_index (int): The end index of the frame.
+    - frame (dict): contains startIndex and endIndex of frame
 
     Returns:
     - dict: A dictionary containing the startIndex and endIndex.
@@ -281,6 +289,12 @@ def validate_frame_index(data, start_index, end_index):
     frame_index = create_frame_index(data, 0, 100)
     ```
     """
+    if frame is None:
+        return None
+
+    start_index = frame["startIndex"]
+    end_index = frame["endIndex"]
+
     if start_index is None and end_index is None:
         return None
     if start_index is None:

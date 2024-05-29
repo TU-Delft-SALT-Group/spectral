@@ -93,21 +93,16 @@ def transcription_mode(id, database):
         )
 
 
-def error_rate_mode(id, database, file):
-    if file["groundTruth"] is None:
+def error_rate_mode(id, database, file, transcriptions):
+    # print(transcriptions)
+    # print(file)
+
+    if file["groundTruth"] is None or transcriptions is None:
         return None
 
-    try:
-        transcriptions = database.get_transcriptions(id)
-    except Exception as _:
-        raise HTTPException(
-            status_code=500,
-            detail="Something went wrong when retrieving the transcriptions of this file",
-        )
-        
     errorRates = []
-    
+
     for transcription in transcriptions:
         errorRates.append(calculate_error_rates(file["groundTruth"], transcription))
-        
+
     return {"groundTruth": file["groundTruth"], "errorRates": errorRates}

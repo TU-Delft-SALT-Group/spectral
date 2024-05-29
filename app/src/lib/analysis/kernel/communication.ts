@@ -27,15 +27,13 @@ export function getURL(path: string, base = 'api/'): URL {
  * Fetches the data for a specific mode
  */
 export async function getComputedFileData<M extends modeType.Name>({
-	fileId,
 	mode,
 	fileState
 }: {
 	mode: M;
-	fileId: string;
 	fileState: modeType.FileState<M>;
 }): Promise<modeType.ComputedData<M>> {
-	const url = getURL(`signals/modes/${mode}/${fileId}`);
+	const url = getURL(`signals/modes/${mode}`);
 	url.searchParams.set('fileState', JSON.stringify(fileState));
 
 	const response = await fetch(url);
