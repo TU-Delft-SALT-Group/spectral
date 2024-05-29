@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
-	import MicIcon from 'lucide-svelte/icons/mic';
+	import { MicIcon } from 'lucide-svelte';
 	import type { Action } from 'svelte/action';
 	import WaveSurfer from 'wavesurfer.js';
 	import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';

@@ -1,5 +1,5 @@
 import psycopg
-import uuid
+import json
 
 
 class Database:
@@ -65,45 +65,62 @@ class Database:
         column_data = self.cursor.fetchall()
         self.cursor.execute("SELECT * FROM files WHERE id = %s", [id])
         db_res = self.cursor.fetchone()  # type: ignore
+
+        if db_res is None:
+            raise FileNotFoundError
+
         result = {}
         for column in column_data:
             result[self.snake_to_camel(column[0])] = db_res[column[1] - 1]
         return result
 
     def snake_to_camel(self, snake_case_str):
+        """
+        Converts a snake_case string to camelCase.
+
+        Parameters:
+        - snake_case_str (str): The snake_case string to be converted.
+
+        Returns:
+        - str: The camelCase version of the input string.
+
+        Example:
+        ```python
+        camel_case_str = self.snake_to_camel('example_string')
+        ```
+        """
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
-    def store_transcription(self, file_id, file_transcription):
+    def store_transcription(self, session_id, file_id, file_transcription):
         """
-        Stores a transcription record in the database.
+        Stores a transcription in the database for a given session and file.
 
-        Args:
-            file_id (string): The ID of the file associated with the transcription.
-            file_transcription (list): A list of transcription entries to store, each containing "start", "end", and "value" keys.
+        Parameters:
+        - session_id (int): The ID of the session.
+        - file_id (int): The ID of the file within the session.
+        - file_transcription (str): The transcription to be stored.
+
+        Returns:
+        - None
+
+        Example:
+        ```python
+        self.store_transcription(1, 42, 'Transcription text')
+        ```
         """
-        file_transcription_id = str(uuid.uuid4())
+        self.cursor.execute("SELECT state FROM session WHERE id = %s", [session_id])
+        state = self.cursor.fetchone()[0]  # type: ignore
+        for file in state["panes"][0]["files"]:
+            if file["id"] == file_id:
+                file["transcriptions"].append(file_transcription)
+
         self.cursor.execute(
-            """
-                            INSERT INTO file_transcription (id, file)
-                            VALUES (%s, %s);
-                            """,
-            [file_transcription_id, file_id],
+            "UPDATE session SET state = %s WHERE id = %s",
+            [json.dumps(state), session_id],
         )
-        for transcription in file_transcription:
-            self.cursor.execute(
-                """
-                            INSERT INTO transcription (id, file_transcription, start, "end", value)
-                            VALUES (%s, %s, %s, %s, %s);
-                            """,
-                [
-                    str(uuid.uuid4()),
-                    file_transcription_id,
-                    transcription["start"],
-                    transcription["end"],
-                    transcription["value"],
-                ],
-            )
+
+        pass
 
     def get_transcriptions(self, file_id):
         """
