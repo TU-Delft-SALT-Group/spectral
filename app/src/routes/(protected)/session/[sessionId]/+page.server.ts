@@ -75,7 +75,8 @@ async function getState(result: { state: unknown }): Promise<SessionState> {
 	}
 
 	try {
-		return sessionState.parse(result.state);
+		const check = sessionState.parse(result.state);
+		return check;
 	} catch (e) {
 		logger.warn('Found invalid state in database, resetting to default');
 		const defaultState = sessionState.parse(undefined);

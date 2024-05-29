@@ -94,9 +94,6 @@ def transcription_mode(id, database):
 
 
 def error_rate_mode(id, database, file, transcriptions):
-    # print(transcriptions)
-    # print(file)
-
     if file["groundTruth"] is None or transcriptions is None:
         return None
 

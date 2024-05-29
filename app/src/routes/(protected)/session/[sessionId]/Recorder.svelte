@@ -60,8 +60,6 @@
 
 			formData.append('groundTruth', groundTruth);
 
-			console.log('groundTruth: ' + groundTruth);
-
 			await fetch(`${sessionId}/${filename}?`, {
 				method: 'POST',
 				body: formData

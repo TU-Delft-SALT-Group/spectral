@@ -202,7 +202,6 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
-    print("fileState: " + fileState)
     fileState = json.loads(fileState)
     try:
         file = database.fetch_file(fileState["id"])
@@ -225,17 +224,18 @@ async def analyze_signal_mode(
     if mode == "transcription":
         return transcription_mode(id, database)
     if mode == "error-rate":
-        return error_rate_mode(id, database, file, file["state"]["transcriptions"])
+        return error_rate_mode(id, database, file, fileState["transcriptions"])
 
 
 @app.get(
-    "/transcription/{model}/{id}",
+    "/transcription/{model}/{session_id}/{file_id}",
     response_model=list[TranscriptionSegment],
     responses=transcription_response_examples,
 )
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
-    id: Annotated[str, Path(title="The ID of the file")],
+    session_id: Annotated[str, Path(title="The ID of the file")],
+    file_id: Annotated[str, Path(title="The ID of the file")],
     # startIndex: Optional[int] = None,
     # endIndex: Optional[int] = None,
     database=Depends(get_db),
@@ -256,12 +256,12 @@ async def transcribe_file(
     - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
     """
     try:
-        file = database.fetch_file(id)
+        file = database.fetch_file(file_id)
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
     transcription = get_transcription(model, file)
     try:
-        database.store_transcription(id, file["state"], transcription)
+        database.store_transcription(session_id, file_id, transcription)
     except Exception as _:
         raise HTTPException(
             status_code=500,

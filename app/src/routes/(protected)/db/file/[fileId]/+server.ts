@@ -28,7 +28,6 @@ async function fetchName(fileId: string, userId: string): Promise<Response> {
 }
 
 async function fetchData(fileId: string, userId: string): Promise<Response> {
-	console.log({ userId });
 	try {
 		const row = await db.query.fileTable.findFirst({
 			columns: {

@@ -78,23 +78,19 @@ class Database:
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
-    def store_transcription(self, file_id, state, file_transcription):
-        transcriptions = []
-
-        if "transcriptions" in state:
-            transcriptions = state["transcriptions"]
-
-        transcriptions.append(file_transcription)
-
-        state["transcriptions"] = transcriptions
+    def store_transcription(self, session_id, file_id, file_transcription):
+        self.cursor.execute("SELECT state FROM session WHERE id = %s", [session_id])
+        state = self.cursor.fetchone()[0]  # type: ignore
+        for file in state["panes"][0]["files"]:
+            if file["id"] == file_id:
+                file["transcriptions"].append(file_transcription)
 
         self.cursor.execute(
-            "UPDATE files SET state = %s WHERE id = %s", [json.dumps(state), file_id]
+            "UPDATE session SET state = %s WHERE id = %s",
+            [json.dumps(state), session_id],
         )
 
-        # print(self.fetch_file(file_id))
-
-        return transcriptions
+        pass
 
     def get_transcriptions(self, file_id):
         """

@@ -16,8 +16,7 @@ export const fileState = z.object({
 				})
 			)
 		)
-		.nullable()
-		.default(null)
+		.default([])
 });
 
 export type FileState = z.infer<typeof fileState>;

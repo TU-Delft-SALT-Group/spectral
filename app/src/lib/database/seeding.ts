@@ -43,14 +43,16 @@ const sampleSessionState: SessionState = {
 					id: sampleTorgo[0],
 					name: sampleTorgo[0],
 					frame: null,
-					cycleEnabled: false
+					cycleEnabled: false,
+					transcriptions: []
 				},
 
 				{
 					id: sampleTorgo[1],
 					name: sampleTorgo[1],
 					frame: null,
-					cycleEnabled: true
+					cycleEnabled: true,
+					transcriptions: []
 				}
 			],
 
