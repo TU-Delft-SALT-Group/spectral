@@ -29,7 +29,7 @@ abstract class AbstractSvelteRenderer<S extends Record<string, unknown>> {
 	constructor(component: ComponentType<SvelteComponent<S>>) {
 		this._component = component;
 
-		this._element = document.createElement('section');
+		this._element = document.createElement('div');
 		this.element.className = 'dv-vue-part';
 		this.element.style.height = '100%';
 	}
@@ -79,7 +79,6 @@ export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 	extends AbstractSvelteRenderer<TabRequirements<P>>
 	implements IHeaderActionsRenderer
 {
-	private _params: IGroupHeaderProps | undefined;
 	private _defaultProps: P;
 
 	constructor(
@@ -93,10 +92,8 @@ export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 	}
 
 	init(params: IGroupHeaderProps): void {
-		this._params = params;
-
 		const props: TabRequirements<P> = {
-			containerApi: this._params.containerApi,
+			...params,
 			defaultProps: this._defaultProps
 		};
 
