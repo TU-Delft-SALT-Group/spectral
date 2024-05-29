@@ -14,6 +14,7 @@
 			component: 'default',
 			id: generateIdFromEntropySize(10),
 			title: defaultProps.state.title,
+			renderer: 'always',
 			params: defaultProps
 		});
 	}

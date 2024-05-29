@@ -24,6 +24,7 @@
 				id: paneId,
 				title: pane.title,
 				component: 'default',
+				renderer: 'always',
 				params: {
 					state: pane
 				}
