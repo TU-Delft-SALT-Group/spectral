@@ -120,21 +120,21 @@ def calculate_frame_f1_f2(frame, fs):
 
 def validate_frame_index(data, file_state):
     """
-    Validates a frame index for a segment of the audio data and creates a dictionary for those values.
+    Validate the frame index specified in the file_state.
 
     Parameters:
-    - data (list of int): The audio signal data.
-    - frame (dict): contains startIndex and endIndex of frame
+    - data: An array representing the data from which the frame indices are validated.
+    - file_state: A dictionary containing the state of the file, including frame indices.
 
     Returns:
-    - dict: A dictionary containing the startIndex and endIndex.
+    - A dictionary with validated 'startIndex' and 'endIndex'.
 
     Raises:
-    - HTTPException: If the startIndex or endIndex are invalid.
+    - HTTPException: If required frame indices are not provided or are invalid.
 
     Example:
     ```python
-    frame_index = create_frame_index(data, 0, 100)
+    validated_indices = validate_frame_index(data, file_state)
     ```
     """
     if "frame" not in file_state or file_state["frame"] is None:

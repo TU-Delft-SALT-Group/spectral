@@ -75,10 +75,40 @@ class Database:
         return result
 
     def snake_to_camel(self, snake_case_str):
+        """
+        Converts a snake_case string to camelCase.
+
+        Parameters:
+        - snake_case_str (str): The snake_case string to be converted.
+
+        Returns:
+        - str: The camelCase version of the input string.
+
+        Example:
+        ```python
+        camel_case_str = self.snake_to_camel('example_string')
+        ```
+        """
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
     def store_transcription(self, session_id, file_id, file_transcription):
+        """
+        Stores a transcription in the database for a given session and file.
+
+        Parameters:
+        - session_id (int): The ID of the session.
+        - file_id (int): The ID of the file within the session.
+        - file_transcription (str): The transcription to be stored.
+
+        Returns:
+        - None
+
+        Example:
+        ```python
+        self.store_transcription(1, 42, 'Transcription text')
+        ```
+        """
         self.cursor.execute("SELECT state FROM session WHERE id = %s", [session_id])
         state = self.cursor.fetchone()[0]  # type: ignore
         for file in state["panes"][0]["files"]:

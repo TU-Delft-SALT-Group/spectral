@@ -19,19 +19,16 @@ def simple_info_mode(database, file_state):
     This function combines the signal information, file metadata, and frame-specific details.
 
     Parameters:
-    - data (list of int): The audio signal data.
-    - fs (float): The sample frequency of the audio signal.
-    - file (dict): A dictionary containing file metadata such as "data" and "creationTime".
-    - frame_index (dict): A dictionary containing the 'startIndex' and 'endIndex' that specify
-                          the segment of the signal to analyze.
+    - database: The database object used to fetch the file.
+    - file_state: A dictionary containing the state of the file, including frame indices.
 
     Returns:
     - dict: A dictionary containing the combined signal information, file size, file creation date,
-            and frame information.
+            and frame information. If the frame index is invalid, it still includes the basic file information.
 
     Example:
     ```python
-    result = simple_info_mode(data, fs, file, frame_index)
+    result = simple_info_mode(database, file_state)
     ```
     """
 
@@ -72,17 +69,16 @@ def vowel_space_mode(database, file_state):
     This function calculates the first (f1) and second (f2) formants of a segment within the audio signal.
 
     Parameters:
-    - data (list of int): The audio signal data.
-    - fs (float): The sample frequency of the audio signal.
-    - frame_index (dict): A dictionary containing the 'startIndex' and 'endIndex' that specify
-                          the segment of the signal to analyze.
+    - database: The database object used to fetch the file.
+    - file_state: A dictionary containing the state of the file, including frame indices.
 
     Returns:
     - dict: A dictionary containing the first formant (f1) and the second formant (f2).
+    - Returns None if the frame index is invalid.
 
     Example:
     ```python
-    result = vowel_space_mode(data, fs, frame_index)
+    result = vowel_space_mode(database, file_state)
     ```
     """
 
@@ -106,6 +102,22 @@ def transcription_mode(database, file_state):
 
 
 def error_rate_mode(database, file_state):
+    """
+    Calculate the error rates of transcriptions against the ground truth.
+
+    Parameters:
+    - database: The database object used to fetch the file.
+    - file_state: A dictionary containing the state of the file, including transcriptions.
+
+    Returns:
+    - A dictionary with the ground truth and a list of error rates for each transcription.
+    - Returns None if there are no transcriptions or if the ground truth is missing.
+
+    Example:
+    ```python
+    result = error_rate_mode(database, file_state)
+    ```
+    """
     if "transcriptions" not in file_state:
         return None
 
@@ -125,6 +137,24 @@ def error_rate_mode(database, file_state):
 
 
 def get_file(database, file_state):
+    """
+    Fetch a file from the database using the file_state information.
+
+    Parameters:
+    - database: The database object used to fetch the file.
+    - file_state: A dictionary containing the state of the file, including its ID.
+
+    Returns:
+    - The file object fetched from the database.
+
+    Raises:
+    - HTTPException: If the 'id' is not in file_state or if the file is not found.
+
+    Example:
+    ```python
+    file = get_file(database, file_state)
+    ```
+    """
     if "id" not in file_state:
         raise HTTPException(status_code=404, detail="file_state did not include id")
 
@@ -137,6 +167,20 @@ def get_file(database, file_state):
 
 
 def get_audio(file):
+    """
+    Extract audio data and sampling rate from the given file.
+
+    Parameters:
+    - file: A dictionary containing the file data, including audio bytes.
+
+    Returns:
+    - A tuple (fs, data) where fs is the sampling rate and data is the array of audio samples.
+
+    Example:
+    ```python
+    fs, data = get_audio(file)
+    ```
+    """
     audio = AudioSegment.from_file(io.BytesIO(file["data"]))
     fs = audio.frame_rate
     data = audio.get_array_of_samples()

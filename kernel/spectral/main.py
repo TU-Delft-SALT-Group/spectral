@@ -191,9 +191,7 @@ async def analyze_signal_mode(
 
     Parameters:
     - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form", "vowel-space", "transcription", "error-rate").
-    - id (str): The ID of the signal to analyze.
-    - startIndex (Optional[int]): The start index of the frame to analyze.
-    - endIndex (Optional[int]): The end index of the frame to analyze.
+    - fileState (dict): The important state data of the file
 
     Returns:
     - dict: The result of the analysis based on the selected mode.
@@ -235,7 +233,8 @@ async def transcribe_file(
 
     Parameters:
     - model (str): The transcription model to use.
-    - id (str): The ID of the file to transcribe.
+    - file_id (str): The ID of the file to transcribe.
+    - session_id (str): The ID of the session to which the file belongs
 
     Returns:
     - list: A list of dictionaries with keys 'start', 'end' and 'value' containing the transcription of the audio file.
