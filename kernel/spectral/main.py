@@ -15,6 +15,7 @@ from .frame_analysis import (
 )
 from .mode_handler import (
     simple_info_mode,
+    waveform_mode,
     spectrogram_mode,
     vowel_space_mode,
     transcription_mode,
@@ -39,10 +40,8 @@ from .data_objects import (
 )
 from .database import Database
 import orjson
-import io
 import json
 import os
-from pydub import AudioSegment
 
 
 def get_db():  # pragma: no cover
@@ -203,28 +202,19 @@ async def analyze_signal_mode(
     - HTTPException: If the mode is not found or input data is invalid.
     """
     fileState = json.loads(fileState)
-    try:
-        file = database.fetch_file(fileState["id"])
-    except Exception as _:
-        raise HTTPException(status_code=404, detail="File not found")
-
-    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
-    fs = audio.frame_rate
-    data = audio.get_array_of_samples()
-    frame_index = validate_frame_index(data, fileState["frame"])
 
     if mode == "simple-info":
-        return simple_info_mode(data, fs, file, frame_index)
+        return simple_info_mode(database, fileState)
     if mode == "spectrogram":
-        return spectrogram_mode(data, fs, frame_index)
+        return spectrogram_mode(database, fileState)
     if mode == "waveform":
-        return None
+        return waveform_mode(database, fileState)
     if mode == "vowel-space":
-        return vowel_space_mode(data, fs, frame_index)
+        return vowel_space_mode(database, fileState)
     if mode == "transcription":
-        return transcription_mode(id, database)
+        return transcription_mode(database, fileState)
     if mode == "error-rate":
-        return error_rate_mode(id, database, file, fileState["transcriptions"])
+        return error_rate_mode(database, fileState)
 
 
 @app.get(
@@ -236,8 +226,6 @@ async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
     session_id: Annotated[str, Path(title="The ID of the file")],
     file_id: Annotated[str, Path(title="The ID of the file")],
-    # startIndex: Optional[int] = None,
-    # endIndex: Optional[int] = None,
     database=Depends(get_db),
 ):
     """
@@ -268,49 +256,3 @@ async def transcribe_file(
             detail="Something went wrong while storing the transcription",
         )
     return transcription
-
-
-def validate_frame_index(data, frame):
-    """
-    Validates a frame index for a segment of the audio data and creates a dictionary for those values.
-
-    Parameters:
-    - data (list of int): The audio signal data.
-    - frame (dict): contains startIndex and endIndex of frame
-
-    Returns:
-    - dict: A dictionary containing the startIndex and endIndex.
-
-    Raises:
-    - HTTPException: If the startIndex or endIndex are invalid.
-
-    Example:
-    ```python
-    frame_index = create_frame_index(data, 0, 100)
-    ```
-    """
-    if frame is None:
-        return None
-
-    start_index = frame["startIndex"]
-    end_index = frame["endIndex"]
-
-    if start_index is None and end_index is None:
-        return None
-    if start_index is None:
-        raise HTTPException(status_code=400, detail="no startIndex provided")
-    if end_index is None:
-        raise HTTPException(status_code=400, detail="no endIndex provided")
-    if start_index >= end_index:
-        raise HTTPException(
-            status_code=400, detail="startIndex should be strictly lower than endIndex"
-        )
-    if start_index < 0:
-        raise HTTPException(
-            status_code=400, detail="startIndex should be larger or equal to 0"
-        )
-    if end_index > len(data):
-        raise HTTPException(
-            status_code=400, detail="endIndex should be lower than the file length"
-        )
-    return {"startIndex": start_index, "endIndex": end_index}

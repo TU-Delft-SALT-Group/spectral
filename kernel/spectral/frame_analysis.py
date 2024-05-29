@@ -1,5 +1,6 @@
 import parselmouth
 import numpy as np
+from fastapi import HTTPException
 
 
 def simple_frame_info(frame, fs, frame_info):
@@ -115,3 +116,57 @@ def calculate_frame_f1_f2(frame, fs):
         ]
     except Exception as _:
         return [float("nan"), float("nan")]
+
+
+def validate_frame_index(data, file_state):
+    """
+    Validates a frame index for a segment of the audio data and creates a dictionary for those values.
+
+    Parameters:
+    - data (list of int): The audio signal data.
+    - frame (dict): contains startIndex and endIndex of frame
+
+    Returns:
+    - dict: A dictionary containing the startIndex and endIndex.
+
+    Raises:
+    - HTTPException: If the startIndex or endIndex are invalid.
+
+    Example:
+    ```python
+    frame_index = create_frame_index(data, 0, 100)
+    ```
+    """
+    if "frame" not in file_state or file_state["frame"] is None:
+        return None
+
+    frame = file_state["frame"]
+
+    if "startIndex" not in frame:
+        raise HTTPException(status_code=400, detail="no startIndex provided")
+    if "endIndex" not in frame:
+        raise HTTPException(status_code=400, detail="no endIndex provided")
+
+    start_index = frame["startIndex"]
+    end_index = frame["endIndex"]
+
+    if start_index is None and end_index is None:
+        return None
+    if start_index is None:
+        raise HTTPException(status_code=400, detail="no startIndex provided")
+    if end_index is None:
+        raise HTTPException(status_code=400, detail="no endIndex provided")
+
+    if start_index >= end_index:
+        raise HTTPException(
+            status_code=400, detail="startIndex should be strictly lower than endIndex"
+        )
+    if start_index < 0:
+        raise HTTPException(
+            status_code=400, detail="startIndex should be larger or equal to 0"
+        )
+    if end_index > len(data):
+        raise HTTPException(
+            status_code=400, detail="endIndex should be lower than the file length"
+        )
+    return {"startIndex": start_index, "endIndex": end_index}

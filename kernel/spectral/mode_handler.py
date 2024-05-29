@@ -1,11 +1,18 @@
 from fastapi import HTTPException
 
 from .signal_analysis import simple_signal_info
-from .frame_analysis import simple_frame_info, calculate_frame_f1_f2
+from .frame_analysis import (
+    simple_frame_info,
+    calculate_frame_f1_f2,
+    validate_frame_index,
+)
 from .transcription import calculate_error_rates
 
+from pydub import AudioSegment
+import io
 
-def simple_info_mode(data, fs, file, frame_index):
+
+def simple_info_mode(database, file_state):
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -27,21 +34,38 @@ def simple_info_mode(data, fs, file, frame_index):
     result = simple_info_mode(data, fs, file, frame_index)
     ```
     """
+
+    file = get_file(database, file_state)
+
+    fs, data = get_audio(file)
+
     result = simple_signal_info(data, fs)
+
     result["fileSize"] = len(file["data"])
     result["fileCreationDate"] = file["creationTime"]
+
+    frame_index = validate_frame_index(data, file_state)
+
     result["frame"] = simple_frame_info(data, fs, frame_index)
+
     return result
 
 
-def spectrogram_mode(data, fs, frame_index):
+def spectrogram_mode(database, file_state):
     """
     TBD
     """
     return None
 
 
-def vowel_space_mode(data, fs, frame_index):
+def waveform_mode(database, file_state):
+    """
+    TBD
+    """
+    return None
+
+
+def vowel_space_mode(database, file_state):
     """
     Extracts and returns the first and second formants of a specified frame.
 
@@ -61,39 +85,34 @@ def vowel_space_mode(data, fs, frame_index):
     result = vowel_space_mode(data, fs, frame_index)
     ```
     """
+
+    file = get_file(database, file_state)
+    fs, data = get_audio(file)
+    frame_index = validate_frame_index(data, file_state)
+
     if frame_index is None:
         return None
+
     frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
     formants = calculate_frame_f1_f2(frame_data, fs)
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(id, database):
+def transcription_mode(database, file_state):
     """
-    Retrieve transcriptions of a file from the database.
-
-    This function retrieves transcriptions associated with a file from the database.
-
-    Parameters:
-    - id (str): The ID of the file.
-    - database (Database): An instance of the Database class for interacting with the database.
-
-    Returns:
-    - list: A list of transcriptions associated with the file.
-
-    Raises:
-    - HTTPException: If something goes wrong when retrieving the transcriptions of the file.
+    TBD
     """
-    try:
-        return database.get_transcriptions(id)
-    except Exception as _:
-        raise HTTPException(
-            status_code=500,
-            detail="Something went wrong when retrieving the transcriptions of this file",
-        )
+    return None
 
 
-def error_rate_mode(id, database, file, transcriptions):
+def error_rate_mode(database, file_state):
+    if "transcriptions" not in file_state:
+        return None
+
+    transcriptions = file_state["transcriptions"]
+
+    file = get_file(database, file_state)
+
     if file["groundTruth"] is None or transcriptions is None:
         return None
 
@@ -103,3 +122,23 @@ def error_rate_mode(id, database, file, transcriptions):
         errorRates.append(calculate_error_rates(file["groundTruth"], transcription))
 
     return {"groundTruth": file["groundTruth"], "errorRates": errorRates}
+
+
+def get_file(database, file_state):
+    if "id" not in file_state:
+        raise HTTPException(status_code=404, detail="file_state did not include id")
+
+    try:
+        file = database.fetch_file(file_state["id"])
+    except Exception as _:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return file
+
+
+def get_audio(file):
+    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
+    fs = audio.frame_rate
+    data = audio.get_array_of_samples()
+
+    return fs, data
