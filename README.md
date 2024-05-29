@@ -1,6 +1,7 @@
 # Spectral
 
-TODO: Add badges
+<img src="https://gitlab.ewi.tudelft.nl/cse2000-software-project/2023-2024/cluster-n/11c/atypical-speech-project/badges/main/pipeline.svg">
+<img src="https://gitlab.ewi.tudelft.nl/cse2000-software-project/2023-2024/cluster-n/11c/atypical-speech-project/badges/main/coverage.svg">
 
 Spectral is a toolkit that enables comparative analysis of atypical speech, with a nice user experience.
 
