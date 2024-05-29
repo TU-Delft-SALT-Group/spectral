@@ -37,6 +37,8 @@ export async function seedSampleUser() {
 const sampleSessionState: SessionState = {
 	panes: [
 		{
+			id: 'sample-session-id',
+			title: 'sample',
 			mode: 'waveform',
 			files: [
 				{

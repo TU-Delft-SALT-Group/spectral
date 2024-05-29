@@ -6,11 +6,13 @@ import type {
 	IContentRenderer,
 	IGroupHeaderProps,
 	IHeaderActionsRenderer,
-	ITabRenderer
+	ITabRenderer,
+	PanelUpdateEvent,
+	Parameters
 } from 'dockview-core';
 
 import { type SvelteComponent, mount, unmount, type ComponentType } from 'svelte';
-import { paneState } from '$lib/analysis/analysis-pane';
+import { paneState, type PaneState } from '$lib/analysis/analysis-pane';
 
 abstract class AbstractSvelteRenderer {
 	readonly _element: HTMLElement;
@@ -20,7 +22,7 @@ abstract class AbstractSvelteRenderer {
 	}
 
 	constructor() {
-		this._element = document.createElement('div');
+		this._element = document.createElement('section');
 		this.element.className = 'dv-vue-part';
 		this.element.style.height = '100%';
 	}
@@ -32,6 +34,7 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 {
 	readonly _component: ComponentType<SvelteComponent<S>>;
 	private _instance: ComponentType<SvelteComponent<S>> | undefined;
+	private _props: S | undefined;
 
 	constructor(component: ComponentType<SvelteComponent<S>>) {
 		super();
@@ -39,10 +42,21 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 	}
 
 	init(parameters: GroupPanelPartInitParameters): void {
+		this._props = parameters.params as S;
+
 		this._instance = mount(this._component, {
 			target: this._element,
-			props: parameters.params as S
+			props: this._props
 		}) as ComponentType<SvelteComponent<S>>;
+	}
+
+	update(event: PanelUpdateEvent<Parameters>): void {
+		if (this._instance === undefined) {
+			return;
+		}
+
+		const params = event.params.params as S;
+		this._props = { ...(this._props as S), ...params };
 	}
 
 	dispose(): void {
@@ -52,9 +66,9 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 	}
 }
 
-type TabRequirements<T extends Record<string, unknown> = Record<string, unknown>> = {
+type TabRequirements = {
 	containerApi: DockviewApi;
-	defaultProps: T;
+	defaultProps: { state: PaneState };
 };
 
 export class SvelteTabActionRenderer

@@ -19,12 +19,21 @@
 
 		state.panes.forEach((pane) => {
 			panesApi.addPanel({
-				id: 'default',
+				id: pane.id,
+				title: pane.title,
 				component: 'default',
 				params: {
 					state: pane
 				}
 			});
+		});
+
+		panesApi.onDidAddPanel((event) => {
+			if (event.params === undefined) {
+				return;
+			}
+
+			state.panes.push(event.params.state);
 		});
 	}
 </script>

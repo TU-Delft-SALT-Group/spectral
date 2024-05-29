@@ -1,16 +1,19 @@
 <script lang="ts">
 	import type { DockviewApi } from 'dockview-core';
 	import { Button } from '../ui/button';
-	import used from '$lib/utils';
+	import { generateIdFromEntropySize } from 'lucia';
+	import type { PaneState } from '$lib/analysis/analysis-pane';
 
 	export let containerApi: DockviewApi;
-	export let defaultProps: Record<string, unknown>;
+	export let defaultProps: { state: PaneState };
 
 	function onClick(event: MouseEvent) {
-		used(event);
+		event.preventDefault();
+
 		containerApi.addPanel({
-			component: 'lmao',
-			id: 'added!',
+			component: 'default',
+			id: generateIdFromEntropySize(10),
+			title: defaultProps.state.title,
 			params: defaultProps
 		});
 	}
