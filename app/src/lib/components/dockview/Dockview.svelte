@@ -5,6 +5,8 @@
 	S extends Record<string, unknown>
 "
 >
+	import { paneState } from '$lib/analysis/analysis-pane';
+
 	import { error } from '@sveltejs/kit';
 	import {
 		DockviewApi,
@@ -43,7 +45,9 @@
 				return new SvelteRenderer(component);
 			},
 			createLeftHeaderActionComponent(group) {
-				return new SvelteTabActionRenderer(NewTabButton, group);
+				return new SvelteTabActionRenderer(NewTabButton, group, {
+					state: paneState.parse(undefined)
+				});
 			}
 		};
 

@@ -12,16 +12,23 @@ import type {
 } from 'dockview-core';
 
 import { type SvelteComponent, mount, unmount, type ComponentType } from 'svelte';
-import { paneState, type PaneState } from '$lib/analysis/analysis-pane';
 
-abstract class AbstractSvelteRenderer {
+abstract class AbstractSvelteRenderer<S extends Record<string, unknown>> {
 	readonly _element: HTMLElement;
+	readonly _component: ComponentType<SvelteComponent<S>>;
+	protected _instance: ComponentType<SvelteComponent<S>> | undefined;
 
 	get element() {
 		return this._element;
 	}
 
-	constructor() {
+	get component() {
+		return this._component;
+	}
+
+	constructor(component: ComponentType<SvelteComponent<S>>) {
+		this._component = component;
+
 		this._element = document.createElement('section');
 		this.element.className = 'dv-vue-part';
 		this.element.style.height = '100%';
@@ -29,16 +36,13 @@ abstract class AbstractSvelteRenderer {
 }
 
 export class SvelteRenderer<S extends Record<string, unknown>>
-	extends AbstractSvelteRenderer
+	extends AbstractSvelteRenderer<S>
 	implements IContentRenderer, ITabRenderer
 {
-	readonly _component: ComponentType<SvelteComponent<S>>;
-	private _instance: ComponentType<SvelteComponent<S>> | undefined;
 	private _props: S | undefined;
 
 	constructor(component: ComponentType<SvelteComponent<S>>) {
-		super();
-		this._component = component;
+		super(component);
 	}
 
 	init(parameters: GroupPanelPartInitParameters): void {
@@ -66,40 +70,40 @@ export class SvelteRenderer<S extends Record<string, unknown>>
 	}
 }
 
-type TabRequirements = {
+type TabRequirements<S = Record<string, unknown>> = {
 	containerApi: DockviewApi;
-	defaultProps: { state: PaneState };
+	defaultProps: S;
 };
 
-export class SvelteTabActionRenderer
-	extends AbstractSvelteRenderer
+export class SvelteTabActionRenderer<P extends Record<string, unknown>>
+	extends AbstractSvelteRenderer<TabRequirements<P>>
 	implements IHeaderActionsRenderer
 {
 	private _params: IGroupHeaderProps | undefined;
-	protected _component: ComponentType<SvelteComponent<TabRequirements>>;
-	protected _instance: ComponentType<SvelteComponent<TabRequirements>> | undefined;
+	private _defaultProps: P;
 
 	constructor(
-		component: ComponentType<SvelteComponent<TabRequirements>>,
-		group: DockviewGroupPanel
+		component: ComponentType<SvelteComponent<TabRequirements<P>>>,
+		group: DockviewGroupPanel,
+		defaultProps: P
 	) {
-		super();
-		this._component = component;
+		super(component);
 		used(group);
+		this._defaultProps = defaultProps;
 	}
 
 	init(params: IGroupHeaderProps): void {
 		this._params = params;
 
-		const props: TabRequirements = {
+		const props: TabRequirements<P> = {
 			containerApi: this._params.containerApi,
-			defaultProps: { state: paneState.parse(undefined) }
+			defaultProps: this._defaultProps
 		};
 
 		this._instance = mount(this._component, {
 			target: this._element,
 			props
-		}) as ComponentType<SvelteComponent<TabRequirements>>;
+		}) as ComponentType<SvelteComponent<TabRequirements<P>>>;
 	}
 
 	dispose(): void {
