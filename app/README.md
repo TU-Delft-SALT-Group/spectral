@@ -1,10 +1,32 @@
-app for the application, using [SvelteKit](https://kit.svelte.dev/).
+App side of Spectral, using [SvelteKit](https://kit.svelte.dev/).
 
-## Developing
+Make sure to also read the [general README](../README.md).
 
-We use pnpm. Install pnpm following [the instructions on the website](https://pnpm.io/installation).
+---
 
-Then install dependencies with `pnpm install` (or `pnpm i`). Run the dev server with
+The app is responsible not only for the UI, but also for most UX-related aspects.
+
+That is, the app handles:
+
+- General user interface
+- Account system, login, etc.
+- Managing the data in the db
+- Storing state for sessions, modes and files
+- Making requests to the kernel
+
+However, the app is mostly responsible for providing an interface to easily create new modes of analysis, as components that display/visualize data fetched from the kernel.
+
+## Contributing
+
+For more info about how to contribute please refer to the CONTRIBUTING.md files:
+
+- [General](./CONTRIBUTING.md)
+- [App](./CONTRIBUTING.md)
+- [Kernel](../kernel/CONTRIBUTING.md)
+
+## Running standalone
+
+The recommended way to run the app is with docker compose. However, if you want to run the app side by itself, you can do that by installing dependencies with `pnpm install` (or `pnpm i`) and running the dev server with
 
 ```bash
 pnpm dev
@@ -13,11 +35,7 @@ pnpm dev
 pnpm dev -- --open
 ```
 
-### Adding components
-
-We use [shadcn-svelte](https://www.shadcn-svelte.com/docs) to add components. Search for a component there and run the appropriate command to install the component.
-
-## Building
+### Building
 
 Create a production version of the app:
 

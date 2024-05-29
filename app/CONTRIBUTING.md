@@ -1,99 +1,178 @@
-# Contributing App
+# Contributing to app
 
-Contributions (pull requests) to the app are very welcome! Here's how to get started.
+Make sure to take a look to the [general contributing guidelines](../CONTRIBUTING.md).
 
-## Getting started
+There are two main aspects one might want to contribute to in this repo: adding a new mode or general contributing. Each one has different considerations, both of which are outlined below.
 
-First fork the library on GitHub (or GitLab).
+<!--toc:start-->
 
-Then clone the library and go to the app folder.
+- [General contributing](#general-contributing)
+  - [Framework](#framework)
+  - [Package manager](#package-manager)
+  - [Styling](#styling)
+- [Adding a new mode](#adding-a-new-mode) - [Declaring mode data](#declaring-mode-data) - [Adding components](#adding-components) - [Registering the new mode](#registering-the-new-mode) - [Kernel side](#kernel-side)
+<!--toc:end-->
 
-<!-- TODO: change it to `app` when the time comes -->
+## General contributing
 
-```bash
-git clone https://github.com/your-username-here/spectral.git
-cd spectral/app
-```
+### Framework
 
-## Contributing
+The framework used is SvelteKit. Svelte and SvelteKit are some of the quickest-to-learn frameworks out there. The best way to do is by following [the official tutorial](https://learn.svelte.dev).
 
-As stated in the root folder's CONTRIBUTING.md, please use the general guidelines that we agreed upon. This includes:
+### Package manager
 
-### pre-commit
+We use pnpm. Install pnpm following [the instructions on the website](https://pnpm.io/installation).
 
-```bash
-pip install pre-commit
-pre-commit install
-```
-
-#### formatting hook
-
-The pre-commit hooks enforce formatting with prettier and ESLint with each commit. It is equivalent to doing:
+Then install dependencies with
 
 ```bash
-pnpm prettier --write . && pnpm eslint --fix .
+pnpm install # or `pnpm i`
 ```
 
-This is a "custom" hook that we created and as such does not require downloading any package.
+Dependencies should be automatically installed with `docker compose up --build`. However, you should install dependencies for the IDE language server to pick up type definitions and such.
 
-#### conventional-pre-commit
+Other than that, `pnpm` is mostly used to add new dependencies (either `pnpm add <dep>` for production dependencies or `pnpm add -D <dep>` for development dependencies)
 
-To use the conventional-pre-commit, which enforces [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), run the following command:
+### Styling
+
+We use [tailwind](TODO) for styling and [shadcn-svelte](https://www.shadcn-svelte.com/docs) for components.
+
+Try to use tailwind for most styling. Of course, if you want to something more complicated you can use regular `<style>` tags.
+
+You can browse the available shadcn components and usage at [the website](https://www.shadcn-svelte.com/docs). If a component is not in the project already, you can add it via:
 
 ```bash
-pre-commit install --hook-type commit-msg
+pnpm dlx shadcn-svele add <component>
 ```
 
-## Making code changes
+## Adding a new mode
 
-Now make your changes. Make sure to include additional tests if necessary.
+Adding new modes of analysis is designed to be as straghtforward as possible, while still being as flexible as possible.
 
-### Running the application
+As an overview, each modes needs to declare:
 
-While making code changes, it might be required to be in contact with another service other than app. To simulate this, we provide a docker-compose file in the root directory of this project. To run the docker services, go to _project's root folder_ and write:
+- A name
+- Data it expects from the kernel
+- File state
+- Mode state
+- A component that displays the data
+- An icon
 
-```bash
-docker compose up --build
+> If any step in the following instructions is unclear, you can always take a look to how other modes are implemented.
+
+### Declaring mode data
+
+First, create the file `app/src/lib/analysis/modes/<your-mode>/index.ts`. Here you declare the data following this template:
+
+```typescript
+import { z } from 'zod';
+import type { ModeValidator } from '..';
+import { fileState } from '../file-state';
+
+export const yourModeData = {
+	computedFileData: /* TODO */,
+
+	fileState: fileState
+		.pick({
+			/* TODO */
+		})
+		.default({}),
+
+	modeState: z.object({
+		/* TODO */
+	}).default({})
+} satisfies ModeValidator;
 ```
 
-The app service should be accessible from `http://localhost`.
+Then you need to fill in each field. Each field is a [zod](TODO) parser, which defines shapes that can be validated at runtime. Visit the [zod docs](TODO) for more info.
 
-### Before committing!!
+- `computedFileData` is the data that is directly computed from the file. This info should be implemented in the Kernel.
+- `modeState` is synced state that is stored per-mode (and per-pane). Used for things such as toggles and sliders set by the user. For example, whether to show the legend in the graph.
+- `fileState` is state that is stored with each file, globally. For example, playback speed or selected frame. The file state is global for all modes. So, instead of declaring it in the mode data directly, it is declared in `file-state` and the mode picks fields from there. The file state is passed to the kernel as additional info (this is mainly used to send frames).
 
-Before committing, make sure all tests are passing (this includes unit and integration tests). To run all tests, execute the following command in the app folder:
+Both `modeState` and `fileState` need to provide a default (this is because the state needs to be somehow initialized at some point).
 
-```bash
-pnpm test
-```
+### Adding components
 
-### Documentation
-
-As part of our standard, we require that non-trivial code to be explained with comments. Make sure the comments are reasonably written with your judgement.
-
-### Adding a new mode
-
-In order to add a new mode for all users to be able to access, there are several steps required. At every step, you can look at how other modes are implemented in case there's any confusion.
-
-First, create a folder `src/lib/analysis/modes/{your-mode}/`. Create an `index.ts` inside that exports a zod validator object with the necessary data to render that mode. Then, create a new component in that folder called `YourMode.svelte`, that takes in a `data` prop, as so:
+Create a new component in `your-mode/YourMode.svelte`:
 
 ```svelte
 <script lang="ts">
-	export let data: SpecificModeData<'your-mode'>[];
+	import type { ModeComponentProps } from '..';
+
+	export let fileData: ModeComponentProps<'your-mode'>['fileData'];
+	export let modeState: ModeComponentProps<'your-mode'>['modeState'];
 </script>
+
+<!-- Implement your component here -->
 ```
 
-It is convenient to re-export the svelte component from `index.ts`.
+It is convenient to re-export the new mode from `.../modes/<your-mode>/index.ts`:
 
-Then you need to register the mode. You do this in `src/lib/analysis/modes/index.ts`. Add your zod validator to the union named `modeDataValidator`. Add the name of the mode to the `modes` string array. Finally, return the corresponding svelte component in `getComponent` and an appropriate icon in `getIcon`.
+```ts
+/** ... */
 
-The Python server will need to be updated to have an appropriate endpoint for that mode, that returns the specified data.
-
-### Finishing off
-
-After you are done with the feature, and made sure to follow what we said previously, you can push your changes back to your fork:
-
-```bash
-git push
+export { default as YourMode } from 'YourMode.svelte';
 ```
 
-Finally, open a pull request on GitHub (or GitLab)!
+### Registering the new mode
+
+Finally you have to register your new mode in `modes/index.ts`. You need to add the mode data in the `modes` constant:
+
+```ts
+export const modes = {
+	'simple-info': simpleInfoData,
+	waveform: waveformData,
+	spectrogram: spectrogramData,
+	'vowel-space': vowelSpaceData,
+	transcription: transcriptionData,
+	'your-mode': yourModeData
+} as const satisfies Record<string, ModeValidator>;
+```
+
+Then register the component and the icon
+
+```ts
+export const modeComponents: {
+	[M in keyof typeof modes]: {
+		component: ModeComponent<M>;
+		icon: ComponentType;
+	};
+} = {
+	'simple-info': {
+		component: SimpleInfo,
+		icon: InfoIcon
+	},
+
+	waveform: {
+		component: Waveform,
+		icon: AudioWaveformIcon
+	},
+
+	spectrogram: {
+		component: Spectrogram,
+		icon: SpectrogramIcon
+	},
+
+	'vowel-space': {
+		component: VowelSpace,
+		icon: VowelSpaceIcon
+	},
+
+	transcription: {
+		component: Transcription,
+		icon: CaptionsIcon
+	},
+
+	'your-mode': {
+		component: YourMode,
+		icon: YourModeIcon
+	}
+};
+```
+
+The icon can be custom made, but you can also use one from [lucide](https://lucide.dev/) if appropriate.
+
+### Kernel side
+
+You need to implement and endpoint in the Python side with the same name as your mode that provides whatever you have declared that `computedData` should return.
