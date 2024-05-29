@@ -94,7 +94,7 @@
 	on:dragover={(event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {
-			event.dataTransfer.dropEffect = 'copy';
+			event.dataTransfer.dropEffect = 'move';
 		}
 	}}
 	on:drop={async (event) => {
