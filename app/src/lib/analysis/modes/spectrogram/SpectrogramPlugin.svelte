@@ -7,12 +7,14 @@
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import type { mode } from '..';
 	import used from '$lib/utils';
+	import { generateIdFromEntropySize } from 'lucia';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
 
 	used(computedData);
 
+	const id = `${fileState.id}-spectrogram-${generateIdFromEntropySize(5)}`;
 	export const controls: ControlRequirements = {
 		setSpeed(speed: number) {
 			wavesurfer.setPlaybackRate(speed);
@@ -47,7 +49,7 @@
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${fileState.id}-spectrogram`,
+			container: `#${id}`,
 			url: `/db/file/${fileState.id}`,
 			height: 0
 		});
@@ -106,7 +108,7 @@
 </script>
 
 <div
-	id={`${fileState.id}-spectrogram`}
+	{id}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>
