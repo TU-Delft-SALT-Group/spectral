@@ -29,7 +29,6 @@
 		}
 
 		if (event.key === 'Enter') {
-			console.log(window.getSelection());
 			titleElement.contentEditable = 'false';
 			api.setTitle(titleElement.textContent!);
 		} else if (event.key === 'Escape') {
