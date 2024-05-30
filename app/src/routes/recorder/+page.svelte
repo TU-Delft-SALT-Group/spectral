@@ -40,7 +40,7 @@
         }
         }
     }
-  
+
     // Start the video and audio stream and recorder
     async function startRecording(): Promise<void> {
       try {
@@ -51,13 +51,13 @@
           videoPreview.muted = true; // Mute the audio during recording
         }
         mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
-  
+
         mediaRecorder.ondataavailable = (event: BlobEvent) => {
           if (event.data.size > 0) {
             recordedChunks.push(event.data);
           }
         };
-  
+
         mediaRecorder.onstop = () => {
           const blob = new Blob(recordedChunks, { type: 'video/webm' });
           videoURL = URL.createObjectURL(blob);
@@ -67,7 +67,7 @@
           recordedChunks = [];
           recorded = true;
         };
-  
+
         mediaRecorder.start();
         isRecording = true;
         recorded = false; // Reset the recorded state
@@ -75,7 +75,7 @@
         console.error('Error accessing media devices.', err);
       }
     }
-  
+
     // Stop the video and audio recording
     function stopRecording(): void {
       if (mediaRecorder && isRecording) {
@@ -84,7 +84,7 @@
         isRecording = false;
       }
     }
-  
+
     // Restart recording by resetting recordedChunks and starting a new recording
     function restartRecording(): void {
       recordedChunks = [];
@@ -132,7 +132,7 @@
         }
     }
   </script>
-  
+
   <style>
     video {
       max-width: 100%;
@@ -146,7 +146,7 @@
     }
 
   </style>
-  
+
   <div class="rounded w-full h-full">
     <div class="h-full border-8 flex flex-col">
         <div id="top-part" class="w-full flex bg-gray-100 h-4/5">
@@ -164,11 +164,11 @@
                         {#if prompts === null}
                             <p class="border-2 text-3xl text-red-600">
                                 Prompts still have to be uploaded
-                            </p> 
+                            </p>
                         {:else}
                             <p class="border-2 text-3xl">
-                                {prompts[promptIndex]} 
-                            </p> 
+                                {prompts[promptIndex]}
+                            </p>
                         {/if}
                 </div>
             </div>
@@ -196,4 +196,4 @@
         </div>
     </div>
   </div>
-  
+
