@@ -19,6 +19,9 @@ stages:
 build:app:
   stage: build
   image: 'node:22.1.0-slim'
+  rules:
+    - changes:
+        - app/**/*
   script:
     - *pre_pnpm
     - pnpm install
@@ -32,6 +35,9 @@ build:app:
 typecheck:app:
   stage: typecheck
   image: 'node:22.1.0-slim'
+  rules:
+    - changes:
+        - app/**/*
   script:
     - *pre_pnpm
     - pnpm install --prefer-offline
@@ -46,6 +52,9 @@ typecheck:app:
 lint:app:
   stage: lint
   image: 'node:22.1.0-slim'
+  rules:
+    - changes:
+        - app/**/*
   script:
     - *pre_pnpm
     - pnpm install --prefer-offline
@@ -60,6 +69,9 @@ lint:app:
 test:app:
   stage: test
   image: 'node:22.1.0-slim'
+  rules:
+    - changes:
+        - app/**/*
   script:
     - *pre_pnpm
     -  pnpm install --prefer-offline
@@ -81,6 +93,9 @@ test:app:
 build:kernel:
   stage: build
   image: python:3.12
+  rules:
+    - changes:
+        - kernel/**/*
   script:
     - *pre_poetry
     - poetry install
@@ -91,6 +106,9 @@ build:kernel:
 lint:kernel:
   stage: lint
   image: python:3.12
+  rules:
+    - changes:
+        - kernel/**/*
   script:
     - *pre_poetry
     - poetry install
@@ -103,6 +121,9 @@ lint:kernel:
 test:kernel:
   stage: test
   image: python:3.12
+  rules:
+    - changes:
+        - kernel/**/*
   script:
     - *pre_poetry
     - apt update
