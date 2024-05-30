@@ -159,21 +159,13 @@ async def signal_fundamental_features(signal: Signal):
 
 
 @app.get(
-<<<<<<< HEAD
     "/signals/modes/{mode}",
-=======
-    "/signals/modes/{mode}/{id}",
->>>>>>> fdd221c (feat: rebase + fixing missing features)
     response_model=Union[
         None,
         SimpleInfoResponse,
         VowelSpaceResponse,
         list[list[TranscriptionSegment]],
-<<<<<<< HEAD
         ErrorRateResponse,
-=======
-        list[ErrorRateValue],
->>>>>>> fdd221c (feat: rebase + fixing missing features)
     ],
     responses=signal_modes_response_examples,
 )
@@ -189,13 +181,7 @@ async def analyze_signal_mode(
         ],
         Path(title="The analysis mode"),
     ],
-<<<<<<< HEAD
     fileState,
-=======
-    id: Annotated[str, Path(title="The ID of the signal")],
-    startIndex: Optional[int] = None,
-    endIndex: Optional[int] = None,
->>>>>>> fdd221c (feat: rebase + fixing missing features)
     database=Depends(get_db),
 ):
     """
@@ -230,11 +216,7 @@ async def analyze_signal_mode(
 
 
 @app.get(
-<<<<<<< HEAD
     "/transcription/{model}/{session_id}/{file_id}",
-=======
-    "/transcription/{model}/{id}",
->>>>>>> fdd221c (feat: rebase + fixing missing features)
     response_model=list[TranscriptionSegment],
     responses=transcription_response_examples,
 )
