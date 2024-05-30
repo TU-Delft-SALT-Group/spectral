@@ -1,5 +1,4 @@
 <script lang="ts">
-	import used from '$lib/utils';
 	import type { DockviewApi, IDockviewGroupPanel } from 'dockview-core';
 	import { Button } from '../ui/button';
 	import { generateIdFromEntropySize } from 'lucia';
@@ -22,8 +21,6 @@
 			tabComponent: 'non default'
 		});
 	}
-
-	used(containerApi);
 </script>
 
 <section

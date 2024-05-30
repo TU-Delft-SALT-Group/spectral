@@ -42,10 +42,9 @@
 	}
 </script>
 
-<!-- TODO: limit the amount of character that can be written -->
-<!-- TODO: fix the fact that the size doesn't change -->
+<!-- The reason it is 75px width is because that's how it is set in dockview -->
 <Button
-	class="m-0 flex w-fit min-w-0 flex-row rounded-none p-0"
+	class="m-0 flex w-fit min-w-[75px] flex-row rounded-none p-0"
 	on:click={onClickTitle}
 	on:keydown={handleKey}
 	on:focusout={unfocus}
