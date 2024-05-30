@@ -5,6 +5,8 @@
 	S extends Record<string, unknown>
 "
 >
+	import Watermark from './Watermark.svelte';
+
 	import { paneState } from '$lib/analysis/analysis-pane';
 
 	import { error } from '@sveltejs/kit';
@@ -16,7 +18,7 @@
 		type DockviewReadyEvent
 	} from 'dockview-core';
 	import { type SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
-	import { SvelteRenderer, SvelteTabActionRenderer } from '.';
+	import { SvelteRenderer, SvelteTabActionRenderer, SvelteWatermarkRenderer } from '.';
 	import used from '$lib/utils';
 	import NewTabButton from './NewTabButton.svelte';
 	import Tab from './Tab.svelte';
@@ -49,6 +51,11 @@
 			createTabComponent(options) {
 				used(options);
 				return new SvelteRenderer(Tab);
+			},
+			createWatermarkComponent() {
+				return new SvelteWatermarkRenderer(Watermark, {
+					state: paneState.parse(undefined)
+				});
 			}
 		};
 

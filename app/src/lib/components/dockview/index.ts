@@ -8,8 +8,10 @@ import type {
 	IGroupHeaderProps,
 	IHeaderActionsRenderer,
 	ITabRenderer,
+	IWatermarkRenderer,
 	PanelUpdateEvent,
-	Parameters
+	Parameters,
+	WatermarkRendererInitParameters
 } from 'dockview-core';
 
 import { type SvelteComponent, mount, unmount, type ComponentType } from 'svelte';
@@ -105,5 +107,46 @@ export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 			target: this._element,
 			props
 		}) as Component<TabRequirements<P>>;
+	}
+}
+
+type WatermarkRequirements<S = Record<string, unknown>> = {
+	containerApi: DockviewApi;
+	group: IDockviewGroupPanel | undefined;
+	defaultProps: S;
+};
+
+export class SvelteWatermarkRenderer<P extends Record<string, unknown>>
+	extends AbstractSvelteRenderer<WatermarkRequirements<P>>
+	implements IWatermarkRenderer
+{
+	private _defaultProps: P;
+
+	constructor(component: Component<WatermarkRequirements<P>>, defaultProps: P) {
+		super(component);
+		this._defaultProps = defaultProps;
+	}
+
+	init(params: WatermarkRendererInitParameters) {
+		const props: WatermarkRequirements<P> = {
+			containerApi: params.containerApi,
+			group: params.group,
+			defaultProps: this._defaultProps
+		};
+
+		this._instance = mount(this._component, {
+			target: this._element,
+			props
+		}) as Component<WatermarkRequirements<P>>;
+	}
+
+	/**
+	 *	I believe in our project we do not need this function,
+	 *	as such it does nothing
+	 */
+	updateParentGroup(group: DockviewGroupPanel, visible: boolean): void {
+		used(group);
+		used(visible);
+		return;
 	}
 }
