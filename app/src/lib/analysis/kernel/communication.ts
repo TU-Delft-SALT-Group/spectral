@@ -2,70 +2,50 @@
  * Entry point for communicating with the Python kernel
  */
 
-import { modeDataValidator, type Mode, type ModeData } from '$lib/analysis/modes';
-import type { Frame } from '$lib/analysis/kernel/framing';
-import { error } from '@sveltejs/kit';
+import { modes, type mode as modeType } from '$lib/analysis/modes';
 import { browser } from '$app/environment';
+import { error } from '@sveltejs/kit';
+import { todo } from '$lib/utils';
+import { logger } from '$lib/logger';
 
 /**
- * Main way to fetch stuff for kernel
+ * Gets the URL for the backend API
  */
-export function getURL(path: string): URL {
+export function getURL(path: string, base = 'api/'): URL {
 	if (!browser) {
-		throw Error('This function is only available in the browser');
+		todo('Make getURL work on the server');
 	}
 	// Remove leading slash
 	if (path.startsWith('/')) {
 		path = path.slice(1);
 	}
 
-	return new URL(`api/${path}`, window.location.origin);
+	return new URL(base + path, window.location.origin);
 }
 
 /**
  * Fetches the data for a specific mode
  */
-export async function getData({
-	fileId,
+export async function getComputedFileData<M extends modeType.Name>({
 	mode,
-	frame
+	fileState
 }: {
-	mode: Mode;
-	fileId: string;
-	frame: Frame | null;
-}): Promise<ModeData> {
-	const url = getURL(`signals/modes/${mode}/${fileId}`);
-	url.searchParams.set('startIndex', frame?.startIndex.toString() ?? '');
-	url.searchParams.set('endIndex', frame?.endIndex.toString() ?? '');
+	mode: M;
+	fileState: modeType.FileState<M>;
+}): Promise<modeType.ComputedData<M>> {
+	const url = getURL(`signals/modes/${mode}`);
+	url.searchParams.set('fileState', JSON.stringify(fileState));
 
 	const response = await fetch(url);
-
-	const json = await response.json();
-	const result = modeDataValidator.safeParse({ ...json, mode });
+	const jsonResponse = (await response.json()) as unknown;
+	const result = modes[mode].computedFileData.safeParse(jsonResponse);
 
 	if (!result.success) {
-		const { error: zodError } = result;
-		console.error(zodError);
-		throw error(500, zodError);
+		logger.error(
+			`Kernel response could not be parsed (response was ${JSON.stringify(jsonResponse)})`
+		);
+		error(500, `Kernel response couldn't be parsed (response was ${JSON.stringify(jsonResponse)})`);
 	}
 
-	const { data } = result;
-
-	const nameURL = new URL(`db/${fileId}`, window.location.origin);
-	nameURL.searchParams.set('name', 'lmao');
-
-	const nameRes = await fetch(nameURL);
-
-	if (nameRes.status != 200) {
-		console.error(`Couldn't fetch the name of ${fileId}.`);
-		throw error(500, `Couldn't fetch the name of ${fileId}.`);
-	}
-
-	const name = await nameRes.json();
-
-	return {
-		...data,
-		fileId,
-		name
-	};
+	return result.data;
 }

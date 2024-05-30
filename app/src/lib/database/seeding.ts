@@ -1,25 +1,79 @@
-import { sampleTorgo } from '$lib/files/samples';
 import { readFile } from 'node:fs/promises';
 import { db } from '.';
-import { filesTable, sessionTable, userTable } from './schema';
+import { fileTable, sessionTable, userTable } from './schema';
 import { eq } from 'drizzle-orm';
+import type { SessionState } from '../../routes/(protected)/session/[sessionId]/workspace';
+import { createUser } from './users';
+
+const sampleTorgo = [
+	'F01_severe_head_sentence1',
+	'F03_moderate_head_sentence1',
+	'FC03_control_head_sentence1',
+	'M02_severe_head_sentence1',
+	'M03_mild_head_sentence1',
+	'M04_severe_head_sentence1',
+	'MC02_control_head_sentence1'
+];
+
+const sampleUser = {
+	id: 'sample-user',
+	username: 'Sample',
+	email: 'sample@example.com',
+	password: 'password'
+};
 
 export async function seedSampleUser() {
 	const isSampleUserSeeded = await db.query.userTable.findFirst({
-		where: eq(userTable.id, 'sample-user')
+		where: eq(userTable.id, sampleUser.id)
 	});
 
 	if (!isSampleUserSeeded) {
-		await db.insert(userTable).values({
-			id: 'sample-user',
-			email: '',
-			hashedPassword: '',
-			username: 'Sample User'
-		});
+		await createUser(sampleUser);
 	}
 
 	return { isSampleUserSeeded };
 }
+
+const sampleSessionState: SessionState = {
+	panes: [
+		{
+			mode: 'waveform',
+			files: [
+				{
+					id: sampleTorgo[0],
+					name: sampleTorgo[0],
+					frame: null,
+					cycleEnabled: false,
+					transcriptions: []
+				},
+
+				{
+					id: sampleTorgo[1],
+					name: sampleTorgo[1],
+					frame: null,
+					cycleEnabled: true,
+					transcriptions: []
+				}
+			],
+
+			modeState: {
+				'simple-info': {},
+				waveform: {},
+				spectrogram: {},
+				'vowel-space': {
+					showLegend: true
+				},
+				'error-rate': {}
+			}
+		}
+	]
+};
+const sampleSession = {
+	id: 'sample-session',
+	name: 'Sample Session',
+	owner: sampleUser.id,
+	state: sampleSessionState
+};
 
 export async function seedSampleSession() {
 	const { isSampleUserSeeded } = await seedSampleUser();
@@ -29,11 +83,7 @@ export async function seedSampleSession() {
 	});
 
 	if (!isSampleSessionSeeded) {
-		await db.insert(sessionTable).values({
-			id: 'sample-session',
-			name: 'Sample Session',
-			owner: 'sample-user'
-		});
+		await db.insert(sessionTable).values(sampleSession);
 	}
 
 	return { isSampleUserSeeded, isSampleSessionSeeded };
@@ -43,8 +93,8 @@ export async function seedSampleTorgo() {
 	const { isSampleUserSeeded, isSampleSessionSeeded } = await seedSampleSession();
 
 	for (const filename of sampleTorgo) {
-		const isFileSeeded = await db.query.filesTable.findFirst({
-			where: eq(filesTable.id, filename)
+		const isFileSeeded = await db.query.fileTable.findFirst({
+			where: eq(fileTable.id, filename)
 		});
 
 		if (isFileSeeded) {
@@ -53,11 +103,13 @@ export async function seedSampleTorgo() {
 
 		const buffer = await readFile(`./static/samples/torgo-dataset/${filename}.wav`);
 
-		await db.insert(filesTable).values({
+		await db.insert(fileTable).values({
 			id: filename,
 			name: filename,
-			session: 'sample-session',
-			data: buffer
+			session: sampleSession.id,
+			data: buffer,
+			uploader: sampleUser.id,
+			groundTruth: 'the quick brown fox jumps over the lazy dog'
 		});
 	}
 

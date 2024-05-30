@@ -1,26 +1,23 @@
-import {
-	boolean,
-	customType,
-	pgTable,
-	text,
-	timestamp,
-	doublePrecision
-} from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+import { boolean, customType, pgTable, text, timestamp, jsonb, json } from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
 
 export const userTable = pgTable('user', {
 	id: text('id').primaryKey(),
 	email: text('email').unique().notNull(),
-	username: text('username').notNull(),
+	username: text('username').unique().notNull(),
 	hashedPassword: text('hashed_password').notNull(),
 	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`)
 });
+
+export const userRelations = relations(userTable, ({ many }) => ({
+	files: many(fileTable)
+}));
 
 export const userSessionTable = pgTable('user_session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
-		.references(() => userTable.id),
+		.references(() => userTable.id, { onDelete: 'cascade' }),
 	expiresAt: timestamp('expires_at', {
 		withTimezone: true,
 		mode: 'date'
@@ -43,7 +40,7 @@ export const byteArray = customType<{ data: Buffer }>({
 	}
 });
 
-export const filesTable = pgTable('files', {
+export const fileTable = pgTable('files', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	data: byteArray('data').notNull(),
@@ -53,12 +50,30 @@ export const filesTable = pgTable('files', {
 	modifiedTime: timestamp('modified_time')
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
-	uploader: text('uploader').references(() => userTable.id),
+	uploader: text('uploader')
+		.references(() => userTable.id)
+		.notNull(),
 	session: text('session')
 		.references(() => sessionTable.id)
 		.notNull(),
-	ephemeral: boolean('ephemeral').notNull().default(false)
+	ephemeral: boolean('ephemeral').notNull().default(false),
+	groundTruth: text('ground_truth'),
+	state: jsonb('state')
+		.notNull()
+		.default(sql`'{}'`)
 });
+
+export const fileRelations = relations(fileTable, ({ one }) => ({
+	session: one(sessionTable, {
+		fields: [fileTable.session],
+		references: [sessionTable.id]
+	}),
+
+	uploader: one(userTable, {
+		fields: [fileTable.uploader],
+		references: [userTable.id]
+	})
+}));
 
 export const sessionTable = pgTable('session', {
 	id: text('id').primaryKey(),
@@ -71,22 +86,10 @@ export const sessionTable = pgTable('session', {
 		.notNull(),
 	modifiedTime: timestamp('modified_time')
 		.default(sql`CURRENT_TIMESTAMP`)
-		.notNull()
+		.notNull(),
+	state: json('state').notNull().default({})
 });
 
-export const fileTranscriptionTable = pgTable('file_transcription', {
-	id: text('id').primaryKey(),
-	file: text('file')
-		.notNull()
-		.references(() => filesTable.id)
-});
-
-export const transcriptionTable = pgTable('transcription', {
-	id: text('id').primaryKey(),
-	fileTranscription: text('file_transcription')
-		.notNull()
-		.references(() => fileTranscriptionTable.id),
-	start: doublePrecision('start').notNull(),
-	end: doublePrecision('end').notNull(),
-	value: text('value')
-});
+export const sessionRelations = relations(sessionTable, ({ many }) => ({
+	files: many(fileTable)
+}));

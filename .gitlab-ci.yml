@@ -3,6 +3,7 @@
 
 stages:
   - build
+  - typecheck
   - lint
   - test
 
@@ -20,7 +21,21 @@ build:app:
   image: 'node:22.1.0-slim'
   script:
     - *pre_pnpm
-    -  pnpm install
+    - pnpm install
+  cache:
+    key:
+      files:
+        - app/pnpm-lock.yaml
+    paths:
+      - app/.pnpm-store
+
+typecheck:app:
+  stage: typecheck
+  image: 'node:22.1.0-slim'
+  script:
+    - *pre_pnpm
+    - pnpm install --prefer-offline
+    - pnpm check
   cache:
     key:
       files:

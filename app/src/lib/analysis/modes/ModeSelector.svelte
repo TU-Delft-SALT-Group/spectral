@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { flip } from 'svelte/animate';
-	import { getIcon, modes, type Mode } from '.';
+	import { modeNames, modeComponents, type mode as modeType } from '.';
 
-	export let mode: Mode;
-	export let onModeHover: (mode: Mode) => void = () => {};
+	export let mode: modeType.Name;
+	export let onModeHover: (mode: modeType.Name) => void = () => {};
 </script>
 
 <div class="main absolute right-4 top-4 z-30 flex flex-col gap-2 transition-all">
-	{#each modes as currentMode, i (currentMode)}
+	{#each modeNames as currentMode, i (currentMode)}
 		<div
 			class:z-40={mode === currentMode}
 			style:--index={i}
@@ -19,10 +19,10 @@
 			<Button
 				on:click={() => (mode = currentMode)}
 				on:hover={() => onModeHover(currentMode)}
-				variant={mode === currentMode ? 'default' : 'ghost'}
+				variant={mode === currentMode ? 'default' : 'outline'}
 				class="h-10 w-16 shadow"
 			>
-				<svelte:component this={getIcon(currentMode)} class="w-12"></svelte:component>
+				<svelte:component this={modeComponents[currentMode].icon} class="w-12"></svelte:component>
 			</Button>
 
 			<span
@@ -36,7 +36,9 @@
 
 <style>
 	.select {
-		transform: translateY(calc(-100% * var(--index)));
+		--percentage-plus-padding: calc(-100% - 0.5rem);
+		--move-offset: calc(var(--percentage-plus-padding) * var(--index));
+		transform: translateY(var(--move-offset));
 		transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1); /* exponential-ish in out */
 		transition-delay: 0.3s;
 		pointer-events: all;

@@ -26,6 +26,7 @@ def simple_signal_info(signal, fs):
     ).item()
     return {"duration": duration, "averagePitch": avg_pitch}
 
+
 def signal_to_sound(signal, fs):
     """
     This method converts a signal to a parselmouth sound object.
@@ -108,7 +109,7 @@ def calculate_sound_spectrogram(
     - frequency_step (float): Frequency resolution.
 
     Returns:
-    - time_step (float): Time between spectogram samples.
+    - time_step (float): Time between spectrogram samples.
     - window_length (float): Duration of the analysis window.
     - frequency_step (float): Frequency resolution.
     - start_time (float): Time of center of the frame.

@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { getPaletteColor } from '$lib/color';
-	import { unwrap } from '$lib/utils';
-	import type { SpecificModeData } from '..';
+	import used, { unwrap } from '$lib/utils';
+	import type { ModeComponentProps } from '..';
 	import * as d3 from 'd3';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 
-	export let data: SpecificModeData<'vowel-space'>[];
+	export let fileData: ModeComponentProps<'vowel-space'>['fileData'];
+	export let modeState: ModeComponentProps<'vowel-space'>['modeState'];
+
+	used(modeState);
 
 	let container: HTMLDivElement;
-	let showLegend = true;
 
 	function d3Action(node: Node) {
 		const foreground = window && window.getComputedStyle(container).getPropertyValue('color');
@@ -67,8 +69,14 @@
 
 		const legend = svg.append('g').attr('class', 'legend').style('transition', 'all 0.2s ease');
 
-		for (let i = 0; i < data.length; i++) {
-			const { f1, f2, name } = data[i];
+		for (let i = 0; i < fileData.length; i++) {
+			const fileItem = fileData[i];
+			if (fileItem.computedData === null) continue;
+
+			const {
+				computedData: { f1, f2 },
+				fileState: { name }
+			} = fileItem;
 			const color = getPaletteColor(i);
 
 			svg
@@ -78,8 +86,7 @@
 				.attr('r', 10)
 				.attr('fill', color)
 				.attr('cursor', 'pointer')
-				.attr('title', name)
-				.on('click', () => alert(name));
+				.attr('title', name);
 
 			svg
 				.append('text')
@@ -110,7 +117,7 @@
 		node.appendChild(unwrap(svg.node()));
 	}
 
-	$: d3.select('.legend').style('opacity', showLegend ? 1 : 0);
+	$: d3.select('.legend').style('opacity', modeState.showLegend ? 1 : 0);
 </script>
 
 <section class="grid h-full w-full grid-rows-[auto,1fr]">
@@ -121,7 +128,7 @@
 				class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 				>Show legend</Label
 			>
-			<Checkbox id="terms" bind:checked={showLegend} />
+			<Checkbox id="terms" bind:checked={modeState.showLegend} />
 		</div>
 	</div>
 

@@ -1,5 +1,5 @@
 import psycopg
-import uuid
+import json
 
 
 class Database:
@@ -35,12 +35,15 @@ class Database:
         self.host = host
         self.port = port
         self.dbname = dbname
-        
+
     def connection(self):
         self.conn = psycopg.connect(
-            dbname=self.dbname, user=self.user, password=self.password, host=self.host, port=self.port
+            dbname=self.dbname,
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
         )
-        print("database connection opened")
         self.cursor = self.conn.cursor()
 
     def fetch_file(self, id):
@@ -53,49 +56,71 @@ class Database:
         Returns:
             dict: A dictionary containing the file record's details.
         """
+
+        self.cursor.execute("""
+            SELECT column_name, ordinal_position
+            FROM information_schema.columns
+            WHERE table_name = 'files'
+        """)
+        column_data = self.cursor.fetchall()
         self.cursor.execute("SELECT * FROM files WHERE id = %s", [id])
-        res = self.cursor.fetchone()  # type: ignore
-        return {
-            "id": res[0],  # type: ignore
-            "name": res[1],  # type: ignore
-            "data": res[2],  # type: ignore
-            "creationTime": res[3],  # type: ignore
-            "modifiedTime": res[4],  # type: ignore
-            "uploader": res[5],  # type: ignore
-            "session": res[6],  # type: ignore
-            "emphemeral": res[7],  # type: ignore
-        }
+        db_res = self.cursor.fetchone()  # type: ignore
 
-    def store_transcription(self, file_id, file_transcription):
-        """
-        Stores a transcription record in the database.
+        if db_res is None:
+            raise FileNotFoundError
 
-        Args:
-            file_id (string): The ID of the file associated with the transcription.
-            file_transcription (list): A list of transcription entries to store, each containing "start", "end", and "value" keys.
+        result = {}
+        for column in column_data:
+            result[self.snake_to_camel(column[0])] = db_res[column[1] - 1]
+        return result
+
+    def snake_to_camel(self, snake_case_str):
         """
-        file_transcription_id = str(uuid.uuid4())
+        Converts a snake_case string to camelCase.
+
+        Parameters:
+        - snake_case_str (str): The snake_case string to be converted.
+
+        Returns:
+        - str: The camelCase version of the input string.
+
+        Example:
+        ```python
+        camel_case_str = self.snake_to_camel('example_string')
+        ```
+        """
+        components = snake_case_str.split("_")
+        return components[0] + "".join(x.title() for x in components[1:])
+
+    def store_transcription(self, session_id, file_id, file_transcription):
+        """
+        Stores a transcription in the database for a given session and file.
+
+        Parameters:
+        - session_id (int): The ID of the session.
+        - file_id (int): The ID of the file within the session.
+        - file_transcription (str): The transcription to be stored.
+
+        Returns:
+        - None
+
+        Example:
+        ```python
+        self.store_transcription(1, 42, 'Transcription text')
+        ```
+        """
+        self.cursor.execute("SELECT state FROM session WHERE id = %s", [session_id])
+        state = self.cursor.fetchone()[0]  # type: ignore
+        for file in state["panes"][0]["files"]:
+            if file["id"] == file_id:
+                file["transcriptions"].append(file_transcription)
+
         self.cursor.execute(
-            """
-                            INSERT INTO file_transcription (id, file)
-                            VALUES (%s, %s);
-                            """,
-            [file_transcription_id, file_id],
+            "UPDATE session SET state = %s WHERE id = %s",
+            [json.dumps(state), session_id],
         )
-        for transcription in file_transcription:
-            self.cursor.execute(
-                """
-                            INSERT INTO transcription (id, file_transcription, start, "end", value)
-                            VALUES (%s, %s, %s, %s, %s);
-                            """,
-                [
-                    str(uuid.uuid4()),
-                    file_transcription_id,
-                    transcription["start"],
-                    transcription["end"],
-                    transcription["value"],
-                ],
-            )
+
+        pass
 
     def get_transcriptions(self, file_id):
         """
@@ -141,5 +166,9 @@ class Database:
         """
         Closes the database connection and cursor.
         """
-        self.cursor.close()
-        self.conn.close()
+        try:
+            self.cursor.close()
+            self.conn.commit()
+            self.conn.close()
+        except NameError:
+            pass

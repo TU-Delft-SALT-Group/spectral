@@ -19,8 +19,12 @@
 					selectedStore.set(null);
 					break;
 				case ' ':
+					if (
+						(e.target as HTMLTextAreaElement).tagName.toUpperCase() == 'INPUT' ||
+						selected === null
+					)
+						return;
 					e.preventDefault();
-					if (selected === null) return;
 					selected.togglePlay();
 					break;
 				case 'ArrowLeft':
@@ -35,18 +39,21 @@
 </script>
 
 <script lang="ts">
-	import { PauseIcon, PlayIcon } from 'lucide-svelte';
+	import PauseIcon from 'lucide-svelte/icons/pause';
+	import PlayIcon from 'lucide-svelte/icons/play';
 	import * as Select from '$lib/components/ui/select';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 	import { browser } from '$app/environment';
-	import { getVisual, type ControlRequirements, type VisualizationType } from '.';
+	import { getVisualizationPlugin, type ControlRequirements, type VisualizationType } from '.';
 	import { writable, type Writable } from 'svelte/store';
+	import type { mode } from '$lib/analysis/modes';
 
 	export let visualization: VisualizationType;
-	export let item;
+	export let computedData: mode.ComputedData<VisualizationType>;
+	export let fileState: mode.FileState<VisualizationType>;
 
-	let component = getVisual(visualization);
+	let component = getVisualizationPlugin(visualization);
 	let controls: ControlRequirements;
 	let playing = false;
 	let duration: number;
@@ -81,7 +88,7 @@
 		}
 	}
 
-	// TODO: implement a better method manually
+	// TODO: implement a better method in time.ts
 	function numberToTime(current: number): string {
 		let time = new Date(current * 1000);
 
@@ -114,7 +121,8 @@
 			<svelte:component
 				this={component}
 				bind:controls
-				{item}
+				{computedData}
+				{fileState}
 				bind:current={currentTime}
 				bind:duration
 				bind:playing
@@ -146,7 +154,7 @@
 				<Separator orientation="vertical" class="mx-2" />
 
 				<div class="text-muted-foreground">
-					{item.name}
+					{fileState.name}
 				</div>
 			</div>
 		</div>

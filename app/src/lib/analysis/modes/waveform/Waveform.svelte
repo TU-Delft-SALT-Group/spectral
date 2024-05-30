@@ -1,12 +1,16 @@
 <script lang="ts">
+	import type { ModeComponentProps } from '..';
 	import AudioControls from '$lib/components/audio-controls/AudioControls.svelte';
-	import type { SpecificModeData } from '..';
+	import used from '$lib/utils';
 
-	export let data: SpecificModeData<'waveform'>[];
+	export let fileData: ModeComponentProps<'waveform'>['fileData'];
+	export let modeState: ModeComponentProps<'waveform'>['modeState'];
+
+	used(modeState);
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 p-6">
-	{#each data as item}
-		<AudioControls visualization="waveform" {item} />
+	{#each fileData as { fileState, computedData } (fileState.id)}
+		<AudioControls visualization="waveform" {fileState} {computedData} />
 	{/each}
 </section>
