@@ -260,16 +260,17 @@ class ErrorRateValue(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
-    
+
+
 class ErrorRateResponse(BaseModel):
     """
     ErrorRateResponse model representing a files ground-truth and its error rates
-    
+
     Attributes:
         errorRates list(ErrorRatesValue): list of calculated error rate metrics
-        groundTruth (str): String of the ground-truth 
-    
+        groundTruth (str): String of the ground-truth
+
     """
-    
+
     errorRates: list[ErrorRateValue]
     groundTruth: str
