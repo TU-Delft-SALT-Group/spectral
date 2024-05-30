@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AnalysisPane from '$lib/analysis/AnalysisPane.svelte';
-	import { DockviewApi, type DockviewReadyEvent } from 'dockview-core';
+	import { DockviewApi, type DockviewReadyEvent, type SerializedDockview } from 'dockview-core';
 	import type { SessionState } from './workspace';
 	import Dockview from '$lib/components/dockview/Dockview.svelte';
 
@@ -16,6 +16,9 @@
 
 	function onReady(event: DockviewReadyEvent) {
 		panesApi = event.api;
+		let layout = state.layout as SerializedDockview | undefined; // since layout is only stored from here, everything should be fine
+
+		if (layout !== undefined) layout.panels = {};
 
 		for (const paneId in state.panes) {
 			const pane = state.panes[paneId];
@@ -24,16 +27,26 @@
 				id: paneId,
 				title: pane.title,
 				component: 'default',
-				renderer: 'always',
+				renderer: 'onlyWhenVisible',
+				tabComponent: 'not default',
 				params: {
 					state: pane
-				},
-				tabComponent: 'not default'
+				}
 			});
 
-			panel.api.onDidTitleChange((e) => {
-				state.panes[paneId].title = e.title;
-			});
+			if (layout !== undefined) {
+				layout.panels[paneId] = panel.toJSON();
+			}
+		}
+
+		if (layout !== undefined) {
+			panesApi.fromJSON(layout);
+			for (const panel of panesApi.panels) {
+				panel.api.setRenderer('always');
+				panel.api.onDidTitleChange((e) => {
+					state.panes[panel.id].title = e.title;
+				});
+			}
 		}
 
 		panesApi.onDidAddPanel((event) => {
@@ -50,6 +63,10 @@
 			}
 
 			delete state.panes[event.id];
+		});
+
+		panesApi.onDidLayoutChange(() => {
+			state.layout = panesApi.toJSON();
 		});
 	}
 </script>

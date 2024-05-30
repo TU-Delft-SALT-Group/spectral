@@ -6,14 +6,13 @@
 	import type { mode } from '..';
 	import used from '$lib/utils';
 	import type { Frame } from '$lib/analysis/kernel/framing';
-	import { generateIdFromEntropySize } from 'lucia';
 
 	export let computedData: mode.ComputedData<'waveform'>;
 	export let fileState: mode.FileState<'waveform'>;
+	let element: HTMLElement;
 
 	used(computedData);
 
-	const id = `${fileState.id}-waveform-${generateIdFromEntropySize(5)}`;
 	export const controls: ControlRequirements = {
 		setSpeed(speed: number) {
 			wavesurfer.setPlaybackRate(speed);
@@ -47,8 +46,10 @@
 	let regions: RegionsPlugin;
 
 	onMount(() => {
+		if (element === undefined) return;
+
 		wavesurfer = new WaveSurfer({
-			container: `#${id}`,
+			container: element,
 			url: `/db/file/${fileState.id}`,
 			height: 'auto'
 		});
@@ -117,7 +118,7 @@
 </script>
 
 <div
-	{id}
+	bind:this={element}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

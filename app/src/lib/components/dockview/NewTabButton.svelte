@@ -17,7 +17,8 @@
 			title: defaultProps.state.title,
 			renderer: 'always',
 			params: defaultProps,
-			position: { referenceGroup: group.id }
+			position: { referenceGroup: group.id },
+			tabComponent: 'non default'
 		});
 	}
 </script>
