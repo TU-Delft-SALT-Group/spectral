@@ -89,10 +89,8 @@
 	}
 </script>
 
-<!-- TODO: change when integrating with panes -->
 <section
 	class="relative h-full overflow-scroll"
-	id="analysis-pane"
 	on:dragover={(event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {

@@ -48,11 +48,11 @@
 	import { getVisualizationPlugin, type ControlRequirements, type VisualizationType } from '.';
 	import { writable, type Writable } from 'svelte/store';
 	import type { mode } from '$lib/analysis/modes';
-	import used from '$lib/utils';
 
 	export let visualization: VisualizationType;
 	export let computedData: mode.ComputedData<VisualizationType>;
 	export let fileState: mode.FileState<VisualizationType>;
+	export let width: number;
 
 	let component = getVisualizationPlugin(visualization);
 	let controls: ControlRequirements;
@@ -61,12 +61,6 @@
 	let currentTime: number;
 	let speed: { label?: string; value: number } = { value: 1 };
 	let speedOptions: number[] = [];
-	let width = document.getElementById('analysis-pane')?.clientWidth ?? 0;
-
-	addEventListener('resize', (e) => {
-		used(e);
-		width = document.getElementById('analysis-pane')?.clientWidth ?? 0;
-	});
 
 	for (let i = 0.25; i <= 2.0; i += 0.25) {
 		speedOptions.push(i);
@@ -134,8 +128,12 @@
 				width={width - 64 - 48}
 			/>
 
+			<!-- the bar -->
 			<div
-				class="flex h-8 flex-row items-center rounded-b bg-secondary bg-opacity-50 px-3 py-1 font-mono"
+				class="flex h-8 flex-row items-center overflow-x-hidden rounded-b bg-secondary bg-opacity-50 px-3 py-1 font-mono"
+				style:width={width - 64 - 48}
+				style:max-width={width - 64 - 48}
+				style:min-width={width - 64 - 48}
 			>
 				<div>
 					{numberToTime(currentTime)}/{numberToTime(duration)}
@@ -154,14 +152,15 @@
 					</Select.Content>
 				</Select.Root>
 
-				<div class="flex-1"></div>
+				<div class="ml-auto"></div>
 
 				<Separator orientation="vertical" class="mx-2" />
 
-				<div class="text-muted-foreground">
+				<div class="w-full text-ellipsis text-muted-foreground">
 					{fileState.name}
 				</div>
 			</div>
+			<!-- end of bar -->
 		</div>
 	</div>
 </section>

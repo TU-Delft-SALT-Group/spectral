@@ -13,7 +13,11 @@ export const waveformData = {
 		})
 		.default({}),
 
-	modeState: z.object({}).default({})
+	modeState: z
+		.object({
+			width: z.number().default(100)
+		})
+		.default({})
 } satisfies ModeValidator;
 
 export { default as Waveform } from './Waveform.svelte';
