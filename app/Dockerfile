@@ -12,11 +12,9 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm fetch
 
 # Install dependencies
-RUN pnpm install -r --offline
+RUN pnpm install -r --offline --frozen-lockfile
 
 # Expose port 5173 for the service
 EXPOSE 5173
 
-RUN pnpm install -r --offline --frozen-lockfile
-
-CMD pnpm run dev --host | pnpm exec pino-pretty
+CMD (sleep 3; pnpm db:push) & pnpm run dev --host | pnpm exec pino-pretty

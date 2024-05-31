@@ -45,6 +45,23 @@ You can browse the available shadcn components and usage at [the website](https:
 pnpm dlx shadcn-svele add <component>
 ```
 
+### Testing
+
+The frontend side is tested with end-to-end integration tests built with [Playwright](https://playwright.dev/) and unit tests made with [vitest](https://vitest.dev/).
+
+#### Unit tests
+
+Unit tests are distributed all arould the place, being stored near the files they are related to. For example, under ```src/lib/files/size.test.ts``` you can find tests related to correctly showing filesizes.
+
+#### Integration tests
+
+The more interesting, and, arguably more important part of our testing suite are playwright tests: these are end-to-end tests, that simulate different actions on the web-facing application, and then check that we can see what we can see on the screen. The errors with these tests can be related to errors anywhere else in the project: e.g. if nginx configuration is incorrect, these tests would fail. Hence you should view these tests as a largely false-negative one: if it fails, then it is not necessarily your problem, but it still needs attention. So, if these tests fail on the dev branch, you should contact somebody about it. We will include large proportion of these tests in the CI, so that if these tests are failing, the funcitonality won't be merged, however, these tests run for a very long time, so make sure to rerun these tests yourself to not strain our CI servers :)
+
+The playwright tests should be added under ```tests/``` folder, and they can be run with ```pnpm test:integration```. To install all the playwright dependencies, make sure to run ```pnpm exec playwright install && pnpm exec playwright install-deps``` in your terminal.
+
+_Note: we currently run the tests only for Blink and Gecko, no webkit, since the support for webkit on various linuxes seems unstable_
+
+
 ## Adding a new mode
 
 Adding new modes of analysis is designed to be as straghtforward as possible, while still being as flexible as possible.
