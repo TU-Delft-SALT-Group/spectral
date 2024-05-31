@@ -145,8 +145,4 @@
 	});
 </script>
 
-<div
-	bind:this={element}
-	class="waveform w-full flex-1 rounded-tr bg-secondary"
-	role="region"
-></div>
+<div bind:this={element} class="waveform w-full flex-1 rounded-tr bg-secondary" role="region"></div>
