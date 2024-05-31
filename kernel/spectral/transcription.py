@@ -201,9 +201,7 @@ def deepgram_transcription(data):
 
         res = []
         for word in response["results"]["channels"][0]["alternatives"][0]["words"]:
-            res.append(
-                {"value": word["word"], "start": word["start"], "end": word["end"]}
-            )
+            res.append({"value": word["word"], "start": word["start"], "end": word["end"]})
         return res
 
     except Exception as e:
