@@ -28,12 +28,10 @@
 					prompts = [];
 					promptIds = [];
 					recordings = [];
-					console.log(fileContent);
 					for (let line of fileContent.split(/\r?\n/)) {
-						console.log(line);
 						let indexSplit = line.indexOf(' ');
 						promptIds.push(line.substring(0, indexSplit));
-						prompts.push(line.substring(indexSplit));
+						prompts.push(line.substring(indexSplit + 1));
 						recordings.push(null);
 					}
 				};
@@ -96,11 +94,17 @@
 	}
 
 	function increaseIndex(): void {
-		promptIndex++;
+		if (isRecording || prompts === null) return;
+		if (promptIndex + 1 < prompts.length) {
+			promptIndex++;
+		}
 	}
 
 	function decreaseIndex(): void {
-		promptIndex--;
+		if (isRecording) return;
+		if (promptIndex > 0) {
+			promptIndex--;
+		}
 	}
 
 	async function downloadAllRecordings() {
@@ -147,7 +151,7 @@
 					<p class="text-6xl" class:hidden={recorded || isRecording}>First upload prompts</p>
 				{:else}
 					<p class="text-6xl" class:hidden={recordings[promptIndex] !== null || isRecording}>
-						Start a recording
+						Start a recording to see the camera
 					</p>
 					<!-- svelte-ignore a11y_media_has_caption -->
 					<video class="m-4" id="video-preview" autoplay playsinline class:hidden={!isRecording}
@@ -165,9 +169,9 @@
 			<div class="w-1/3">
 				<div class="m-4 rounded bg-gray-200">
 					{#if prompts === null}
-						<p class="border-2 text-3xl text-red-600">Prompts still have to be uploaded</p>
+						<p class="border-2 text-6xl text-red-600">Prompts still have to be uploaded</p>
 					{:else}
-						<p class="border-2 text-3xl">
+						<p id="prompt-field" class="border-2 text-6xl">
 							{prompts[promptIndex]}
 						</p>
 					{/if}
@@ -175,31 +179,49 @@
 			</div>
 		</div>
 		<div id="top-part" class="h-1/5">
-			{#if isRecording}
-				<button on:click={stopRecording}>Stop Recording</button>
-			{:else if recordings !== null && recordings[promptIndex] === null}
-				<button on:click={startRecording}>Start Recording</button>
-			{:else}
-				<button on:click={restartRecording}>Restart Recording</button>
+			{#if recordings !== null}
+				{#if isRecording}
+					<button on:click={stopRecording}>Stop Recording</button>
+				{:else if recordings[promptIndex] === null}
+					<button on:click={startRecording}>Start Recording</button>
+				{:else}
+					<button on:click={restartRecording}>Restart Recording</button>
+				{/if}
+				<button disabled={promptIndex === 0} on:click={decreaseIndex}> Previous </button>
+				<button disabled={promptIndex === recordings.length - 1} on:click={increaseIndex}>
+					Next
+				</button>
+				<button on:click={downloadAllRecordings}>Download All Recordings</button>
 			{/if}
-			<button disabled={recordings === null || promptIndex === 0} on:click={decreaseIndex}>
-				Previous
-			</button>
-			<button
-				disabled={recordings === null || promptIndex === recordings.length - 1}
-				on:click={increaseIndex}
-			>
-				Next
-			</button>
 			<div>
 				<input type="file" accept=".txt" on:change={handleFileUpload} class="file-upload" />
 			</div>
-			{#if recordings !== null}
-				<button on:click={downloadAllRecordings}>Download All Recordings</button>
-			{/if}
 		</div>
 	</div>
 </div>
+
+<svelte:window
+	on:keydown={(e) => {
+		if (e.code === 'ArrowRight') {
+			increaseIndex();
+		}
+
+		if (e.code === 'ArrowLeft') {
+			decreaseIndex();
+		}
+
+		if (e.code === 'Space') {
+			if (recordings === null) return;
+			if (isRecording) {
+				stopRecording();
+			} else if (recordings[promptIndex] === null) {
+				startRecording();
+			} else {
+				restartRecording();
+			}
+		}
+	}}
+/>
 
 <style>
 	video {
@@ -211,5 +233,9 @@
 	}
 	.hidden {
 		display: none;
+	}
+	#prompt-field {
+		white-space: pre-wrap;
+		word-break: break-word;
 	}
 </style>
