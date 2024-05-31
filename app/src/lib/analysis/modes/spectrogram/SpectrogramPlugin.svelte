@@ -10,6 +10,7 @@
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
+	let element: HTMLElement;
 
 	used(computedData);
 
@@ -47,7 +48,7 @@
 
 	onMount(() => {
 		wavesurfer = new WaveSurfer({
-			container: `#${fileState.id}-spectrogram`,
+			container: element,
 			url: `/db/file/${fileState.id}`,
 			height: 0
 		});
@@ -106,7 +107,7 @@
 </script>
 
 <div
-	id={`${fileState.id}-spectrogram`}
+	bind:this={element}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

@@ -9,6 +9,7 @@
 
 	export let computedData: mode.ComputedData<'waveform'>;
 	export let fileState: mode.FileState<'waveform'>;
+	let element: HTMLElement;
 
 	used(computedData);
 
@@ -45,8 +46,10 @@
 	let regions: RegionsPlugin;
 
 	onMount(() => {
+		if (element === undefined) return;
+
 		wavesurfer = new WaveSurfer({
-			container: `#${fileState.id}-waveform`,
+			container: element,
 			url: `/db/file/${fileState.id}`,
 			height: 'auto'
 		});
@@ -115,7 +118,7 @@
 </script>
 
 <div
-	id={`${fileState.id}-waveform`}
+	bind:this={element}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>

@@ -3,10 +3,11 @@ import { z } from 'zod';
 
 export const sessionState = z
 	.object({
-		panes: z.array(paneState)
+		panes: z.record(z.string(), paneState),
+		layout: z.unknown()
 	})
 	.default({
-		panes: [paneState.parse(undefined)]
+		panes: { 'broken-pane-id': paneState.parse(undefined) }
 	});
 
 export type SessionState = z.infer<typeof sessionState>;
