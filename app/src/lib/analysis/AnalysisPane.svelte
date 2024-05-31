@@ -90,7 +90,7 @@
 </script>
 
 <section
-	class="relative h-full"
+	class="relative h-full overflow-scroll"
 	on:dragover={(event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {
