@@ -48,6 +48,7 @@
 	import { getVisualizationPlugin, type ControlRequirements, type VisualizationType } from '.';
 	import { writable, type Writable } from 'svelte/store';
 	import type { mode } from '$lib/analysis/modes';
+	import used from '$lib/utils';
 
 	export let visualization: VisualizationType;
 	export let computedData: mode.ComputedData<VisualizationType>;
@@ -60,6 +61,12 @@
 	let currentTime: number;
 	let speed: { label?: string; value: number } = { value: 1 };
 	let speedOptions: number[] = [];
+	let width = document.getElementById('analysis-pane')?.clientWidth ?? 0;
+
+	addEventListener('resize', (e) => {
+		used(e);
+		width = document.getElementById('analysis-pane')?.clientWidth ?? 0;
+	});
 
 	for (let i = 0.25; i <= 2.0; i += 0.25) {
 		speedOptions.push(i);
@@ -100,11 +107,8 @@
 	}
 </script>
 
-<section
-	class="flex w-full flex-1 flex-col transition"
-	class:opacity-80={$selectedStore !== controls}
->
-	<div class="flex w-full flex-1 overflow-x-scroll">
+<section class="flex h-fit flex-col transition" class:opacity-80={$selectedStore !== controls}>
+	<div class="flex h-fit w-full">
 		<Button
 			class="h-full w-16 rounded-none rounded-l"
 			variant="default"
@@ -117,7 +121,7 @@
 			{/if}
 		</Button>
 
-		<div class="flex w-full flex-col">
+		<div class="flex h-fit w-full flex-col">
 			<svelte:component
 				this={component}
 				bind:controls
@@ -127,6 +131,7 @@
 				bind:duration
 				bind:playing
 				{setAsSelected}
+				width={width - 64 - 48}
 			/>
 
 			<div

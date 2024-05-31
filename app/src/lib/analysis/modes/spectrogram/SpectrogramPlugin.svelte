@@ -41,6 +41,7 @@
 	export let current: number;
 	export let setAsSelected: () => void;
 	export let playing = false;
+	export let width: number = 100;
 
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
@@ -50,7 +51,8 @@
 		wavesurfer = new WaveSurfer({
 			container: element,
 			url: `/db/file/${fileState.id}`,
-			height: 0
+			height: 0,
+			width
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());

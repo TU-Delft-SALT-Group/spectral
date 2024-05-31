@@ -5,7 +5,6 @@
 
 	export let fileData: ModeComponentProps<'waveform'>['fileData'];
 	export let modeState: ModeComponentProps<'waveform'>['modeState'];
-
 	used(modeState);
 </script>
 
