@@ -13,6 +13,7 @@
 	let recordings: (string | null)[] | null = null;
 	let promptIndex = 0;
 	let fileName: string = '';
+	let imported: boolean = false;
 
 	// Function to handle the file input change event
 	function handleFileUpload(event: Event): void {
@@ -28,6 +29,7 @@
 					prompts = [];
 					promptIds = [];
 					recordings = [];
+					imported = false;
 					for (let line of fileContent.split(/\r?\n/)) {
 						let indexSplit = line.indexOf(' ');
 						promptIds.push(line.substring(0, indexSplit));
@@ -124,6 +126,7 @@
 						redirect: 'follow',
 						referrerPolicy: 'no-referrer'
 					});
+					console.log(response);
 					const blob = new Blob([await webmToMp4(new Uint8Array(await response.arrayBuffer()))], {
 						type: 'video/mp4'
 					});
@@ -140,6 +143,47 @@
 				URL.revokeObjectURL(url);
 			});
 		}
+	}
+
+	async function importAllRecordings() {
+		const formData = new FormData();
+		let data = [];
+		if (recordings !== null && promptIds !== null && prompts !== null) {
+			for (let i = 0; i < recordings.length; i++) {
+				const cur = recordings[i];
+				if (cur !== null) {
+					const response = await fetch(cur, {
+						method: 'GET',
+						mode: 'cors', // You might need to adjust the mode based on your server's configuration
+						cache: 'no-cache',
+						credentials: 'same-origin',
+						headers: {
+							'Content-Type': 'application/octet-stream'
+						},
+						redirect: 'follow',
+						referrerPolicy: 'no-referrer'
+					});
+					const blob = new Blob([await webmToMp4(new Uint8Array(await response.arrayBuffer()))], {
+						type: 'audio/mp4'
+					});
+					data.push({ name: promptIds[i], groundTruth: prompts[i] });
+					// formData.append(`name${i}`, promptIds[i]);
+					// formData.append(`groundTruth${i}`, prompts[i]);
+					formData.append('' + promptIds[i], blob);
+				}
+			}
+		}
+		formData.append('data', JSON.stringify(data));
+		formData.append('fileName', fileName);
+		fetch('?/importAudio', {
+			method: 'POST',
+			body: formData
+		});
+		imported = true;
+	}
+
+	function redirectToSession() {
+		window.location.href = '/session';
 	}
 </script>
 
@@ -169,9 +213,9 @@
 			<div class="w-1/3">
 				<div class="m-4 rounded bg-gray-200">
 					{#if prompts === null}
-						<p class="border-2 text-6xl text-red-600">Prompts still have to be uploaded</p>
+						<p class="border-2 text-4xl text-red-600">Prompts still have to be uploaded</p>
 					{:else}
-						<p id="prompt-field" class="border-2 text-6xl">
+						<p id="prompt-field" class="border-2 text-4xl">
 							{prompts[promptIndex]}
 						</p>
 					{/if}
@@ -192,6 +236,12 @@
 					Next
 				</button>
 				<button on:click={downloadAllRecordings}>Download All Recordings</button>
+				<button on:click={importAllRecordings}>Import Audio To Session</button>
+				{#if imported}
+					<button on:click={redirectToSession}
+						>Go To Session (This will delete the video recordings)</button
+					>
+				{/if}
 			{/if}
 			<div>
 				<input type="file" accept=".txt" on:change={handleFileUpload} class="file-upload" />
