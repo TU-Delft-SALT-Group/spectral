@@ -3,6 +3,7 @@
 	import XIcon from 'lucide-svelte/icons/x';
 	import type { mode } from '..';
 	import { Button } from '$lib/components/ui/button';
+	import { formatHumanSensibleFileSize } from '$lib/files/size';
 
 	export let computedData: mode.ComputedData<'simple-info'>;
 	export let fileState: mode.FileState<'simple-info'>;
@@ -14,7 +15,7 @@
 
 	$: displayData = [
 		{ label: 'Duration', value: display(computedData.duration, 'seconds') },
-		{ label: 'File size', value: display(computedData.fileSize, 'bytes', 0) }, // TODO: Display a logical unit of size
+		{ label: 'File size', value: formatHumanSensibleFileSize(computedData.fileSize) },
 		{ label: 'Average pitch', value: display(computedData.averagePitch, 'Hz') },
 		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` }
 	];
