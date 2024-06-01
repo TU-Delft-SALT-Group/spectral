@@ -35,7 +35,7 @@ Other than that, `pnpm` is mostly used to add new dependencies (either `pnpm add
 
 ### Styling
 
-We use [tailwind](TODO) for styling and [shadcn-svelte](https://www.shadcn-svelte.com/docs) for components.
+We use [tailwind](https://tailwindcss.com/docs/installation) for styling and [shadcn-svelte](https://www.shadcn-svelte.com/docs) for components.
 
 Try to use tailwind for most styling. Of course, if you want to something more complicated you can use regular `<style>` tags.
 
@@ -100,7 +100,7 @@ export const yourModeData = {
 } satisfies ModeValidator;
 ```
 
-Then you need to fill in each field. Each field is a [zod](TODO) parser, which defines shapes that can be validated at runtime. Visit the [zod docs](TODO) for more info.
+Then you need to fill in each field. Each field is a [zod](https://zod.dev/) parser, which defines shapes that can be validated at runtime. Visit the [zod docs](https://zod.dev/?id=introduction) for more info.
 
 - `computedFileData` is the data that is directly computed from the file. This info should be implemented in the Kernel.
 - `modeState` is synced state that is stored per-mode (and per-pane). Used for things such as toggles and sliders set by the user. For example, whether to show the legend in the graph.

@@ -106,7 +106,9 @@ async def frame_fundamental_features(frame: Frame):
             "f2": formants[1],
         }
     except Exception as _:
-        raise HTTPException(status_code=400, detail="Input data did not meet requirements")
+        raise HTTPException(
+            status_code=400, detail="Input data did not meet requirements"
+        )
 
 
 @app.post(
@@ -151,7 +153,9 @@ async def signal_fundamental_features(signal: Signal):
             "formants": formants,
         }
     except Exception as _:
-        raise HTTPException(status_code=400, detail="Input data did not meet requirements")
+        raise HTTPException(
+            status_code=400, detail="Input data did not meet requirements"
+        )
 
 
 @app.get(

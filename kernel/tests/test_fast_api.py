@@ -19,7 +19,9 @@ typical_1_fs, typical_1_data = wv.read(
 )
 typical_1_data = typical_1_data.tolist()
 
-with open(os.path.join(data_dir, "torgo-dataset/MC02_control_head_sentence1.wav"), mode="rb") as f:
+with open(
+    os.path.join(data_dir, "torgo-dataset/MC02_control_head_sentence1.wav"), mode="rb"
+) as f:
     control_sentence = f.read()
 
 
@@ -99,7 +101,9 @@ def test_zero_fs():
 
 
 def test_fundamental_features_typical_speech():
-    response = client.post("/signals/analyze", json={"data": typical_1_data, "fs": typical_1_fs})
+    response = client.post(
+        "/signals/analyze", json={"data": typical_1_data, "fs": typical_1_fs}
+    )
     assert response.status_code == 200
     result = response.json()
     assert result["duration"] == pytest.approx(4.565, 0.01)
@@ -198,7 +202,9 @@ def test_fundamental_features_empty_signal():
 
 
 def test_signal_correct_mode_file_not_found(db_mock, file_state):
-    db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
+    db_mock.fetch_file.side_effect = HTTPException(
+        status_code=500, detail="database error"
+    )
     response = client.get(
         "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
     )
@@ -230,7 +236,9 @@ def test_signal_correct_spectrogram(db_mock, file_state):
 
 
 def test_signal_correct_waveform(db_mock, file_state):
-    response = client.get("/signals/modes/waveform", params={"fileState": json.dumps(file_state)})
+    response = client.get(
+        "/signals/modes/waveform", params={"fileState": json.dumps(file_state)}
+    )
     assert response.status_code == 200
     result = response.json()
     assert result is None
@@ -255,7 +263,9 @@ def test_signal_correct_transcription(db_mock, file_state):
 
 
 def test_signal_mode_wrong_mode(db_mock, file_state):
-    response = client.get("/signals/modes/wrongmode", params={"fileState": json.dumps(file_state)})
+    response = client.get(
+        "/signals/modes/wrongmode", params={"fileState": json.dumps(file_state)}
+    )
     assert response.status_code == 422
     assert db_mock.fetch_file.call_count == 0
 
@@ -286,17 +296,23 @@ def test_signal_mode_frame_start_index_bigger_than_end_index(db_mock, file_state
         "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
     )
     assert response.status_code == 400
-    assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    assert (
+        response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    )
     assert db_mock.fetch_file.call_count == 1
 
 
-def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(db_mock, file_state):
+def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(
+    db_mock, file_state
+):
     file_state["frame"] = {"startIndex": 2, "endIndex": 2}
     response = client.get(
         "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
     )
     assert response.status_code == 400
-    assert response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    assert (
+        response.json()["detail"] == "startIndex should be strictly lower than endIndex"
+    )
     assert db_mock.fetch_file.call_count == 1
 
 
@@ -361,7 +377,9 @@ def test_signal_mode_vowel_space_mode_with_frame(db_mock, file_state):
 
 
 def test_signal_mode_transcription_db_problem(db_mock):
-    db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
+    db_mock.fetch_file.side_effect = HTTPException(
+        status_code=500, detail="database error"
+    )
     response = client.get("/transcription/deepgram/session/1")
     assert response.status_code == 404
     assert response.json()["detail"] == "File not found"
@@ -369,7 +387,9 @@ def test_signal_mode_transcription_db_problem(db_mock):
 
 
 def test_transcription_model_found(db_mock):
-    with patch("spectral.transcription.deepgram_transcription") as mock_deepgram_transcription:
+    with patch(
+        "spectral.transcription.deepgram_transcription"
+    ) as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = [
             {"value": "word1", "start": 0.5, "end": 1.0},
             {"value": "word2", "start": 1.5, "end": 2.0},
@@ -389,14 +409,19 @@ def test_transcription_storing_error(db_mock):
     db_mock.store_transcription.side_effect = HTTPException(
         status_code=500, detail="database error"
     )
-    with patch("spectral.transcription.deepgram_transcription") as mock_deepgram_transcription:
+    with patch(
+        "spectral.transcription.deepgram_transcription"
+    ) as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = [
             {"value": "word1", "start": 0.5, "end": 1.0},
             {"value": "word2", "start": 1.5, "end": 2.0},
         ]
         response = client.get("/transcription/deepgram/session/1")
         assert response.status_code == 500
-        assert response.json()["detail"] == "Something went wrong while storing the transcription"
+        assert (
+            response.json()["detail"]
+            == "Something went wrong while storing the transcription"
+        )
         assert db_mock.fetch_file.call_count == 1
         assert db_mock.store_transcription.call_count == 1
 
@@ -456,7 +481,9 @@ def mock_db(mocker):
 
 def test_error_rate_no_ground_truth(db_mock, file_state):
     db_mock.fetch_file.return_value["groundTruth"] = None
-    response = client.get("/signals/modes/error-rate", params={"fileState": json.dumps(file_state)})
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
 
     assert response.status_code == 200
     assert response.json() is None
@@ -465,7 +492,9 @@ def test_error_rate_no_ground_truth(db_mock, file_state):
 
 
 def test_error_rate_no_transcription(db_mock, file_state):
-    response = client.get("/signals/modes/error-rate", params={"fileState": json.dumps(file_state)})
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
 
     assert response.status_code == 200
 
@@ -517,7 +546,9 @@ def test_error_rate_no_transcription(db_mock, file_state):
 
 def test_error_rate_ground_truth(db_mock, file_state):
     file_state["transcriptions"] = [[{"value": "hi"}]]
-    response = client.get("/signals/modes/error-rate", params={"fileState": json.dumps(file_state)})
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
 
     assert response.status_code == 200
     result = response.json()
