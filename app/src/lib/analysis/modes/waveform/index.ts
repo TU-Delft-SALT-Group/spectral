@@ -2,6 +2,9 @@ import { z } from 'zod';
 import type { ModeValidator } from '..';
 import { fileState } from '../file-state';
 
+export { default as Waveform } from './Waveform.svelte';
+export { default as WaveformPlugin } from './WaveformPlugin.svelte';
+
 export const waveformData = {
 	computedFileData: z.null(),
 
@@ -19,6 +22,3 @@ export const waveformData = {
 		})
 		.default({})
 } satisfies ModeValidator;
-
-export { default as Waveform } from './Waveform.svelte';
-export { default as WaveformPlugin } from './WaveformPlugin.svelte';
