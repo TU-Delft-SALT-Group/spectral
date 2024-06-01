@@ -35,7 +35,7 @@ Other than that, `pnpm` is mostly used to add new dependencies (either `pnpm add
 
 ### Styling
 
-We use [tailwind](https://tailwindcss.com/docs/installation) for styling and [shadcn-svelte](https://www.shadcn-svelte.com/docs) for components.
+We use [tailwind](https://tailwindcss.com) for styling and [shadcn-svelte](https://www.shadcn-svelte.com) for components.
 
 Try to use tailwind for most styling. Of course, if you want to something more complicated you can use regular `<style>` tags.
 
