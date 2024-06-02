@@ -47,7 +47,9 @@ def test_deepgram_transcription(mock_deepgram_client):
             ]
         }
     }
-    mock_client_instance.listen.prerecorded.v("1").transcribe_file.return_value = mock_response
+    mock_client_instance.listen.prerecorded.v(
+        "1"
+    ).transcribe_file.return_value = mock_response
 
     data = b"audio data"
     result = deepgram_transcription(data)

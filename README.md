@@ -31,9 +31,9 @@ git clone https://github/TBD/spectral.git
 cd spectral
 ```
 
-Download [Docker](TODO) and [Docker compose](TODO) following the instructions on the website.
+Download [Docker](https://docs.docker.com/desktop/) and [Docker compose](https://docs.docker.com/compose/install/) following the instructions on the website.
 
-(NOTE: For MacOS (especially Apple Sillicon), consider using [colima](TODO) as the runtime)
+(NOTE: For MacOS (especially Apple Sillicon), consider using [colima](https://formulae.brew.sh/formula/colima) as the runtime)
 
 Then, run the compose file
 

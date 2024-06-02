@@ -43,7 +43,9 @@ def signal_to_sound(signal, fs):
     result = signal_to_sound(signal, fs)
     ```
     """
-    return parselmouth.Sound(values=np.array(signal).astype("float64"), sampling_frequency=fs)
+    return parselmouth.Sound(
+        values=np.array(signal).astype("float64"), sampling_frequency=fs
+    )
 
 
 def calculate_signal_duration(signal, fs):
@@ -94,7 +96,9 @@ def calculate_sound_pitch(sound, time_step=None):
         return None
 
 
-def calculate_sound_spectrogram(sound, time_step=0.002, window_length=0.005, frequency_step=20.0):
+def calculate_sound_spectrogram(
+    sound, time_step=0.002, window_length=0.005, frequency_step=20.0
+):
     """
     This method calculates the spectrogram of a sound fragment.
 
@@ -154,7 +158,9 @@ def calculate_sound_f1_f2(sound, time_step=None, window_length=0.025):
     ```
     """
     try:
-        formants = sound.to_formant_burg(time_step=time_step, window_length=window_length)
+        formants = sound.to_formant_burg(
+            time_step=time_step, window_length=window_length
+        )
         data = []
         for frame in np.arange(1, len(formants) + 1):
             data.append(
