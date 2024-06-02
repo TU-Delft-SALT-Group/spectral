@@ -9,18 +9,22 @@ import { uploadFileAsBuffer } from '$lib/database/files';
 export const actions: Actions = {
 	importAudio: async ({ request, locals }) => {
 		const user = locals['user'];
-		console.log(user);
 		if (!user) {
 			error(401, 'Not logged in');
 		}
 
 		const formData = await request.formData();
-
 		const sessionName = formData.get('fileName');
-
 		const userId = unwrap(locals.user).id;
-
 		const sessionId = generateIdFromEntropySize(10);
+
+		if (typeof sessionName !== 'string') {
+			error(400, { message: '`sessionName` is not a string' });
+		}
+
+		if (sessionName.length < 1) {
+			error(400, { message: "`sessionName` can't be empty" });
+		}
 
 		await db.insert(sessionTable).values({
 			id: sessionId,
@@ -28,10 +32,17 @@ export const actions: Actions = {
 			owner: userId
 		});
 
-		const fileInfo = JSON.parse(formData.get('data'));
+		// TODO: check out if this ! assertion is valid or not
+		const fileInfo = JSON.parse(formData.get('data')!.toString()!);
 
 		for (const file of fileInfo) {
-			const buffer = await formData.get(file['name']).arrayBuffer();
+			const data = formData.get(file['name']);
+
+			if (data === null) {
+				continue;
+			}
+
+			const buffer = await (data as File).arrayBuffer();
 			await uploadFileAsBuffer(
 				Buffer.from(buffer),
 				file['name'],
