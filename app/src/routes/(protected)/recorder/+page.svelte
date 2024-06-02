@@ -192,21 +192,31 @@
 		<div id="top-part" class="flex h-4/5 w-full bg-gray-100">
 			<div class="flex h-full w-full items-center justify-center bg-gray-500">
 				{#if recordings === null}
-					<p class="text-6xl" class:hidden={recorded || isRecording}>First upload prompts</p>
+					<p class="text-6xl" style:display={recorded || isRecording ? 'none' : 'inline'}>
+						First upload prompts
+					</p>
 				{:else}
-					<p class="text-6xl" class:hidden={recordings[promptIndex] !== null || isRecording}>
+					<p
+						class="text-6xl"
+						style:display={recordings[promptIndex] === null || isRecording ? 'none' : 'inline'}
+					>
 						Start a recording to see the camera
 					</p>
 					<!-- svelte-ignore a11y_media_has_caption -->
-					<video class="m-4" id="video-preview" autoplay playsinline class:hidden={!isRecording}
+					<video
+						class="m-4"
+						id="video-preview"
+						autoplay
+						playsinline
+						style:display={!isRecording ? 'none' : 'inline'}
 					></video>
 					<!-- svelte-ignore a11y_media_has_caption -->
 					<video
-						class="m-4"
+						class="m-4 max-h-full max-w-full"
 						id="video-playback"
 						src={recordings[promptIndex]}
 						controls
-						class:hidden={recordings[promptIndex] === null || isRecording}
+						style:display={recordings[promptIndex] === null || isRecording ? 'none' : 'inline'}
 					></video>
 				{/if}
 			</div>
@@ -215,7 +225,7 @@
 					{#if prompts === null}
 						<p class="border-2 text-4xl text-red-600">Prompts still have to be uploaded</p>
 					{:else}
-						<p id="prompt-field" class="border-2 text-4xl">
+						<p class="whitespace-pre-wrap break-words border-2 text-4xl">
 							{prompts[promptIndex]}
 						</p>
 					{/if}
@@ -225,20 +235,26 @@
 		<div id="top-part" class="h-1/5">
 			{#if recordings !== null}
 				{#if isRecording}
-					<button on:click={stopRecording}>Stop Recording</button>
+					<button class="mr-[5px]" on:click={stopRecording}>Stop Recording</button>
 				{:else if recordings[promptIndex] === null}
-					<button on:click={startRecording}>Start Recording</button>
+					<button class="mr-[5px]" on:click={startRecording}>Start Recording</button>
 				{:else}
-					<button on:click={restartRecording}>Restart Recording</button>
+					<button class="mr-[5px]" on:click={restartRecording}>Restart Recording</button>
 				{/if}
-				<button disabled={promptIndex === 0} on:click={decreaseIndex}> Previous </button>
-				<button disabled={promptIndex === recordings.length - 1} on:click={increaseIndex}>
+				<button class="mr-[5px]" disabled={promptIndex === 0} on:click={decreaseIndex}>
+					Previous
+				</button>
+				<button
+					class="mr-[5px]"
+					disabled={promptIndex === recordings.length - 1}
+					on:click={increaseIndex}
+				>
 					Next
 				</button>
-				<button on:click={downloadAllRecordings}>Download All Recordings</button>
-				<button on:click={importAllRecordings}>Import Audio To Session</button>
+				<button class="mr-[5px]" on:click={downloadAllRecordings}>Download All Recordings</button>
+				<button class="mr-[5px]" on:click={importAllRecordings}>Import Audio To Session</button>
 				{#if imported}
-					<button on:click={redirectToSession}
+					<button class="mr-[5px]" on:click={redirectToSession}
 						>Go To Session (This will delete the video recordings)</button
 					>
 				{/if}
@@ -272,20 +288,3 @@
 		}
 	}}
 />
-
-<style>
-	video {
-		max-width: 100%;
-		max-height: 100%;
-	}
-	button {
-		margin-right: 5px;
-	}
-	.hidden {
-		display: none;
-	}
-	#prompt-field {
-		white-space: pre-wrap;
-		word-break: break-word;
-	}
-</style>
