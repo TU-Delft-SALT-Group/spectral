@@ -12,7 +12,7 @@
 	used(modeState);
 </script>
 
-<div class="flex h-full flex-wrap content-center items-center justify-center gap-4 p-4">
+<div class="flex h-full flex-wrap items-center justify-center gap-4 p-4">
 	{#each fileData as { fileState, computedData } (fileState.id)}
 		<div
 			class="min-w-sm h-fit max-w-2xl flex-1 rounded bg-secondary p-4 text-secondary-foreground"
