@@ -10,21 +10,10 @@ export const transcriptionData = {
 
 	fileState: fileState
 		.pick({
-			id: true
+			id: true,
+			transcriptions: true
 		})
 		.default({}),
 
 	modeState: z.object({}).default({})
 } satisfies ModeValidator;
-
-export type Caption = {
-	startPos: number;
-	endPos: number;
-	content: string;
-};
-
-export type Track = {
-	id: string;
-	name: string;
-	captions: Caption[];
-};

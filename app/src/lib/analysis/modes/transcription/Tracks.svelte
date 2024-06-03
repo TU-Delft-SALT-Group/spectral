@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import type { Track } from '.';
+	import type { Transcriptions } from '../file-state';
 
-	let { tracks, width }: { tracks: Track[]; width: number | undefined } = $props();
+	let { transcriptions, width }: { transcriptions: Transcriptions; width: number | undefined } =
+		$props();
 
 	function onClick(event: MouseEvent) {
 		if (width === undefined) {
@@ -28,9 +29,10 @@
 </script>
 
 <div style:width={`${width}px` ?? '100%'}>
-	{#each tracks as track}
+	{#each transcriptions as track}
 		<div class="w-auto">
-			<Button class="w-full bg-black text-white" variant="outline" onclick={onClick}>{track}</Button
+			<Button class="w-full overflow-hidden bg-black text-white" variant="outline" onclick={onClick}
+				>{track}</Button
 			>
 		</div>
 	{/each}
