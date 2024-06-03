@@ -198,13 +198,13 @@
 				{:else}
 					<p
 						class="text-6xl"
-						style:display={recordings[promptIndex] === null || isRecording ? 'none' : 'inline'}
+						style:display={recordings[promptIndex] !== null || isRecording ? 'none' : 'inline'}
 					>
 						Start a recording to see the camera
 					</p>
 					<!-- svelte-ignore a11y_media_has_caption -->
 					<video
-						class="m-4"
+						class="m-4 max-h-full max-w-full"
 						id="video-preview"
 						autoplay
 						playsinline
@@ -223,7 +223,17 @@
 			<div class="w-1/3">
 				<div class="m-4 rounded bg-gray-200">
 					{#if prompts === null}
-						<p class="border-2 text-4xl text-red-600">Prompts still have to be uploaded</p>
+						<p class="border-2 text-4xl text-red-600">
+							Prompts still have to be uploaded
+							<br />
+							The required format is as follows
+							<br />
+							&lt;ID&gt; &lt;Prompt&gt;
+							<br />
+							&lt;ID&gt; &lt;Prompt&gt;
+							<br />
+							...
+						</p>
 					{:else}
 						<p class="whitespace-pre-wrap break-words border-2 text-4xl">
 							{prompts[promptIndex]}
