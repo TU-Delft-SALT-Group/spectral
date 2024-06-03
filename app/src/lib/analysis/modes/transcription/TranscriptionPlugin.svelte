@@ -4,8 +4,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import used from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
-	import { type Track } from '.';
 	import Tracks from './Tracks.svelte';
+	import { generateIdFromEntropySize } from 'lucia';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -13,7 +13,6 @@
 
 	let wavesurferContainer: HTMLElement;
 	let wavesurfer: WaveSurfer;
-	let tracks: Track[] = [];
 	let width: number = 300;
 
 	let minZoom: number;
@@ -63,16 +62,16 @@
 		}}
 	>
 		<div style:width={`${width}px`} bind:this={wavesurferContainer}></div>
-		<Tracks width={currentPxPerSecond * duration} {tracks} />
+		<Tracks width={currentPxPerSecond * duration} transcriptions={fileState.transcriptions} />
 	</div>
 	<Button
 		class="w-full"
 		on:click={() => {
-			tracks = [
-				...tracks,
+			fileState.transcriptions = [
+				...fileState.transcriptions,
 				{
-					id: 'broken',
-					name: 'lmao',
+					id: generateIdFromEntropySize(10),
+					name: 'default',
 					captions: []
 				}
 			];
