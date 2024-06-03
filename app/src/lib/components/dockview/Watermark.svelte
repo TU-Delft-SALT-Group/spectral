@@ -24,9 +24,9 @@
 </script>
 
 <section
-	class="flex h-full w-full items-center justify-center bg-secondary text-secondary-foreground"
+	class="flex h-full w-full flex-col items-center justify-center bg-secondary text-secondary-foreground"
 >
-	To create a new tab
+	<div class="pb-4 text-muted-foreground">You have no tabs opened</div>
 
-	<Button class="ml-2" variant="outline" onclick={onClick}>Click here</Button>
+	<Button class="ml-2 px-8 py-4 text-xl" variant="default" onclick={onClick}>New tab</Button>
 </section>
