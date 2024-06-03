@@ -35,7 +35,7 @@ Other than that, `pnpm` is mostly used to add new dependencies (either `pnpm add
 
 ### Styling
 
-We use [tailwind](TODO) for styling and [shadcn-svelte](https://www.shadcn-svelte.com/docs) for components.
+We use [tailwind](https://tailwindcss.com) for styling and [shadcn-svelte](https://www.shadcn-svelte.com) for components.
 
 Try to use tailwind for most styling. Of course, if you want to something more complicated you can use regular `<style>` tags.
 
@@ -44,6 +44,22 @@ You can browse the available shadcn components and usage at [the website](https:
 ```bash
 pnpm dlx shadcn-svele add <component>
 ```
+
+### Testing
+
+The frontend side is tested with end-to-end integration tests built with [Playwright](https://playwright.dev/) and unit tests made with [vitest](https://vitest.dev/).
+
+#### Unit tests
+
+Unit tests are distributed all arould the place, being stored near the files they are related to. For example, under `src/lib/files/size.test.ts` you can find tests related to correctly showing filesizes.
+
+#### Integration tests
+
+The more interesting, and, arguably more important part of our testing suite are playwright tests: these are end-to-end tests, that simulate different actions on the web-facing application, and then check that we can see what we can see on the screen. The errors with these tests can be related to errors anywhere else in the project: e.g. if nginx configuration is incorrect, these tests would fail. Hence you should view these tests as a largely false-negative one: if it fails, then it is not necessarily your problem, but it still needs attention. So, if these tests fail on the dev branch, you should contact somebody about it. We will include large proportion of these tests in the CI, so that if these tests are failing, the functionality won't be merged, however, these tests run for a very long time, so make sure to rerun these tests yourself to not strain our CI servers :)
+
+The playwright tests should be added under `tests/` folder, and they can be run with `pnpm test:integration`. To install all the playwright dependencies, make sure to run `pnpm exec playwright install && pnpm exec playwright install-deps` in your terminal.
+
+_Note: we currently run the tests only for Blink and Gecko, no webkit, since the support for webkit on various linuxes seems unstable_
 
 ## Adding a new mode
 
@@ -84,7 +100,7 @@ export const yourModeData = {
 } satisfies ModeValidator;
 ```
 
-Then you need to fill in each field. Each field is a [zod](TODO) parser, which defines shapes that can be validated at runtime. Visit the [zod docs](TODO) for more info.
+Then you need to fill in each field. Each field is a [zod](https://zod.dev/) parser, which defines shapes that can be validated at runtime. Visit the [zod docs](https://zod.dev/?id=introduction) for more info.
 
 - `computedFileData` is the data that is directly computed from the file. This info should be implemented in the Kernel.
 - `modeState` is synced state that is stored per-mode (and per-pane). Used for things such as toggles and sliders set by the user. For example, whether to show the legend in the graph.

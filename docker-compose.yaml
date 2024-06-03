@@ -7,6 +7,7 @@ services:
       - 8080:8080
     environment:
       DOZZLE_BASE: /log
+    stop_grace_period: 0.5s
     healthcheck:
       test: ["CMD", "/dozzle", "healthcheck"]
       interval: 3s
@@ -39,6 +40,7 @@ services:
       - "5173"
     depends_on:
       - kernel
+      - postgres
 
   nginx:
     image: nginx:latest

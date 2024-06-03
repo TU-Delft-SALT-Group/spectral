@@ -52,6 +52,7 @@
 	export let visualization: VisualizationType;
 	export let computedData: mode.ComputedData<VisualizationType>;
 	export let fileState: mode.FileState<VisualizationType>;
+	export let width: number;
 
 	let component = getVisualizationPlugin(visualization);
 	let controls: ControlRequirements;
@@ -100,11 +101,8 @@
 	}
 </script>
 
-<section
-	class="flex w-full flex-1 flex-col transition"
-	class:opacity-80={$selectedStore !== controls}
->
-	<div class="flex w-full flex-1 overflow-x-scroll">
+<section class="flex h-fit flex-col transition" class:opacity-80={$selectedStore !== controls}>
+	<div class="flex h-fit w-full">
 		<Button
 			class="h-full w-16 rounded-none rounded-l"
 			variant="default"
@@ -117,7 +115,7 @@
 			{/if}
 		</Button>
 
-		<div class="flex w-full flex-col">
+		<div class="flex h-fit w-full flex-col">
 			<svelte:component
 				this={component}
 				bind:controls
@@ -127,10 +125,15 @@
 				bind:duration
 				bind:playing
 				{setAsSelected}
+				width={width - 64 - 48}
 			/>
 
+			<!-- the bar -->
 			<div
-				class="flex h-8 flex-row items-center rounded-b bg-secondary bg-opacity-50 px-3 py-1 font-mono"
+				class="flex h-8 flex-row items-center overflow-x-hidden rounded-b bg-secondary bg-opacity-50 px-3 py-1 font-mono"
+				style:width={width - 64 - 48}
+				style:max-width={width - 64 - 48}
+				style:min-width={width - 64 - 48}
 			>
 				<div>
 					{numberToTime(currentTime)}/{numberToTime(duration)}
@@ -149,14 +152,15 @@
 					</Select.Content>
 				</Select.Root>
 
-				<div class="flex-1"></div>
+				<div class="ml-auto"></div>
 
 				<Separator orientation="vertical" class="mx-2" />
 
-				<div class="text-muted-foreground">
+				<div class="w-full text-ellipsis text-muted-foreground">
 					{fileState.name}
 				</div>
 			</div>
+			<!-- end of bar -->
 		</div>
 	</div>
 </section>
