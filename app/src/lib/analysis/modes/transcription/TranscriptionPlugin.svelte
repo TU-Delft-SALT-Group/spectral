@@ -4,8 +4,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import used from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
-	import Tracks from './Tracks.svelte';
 	import { generateIdFromEntropySize } from 'lucia';
+	import Track from './Track.svelte';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -16,7 +16,6 @@
 	let width: number = 300;
 
 	let minZoom: number;
-	let currentPxPerSecond: number = 100;
 	let duration: number;
 
 	onMount(() => {
@@ -29,11 +28,9 @@
 		wavesurfer.once('decode', () => {
 			duration = wavesurfer.getDuration();
 			minZoom = width / duration;
-			currentPxPerSecond = width / duration;
 		});
 
 		wavesurfer.on('zoom', (px) => {
-			currentPxPerSecond = px;
 			let duration = wavesurfer.getDuration();
 			wavesurfer.setOptions({
 				width: duration * px
@@ -62,7 +59,11 @@
 		}}
 	>
 		<div style:width={`${width}px`} bind:this={wavesurferContainer}></div>
-		<Tracks width={currentPxPerSecond * duration} transcriptions={fileState.transcriptions} />
+		<div style:width={`${width}px` ?? '100%'}>
+			{#each fileState.transcriptions as transcription (transcription)}
+				<Track {transcription} {duration} />
+			{/each}
+		</div>
 	</div>
 	<Button
 		class="w-full"
@@ -72,7 +73,13 @@
 				{
 					id: generateIdFromEntropySize(10),
 					name: 'default',
-					captions: []
+					captions: [
+						{
+							start: 0,
+							end: duration,
+							value: 'test'
+						}
+					]
 				}
 			];
 		}}
