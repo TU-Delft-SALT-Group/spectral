@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Transcription } from '../file-state';
 	import * as Resizable from '$lib/components/ui/resizable';
-	import { Button } from '$lib/components/ui/button';
 	import type { PaneGroupAPI } from 'paneforge';
 
 	let {
@@ -35,8 +34,9 @@
 	};
 
 	function onClick(event: MouseEvent, caption: Caption) {
-		event.preventDefault();
-		event.stopImmediatePropagation();
+		if (!event.altKey) {
+			return;
+		}
 
 		let boundingBox = (event.target! as HTMLElement).getBoundingClientRect();
 		let percentage = (event.x - boundingBox.left) / boundingBox.width;
@@ -65,10 +65,36 @@
 		{#if duration !== undefined}
 			{#each transcription.captions as caption, i ([caption.start, caption.end])}
 				<Resizable.Pane class="w-full" defaultSize={(caption.start - caption.end) / duration}>
-					<Button
-						class="w-full rounded-none"
-						variant="outline"
-						onclick={(event: MouseEvent) => onClick(event, caption)}>{caption.value}</Button
+					<span
+						role="button"
+						tabindex="0"
+						class="flex h-full w-full content-center justify-center overflow-hidden rounded-none bg-secondary text-secondary-foreground"
+						onclick={(event: MouseEvent) => onClick(event, caption)}
+						ondblclick={(event: MouseEvent) => {
+							const element = (event.target! as HTMLElement);
+							element.contentEditable = 'true';
+						}}
+						onfocusout={(event: FocusEvent) => {
+							const element = event.target! as HTMLElement;
+							element.contentEditable = 'false';
+							caption.value = element.textContent ?? '';
+						}}
+						onkeydown={(event: KeyboardEvent) => {
+							const element = event.target! as HTMLElement;
+
+							if (!element.isContentEditable) {
+								return;
+							}
+
+							if (event.key === 'Enter') {
+								element.contentEditable = 'false';
+								caption.value = element.textContent ?? '';
+							} else if (event.key === 'Escape') {
+								element.contentEditable = 'false';
+								element.textContent = caption.value;
+							}
+						}}
+						>{caption.value}</span
 					>
 				</Resizable.Pane>
 

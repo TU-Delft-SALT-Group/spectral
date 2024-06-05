@@ -80,7 +80,7 @@
 						{
 							start: 0,
 							end: duration,
-							value: 'test'
+							value: ''
 						}
 					]
 				}
