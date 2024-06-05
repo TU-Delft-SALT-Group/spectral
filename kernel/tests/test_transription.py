@@ -12,19 +12,25 @@ def test_get_transcription_model_not_found():
     assert excinfo.value.detail == "Model was not found"
 
 
-@patch("spectral.transcription.deepgram_transcription", "spectral..get_audio")
-def test_get_transcription_deepgram(mock_deepgram_transcription, mock_get_audio):
+@patch("spectral.transcription.deepgram_transcription")
+@patch("spectral.transcription.get_audio")
+@patch("spectral.transcription.calculate_signal_duration")
+def test_get_transcription_deepgram(
+    mock_calculate_signal_duration, mock_get_audio, mock_deepgram_transcription
+):
     mock_deepgram_transcription.return_value = [
         {"value": "word1", "start": 0.5, "end": 1.0},
         {"value": "word2", "start": 1.5, "end": 2.0},
     ]
+    mock_get_audio.return_value = (1, [])
+    mock_calculate_signal_duration.return_value = 4.565
     result = get_transcription("deepgram", {"data": b"audio data"})
     assert result == [
         {"value": "", "start": 0, "end": 0.5},
         {"value": "word1", "start": 0.5, "end": 1.0},
         {"value": "", "start": 1.0, "end": 1.5},
         {"value": "word2", "start": 1.5, "end": 2.0},
-        {"end": 4.565, "start": 2.0, "value": ""},
+        {"value": "", "start": 2.0, "end": 4.565},
     ]
     mock_deepgram_transcription.assert_called_once_with(b"audio data")
 
