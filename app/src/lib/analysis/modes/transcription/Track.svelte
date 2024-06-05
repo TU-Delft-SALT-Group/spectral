@@ -1,13 +1,12 @@
 <script lang="ts">
-	import type { Transcription } from '../file-state';
 	import * as Resizable from '$lib/components/ui/resizable';
 	import type { PaneGroupAPI } from 'paneforge';
 
 	let {
-		transcription,
+		captions,
 		duration
 	}: {
-		transcription: Transcription;
+		captions: Caption[];
 		duration: number;
 	} = $props();
 
@@ -20,9 +19,18 @@
 			return;
 		}
 
-		for (const element of handleElementList) {
-			element.onmousedown = () => {
-				currentlyHeldButton = element;
+		for (const [index, element] of handleElementList.entries()) {
+			if (element === null) continue;
+
+			element.onmousedown = (event: MouseEvent) => {
+				if (event.altKey) {
+					// index and index + 1 should merge
+					let newEnd = captions[index + 1].end;
+					captions.splice(index + 1, 1);
+					captions[index].end = newEnd;
+				} else {
+					currentlyHeldButton = element;
+				}
 			};
 		}
 	});
@@ -41,7 +49,7 @@
 		let boundingBox = (event.target! as HTMLElement).getBoundingClientRect();
 		let percentage = (event.x - boundingBox.left) / boundingBox.width;
 		let oldEnd = caption.end;
-		let ind = transcription.captions.indexOf(caption);
+		let ind = captions.indexOf(caption);
 
 		caption.end = caption.start + (caption.end - caption.start) * percentage;
 
@@ -51,18 +59,14 @@
 			value: ''
 		};
 
-		transcription.captions = [
-			...transcription.captions.slice(0, ind + 1),
-			newCaption,
-			...transcription.captions.slice(ind + 1)
-		];
+		captions = [...captions.slice(0, ind + 1), newCaption, ...captions.slice(ind + 1)];
 	}
 </script>
 
 <div class="flex w-full flex-row items-center gap-4">
 	<Resizable.PaneGroup direction="horizontal" class="w-full" bind:paneGroup>
 		{#if duration !== undefined}
-			{#each transcription.captions as caption, i ([caption.start, caption.end])}
+			{#each captions as caption, i ([caption.start, caption.end])}
 				<Resizable.Pane class="w-full" defaultSize={(caption.start - caption.end) / duration}>
 					<span
 						role="button"
@@ -97,7 +101,7 @@
 					>
 				</Resizable.Pane>
 
-				{#if caption !== transcription.captions[transcription.captions.length - 1]}
+				{#if caption !== captions[captions.length - 1]}
 					<Resizable.Handle bind:el={handleElementList[i]}></Resizable.Handle>
 				{/if}
 			{/each}
@@ -113,7 +117,6 @@
 
 		e.preventDefault();
 
-		let captions = transcription.captions;
 		let layout = paneGroup.getLayout();
 		let prevEnd = 0;
 
@@ -123,7 +126,6 @@
 			prevEnd = captions[i].end;
 		}
 
-		transcription.captions = captions;
 		currentlyHeldButton = null;
 
 		return;

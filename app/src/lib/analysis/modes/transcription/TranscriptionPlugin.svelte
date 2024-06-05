@@ -54,7 +54,8 @@
 
 <section bind:clientWidth={width} class="w-full">
 	<div
-		class={`grid w-full overflow-x-scroll grid-cols-[${trackNameSpace}px_1fr]`}
+		class={`grid w-full overflow-x-scroll`}
+		style={`grid-template-columns: ${trackNameSpace}px 1fr;`}
 		onwheel={(event) => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -67,7 +68,7 @@
 	>
 		<div></div>
 		<div bind:this={wavesurferContainer}></div>
-		{#each fileState.transcriptions as transcription (transcription)}
+		{#each fileState.transcriptions as transcription}
 			<span
 				role="button"
 				tabindex="0"
@@ -98,7 +99,7 @@
 				}}
 				>{transcription.name}</span
 			>
-			<Track {transcription} {duration} />
+			<Track captions={transcription.captions} {duration} />
 		{/each}
 	</div>
 	<Button
