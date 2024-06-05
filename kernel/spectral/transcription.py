@@ -1,8 +1,7 @@
 from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
 from jiwer import process_words, process_characters
-from .signal_analysis import get_audio
-from .signal_analysis import calculate_signal_duration
+from .signal_analysis import get_audio, calculate_signal_duration
 import os
 
 
