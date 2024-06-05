@@ -16,6 +16,7 @@
 	let width: number = 300;
 
 	let minZoom: number;
+	let currentPxPS: number = 100;
 	let duration: number;
 
 	onMount(() => {
@@ -28,6 +29,7 @@
 		wavesurfer.once('decode', () => {
 			duration = wavesurfer.getDuration();
 			minZoom = width / duration;
+			currentPxPS = minZoom;
 		});
 
 		wavesurfer.on('zoom', (px) => {
@@ -35,6 +37,7 @@
 			wavesurfer.setOptions({
 				width: duration * px
 			});
+			currentPxPS = px;
 		});
 	});
 
@@ -59,7 +62,7 @@
 		}}
 	>
 		<div style:width={`${width}px`} bind:this={wavesurferContainer}></div>
-		<div style:width={`${width}px` ?? '100%'}>
+		<div style:width={`${currentPxPS * duration}px` ?? '100%'}>
 			{#each fileState.transcriptions as transcription (transcription)}
 				<Track {transcription} {duration} />
 			{/each}
