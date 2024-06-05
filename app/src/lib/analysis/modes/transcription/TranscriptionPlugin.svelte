@@ -68,18 +68,47 @@
 		<div></div>
 		<div bind:this={wavesurferContainer}></div>
 		{#each fileState.transcriptions as transcription (transcription)}
-			<span class="flex content-center justify-center bg-red-900">{transcription.name}</span>
+			<span
+				role="button"
+				tabindex="0"
+				class="flex content-center justify-center bg-primary text-primary-foreground"
+				ondblclick={(event: MouseEvent) => {
+					const element = event.target! as HTMLElement;
+					element.contentEditable = 'true';
+			}}
+				onfocusout={(event: FocusEvent) => {
+					const element = event.target! as HTMLElement;
+					element.contentEditable = 'false';
+					transcription.name = element.textContent ?? '';
+				}}
+				onkeydown={(event: KeyboardEvent) => {
+					const element = event.target! as HTMLElement;
+
+					if (!element.isContentEditable) {
+						return;
+					}
+
+					if (event.key === 'Escape') {
+						element.contentEditable = 'false';
+						element.textContent = transcription.name;
+					} else if (event.key === 'Enter') {
+						element.contentEditable = 'false';
+						transcription.name = element.textContent ?? '';
+					}
+				}}
+				>{transcription.name}</span
+			>
 			<Track {transcription} {duration} />
 		{/each}
 	</div>
 	<Button
-		class="w-full"
+		class="w-full rounded-t-none"
 		on:click={() => {
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: 'default',
+					name: 'new track',
 					captions: [
 						{
 							start: 0,
