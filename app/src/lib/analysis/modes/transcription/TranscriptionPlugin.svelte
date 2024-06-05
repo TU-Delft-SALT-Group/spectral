@@ -13,11 +13,11 @@
 
 	let wavesurferContainer: HTMLElement;
 	let wavesurfer: WaveSurfer;
-	let width: number = 300;
-
+	let width: number;
 	let minZoom: number;
-	let currentPxPS: number = 100;
 	let duration: number;
+
+	const trackNameSpace = 100;
 
 	onMount(() => {
 		wavesurfer = WaveSurfer.create({
@@ -26,22 +26,26 @@
 			height: 300
 		});
 
+		let wrapper = wavesurfer.getWrapper();
+
+		wrapper.style.overflow = 'visible';
+		wrapper.style.overflowX = 'visible';
+
 		wavesurfer.once('decode', () => {
 			duration = wavesurfer.getDuration();
-			minZoom = width / duration;
-			currentPxPS = minZoom;
+			minZoom = (width - trackNameSpace) / duration;
+
+			wavesurfer.setOptions({
+				width: minZoom * duration
+			});
 		});
 
 		wavesurfer.on('zoom', (px) => {
-			let duration = wavesurfer.getDuration();
 			wavesurfer.setOptions({
 				width: duration * px
 			});
-			currentPxPS = px;
 		});
 	});
-
-	$: minZoom = width / duration;
 
 	onDestroy(() => {
 		wavesurfer.destroy();
@@ -50,7 +54,7 @@
 
 <section bind:clientWidth={width} class="w-full">
 	<div
-		class="overflow-x-scroll"
+		class={`grid w-full overflow-x-scroll grid-cols-[${trackNameSpace}px_1fr]`}
 		onwheel={(event) => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -61,12 +65,12 @@
 			wavesurfer.zoom(px);
 		}}
 	>
-		<div style:width={`${width}px`} bind:this={wavesurferContainer}></div>
-		<div style:width={`${currentPxPS * duration}px` ?? '100%'}>
-			{#each fileState.transcriptions as transcription (transcription)}
-				<Track {transcription} {duration} />
-			{/each}
-		</div>
+		<div></div>
+		<div bind:this={wavesurferContainer}></div>
+		{#each fileState.transcriptions as transcription (transcription)}
+			<span class="flex content-center justify-center bg-red-900">{transcription.name}</span>
+			<Track {transcription} {duration} />
+		{/each}
 	</div>
 	<Button
 		class="w-full"

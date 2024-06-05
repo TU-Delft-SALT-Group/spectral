@@ -60,7 +60,6 @@
 </script>
 
 <div class="flex w-full flex-row items-center gap-4">
-	<span>{transcription.name}</span>
 	<Resizable.PaneGroup direction="horizontal" class="w-full" bind:paneGroup>
 		{#if duration !== undefined}
 			{#each transcription.captions as caption, i ([caption.start, caption.end])}
