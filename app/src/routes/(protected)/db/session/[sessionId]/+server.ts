@@ -26,7 +26,6 @@ export const POST: RequestHandler = async ({ params, request }) => {
 	}
 
 	try {
-		console.log('Syncing');
 		await db
 			.update(sessionTable)
 			.set({
