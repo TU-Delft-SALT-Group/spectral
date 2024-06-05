@@ -22,7 +22,7 @@
 		clearRegions() {
 			if (regions.getRegions().length === 0) return false;
 
-			// regions.clearRegions();
+			regions.clearRegions();
 			fileState.frame = null;
 			return true;
 		},
@@ -90,10 +90,10 @@
 		);
 
 		regions.on('region-created', (region: Region) => {
-			// regions.getRegions().forEach((r) => {
-			// 	if (r.id === region.id) return;
-			// 	r.remove();
-			// });
+			regions.getRegions().forEach((r) => {
+				if (r.id === region.id) return;
+				r.remove();
+			});
 
 			let frame: Frame = {
 				startIndex: Math.floor(region.start * wavesurfer.options.sampleRate),
@@ -109,7 +109,7 @@
 			current = wavesurfer.getCurrentTime();
 
 			if (fileState.frame !== null) {
-				// regions.clearRegions();
+				regions.clearRegions();
 
 				regions.addRegion({
 					start: fileState.frame.startIndex / wavesurfer.options.sampleRate,
