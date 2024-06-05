@@ -1,6 +1,8 @@
 from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
 from jiwer import process_words, process_characters
+from .signal_analysis import get_audio
+from .signal_analysis import calculate_signal_duration
 import os
 
 
@@ -157,8 +159,31 @@ def get_transcription(model, file):
     - HTTPException: If the specified model is not found.
     """
     if model == "deepgram":
-        return deepgram_transcription(file["data"])
+        return fill_gaps(deepgram_transcription(file["data"]), file)
     raise HTTPException(status_code=404, detail="Model was not found")
+
+
+def fill_gaps(transcriptions, file):
+    res = []
+
+    fs, data = get_audio(file)
+    duration = calculate_signal_duration(data, fs)
+
+    if len(transcriptions) == 0:
+        return [{"value": "", "start": 0, "end": duration}]
+
+    time = 0
+
+    for transcription in transcriptions:
+        if time != transcription["start"]:
+            res.append({"value": "", "start": time, "end": transcription["start"]})
+        time = transcription["end"]
+        res.append(transcription)
+
+    if time != duration:
+        res.append({"value": "", "start": time, "end": duration})
+
+    return res
 
 
 def deepgram_transcription(data):

@@ -247,11 +247,11 @@ async def transcribe_file(
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
     transcription = get_transcription(model, file)
-    try:
-        database.store_transcription(session_id, file_id, transcription)
-    except Exception as _:
-        raise HTTPException(
-            status_code=500,
-            detail="Something went wrong while storing the transcription",
-        )
+    # try:
+    #     database.store_transcription(session_id, file_id, transcription)
+    # except Exception as _:
+    #     raise HTTPException(
+    #         status_code=500,
+    #         detail="Something went wrong while storing the transcription",
+    #     )
     return transcription

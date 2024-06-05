@@ -398,32 +398,13 @@ def test_transcription_model_found(db_mock):
         assert response.status_code == 200
         result = response.json()
         assert result == [
+            {"value": "", "start": 0, "end": 0.5},
             {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "", "start": 1.0, "end": 1.5},
             {"value": "word2", "start": 1.5, "end": 2.0},
+            {"end": 4.565, "start": 2.0, "value": ""},
         ]
         assert db_mock.fetch_file.call_count == 1
-        assert db_mock.store_transcription.call_count == 1
-
-
-def test_transcription_storing_error(db_mock):
-    db_mock.store_transcription.side_effect = HTTPException(
-        status_code=500, detail="database error"
-    )
-    with patch(
-        "spectral.transcription.deepgram_transcription"
-    ) as mock_deepgram_transcription:
-        mock_deepgram_transcription.return_value = [
-            {"value": "word1", "start": 0.5, "end": 1.0},
-            {"value": "word2", "start": 1.5, "end": 2.0},
-        ]
-        response = client.get("/transcription/deepgram/session/1")
-        assert response.status_code == 500
-        assert (
-            response.json()["detail"]
-            == "Something went wrong while storing the transcription"
-        )
-        assert db_mock.fetch_file.call_count == 1
-        assert db_mock.store_transcription.call_count == 1
 
 
 def test_transcription_model_not_found(db_mock):
