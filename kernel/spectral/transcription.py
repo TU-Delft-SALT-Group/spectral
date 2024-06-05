@@ -4,6 +4,7 @@ from jiwer import process_words, process_characters
 from .signal_analysis import get_audio, calculate_signal_duration
 from allosaurus.app import read_recognizer  # type: ignore
 import tempfile
+import os
 
 
 def calculate_error_rates(reference, annotations):
@@ -205,8 +206,7 @@ def deepgram_transcription(data):
     """
     try:
         # STEP 1: Create a Deepgram client using the API key
-        # key = os.getenv("DG_KEY")
-        key = "dc0f660d94e84992bdb04292d55ae07e4c52ffc4"
+        key = os.getenv("DG_KEY")
         deepgram = None
         if key is None:
             raise Exception("No API key for Deepgram is found")
