@@ -13,10 +13,12 @@ export const POST: RequestHandler = async ({ params, request }) => {
 	const id: string = params.sessionId;
 
 	try {
+		console.log('Syncing');
 		await db
 			.update(sessionTable)
 			.set({
-				state: val
+				state: val,
+				modifiedTime: new Date()
 			})
 			.where(eq(sessionTable.id, id));
 	} catch (e) {
