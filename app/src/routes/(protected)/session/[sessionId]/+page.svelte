@@ -51,9 +51,9 @@
 	let workspace: Workspace;
 </script>
 
-<div class="flex h-full">
+<div class="flex h-full w-screen">
 	<Resizable.PaneGroup direction="horizontal">
-		<Resizable.Pane defaultSize={20} minSize={11}>
+		<Resizable.Pane defaultSize={20} minSize={11} collapsible={true} collapsedSize={1}>
 			<FileExplorer
 				bind:files={data.files}
 				sessionId={data.sessionId}
