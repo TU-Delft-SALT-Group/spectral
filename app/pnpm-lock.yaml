@@ -59,24 +59,6 @@ importers:
       pino-pretty:
         specifier: ^11.1.0
         version: 11.1.0
-      rehype-document:
-        specifier: ^7.0.3
-        version: 7.0.3
-      rehype-format:
-        specifier: ^5.0.0
-        version: 5.0.0
-      rehype-stringify:
-        specifier: ^10.0.0
-        version: 10.0.0
-      remark:
-        specifier: ^15.0.1
-        version: 15.0.1
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      remark-rehype:
-        specifier: ^11.1.0
-        version: 11.1.0
       sveltekit-superforms:
         specifier: ^2.14.0
         version: 2.14.0(@sveltejs/kit@2.5.7(@sveltejs/vite-plugin-svelte@3.1.0(svelte@5.0.0-next.127)(vite@5.2.11(@types/node@20.12.11)(sass@1.77.2)))(svelte@5.0.0-next.127)(vite@5.2.11(@types/node@20.12.11)(sass@1.77.2)))(@types/json-schema@7.0.15)(esbuild-runner@2.2.2(esbuild@0.19.12))(esbuild@0.19.12)(svelte@5.0.0-next.127)
@@ -86,12 +68,6 @@ importers:
       tailwind-variants:
         specifier: ^0.2.1
         version: 0.2.1(tailwindcss@3.4.3)
-      to-vfile:
-        specifier: ^8.0.0
-        version: 8.0.0
-      unified:
-        specifier: ^11.0.4
-        version: 11.0.4
       wavesurfer.js:
         specifier: ^7.7.14
         version: 7.7.14
@@ -156,6 +132,24 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.5.14
         version: 0.5.14(prettier-plugin-svelte@3.2.3(prettier@3.2.5)(svelte@5.0.0-next.127))(prettier@3.2.5)
+      rehype-document:
+        specifier: ^7.0.3
+        version: 7.0.3
+      rehype-format:
+        specifier: ^5.0.0
+        version: 5.0.0
+      rehype-stringify:
+        specifier: ^10.0.0
+        version: 10.0.0
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-rehype:
+        specifier: ^11.1.0
+        version: 11.1.0
       svelte:
         specifier: 5.0.0-next.127
         version: 5.0.0-next.127
@@ -165,12 +159,18 @@ importers:
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3
+      to-vfile:
+        specifier: ^8.0.0
+        version: 8.0.0
       tslib:
         specifier: ^2.6.2
         version: 2.6.2
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
+      unified:
+        specifier: ^11.0.4
+        version: 11.0.4
       vite:
         specifier: ^5.2.11
         version: 5.2.11(@types/node@20.12.11)(sass@1.77.2)
