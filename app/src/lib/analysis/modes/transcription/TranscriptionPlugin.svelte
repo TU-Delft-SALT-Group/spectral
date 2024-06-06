@@ -31,7 +31,8 @@
 		wavesurfer = WaveSurfer.create({
 			container: wavesurferContainer,
 			url: `/db/file/${fileState.id}`,
-			height: 300
+			height: 300,
+			backend: 'WebAudio'
 		});
 
 		let wrapper = wavesurfer.getWrapper();
@@ -118,7 +119,7 @@
 			<Select.Content>
 				<Select.Item value="default">Default</Select.Item>
 				<Select.Item value="deepgram">Deepgram (word level)</Select.Item>
-				<Select.Item value="allosaurus">Allosaurs + deepgram (phoneme level)</Select.Item>
+				<!-- <Select.Item value="allosaurus">Allosaurs + deepgram (phoneme level)</Select.Item> -->
 			</Select.Content>
 		</Select.Root>
 		<Button
