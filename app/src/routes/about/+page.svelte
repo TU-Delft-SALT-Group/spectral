@@ -11,9 +11,7 @@
 
 <style lang="postcss">
 	main :global(h2) {
-		@apply text-3xl;
-		@apply pb-3;
-		@apply pt-6;
+		@apply pb-3 pt-6 text-3xl;
 	}
 
 	main :global(p) {
@@ -25,7 +23,6 @@
 	}
 
 	main :global(a) {
-		@apply text-blue-600;
-		@apply underline;
+		@apply text-blue-600 underline;
 	}
 </style>
