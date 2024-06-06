@@ -216,13 +216,12 @@ async def analyze_signal_mode(
 
 
 @app.get(
-    "/transcription/{model}/{session_id}/{file_id}",
+    "/transcription/{model}/{file_id}",
     response_model=list[TranscriptionSegment],
     responses=transcription_response_examples,
 )
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
-    session_id: Annotated[str, Path(title="The ID of the file")],
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
 ):

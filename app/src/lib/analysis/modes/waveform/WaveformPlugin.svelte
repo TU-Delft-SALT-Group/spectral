@@ -64,7 +64,8 @@
 			url: `/db/file/${fileState.id}`,
 			height: 300,
 			barHeight: 0.9,
-			width
+			width,
+			backend: 'WebAudio'
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());

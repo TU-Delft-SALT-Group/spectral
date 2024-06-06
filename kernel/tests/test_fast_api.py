@@ -380,7 +380,7 @@ def test_signal_mode_transcription_db_problem(db_mock):
     db_mock.fetch_file.side_effect = HTTPException(
         status_code=500, detail="database error"
     )
-    response = client.get("/transcription/deepgram/session/1")
+    response = client.get("/transcription/deepgram/1")
     assert response.status_code == 404
     assert response.json()["detail"] == "File not found"
     assert db_mock.fetch_file.call_count == 1
@@ -394,7 +394,7 @@ def test_transcription_model_found(db_mock):
             {"value": "word1", "start": 0.5, "end": 1.0},
             {"value": "word2", "start": 1.5, "end": 2.0},
         ]
-        response = client.get("/transcription/deepgram/session/1")
+        response = client.get("/transcription/deepgram/1")
         assert response.status_code == 200
         result = response.json()
         assert result == [
@@ -408,7 +408,7 @@ def test_transcription_model_found(db_mock):
 
 
 def test_transcription_model_not_found(db_mock):
-    response = client.get("/transcription/non_existant_model/session/1")
+    response = client.get("/transcription/non_existant_model/1")
     assert response.status_code == 404
     assert response.json()["detail"] == "Model was not found"
     assert db_mock.fetch_file.call_count == 1
@@ -436,7 +436,7 @@ def test_analyze_signal_mode_invalid_id(db_mock, file_state):
 
 
 def test_transcribe_file_invalid_model(db_mock):
-    response = client.get("/transcription/invalid_model/session/1")
+    response = client.get("/transcription/invalid_model/1")
     assert response.status_code == 404
     assert response.json()["detail"] == "Model was not found"
     assert db_mock.fetch_file.call_count == 1

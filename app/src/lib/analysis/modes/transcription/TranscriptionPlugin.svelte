@@ -4,6 +4,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import used from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
+	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
 
@@ -16,6 +17,13 @@
 	let width: number;
 	let minZoom: number;
 	let duration: number;
+	let transcriptionType: { label?: string; value: string } = { value: 'default' };
+
+	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
+		if (!newSelection) return;
+
+		transcriptionType.value = newSelection.value;
+	}
 
 	const trackNameSpace = 100;
 
@@ -23,7 +31,8 @@
 		wavesurfer = WaveSurfer.create({
 			container: wavesurferContainer,
 			url: `/db/file/${fileState.id}`,
-			height: 300
+			height: 300,
+			backend: 'WebAudio'
 		});
 
 		let wrapper = wavesurfer.getWrapper();
@@ -102,25 +111,55 @@
 			<Track captions={transcription.captions} {duration} />
 		{/each}
 	</div>
-	<Button
-		class="w-full rounded-t-none"
-		on:click={() => {
-			fileState.transcriptions = [
-				...fileState.transcriptions,
-				{
-					id: generateIdFromEntropySize(10),
-					name: 'new track',
-					captions: [
+	<div class="flex w-full">
+		<Select.Root selected={transcriptionType} onSelectedChange={transcriptionTypeChanger}>
+			<Select.Trigger class="m-0 h-full w-1/6">
+				{transcriptionType.value}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="default">Default</Select.Item>
+				<Select.Item value="deepgram">Deepgram (word level)</Select.Item>
+				<!-- <Select.Item value="allosaurus">Allosaurs + deepgram (phoneme level)</Select.Item> -->
+			</Select.Content>
+		</Select.Root>
+		<Button
+			class="w-5/6 rounded-t-none"
+			on:click={async () => {
+				if (transcriptionType.value === 'default') {
+					fileState.transcriptions = [
+						...fileState.transcriptions,
 						{
-							start: 0,
-							end: duration,
-							value: ''
+							id: generateIdFromEntropySize(10),
+							name: 'new track',
+							captions: [
+								{
+									start: 0,
+									end: duration,
+									value: ''
+								}
+							]
 						}
-					]
+					];
+				} else if (transcriptionType.value === 'deepgram') {
+					let response = await (await fetch('/api/transcription/deepgram/' + fileState.id)).json();
+					console.log(response);
+					fileState.transcriptions = [
+						...fileState.transcriptions,
+						{
+							id: generateIdFromEntropySize(10),
+							name: 'new track',
+							captions: response
+						}
+					];
 				}
-			];
-		}}
-	>
-		+
-	</Button>
+				// else if (transcriptionType.value === 'allosaurs') {
+				// }
+				else {
+					console.error('no match for: ' + transcriptionType.value);
+				}
+			}}
+		>
+			+
+		</Button>
+	</div>
 </section>
