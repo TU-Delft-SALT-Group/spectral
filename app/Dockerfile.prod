@@ -8,4 +8,6 @@ RUN corepack enable
 
 RUN pnpm install --prod
 
-CMD pnpm run --host | pnpm exec pino-pretty
+RUN pnpm run build
+
+CMD pnpm run preview --host --port 5173 | pnpm exec pino-pretty
