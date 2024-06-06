@@ -81,3 +81,41 @@ export function todo(message: string = 'Not implemented'): never {
  */
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export default function used(...args: unknown[]) {}
+
+/**
+ * Utility function to compare the eqality of two objects
+ */
+export function deepEqual(x: unknown, y: unknown): boolean {
+	const tx = typeof x;
+	const ty = typeof y;
+
+	if (tx !== ty) {
+		return false;
+	}
+
+	if (tx !== 'object' || x === undefined || y === undefined || x === null || y === null) {
+		return x === y;
+	}
+
+	// Apparently dates are always the same or somwthing
+	if (x instanceof Date && y instanceof Date) {
+		return x.getTime() === y.getTime();
+	}
+
+	if (Object.keys(x).length !== Object.keys(y).length) {
+		return false;
+	}
+
+	for (const key in x) {
+		if (!(key in (y as object))) {
+			return false;
+		}
+
+		// @ts-expect-error TypeScript doesn't understand that 'key' is a property of both 'x' and 'y', but we check it previously.
+		if (!deepEqual(x[key], y[key])) {
+			return false;
+		}
+	}
+
+	return true;
+}
