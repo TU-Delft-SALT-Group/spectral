@@ -61,6 +61,7 @@ const sampleSessionState: SessionState = {
 				'simple-info': {},
 				waveform: { width: 100 },
 				spectrogram: { width: 100 },
+				transcription: {},
 				'vowel-space': {
 					showLegend: true
 				},
