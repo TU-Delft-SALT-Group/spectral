@@ -13,9 +13,9 @@ Spectral is open sourced! Check out our repo [here](https://gitlab.ewi.tudelft.n
 Meet the original team!
 
 - Roman Knyazhitskiy
-- [Odysseas Machairas](https://github.com/Odilf)
+- Odysseas Machairas &nbsp; --> &nbsp; ([Github](https://github.com/Odilf))
 - Thijs Houben
-- [Yousef Bakri](https://github.com/dprin)
+- Yousef Bakri &nbsp; --> &nbsp; ([Github](https://github.com/dprin))
 - Quinton den Haan
 
 We are a group of TU Delft students and we created Spectral for our Software Project as a part of our CSE Bachelor. Therefore we will not be the ones updating or maintaining the application in the future.
