@@ -1,15 +1,13 @@
 from fastapi import HTTPException
 
-from .signal_analysis import simple_signal_info
+from .signal_analysis import simple_signal_info, get_audio
+
 from .frame_analysis import (
     simple_frame_info,
     calculate_frame_f1_f2,
     validate_frame_index,
 )
 from .transcription import calculate_error_rates
-
-from pydub import AudioSegment
-import io
 
 
 def simple_info_mode(database, file_state):
@@ -164,25 +162,3 @@ def get_file(database, file_state):
         raise HTTPException(status_code=404, detail="File not found")
 
     return file
-
-
-def get_audio(file):
-    """
-    Extract audio data and sampling rate from the given file.
-
-    Parameters:
-    - file: A dictionary containing the file data, including audio bytes.
-
-    Returns:
-    - A tuple (fs, data) where fs is the sampling rate and data is the array of audio samples.
-
-    Example:
-    ```python
-    fs, data = get_audio(file)
-    ```
-    """
-    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
-    fs = audio.frame_rate
-    data = audio.get_array_of_samples()
-
-    return fs, data

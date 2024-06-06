@@ -1,5 +1,4 @@
 import psycopg
-import json
 
 
 class Database:
@@ -91,36 +90,6 @@ class Database:
         """
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
-
-    def store_transcription(self, session_id, file_id, file_transcription):
-        """
-        Stores a transcription in the database for a given session and file.
-
-        Parameters:
-        - session_id (int): The ID of the session.
-        - file_id (int): The ID of the file within the session.
-        - file_transcription (str): The transcription to be stored.
-
-        Returns:
-        - None
-
-        Example:
-        ```python
-        self.store_transcription(1, 42, 'Transcription text')
-        ```
-        """
-        self.cursor.execute("SELECT state FROM session WHERE id = %s", [session_id])
-        state = self.cursor.fetchone()[0]  # type: ignore
-        for file in state["panes"][0]["files"]:
-            if file["id"] == file_id:
-                file["transcriptions"].append(file_transcription)
-
-        self.cursor.execute(
-            "UPDATE session SET state = %s WHERE id = %s",
-            [json.dumps(state), session_id],
-        )
-
-        pass
 
     def get_transcriptions(self, file_id):
         """
