@@ -2,7 +2,6 @@ from typing import Annotated, Union, Literal
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
 from .signal_analysis import (
-    calculate_signal_duration,
     calculate_sound_pitch,
     calculate_sound_spectrogram,
     calculate_sound_f1_f2,
@@ -42,6 +41,8 @@ from .database import Database
 import orjson
 import json
 import os
+import tempfile
+import subprocess
 
 
 def get_db():  # pragma: no cover
@@ -133,7 +134,7 @@ async def signal_fundamental_features(signal: Signal):
     """
     try:
         sound = signal_to_sound(signal.data, signal.fs)
-        duration = calculate_signal_duration(signal.data, signal.fs)
+        # duration = calculate_signal_duration(signal.data, signal.fs)
         pitch = calculate_sound_pitch(sound, time_step=signal.pitch_time_step)
         spectrogram = calculate_sound_spectrogram(
             sound,
@@ -147,7 +148,7 @@ async def signal_fundamental_features(signal: Signal):
             window_length=signal.formants_window_length,
         )
         return {
-            "duration": duration,
+            # "duration": duration,
             "pitch": pitch,
             "spectrogram": spectrogram,
             "formants": formants,
@@ -216,13 +217,12 @@ async def analyze_signal_mode(
 
 
 @app.get(
-    "/transcription/{model}/{session_id}/{file_id}",
+    "/transcription/{model}/{file_id}",
     response_model=list[TranscriptionSegment],
     responses=transcription_response_examples,
 )
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
-    session_id: Annotated[str, Path(title="The ID of the file")],
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
 ):
@@ -234,7 +234,6 @@ async def transcribe_file(
     Parameters:
     - model (str): The transcription model to use.
     - file_id (str): The ID of the file to transcribe.
-    - session_id (str): The ID of the session to which the file belongs
 
     Returns:
     - list: A list of dictionaries with keys 'start', 'end' and 'value' containing the transcription of the audio file.
@@ -246,5 +245,14 @@ async def transcribe_file(
         file = database.fetch_file(file_id)
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
+    with tempfile.NamedTemporaryFile() as temp_input:
+        temp_input.write(file["data"])
+        temp_input.flush()  # Ensure data is written to disk
+        with tempfile.NamedTemporaryFile(suffix=".wav") as temp_output:
+            command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
+            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+            temp_output.seek(0)  # Rewind to the beginning of the file
+            file["data"] = temp_output.read()
+
     transcription = get_transcription(model, file)
     return transcription

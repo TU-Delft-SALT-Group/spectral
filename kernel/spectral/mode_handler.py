@@ -8,6 +8,8 @@ from .frame_analysis import (
     validate_frame_index,
 )
 from .transcription import calculate_error_rates
+import tempfile
+import subprocess
 
 
 def simple_info_mode(database, file_state):
@@ -32,16 +34,18 @@ def simple_info_mode(database, file_state):
 
     file = get_file(database, file_state)
 
-    fs, data = get_audio(file)
+    audio = get_audio(file)
 
-    result = simple_signal_info(data, fs)
+    result = simple_signal_info(audio)
 
     result["fileSize"] = len(file["data"])
     result["fileCreationDate"] = file["creationTime"]
 
-    frame_index = validate_frame_index(data, file_state)
+    frame_index = validate_frame_index(audio.get_array_of_samples(), file_state)
 
-    result["frame"] = simple_frame_info(data, fs, frame_index)
+    result["frame"] = simple_frame_info(
+        audio.get_array_of_samples(), audio.frame_rate, frame_index
+    )
 
     return result
 
@@ -81,14 +85,15 @@ def vowel_space_mode(database, file_state):
     """
 
     file = get_file(database, file_state)
-    fs, data = get_audio(file)
+    audio = get_audio(file)
+    data = audio.get_array_of_samples()
     frame_index = validate_frame_index(data, file_state)
 
     if frame_index is None:
         return None
 
     frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
-    formants = calculate_frame_f1_f2(frame_data, fs)
+    formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
     return {"f1": formants[0], "f2": formants[1]}
 
 
@@ -155,10 +160,19 @@ def get_file(database, file_state):
     """
     if "id" not in file_state:
         raise HTTPException(status_code=404, detail="file_state did not include id")
-
     try:
         file = database.fetch_file(file_state["id"])
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 
+    with tempfile.NamedTemporaryFile() as temp_input:
+        temp_input.write(file["data"])
+        temp_input.flush()  # Ensure data is written to disk
+        with tempfile.NamedTemporaryFile(suffix=".wav") as temp_output:
+            command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
+            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+            temp_output.seek(0)  # Rewind to the beginning of the file
+            file["data"] = temp_output.read()
+
+    print(file["data"])
     return file

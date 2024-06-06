@@ -16,9 +16,9 @@
 
 <ContextMenu.Root>
 	<ContextMenu.Trigger>
-		<Button class="flex-2 w-full justify-start gap-2 rounded" variant="ghost">
-			<FileIcon class="h-6 w-6"></FileIcon>
-			<span class="overflow-hidden text-ellipsis">
+		<Button class="flex-2 w-full gap-2 rounded text-left" variant="ghost">
+			<FileIcon></FileIcon>
+			<span class="max-w-full flex-1 overflow-hidden text-ellipsis">
 				{file.name}
 			</span>
 		</Button>

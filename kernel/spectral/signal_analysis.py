@@ -16,17 +16,15 @@ def get_audio(file):
 
     Example:
     ```python
-    fs, data = get_audio(file)
+    audio = get_audio(file)
     ```
     """
     audio = AudioSegment.from_file(io.BytesIO(file["data"]))
-    fs = audio.frame_rate
-    data = audio.get_array_of_samples()
 
-    return fs, data
+    return audio
 
 
-def simple_signal_info(signal, fs):
+def simple_signal_info(audio):
     """
     Extracts and returns basic information from a given audio signal.
 
@@ -44,9 +42,11 @@ def simple_signal_info(signal, fs):
     result = simple_signal_info(signal, fs)
     ```
     """
-    duration = calculate_signal_duration(signal=signal, fs=fs)
+    duration = calculate_signal_duration(audio)
     avg_pitch = np.mean(
-        calculate_sound_pitch(signal_to_sound(signal=signal, fs=fs))["data"]  # type: ignore
+        calculate_sound_pitch(
+            signal_to_sound(signal=audio.get_array_of_samples(), fs=audio.frame_rate)
+        )["data"]  # type: ignore
     ).item()
     return {"duration": duration, "averagePitch": avg_pitch}
 
@@ -72,7 +72,7 @@ def signal_to_sound(signal, fs):
     )
 
 
-def calculate_signal_duration(signal, fs):
+def calculate_signal_duration(audio):
     """
     This method calculates the duration of a signal based on the signal and the sample frequency.
 
@@ -88,7 +88,7 @@ def calculate_signal_duration(signal, fs):
     result = calculate_signal_duration(signal, fs)
     ```
     """
-    return len(signal) / fs
+    return audio.duration_seconds
 
 
 def calculate_sound_pitch(sound, time_step=None):

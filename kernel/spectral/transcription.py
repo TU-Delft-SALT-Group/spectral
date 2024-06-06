@@ -162,15 +162,17 @@ def get_transcription(model, file):
     if model == "deepgram":
         return fill_gaps(deepgram_transcription(file["data"]), file)
     if model == "allosaurus":
-        return fill_gaps(allosaurs_transcription(file["data"], file), file)
+        return fill_gaps(allosaurs_transcription(file), file)
     raise HTTPException(status_code=404, detail="Model was not found")
 
 
 def fill_gaps(transcriptions, file):
     res = []
 
-    fs, data = get_audio(file)
-    duration = calculate_signal_duration(data, fs)
+    audio = get_audio(file)
+    duration = calculate_signal_duration(audio)
+
+    print("duration: " + str(duration))
 
     if len(transcriptions) == 0:
         return [{"value": "", "start": 0, "end": duration}]
@@ -185,6 +187,8 @@ def fill_gaps(transcriptions, file):
 
     if time != duration:
         res.append({"value": "", "start": time, "end": duration})
+
+    print(res)
 
     return res
 
@@ -238,15 +242,25 @@ def deepgram_transcription(data):
         print(f"Exception: {e}")
 
 
-def allosaurs_transcription(data, file):
-    word_level_transcription = fill_gaps(deepgram_transcription(data), file)
+def allosaurs_transcription(file):
+    audio = get_audio(file)
+    duration = calculate_signal_duration(audio)
+    print("duration1: " + str(duration))
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
-        temp_wav.write(data)
+        temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
 
+    word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
+
+    print(word_level_transcription)
+
     model = read_recognizer()
-    phoneme_level_transcription = model.recognize(temp_wav_filename, timestamp=True)
+    phoneme_level_transcription = model.recognize(
+        temp_wav_filename, timestamp=True, emit=1.2
+    )
+
+    print(phoneme_level_transcription)
 
     phoneme_level_parsed = []
 
@@ -258,11 +272,13 @@ def allosaurs_transcription(data, file):
     phoneme_word_splits = get_phoneme_word_splits(
         word_level_transcription, phoneme_level_parsed
     )
-
     return get_phoneme_transcriptions(phoneme_word_splits)
 
 
 def get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed):
+    if len(word_level_transcription) == 0:
+        return []
+
     word_pointer = 0
     phoneme_pointer = 0
 
@@ -285,6 +301,10 @@ def get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed):
 
         current_split["phonemes"].append(phoneme_level_parsed[phoneme_pointer])
         phoneme_pointer += 1
+
+    if phoneme_pointer == len(phoneme_level_parsed):
+        current_split["word_transcription"] = word_level_transcription[word_pointer]
+        phoneme_word_splits.append(current_split)
 
     return phoneme_word_splits
 
