@@ -4,23 +4,29 @@
 	import type { PromptResponse } from './recorder';
 	import { Button } from '$lib/components/ui/button';
 	import JSZip from 'jszip';
+	import { toast } from 'svelte-sonner';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	export let prompts: PromptResponse[];
+	export let promptName: string;
 	export let recording = false;
 
 	let selectedIndex: number = 0;
+	let disableExport: boolean = false;
+	let disableImport: boolean = false;
 
 	function prependZeros(desiredLength: number, currentString: string) {
 		return '0'.repeat(desiredLength - currentString.length) + currentString;
 	}
 
 	async function downloadAllRecordings() {
+		disableExport = true;
 		const zip = new JSZip();
 		let notes = '';
 		for (let prompt of prompts) {
 			let promptIndexPadded = prependZeros(4, '' + prompt.index);
 			let promptName = promptIndexPadded + '-' + prompt.id;
-			zip.file(`${promptName}.webm`, prompt.content);
+			zip.file(`${promptName}.txt`, prompt.content);
 			for (let i = 0; i < prompt.recordings.length; i++) {
 				let recordingName = promptIndexPadded + '-' + prependZeros(3, '' + i) + '-' + prompt.id;
 				notes += recordingName + ': ' + prompt.recordings[i].note;
@@ -28,17 +34,23 @@
 			}
 		}
 		zip.file('notes.txt', notes);
-		zip.generateAsync({ type: 'blob' }).then(function (content: Blob) {
-			const url = URL.createObjectURL(content);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = 'recordings.zip';
-			a.click();
-			URL.revokeObjectURL(url);
-		});
+		zip
+			.generateAsync({ type: 'blob' })
+			.then(function (content: Blob) {
+				const url = URL.createObjectURL(content);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `${promptName}.zip`;
+				a.click();
+				URL.revokeObjectURL(url);
+			})
+			.then(() => {
+				disableExport = false;
+			});
 	}
 
 	function importSession() {
+		disableImport = true;
 		const formData = new FormData();
 		let data = [];
 		for (let prompt of prompts) {
@@ -50,10 +62,24 @@
 			}
 		}
 		formData.append('data', JSON.stringify(data));
-		formData.append('sessionName', 'recorded session'); // this probably deserves a better name
+		formData.append('sessionName', promptName);
 		fetch('?/importAudio', {
 			method: 'POST',
 			body: formData
+		}).then(async (response) => {
+			if (response.status == 200) {
+				let data = JSON.parse((await response.json()).data);
+				toast.success('Session ' + data[0] + ' has been created.', {
+					description: 'Go to the session',
+					action: {
+						label: 'Session',
+						onClick: () => {
+							window.location.href = '/session/' + data[0];
+						}
+					}
+				});
+			}
+			disableImport = false;
 		});
 	}
 
@@ -90,8 +116,10 @@
 
 			<div class="flex-1"></div>
 
-			<Button on:click={importSession}>Export recording to session</Button>
-			<Button on:click={downloadAllRecordings} variant="outline">Save files to disk</Button>
+			<Button disabled={disableImport} on:click={importSession}>Export recording to session</Button>
+			<Button disabled={disableExport} on:click={downloadAllRecordings} variant="outline"
+				>Save files to disk</Button
+			>
 		</Resizable.Pane>
 
 		<Resizable.Handle withHandle></Resizable.Handle>
@@ -117,6 +145,7 @@
 			{/each}
 		</Resizable.Pane>
 	</Resizable.PaneGroup>
+	<Toaster />
 </main>
 
 <style lang="postcss">

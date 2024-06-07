@@ -30,5 +30,5 @@
 		}}
 	/>
 {:else}
-	<Recorder bind:prompts={state.prompts} />
+	<Recorder bind:promptName={state.promptName} bind:prompts={state.prompts} />
 {/if}

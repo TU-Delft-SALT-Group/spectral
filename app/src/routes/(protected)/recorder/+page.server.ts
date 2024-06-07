@@ -51,5 +51,7 @@ export const actions: Actions = {
 				file['groundTruth']
 			);
 		}
+
+		return sessionId;
 	}
 } satisfies Actions;
