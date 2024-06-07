@@ -65,7 +65,7 @@
 			placeholder={file.name}
 			bind:value={tempName}
 			on:keydown={(e) => {
-				if (e.key !== 'Enter') {
+				if (e.key !== 'Enter' || tempName === undefined || tempName.length === 0) {
 					return;
 				}
 
