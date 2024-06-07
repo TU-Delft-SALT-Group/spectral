@@ -1,5 +1,29 @@
 import parselmouth
 import numpy as np
+from pydub import AudioSegment
+import io
+
+
+def get_audio(file):
+    """
+    Extract audio data and sampling rate from the given file.
+
+    Parameters:
+    - file: A dictionary containing the file data, including audio bytes.
+
+    Returns:
+    - A tuple (fs, data) where fs is the sampling rate and data is the array of audio samples.
+
+    Example:
+    ```python
+    fs, data = get_audio(file)
+    ```
+    """
+    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
+    fs = audio.frame_rate
+    data = audio.get_array_of_samples()
+
+    return fs, data
 
 
 def simple_signal_info(signal, fs):

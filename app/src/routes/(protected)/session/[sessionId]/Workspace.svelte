@@ -3,20 +3,26 @@
 	import { DockviewApi, type DockviewReadyEvent, type SerializedDockview } from 'dockview-core';
 	import type { SessionState } from './workspace';
 	import Dockview from '$lib/components/dockview/Dockview.svelte';
+	import type { SvelteRenderer } from '$lib/components/dockview';
+	import type { ComponentType } from 'svelte';
 
 	export let state: SessionState;
 	let panesApi: DockviewApi;
 
 	export function deleteFile(fileId: string) {
-		for (const panel of panesApi.panels) {
-			let instance = panel.api.getParameters().getInstance();
-			instance?.removeFile(fileId);
+		for (const pane of panesApi.panels) {
+			const instance = pane.view.content as SvelteRenderer;
+			(
+				instance.getInstance() as (ComponentType & { removeFile: (id: string) => void }) | undefined
+			)?.removeFile(fileId);
 		}
 	}
 
 	function onReady(event: DockviewReadyEvent) {
 		panesApi = event.api;
-		let layout = state.layout as SerializedDockview | undefined; // since layout is only stored from here, everything should be fine
+
+		// since layout is only stored from here, everything should be fine
+		let layout = state.layout as SerializedDockview | undefined;
 
 		if (layout !== undefined) layout.panels = {};
 
@@ -26,7 +32,7 @@
 			const panel = panesApi.addPanel({
 				id: paneId,
 				title: pane.title,
-				component: 'default',
+				component: 'the panel',
 				renderer: 'onlyWhenVisible',
 				tabComponent: 'not default',
 				params: {

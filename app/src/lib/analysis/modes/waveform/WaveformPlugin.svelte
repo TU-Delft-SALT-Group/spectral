@@ -3,7 +3,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
-	import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js';
+	import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import type { mode } from '..';
 	import used from '$lib/utils';
@@ -64,7 +64,8 @@
 			url: `/db/file/${fileState.id}`,
 			height: 300,
 			barHeight: 0.9,
-			width
+			width,
+			backend: 'WebAudio'
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());

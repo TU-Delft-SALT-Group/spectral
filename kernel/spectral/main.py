@@ -216,13 +216,12 @@ async def analyze_signal_mode(
 
 
 @app.get(
-    "/transcription/{model}/{session_id}/{file_id}",
+    "/transcription/{model}/{file_id}",
     response_model=list[TranscriptionSegment],
     responses=transcription_response_examples,
 )
 async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
-    session_id: Annotated[str, Path(title="The ID of the file")],
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
 ):
@@ -247,11 +246,4 @@ async def transcribe_file(
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
     transcription = get_transcription(model, file)
-    try:
-        database.store_transcription(session_id, file_id, transcription)
-    except Exception as _:
-        raise HTTPException(
-            status_code=500,
-            detail="Something went wrong while storing the transcription",
-        )
     return transcription
