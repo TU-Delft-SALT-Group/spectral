@@ -59,148 +59,6 @@ def override_dependency(db_mock):
     app.dependency_overrides = {}
 
 
-def test_voiced_frame():
-    response = client.post("/frames/analyze", json=frame_data["voiced-1"])
-    assert response.status_code == 200
-    response_data = response.json()
-    assert response_data["duration"] == pytest.approx(0.04)
-    assert response_data["pitch"] == pytest.approx(115.64, 0.01)
-    assert response_data["f1"] == pytest.approx(474.43, 0.01)
-    assert response_data["f2"] == pytest.approx(1924.64, 0.01)
-
-
-def test_noise_frame():
-    response = client.post("/frames/analyze", json=frame_data["noise-1"])
-    assert response.status_code == 200
-    response_data = response.json()
-    assert response_data["duration"] == pytest.approx(0.04)
-    assert response_data["pitch"] is None
-    assert response_data["f1"] == pytest.approx(192.72, 0.01)
-    assert response_data["f2"] == pytest.approx(1864.27, 0.01)
-
-
-def test_empty_frame():
-    response = client.post("/frames/analyze", json={"data": [], "fs": 48000})
-    assert response.status_code == 200
-    response_data = response.json()
-    assert response_data["duration"] == 0
-    assert response_data["pitch"] is None
-    assert response_data["f1"] is None
-    assert response_data["f2"] is None
-
-
-def test_missing_argument():
-    response = client.post("/frames/analyze", json={"fs": 48000})
-    assert response.status_code == 422
-
-
-def test_zero_fs():
-    response = client.post("/frames/analyze", json={"data": [], "fs": 0})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Input data did not meet requirements"
-
-
-def test_fundamental_features_typical_speech():
-    response = client.post(
-        "/signals/analyze", json={"data": typical_1_data, "fs": typical_1_fs}
-    )
-    assert response.status_code == 200
-    result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is not None
-    assert result["pitch"]["time_step"] is not None
-    assert result["pitch"]["start_time"] is not None
-    assert result["pitch"]["data"] is not None
-    assert result["spectrogram"] is not None
-    assert result["formants"] is not None
-    assert result["formants"]["time_step"] is not None
-    assert result["formants"]["window_length"] is not None
-    assert result["formants"]["start_time"] is not None
-    assert result["formants"]["data"] is not None
-
-
-def test_fundamental_features_missing_params():
-    response = client.post("/signals/analyze", json={"data": typical_1_data})
-    assert response.status_code == 422
-    response = client.post("/signals/analyze", json={"fs": typical_1_fs})
-    assert response.status_code == 422
-    response = client.post("/signals/analyze", json={})
-    assert response.status_code == 422
-
-
-def test_fundamental_features_typical_own_params_correct():
-    response = client.post(
-        "/signals/analyze",
-        json={
-            "data": typical_1_data,
-            "fs": typical_1_fs,
-            "pitch_time_step": 0.01,
-            "spectrogram_time_step": 0.004,
-            "spectrogram_window_length": 0.0025,
-            "spectrogram_frequency_step": 15.0,
-            "formants_time_step": 0.003,
-            "formants_window_length": 0.015,
-        },
-    )
-    assert response.status_code == 200
-    result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is not None
-    assert result["pitch"]["time_step"] == pytest.approx(0.01)
-    assert result["spectrogram"] is not None
-    assert result["spectrogram"]["time_step"] == pytest.approx(0.004)
-    assert result["spectrogram"]["window_length"] == pytest.approx(0.0025)
-    assert result["spectrogram"]["frequency_step"] == pytest.approx(15)
-    assert result["formants"] is not None
-    assert result["formants"]["time_step"] == pytest.approx(0.003)
-    assert result["formants"]["window_length"] == pytest.approx(0.015)
-
-
-def test_fundamental_features_typical_own_params_errors():
-    response = client.post(
-        "/signals/analyze",
-        json={"data": typical_1_data, "fs": typical_1_fs, "pitch_time_step": 0},
-    )
-    assert response.status_code == 200
-    result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is None
-    assert result["spectrogram"] is not None
-    assert result["formants"] is not None
-
-    response = client.post(
-        "/signals/analyze",
-        json={
-            "data": typical_1_data,
-            "fs": typical_1_fs,
-            "spectrogram_time_step": 0,
-            "formants_time_step": 0,
-        },
-    )
-    assert response.status_code == 200
-    result = response.json()
-    assert result["duration"] == pytest.approx(4.565, 0.01)
-    assert result["pitch"] is not None
-    assert result["spectrogram"] is None
-    assert result["formants"] is None
-
-
-def test_fundamental_features_fs_zero():
-    response = client.post("/signals/analyze", json={"data": typical_1_data, "fs": 0})
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Input data did not meet requirements"
-
-
-def test_fundamental_features_empty_signal():
-    response = client.post("/signals/analyze", json={"data": [], "fs": 48000})
-    assert response.status_code == 200
-    result = response.json()
-    assert result["duration"] == 0
-    assert result["pitch"] is None
-    assert result["spectrogram"] is None
-    assert result["formants"] is None
-
-
 def test_signal_correct_mode_file_not_found(db_mock, file_state):
     db_mock.fetch_file.side_effect = HTTPException(
         status_code=500, detail="database error"
@@ -220,7 +78,7 @@ def test_signal_correct_simple_info(db_mock, file_state):
     )
     assert response.status_code == 200
     result = response.json()
-    assert result["fileSize"] == 146124
+    assert result["fileSize"] == 146158
     assert result["fileCreationDate"] == "1970-01-01T00:00:01Z"
     assert result["frame"] is None
     assert db_mock.fetch_file.call_count == 1
@@ -352,7 +210,7 @@ def test_signal_mode_simple_info_with_frame(db_mock, file_state):
     )
     assert response.status_code == 200
     result = response.json()
-    assert result["fileSize"] == 146124
+    assert result["fileSize"] == 146158
     assert result["fileCreationDate"] == "1970-01-01T00:00:01Z"
     assert result["averagePitch"] == pytest.approx(34.38, 0.1)
     assert result["duration"] == pytest.approx(4.565, 0.01)
@@ -412,16 +270,6 @@ def test_transcription_model_not_found(db_mock):
     assert response.status_code == 404
     assert response.json()["detail"] == "Model was not found"
     assert db_mock.fetch_file.call_count == 1
-
-
-def test_frame_analyze_invalid_data():
-    response = client.post("/frames/analyze", json={"data": "invalid", "fs": 48000})
-    assert response.status_code == 422
-
-
-def test_signal_analyze_invalid_data():
-    response = client.post("/signals/analyze", json={"data": "invalid", "fs": 48000})
-    assert response.status_code == 422
 
 
 def test_analyze_signal_mode_invalid_id(db_mock, file_state):

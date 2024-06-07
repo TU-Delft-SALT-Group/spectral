@@ -165,14 +165,17 @@ def get_file(database, file_state):
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 
-    with tempfile.NamedTemporaryFile() as temp_input:
-        temp_input.write(file["data"])
+    file["data"] = convert_to_wav(file["data"])
+
+    return file
+
+
+def convert_to_wav(data):
+    with tempfile.NamedTemporaryFile(delete=False) as temp_input:
+        temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk
-        with tempfile.NamedTemporaryFile(suffix=".wav") as temp_output:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_output:
             command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
             subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
             temp_output.seek(0)  # Rewind to the beginning of the file
-            file["data"] = temp_output.read()
-
-    print(file["data"])
-    return file
+            return temp_output.read()

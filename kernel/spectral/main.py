@@ -1,17 +1,6 @@
 from typing import Annotated, Union, Literal
 from fastapi import FastAPI, HTTPException, Path, Depends
 from fastapi.responses import JSONResponse
-from .signal_analysis import (
-    calculate_sound_pitch,
-    calculate_sound_spectrogram,
-    calculate_sound_f1_f2,
-    signal_to_sound,
-)
-from .frame_analysis import (
-    calculate_frame_duration,
-    calculate_frame_pitch,
-    calculate_frame_f1_f2,
-)
 from .mode_handler import (
     simple_info_mode,
     waveform_mode,
@@ -19,19 +8,14 @@ from .mode_handler import (
     vowel_space_mode,
     transcription_mode,
     error_rate_mode,
+    convert_to_wav,
 )
 from .response_examples import (
-    frame_analysis_response_examples,
-    signal_analysis_response_examples,
     signal_modes_response_examples,
     transcription_response_examples,
 )
 from .transcription import get_transcription
 from .data_objects import (
-    Frame,
-    Signal,
-    FrameAnalysisResponse,
-    SignalAnalysisResponse,
     SimpleInfoResponse,
     VowelSpaceResponse,
     TranscriptionSegment,
@@ -41,8 +25,6 @@ from .database import Database
 import orjson
 import json
 import os
-import tempfile
-import subprocess
 
 
 def get_db():  # pragma: no cover
@@ -74,89 +56,6 @@ class ORJSONResponse(JSONResponse):
 
 
 app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
-
-
-@app.post(
-    "/frames/analyze",
-    response_model=FrameAnalysisResponse,
-    responses=frame_analysis_response_examples,
-)
-async def frame_fundamental_features(frame: Frame):
-    """
-    Analyze fundamental features of an audio frame.
-
-    This endpoint calculates the duration, pitch, and formants (f1, f2) of the provided audio frame.
-
-    Parameters:
-    - frame (Frame): Frame object containing the data and sample frequency of the audio frame.
-
-    Returns:
-    - dict: A dictionary containing the duration, pitch, f1, and f2 of the frame.
-
-    Raises:
-    - HTTPException: If the input data does not meet requirements.
-    """
-    try:
-        duration = calculate_frame_duration(frame=frame.data, fs=frame.fs)
-        pitch = calculate_frame_pitch(frame=frame.data, fs=frame.fs)
-        formants = calculate_frame_f1_f2(frame=frame.data, fs=frame.fs)
-        return {
-            "duration": duration,
-            "pitch": pitch,
-            "f1": formants[0],
-            "f2": formants[1],
-        }
-    except Exception as _:
-        raise HTTPException(
-            status_code=400, detail="Input data did not meet requirements"
-        )
-
-
-@app.post(
-    "/signals/analyze",
-    response_model=SignalAnalysisResponse,
-    responses=signal_analysis_response_examples,
-)
-async def signal_fundamental_features(signal: Signal):
-    """
-    Analyze fundamental features of an audio signal.
-
-    This endpoint calculates the duration, pitch, spectrogram, and formants of the provided audio signal.
-
-    Parameters:
-    - signal (Signal): Signal object containing the data, sample frequency, and optional analysis parameters.
-
-    Returns:
-    - dict: A dictionary containing the duration, pitch, spectrogram, and formants of the signal.
-
-    Raises:
-    - HTTPException: If the input data does not meet requirements.
-    """
-    try:
-        sound = signal_to_sound(signal.data, signal.fs)
-        # duration = calculate_signal_duration(signal.data, signal.fs)
-        pitch = calculate_sound_pitch(sound, time_step=signal.pitch_time_step)
-        spectrogram = calculate_sound_spectrogram(
-            sound,
-            time_step=signal.spectrogram_time_step,
-            window_length=signal.spectrogram_window_length,
-            frequency_step=signal.spectrogram_frequency_step,
-        )
-        formants = calculate_sound_f1_f2(
-            sound,
-            time_step=signal.formants_time_step,
-            window_length=signal.formants_window_length,
-        )
-        return {
-            # "duration": duration,
-            "pitch": pitch,
-            "spectrogram": spectrogram,
-            "formants": formants,
-        }
-    except Exception as _:
-        raise HTTPException(
-            status_code=400, detail="Input data did not meet requirements"
-        )
 
 
 @app.get(
@@ -245,14 +144,8 @@ async def transcribe_file(
         file = database.fetch_file(file_id)
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
-    with tempfile.NamedTemporaryFile() as temp_input:
-        temp_input.write(file["data"])
-        temp_input.flush()  # Ensure data is written to disk
-        with tempfile.NamedTemporaryFile(suffix=".wav") as temp_output:
-            command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
-            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-            temp_output.seek(0)  # Rewind to the beginning of the file
-            file["data"] = temp_output.read()
+
+    file["data"] = convert_to_wav(file["data"])
 
     transcription = get_transcription(model, file)
     return transcription
