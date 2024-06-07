@@ -80,3 +80,13 @@
 </script>
 
 <section bind:this={el} class="dockview-theme-dark h-full w-full"></section>
+
+<style>
+	:global(section.dockview-theme-dark) {
+		--dv-tabs-and-actions-container-height: theme(space.8);
+		--dv-group-view-background-color: theme(colors.background);
+		--dv-tabs-and-actions-container-background-color: theme(colors.secondary.DEFAULT / 50%);
+		--dv-activegroup-visiblepanel-tab-background-color: theme(colors.secondary.DEFAULT / 50%);
+		--dv-background-color: theme(colors.secondary.DEFAULT);
+	}
+</style>
