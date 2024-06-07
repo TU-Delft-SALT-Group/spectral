@@ -14,7 +14,7 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const sessionName = formData.get('fileName');
+		const sessionName = formData.get('sessionName');
 		const userId = unwrap(locals.user).id;
 		const sessionId = generateIdFromEntropySize(10);
 

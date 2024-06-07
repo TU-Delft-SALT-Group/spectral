@@ -3,14 +3,59 @@
 	import * as Resizable from '$lib/components/ui/resizable';
 	import type { PromptResponse } from './recorder';
 	import { Button } from '$lib/components/ui/button';
-	import { todo } from '$lib/utils';
+	import JSZip from 'jszip';
 
 	export let prompts: PromptResponse[];
 	export let recording = false;
 
 	let selectedIndex: number = 0;
 
-	$: console.log({ selectedIndex });
+	function prependZeros(desiredLength: number, currentString: string) {
+		return '0'.repeat(desiredLength - currentString.length) + currentString;
+	}
+
+	async function downloadAllRecordings() {
+		const zip = new JSZip();
+		let notes = '';
+		for (let prompt of prompts) {
+			let promptIndexPadded = prependZeros(4, '' + prompt.index);
+			let promptName = promptIndexPadded + '-' + prompt.id;
+			zip.file(`${promptName}.webm`, prompt.content);
+			for (let i = 0; i < prompt.recordings.length; i++) {
+				let recordingName = promptIndexPadded + '-' + prependZeros(3, '' + i) + '-' + prompt.id;
+				notes += recordingName + ': ' + prompt.recordings[i].note;
+				zip.file(`${recordingName}.webm`, prompt.recordings[i].blob);
+			}
+		}
+		zip.file('notes.txt', notes);
+		zip.generateAsync({ type: 'blob' }).then(function (content: Blob) {
+			const url = URL.createObjectURL(content);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'recordings.zip';
+			a.click();
+			URL.revokeObjectURL(url);
+		});
+	}
+
+	function importSession() {
+		const formData = new FormData();
+		let data = [];
+		for (let prompt of prompts) {
+			let promptIndexPadded = prependZeros(4, '' + prompt.index);
+			for (let i = 0; i < prompt.recordings.length; i++) {
+				let recordingName = promptIndexPadded + '-' + prependZeros(3, '' + i) + '-' + prompt.id;
+				data.push({ name: recordingName, groundTruth: prompt.content });
+				formData.append(recordingName, prompt.recordings[i].blob);
+			}
+		}
+		formData.append('data', JSON.stringify(data));
+		formData.append('sessionName', 'recorded session'); // this probably deserves a better name
+		fetch('?/importAudio', {
+			method: 'POST',
+			body: formData
+		});
+	}
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'ArrowRight') {
@@ -45,8 +90,8 @@
 
 			<div class="flex-1"></div>
 
-			<Button on:click={() => todo()}>Export recording to session</Button>
-			<Button on:click={() => todo()} variant="outline">Save files to disk</Button>
+			<Button on:click={importSession}>Export recording to session</Button>
+			<Button on:click={downloadAllRecordings} variant="outline">Save files to disk</Button>
 		</Resizable.Pane>
 
 		<Resizable.Handle withHandle></Resizable.Handle>

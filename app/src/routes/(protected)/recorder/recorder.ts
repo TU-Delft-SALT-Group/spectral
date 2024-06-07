@@ -23,7 +23,7 @@ export function readAsPlaintext(file: File): Promise<string> {
 export function parsePromptFile(promptFile: string): Prompt[] {
 	return promptFile
 		.trim()
-		.split('\n')
+		.split(/\r?\n/)
 		.map((line, index) => {
 			const [id, ...prompt] = line.split(' ');
 
