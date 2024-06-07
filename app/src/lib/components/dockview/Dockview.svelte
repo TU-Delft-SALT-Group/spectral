@@ -76,14 +76,61 @@
 	});
 </script>
 
-<section bind:this={el} class="dockview-theme-dark h-full w-full"></section>
+<section bind:this={el} class="dockview-theme-dark dockview-custom h-full w-full"></section>
 
 <style>
-	:global(section.dockview-theme-dark) {
+	:global(section.dockview-custom) {
+		/* Unknown */
+		/* --dv-paneview-active-outline-color: theme(colors.lime.500); */
+
+		--dv-tabs-and-actions-container-font-size: 0.8rem;
 		--dv-tabs-and-actions-container-height: theme(space.8);
+
+		/* Probably not necessary for us */
+		/* --dv-tab-close-icon: ; */
+
+		--dv-drag-over-background-color: theme(colors.primary.DEFAULT / 20%);
+
+		/* Unknown */
+		--dv-drag-over-border-color: theme(colors.red.500);
+
+		/* Not sure when it appears */
+		--dv-tabs-container-scrollbar-color: theme(colors.primary.DEFAULT);
+
 		--dv-group-view-background-color: theme(colors.background);
-		--dv-tabs-and-actions-container-background-color: theme(colors.secondary.DEFAULT / 50%);
-		--dv-activegroup-visiblepanel-tab-background-color: theme(colors.secondary.DEFAULT / 50%);
+
+		/* Unknown */
+		--dv-tabs-and-actions-container-background-color: theme(colors.secondary.DEFAULT / 20%);
+		--dv-tabs-and-actions-container-background-color: theme(colors.secondary.DEFAULT);
+
+		--dv-activegroup-visiblepanel-tab-background-color: theme(colors.background);
+		--dv-activegroup-hiddenpanel-tab-background-color: theme(colors.secondary.DEFAULT / 20%);
+
+		--dv-inactivegroup-visiblepanel-tab-background-color: theme(colors.background);
+		--dv-inactivegroup-hiddenpanel-tab-background-color: theme(colors.secondary.DEFAULT / 50%);
+
+		--dv-tab-divider-color: theme(colors.secondary.DEFAULT);
+
+		--dv-activegroup-visiblepanel-tab-color: theme(colors.foreground);
+		--dv-activegroup-hiddenpanel-tab-color: theme(colors.secondary.foreground / 70%);
+		--dv-inactivegroup-visiblepanel-tab-color: theme(colors.secondary.foreground / 70%);
+		--dv-inactivegroup-hiddenpanel-tab-color: theme(colors.secondary.foreground / 40%);
+
+		--dv-separator-border: theme(colors.accent.DEFAULT);
+
+		/* Unknown */
+		--dv-paneview-header-border-color: theme(colors.secondary.DEFAULT);
+
+		/* Probably not used? */
+		/* --dv-icon-hover-background-color	 */
+		/* --dv-floating-box-shadow	 */
+		/* --dv-active-sash-color	 */
+
 		--dv-background-color: theme(colors.secondary.DEFAULT);
+	}
+
+	/* Remove an outline when selecting tab */
+	:global(.tab::after) {
+		--dv-tab-divider-color: theme(colors.background);
 	}
 </style>
