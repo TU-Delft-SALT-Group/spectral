@@ -20,7 +20,7 @@ export const transcription = z
 export const fileState = z.object({
 	id: z.string().default('broken-file-id'),
 	name: z.string().default('broken-filename'),
-	frame: frame.nullable().default(null),
+	frame: frame.nullable().optional(),
 	cycleEnabled: z.boolean().default(false),
 	transcriptions: z.array(transcription).default([])
 });
