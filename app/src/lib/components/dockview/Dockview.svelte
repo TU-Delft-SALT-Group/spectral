@@ -19,7 +19,6 @@
 	} from 'dockview-core';
 	import { type SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
 	import { SvelteRenderer, SvelteTabActionRenderer, SvelteWatermarkRenderer } from '.';
-	import used from '$lib/utils';
 	import NewTabButton from './NewTabButton.svelte';
 	import Tab from './Tab.svelte';
 
@@ -40,8 +39,7 @@
 		const frameworkOptions: DockviewFrameworkOptions = {
 			parentElement: el,
 			createComponent(options) {
-				used(options);
-				return new SvelteRenderer(component);
+				return new SvelteRenderer(component, options);
 			},
 			createLeftHeaderActionComponent(group) {
 				return new SvelteTabActionRenderer(NewTabButton, group, {
@@ -49,8 +47,7 @@
 				});
 			},
 			createTabComponent(options) {
-				used(options);
-				return new SvelteRenderer(Tab);
+				return new SvelteRenderer(Tab, options);
 			},
 			createWatermarkComponent() {
 				return new SvelteWatermarkRenderer(Watermark, {
