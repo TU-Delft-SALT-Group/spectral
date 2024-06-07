@@ -6,8 +6,11 @@
 	import { todo } from '$lib/utils';
 
 	export let prompts: PromptResponse[];
+	export let recording = false;
 
 	let selectedIndex: number = 0;
+
+	$: console.log({ selectedIndex });
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'ArrowRight') {
@@ -17,8 +20,12 @@
 		}
 	}
 
-	const next = () => (selectedIndex = Math.min(prompts.length - 1, selectedIndex + 1));
-	const previous = () => (selectedIndex = Math.max(0, selectedIndex - 1));
+	const next = () =>
+		!recording && (selectedIndex = Math.min(prompts.length - 1, selectedIndex + 1));
+	const previous = () => !recording && (selectedIndex = Math.max(0, selectedIndex - 1));
+
+	const windowSize = 2;
+	$: center = Math.min(Math.max(windowSize, selectedIndex), prompts.length - windowSize);
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -45,15 +52,18 @@
 		<Resizable.Handle withHandle></Resizable.Handle>
 
 		<Resizable.Pane class="relative mx-auto h-full py-4">
-			{#each prompts as prompt, i (prompt.id)}
+			{#each prompts
+				.map((prompt, i) => ({ prompt, i }))
+				.slice(center - windowSize, center + windowSize + 1) as { prompt, i } (prompt.id)}
 				<section
-					class="absolute h-[calc(100%-theme(space.8))] w-full overflow-y-scroll rounded p-4 text-secondary-foreground transition"
 					class:unselected={i !== selectedIndex}
 					style:--index={i}
 					style:--selected-index={selectedIndex}
+					class="absolute z-20 h-[calc(100%-theme(space.8))] w-full overflow-y-scroll text-balance rounded p-4 text-center text-secondary-foreground transition"
 				>
 					<RecorderSingle
 						bind:prompt={prompts[i]}
+						bind:recording
 						focused={i === selectedIndex}
 						onNext={next}
 						onPrevious={previous}
@@ -66,16 +76,15 @@
 
 <style lang="postcss">
 	section {
-		--gap: -100px;
-		transform: translateX(calc((var(--index) - var(--selected-index)) * (100% + var(--gap))))
-			var(--scale);
+		--gap: calc(theme(maxWidth.xl) + theme(space.8));
+		transform: translateX(calc((var(--index) - var(--selected-index)) * var(--gap))) var(--scale);
 
-		transition-timing-function: cubic-bezier(0.1, 1, 0.22, 1);
+		transition-timing-function: cubic-bezier(0.2, 1, 0.22, 1);
 		transition-duration: 1.2s;
 	}
 
 	.unselected {
-		--scale: scale(0.8);
-		@apply opacity-20;
+		--scale: scale(0.95);
+		@apply pointer-events-none z-0 opacity-50;
 	}
 </style>

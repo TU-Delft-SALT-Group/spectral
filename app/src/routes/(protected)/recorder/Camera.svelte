@@ -25,7 +25,6 @@
 
 	$: if (browser && videoElement) {
 		if (previewing !== null) {
-			console.log(previewing);
 			try {
 				videoElement.srcObject = previewing;
 			} catch (err) {

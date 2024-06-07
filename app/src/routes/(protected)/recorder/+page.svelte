@@ -2,16 +2,22 @@
 	import UploadPrompt from './UploadPrompt.svelte';
 	import Recorder from './Recorder.svelte';
 	import type { PromptResponse } from './recorder';
-	import { browser } from '$app/environment';
+	import { beforeNavigate } from '$app/navigation';
 
 	let state: {
 		promptName: string;
 		prompts: PromptResponse[];
 	} | null = null;
 
-	// TODO: Remove this
-	// $: browser && localStorage.setItem('recording-state', JSON.stringify(state))
-	state = browser ? JSON.parse(localStorage.getItem('recording-state') || 'null') : null;
+	$: dirty = state !== null && state.prompts.some((prompt) => prompt.recordings.length > 0);
+
+	beforeNavigate(({ cancel }) => {
+		if (dirty) {
+			if (!confirm('Warning: If you leave the page, your recordings will be lost')) {
+				cancel();
+			}
+		}
+	});
 </script>
 
 {#if state === null}

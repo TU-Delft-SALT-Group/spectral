@@ -34,7 +34,7 @@
 <div class="mx-auto grid h-full w-fit content-center text-center">
 	<div class="mx-auto w-fit pb-4 text-xl">Please upload a prompt to record</div>
 
-	<Input type="file" accept=".txt" on:change={handlePromptUpload} />
+	<Input type="file" accept=".txt" onchange={handlePromptUpload} />
 </div>
 {#if error !== null}
 	{error.message}
