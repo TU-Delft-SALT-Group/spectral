@@ -52,10 +52,6 @@
 				panel.api.onDidTitleChange((e) => {
 					state.panes[panel.id].title = e.title;
 				});
-
-				panel.api.onDidDimensionsChange((e) => {
-					state.panes[panel.id].modeState['waveform'].width = e.width;
-				});
 			}
 		}
 

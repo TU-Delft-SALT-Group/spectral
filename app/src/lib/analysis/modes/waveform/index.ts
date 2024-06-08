@@ -16,9 +16,5 @@ export const waveformData = {
 		})
 		.default({}),
 
-	modeState: z
-		.object({
-			width: z.number().default(100)
-		})
-		.default({})
+	modeState: z.object({}).default({})
 } satisfies ModeValidator;

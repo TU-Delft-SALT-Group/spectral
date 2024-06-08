@@ -12,11 +12,7 @@ export const spectrogramData = {
 		})
 		.default({}),
 
-	modeState: z
-		.object({
-			width: z.number().default(100)
-		})
-		.default({})
+	modeState: z.object({}).default({})
 } satisfies ModeValidator;
 
 export { default as Spectrogram } from './Spectrogram.svelte';
