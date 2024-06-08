@@ -58,6 +58,7 @@
 		"@lucia-auth/adapter-drizzle": "^1.0.7",
 		"@node-rs/argon2": "^1.8.3",
 		"@vitest/coverage-v8": "^1.6.0",
+		"app": "link:",
 		"bits-ui": "^0.21.7",
 		"clsx": "^2.1.1",
 		"d3": "^7.9.0",
