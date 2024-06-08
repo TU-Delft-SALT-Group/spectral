@@ -52,7 +52,7 @@
 	export let visualization: VisualizationType;
 	export let computedData: mode.ComputedData<VisualizationType>;
 	export let fileState: mode.FileState<VisualizationType>;
-	export let width: number;
+	let width: number;
 
 	let component = getVisualizationPlugin(visualization);
 	let controls: ControlRequirements;
@@ -101,7 +101,11 @@
 	}
 </script>
 
-<section class="flex h-fit flex-col transition" class:opacity-80={$selectedStore !== controls}>
+<section
+	bind:clientWidth={width}
+	class="flex h-fit flex-col transition"
+	class:opacity-80={$selectedStore !== controls}
+>
 	<div class="flex h-fit w-full">
 		<Button
 			class="h-full w-16 rounded-none rounded-l"
@@ -125,15 +129,12 @@
 				bind:duration
 				bind:playing
 				{setAsSelected}
-				width={width - 64 - 48}
+				width={width - 48}
 			/>
 
 			<!-- the bar -->
 			<div
 				class="flex h-8 flex-row items-center overflow-x-hidden rounded-b bg-secondary bg-opacity-50 px-3 py-1 font-mono"
-				style:width={width - 64 - 48}
-				style:max-width={width - 64 - 48}
-				style:min-width={width - 64 - 48}
 			>
 				<div>
 					{numberToTime(currentTime)}/{numberToTime(duration)}

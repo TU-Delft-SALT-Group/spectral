@@ -43,7 +43,7 @@
 	export let current: number;
 	export let setAsSelected: () => void;
 	export let playing = false;
-	export let width: number = 100;
+	export let width: number;
 
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
