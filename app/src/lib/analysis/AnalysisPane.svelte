@@ -87,6 +87,8 @@
 	$: if (browser) {
 		getProps(state);
 	}
+
+	console.log(state.files);
 </script>
 
 <section

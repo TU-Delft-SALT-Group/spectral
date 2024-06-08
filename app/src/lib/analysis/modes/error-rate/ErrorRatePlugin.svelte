@@ -12,6 +12,9 @@
 	fileState.reference = fileState.transcriptions[0].captions;
 	fileState.hypothesis = fileState.transcriptions[1].captions;
 
+	console.log(fileState.reference);
+	console.log(fileState.hypothesis);
+
 	// $: if (selectedReference && selectedHypothesis) {
 	// 	for (const transcription of fileState.transcriptions) {
 	// 		if (transcription.id === selectedReference.value)  {
