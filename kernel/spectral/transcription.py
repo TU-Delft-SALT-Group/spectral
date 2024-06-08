@@ -23,6 +23,8 @@ def calculate_error_rates(reference_annotations, hypothesis_annotations):
 
     """
     reference = annotation_to_sentence(reference_annotations)
+    if reference == "":
+        return None
     hypothesis = annotation_to_sentence(hypothesis_annotations)
     word_level = word_level_processing(reference, hypothesis)
     character_level = character_level_processing(reference, hypothesis)

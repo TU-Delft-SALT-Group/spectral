@@ -121,12 +121,18 @@ def error_rate_mode(database, file_state):
     result = error_rate_mode(database, file_state)
     ```
     """
-    if "reference" not in file_state or "hypothesis" not in file_state:
+    if (
+        "reference" not in file_state
+        or file_state["reference"] is None
+        or "hypothesis" not in file_state
+        or file_state["hypothesis"] is None
+    ):
         return None
 
     errorRate = calculate_error_rates(file_state["reference"], file_state["hypothesis"])
 
-    return {"errorRate": errorRate}
+    print(errorRate)
+    return errorRate
 
 
 def get_file(database, file_state):
