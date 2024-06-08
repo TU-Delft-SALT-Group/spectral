@@ -11,6 +11,14 @@ def test_validate_frame_index_valid():
     assert frame_index == {"startIndex": 10, "endIndex": 20}
 
 
+def test_validate_frame_index_both_none_indices():
+    data = [0] * 100
+    assert (
+        validate_frame_index(data, {"frame": {"startIndex": None, "endIndex": None}})
+        is None
+    )
+
+
 def test_validate_frame_index_missing_start_index():
     data = [0] * 100
     with pytest.raises(HTTPException):

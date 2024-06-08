@@ -2,6 +2,8 @@ from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
 from jiwer import process_words, process_characters
 from .signal_analysis import get_audio, calculate_signal_duration
+from allosaurus.app import read_recognizer  # type: ignore
+import tempfile
 import os
 
 
@@ -159,14 +161,16 @@ def get_transcription(model, file):
     """
     if model == "deepgram":
         return fill_gaps(deepgram_transcription(file["data"]), file)
+    if model == "allosaurus":
+        return fill_gaps(allosaurs_transcription(file), file)
     raise HTTPException(status_code=404, detail="Model was not found")
 
 
 def fill_gaps(transcriptions, file):
     res = []
 
-    fs, data = get_audio(file)
-    duration = calculate_signal_duration(data, fs)
+    audio = get_audio(file)
+    duration = calculate_signal_duration(audio)
 
     if len(transcriptions) == 0:
         return [{"value": "", "start": 0, "end": duration}]
@@ -232,3 +236,96 @@ def deepgram_transcription(data):
 
     except Exception as e:
         print(f"Exception: {e}")
+
+
+def allosaurs_transcription(file):
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
+        temp_wav.write(file["data"])
+        temp_wav_filename = temp_wav.name
+
+    word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
+
+    model = read_recognizer()
+    phoneme_level_transcription = model.recognize(
+        temp_wav_filename, timestamp=True, emit=1.2
+    )
+
+    phoneme_level_parsed = []
+
+    for phoneme_string in phoneme_level_transcription.splitlines():
+        phoneme_level_parsed.append(
+            [float(phoneme_string.split(" ")[0]), phoneme_string.split(" ")[2]]
+        )
+
+    phoneme_word_splits = get_phoneme_word_splits(
+        word_level_transcription, phoneme_level_parsed
+    )
+    return get_phoneme_transcriptions(phoneme_word_splits)
+
+
+def get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed):
+    if len(word_level_transcription) == 0:
+        return []
+
+    word_pointer = 0
+    phoneme_pointer = 0
+
+    phoneme_word_splits = []
+
+    current_split = {"phonemes": [], "word_transcription": None}
+
+    while word_pointer < len(word_level_transcription) and phoneme_pointer < len(
+        phoneme_level_parsed
+    ):
+        if (
+            phoneme_level_parsed[phoneme_pointer][0]
+            > word_level_transcription[word_pointer]["end"]
+        ):
+            current_split["word_transcription"] = word_level_transcription[word_pointer]
+            phoneme_word_splits.append(current_split)
+            current_split = {"phonemes": [], "word_transcription": None}
+            word_pointer += 1
+            continue
+
+        current_split["phonemes"].append(phoneme_level_parsed[phoneme_pointer])
+        phoneme_pointer += 1
+
+    if phoneme_pointer == len(phoneme_level_parsed):
+        current_split["word_transcription"] = word_level_transcription[word_pointer]
+        phoneme_word_splits.append(current_split)
+
+    return phoneme_word_splits
+
+
+def get_phoneme_transcriptions(phoneme_word_splits):
+    res = []
+
+    for phoneme_split in phoneme_word_splits:
+        if len(phoneme_split) == 0:
+            continue
+
+        for i in range(len(phoneme_split["phonemes"])):
+            start = 0
+            if i == 0:
+                start = phoneme_split["word_transcription"]["start"]
+            else:
+                # this is an (educated) guess, it could be way off :D
+                start = (
+                    phoneme_split["phonemes"][i - 1][0]
+                    + phoneme_split["phonemes"][i][0]
+                ) / 2
+
+            end = 0
+            if i + 1 == len(phoneme_split["phonemes"]):
+                end = phoneme_split["word_transcription"]["end"]
+            else:
+                end = (
+                    phoneme_split["phonemes"][i + 1][0]
+                    + phoneme_split["phonemes"][i][0]
+                ) / 2
+
+            res.append(
+                {"value": phoneme_split["phonemes"][i][1], "start": start, "end": end}
+            )
+
+    return res

@@ -1,7 +1,12 @@
 import pytest
 from unittest.mock import Mock, patch
 from fastapi import HTTPException
-from spectral.transcription import get_transcription, deepgram_transcription
+from spectral.transcription import (
+    get_transcription,
+    deepgram_transcription,
+    get_phoneme_transcriptions,
+    get_phoneme_word_splits,
+)
 import os
 
 
@@ -75,3 +80,11 @@ def test_deepgram_transcription_no_api_key(capfd):
     deepgram_transcription(b"audio data")
     captured = capfd.readouterr()
     assert "No API key for Deepgram is found" in captured.out
+
+
+def test_get_phoneme_transcription_empty_transcription():
+    assert get_phoneme_transcriptions([[]]) == []
+
+
+def test_get_phoneme_word_splits_empty():
+    assert get_phoneme_word_splits([], [[]]) == []

@@ -17,7 +17,8 @@
 	let width: number;
 	let minZoom: number;
 	let duration: number;
-	let transcriptionType: { label?: string; value: string } = { value: 'default' };
+	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
+	const models: string[] = ['deepgram', 'allosaurus'];
 
 	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
 		if (!newSelection) return;
@@ -117,15 +118,16 @@
 				{transcriptionType.value}
 			</Select.Trigger>
 			<Select.Content>
-				<Select.Item value="default">Default</Select.Item>
-				<Select.Item value="deepgram">Deepgram (word level)</Select.Item>
-				<!-- <Select.Item value="allosaurus">Allosaurs + deepgram (phoneme level)</Select.Item> -->
+				<Select.Item value="empty">empty</Select.Item>
+				{#each models as model}
+					<Select.Item value={model}>{model}</Select.Item>
+				{/each}
 			</Select.Content>
 		</Select.Root>
 		<Button
 			class="w-5/6 rounded-t-none"
 			on:click={async () => {
-				if (transcriptionType.value === 'default') {
+				if (transcriptionType.value === 'empty') {
 					fileState.transcriptions = [
 						...fileState.transcriptions,
 						{
@@ -140,9 +142,10 @@
 							]
 						}
 					];
-				} else if (transcriptionType.value === 'deepgram') {
-					let response = await (await fetch('/api/transcription/deepgram/' + fileState.id)).json();
-					console.log(response);
+				} else if (models.includes(transcriptionType.value)) {
+					let response = await (
+						await fetch('/api/transcription/' + transcriptionType.value + '/' + fileState.id)
+					).json();
 					fileState.transcriptions = [
 						...fileState.transcriptions,
 						{
@@ -151,10 +154,7 @@
 							captions: response
 						}
 					];
-				}
-				// else if (transcriptionType.value === 'allosaurs') {
-				// }
-				else {
+				} else {
 					console.error('no match for: ' + transcriptionType.value);
 				}
 			}}
