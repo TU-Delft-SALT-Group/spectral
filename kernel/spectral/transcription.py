@@ -172,8 +172,6 @@ def fill_gaps(transcriptions, file):
     audio = get_audio(file)
     duration = calculate_signal_duration(audio)
 
-    print("duration: " + str(duration))
-
     if len(transcriptions) == 0:
         return [{"value": "", "start": 0, "end": duration}]
 
@@ -187,8 +185,6 @@ def fill_gaps(transcriptions, file):
 
     if time != duration:
         res.append({"value": "", "start": time, "end": duration})
-
-    print(res)
 
     return res
 
@@ -243,24 +239,16 @@ def deepgram_transcription(data):
 
 
 def allosaurs_transcription(file):
-    audio = get_audio(file)
-    duration = calculate_signal_duration(audio)
-    print("duration1: " + str(duration))
-
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
 
     word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
 
-    print(word_level_transcription)
-
     model = read_recognizer()
     phoneme_level_transcription = model.recognize(
         temp_wav_filename, timestamp=True, emit=1.2
     )
-
-    print(phoneme_level_transcription)
 
     phoneme_level_parsed = []
 

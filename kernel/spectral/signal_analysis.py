@@ -91,7 +91,7 @@ def calculate_signal_duration(audio):
     return audio.duration_seconds
 
 
-def calculate_sound_pitch(sound, time_step=None):
+def calculate_sound_pitch(sound, time_step=None):  # pragma: no cover
     """
     This method calculates the pitches present in a sound object.
 
@@ -122,7 +122,7 @@ def calculate_sound_pitch(sound, time_step=None):
 
 def calculate_sound_spectrogram(
     sound, time_step=0.002, window_length=0.005, frequency_step=20.0
-):
+):  # pragma: no cover
     """
     This method calculates the spectrogram of a sound fragment.
 
@@ -161,7 +161,9 @@ def calculate_sound_spectrogram(
         return None
 
 
-def calculate_sound_f1_f2(sound, time_step=None, window_length=0.025):
+def calculate_sound_f1_f2(
+    sound, time_step=None, window_length=0.025
+):  # pragma: no cover
     """
     This method calculates the first and second formant of a sound fragment.
 
