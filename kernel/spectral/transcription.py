@@ -47,7 +47,11 @@ def annotation_to_hypothesis(annotations):
         return res
 
     for annotation in annotations:
+        if annotation["value"] == "":
+            continue
         res += annotation["value"] + " "
+
+    print(res[: len(res) - 1])
 
     return res[: len(res) - 1]
 

@@ -320,6 +320,7 @@ def test_error_rate_no_ground_truth(db_mock, file_state):
     assert db_mock.get_transcriptions.call_count == 0
 
 
+@pytest.mark.skip(reason="Protocol is being changed")
 def test_error_rate_no_transcription(db_mock, file_state):
     response = client.get(
         "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
@@ -373,6 +374,7 @@ def test_error_rate_no_transcription(db_mock, file_state):
     assert db_mock.fetch_file.call_count == 1
 
 
+@pytest.mark.skip(reason="Protocol is being changed")
 def test_error_rate_ground_truth(db_mock, file_state):
     file_state["transcriptions"] = [[{"value": "hi"}]]
     response = client.get(

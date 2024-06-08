@@ -134,7 +134,9 @@ def error_rate_mode(database, file_state):
     errorRates = []
 
     for transcription in transcriptions:
-        errorRates.append(calculate_error_rates(file["groundTruth"], transcription))
+        errorRates.append(
+            calculate_error_rates(file["groundTruth"], transcription["captions"])
+        )
 
     return {"groundTruth": file["groundTruth"], "errorRates": errorRates}
 
