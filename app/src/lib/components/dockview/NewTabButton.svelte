@@ -24,7 +24,7 @@
 </script>
 
 <Button
-	class="bg-panes h-full rounded-none px-2 text-panes-color"
+	class="bg-panes text-panes-color h-full rounded-none px-2"
 	variant="ghost"
 	on:click={onClick}>+</Button
 >

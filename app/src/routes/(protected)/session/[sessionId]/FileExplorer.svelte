@@ -24,7 +24,7 @@
 	let submitButton: HTMLInputElement;
 </script>
 
-<div class="flex h-full flex-col">
+<div class="flex h-full flex-col bg-secondary/75 text-secondary-foreground">
 	<ol class="flex-1 py-2">
 		<ContextMenu.Root>
 			{#each files as file (file.id)}

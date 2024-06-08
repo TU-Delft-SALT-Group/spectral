@@ -1,6 +1,6 @@
 <script lang="ts">
-	import '../app.pcss';
 	import 'dockview-core/dist/styles/dockview.css';
+	import '../app.pcss';
 
 	import { ModeWatcher } from 'mode-watcher';
 	import Menubar from './Menubar.svelte';
