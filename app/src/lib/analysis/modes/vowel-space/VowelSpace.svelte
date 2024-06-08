@@ -12,6 +12,8 @@
 	used(modeState);
 
 	let container: HTMLDivElement;
+	let clientWidth: number;
+	let clientHeight: number;
 
 	function d3Action(node: Node) {
 		const foreground = window && window.getComputedStyle(container).getPropertyValue('color');
@@ -118,9 +120,16 @@
 	}
 
 	$: d3.select('.legend').style('opacity', modeState.showLegend ? 1 : 0);
+
+	$: if (clientWidth && clientHeight) {
+		while (container.hasChildNodes()) {
+			container.firstChild?.remove();
+		}
+		d3Action(container);
+	}
 </script>
 
-<section class="grid h-full w-full grid-rows-[auto,1fr]">
+<section class="grid h-full w-full grid-rows-[auto,1fr]" bind:clientWidth bind:clientHeight>
 	<div class="w-full p-2">
 		<div class="flex items-center gap-2">
 			<Label
