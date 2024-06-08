@@ -212,7 +212,9 @@ export const errorRateData = {
 		.pick({
 			id: true,
 			name: true,
-			transcriptions: true
+			transcriptions: true,
+			reference: true,
+			hypothesis: true
 		})
 		.default({}),
 
