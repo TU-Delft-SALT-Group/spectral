@@ -7,6 +7,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
+	import { logger } from '$lib/logger';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -143,9 +144,8 @@
 						}
 					];
 				} else if (models.includes(transcriptionType.value)) {
-					let response = await (
-						await fetch('/api/transcription/' + transcriptionType.value + '/' + fileState.id)
-					).json();
+					let response = await (await fetch('/api/transcription/deepgram/' + fileState.id)).json();
+					logger.trace(response);
 					fileState.transcriptions = [
 						...fileState.transcriptions,
 						{
@@ -155,7 +155,7 @@
 						}
 					];
 				} else {
-					console.error('no match for: ' + transcriptionType.value);
+					logger.error('no match for: ' + transcriptionType.value);
 				}
 			}}
 		>

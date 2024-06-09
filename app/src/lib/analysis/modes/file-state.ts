@@ -23,8 +23,22 @@ export const fileState = z.object({
 	frame: frame.nullable().default(null),
 	cycleEnabled: z.boolean().default(false),
 	transcriptions: z.array(transcription).default([]),
-	reference: z.array(caption).nullable().default(null),
-	hypothesis: z.array(caption).nullable().default(null)
+	reference: z
+		.object({
+			id: z.string(),
+			name: z.string(),
+			captions: z.array(caption)
+		})
+		.nullable()
+		.default(null),
+	hypothesis: z
+		.object({
+			id: z.string(),
+			name: z.string(),
+			captions: z.array(caption)
+		})
+		.nullable()
+		.default(null)
 });
 
 export type FileState = z.infer<typeof fileState>;

@@ -9,7 +9,7 @@
 	used(modeState);
 </script>
 
-<section class="flex h-full w-full flex-col gap-6 p-6">
+<section class="flex h-fit w-full flex-col gap-6 p-6">
 	{#each fileData as { computedData, fileState } (fileState.id)}
 		<ErrorRatePlugin {computedData} {fileState} />
 	{/each}

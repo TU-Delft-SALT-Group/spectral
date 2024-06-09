@@ -129,7 +129,9 @@ def error_rate_mode(database, file_state):
     ):
         return None
 
-    errorRate = calculate_error_rates(file_state["reference"], file_state["hypothesis"])
+    errorRate = calculate_error_rates(
+        file_state["reference"]["captions"], file_state["hypothesis"]["captions"]
+    )
 
     print(errorRate)
     return errorRate
