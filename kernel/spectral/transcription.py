@@ -54,8 +54,6 @@ def annotation_to_sentence(annotations):
             continue
         res += annotation["value"] + " "
 
-    print(res[: len(res) - 1])
-
     return res[: len(res) - 1]
 
 

@@ -124,8 +124,12 @@ def error_rate_mode(database, file_state):
     if (
         "reference" not in file_state
         or file_state["reference"] is None
+        or "captions" not in file_state["reference"]
+        or file_state["reference"]["captions"] is None
         or "hypothesis" not in file_state
         or file_state["hypothesis"] is None
+        or "captions" not in file_state["hypothesis"]
+        or file_state["hypothesis"]["captions"] is None
     ):
         return None
 
@@ -133,7 +137,6 @@ def error_rate_mode(database, file_state):
         file_state["reference"]["captions"], file_state["hypothesis"]["captions"]
     )
 
-    print(errorRate)
     return errorRate
 
 

@@ -17,8 +17,6 @@
 		label: fileState.hypothesis?.name
 	};
 
-	$: console.log(selectedReference, selectedHypothesis);
-
 	$: if (selectedReference && selectedHypothesis) {
 		for (const transcription of fileState.transcriptions) {
 			if (transcription.id === selectedReference.value) {

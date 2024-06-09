@@ -308,76 +308,144 @@ def mock_db(mocker):
     return mock_db_instance
 
 
-@pytest.mark.skip(reason="Protocol is being changed")
-def test_error_rate_no_ground_truth(db_mock, file_state):
-    db_mock.fetch_file.return_value["groundTruth"] = None
+def test_error_rate_no_reference(db_mock, file_state):
     response = client.get(
         "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
     )
 
     assert response.status_code == 200
     assert response.json() is None
-    assert db_mock.fetch_file.call_count == 1
     assert db_mock.get_transcriptions.call_count == 0
 
 
-@pytest.mark.skip(reason="Protocol is being changed")
-def test_error_rate_no_transcription(db_mock, file_state):
+def test_error_rate_reference_None(db_mock, file_state):
+    file_state["reference"] = None
     response = client.get(
         "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
     )
 
     assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.get_transcriptions.call_count == 0
 
-    result = response.json()
 
-    assert result["groundTruth"] == "hai test"
+def test_error_rate_no_reference_caption(db_mock, file_state):
+    file_state["reference"] = {}
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
 
-    word_level = result["errorRates"][0]["wordLevel"]
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.get_transcriptions.call_count == 0
 
-    assert word_level["wer"] == 1.0
-    assert word_level["mer"] == 1.0
-    assert word_level["wil"] == 1.0
-    assert word_level["wip"] == 0
-    assert word_level["hits"] == 0
-    assert word_level["substitutions"] == 0
-    assert word_level["insertions"] == 0
-    assert word_level["deletions"] == 2
-    assert word_level["reference"] == ["hai", "test"]
-    assert word_level["hypothesis"] == []
-    assert len(word_level["alignments"]) == 1
-    assert word_level["alignments"][0] == {
-        "type": "delete",
-        "referenceStartIndex": 0,
-        "referenceEndIndex": 2,
-        "hypothesisStartIndex": 0,
-        "hypothesisEndIndex": 0,
+
+def test_error_rate_no_hypothesis(db_mock, file_state):
+    file_state["reference"] = {"captions": [{"value": "Hi"}]}
+    file_state["hypothesis"] = None
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
+
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.get_transcriptions.call_count == 0
+
+
+def test_error_rate_hypothesis_None(db_mock, file_state):
+    file_state["reference"] = {"captions": [{"value": "Hi"}]}
+    file_state["hypothesis"] = None
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
+
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.get_transcriptions.call_count == 0
+
+
+def test_error_rate_no_hypothesis_caption(db_mock, file_state):
+    file_state["reference"] = {"captions": [{"value": "Hi"}]}
+    file_state["hypothesis"] = {}
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
+
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.get_transcriptions.call_count == 0
+
+
+def test_error_rate_empty_reference_array(db_mock, file_state):
+    file_state["reference"] = {"captions": []}
+    file_state["hypothesis"] = {"captions": [{"value": "Hi"}]}
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
+
+    assert response.status_code == 200
+    assert response.json() is None
+    assert db_mock.get_transcriptions.call_count == 0
+
+
+def test_error_rate_empty_hypothesis_array(db_mock, file_state):
+    file_state["reference"] = {"captions": [{"value": "Hi"}]}
+    file_state["hypothesis"] = {"captions": []}
+    response = client.get(
+        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
+    )
+
+    assert response.status_code == 200
+    print(response.json())
+    assert response.json() == {
+        "wordLevel": {
+            "wer": 1.0,
+            "mer": 1.0,
+            "wil": 1.0,
+            "wip": 0.0,
+            "hits": 0,
+            "substitutions": 0,
+            "insertions": 0,
+            "deletions": 1,
+            "reference": ["Hi"],
+            "hypothesis": [],
+            "alignments": [
+                {
+                    "type": "delete",
+                    "referenceStartIndex": 0,
+                    "referenceEndIndex": 1,
+                    "hypothesisStartIndex": 0,
+                    "hypothesisEndIndex": 0,
+                }
+            ],
+        },
+        "characterLevel": {
+            "cer": 1.0,
+            "hits": 0,
+            "substitutions": 0,
+            "insertions": 0,
+            "deletions": 2,
+            "reference": ["H", "i"],
+            "hypothesis": [],
+            "alignments": [
+                {
+                    "type": "delete",
+                    "referenceStartIndex": 0,
+                    "referenceEndIndex": 2,
+                    "hypothesisStartIndex": 0,
+                    "hypothesisEndIndex": 0,
+                }
+            ],
+        },
     }
-
-    character_level = result["errorRates"][0]["characterLevel"]
-
-    assert character_level["cer"] == 1
-    assert character_level["hits"] == 0
-    assert character_level["substitutions"] == 0
-    assert character_level["insertions"] == 0
-    assert character_level["deletions"] == 8
-    assert character_level["reference"] == ["h", "a", "i", " ", "t", "e", "s", "t"]
-    assert character_level["hypothesis"] == []
-    assert len(character_level["alignments"]) == 1
-    assert character_level["alignments"][0] == {
-        "type": "delete",
-        "referenceStartIndex": 0,
-        "referenceEndIndex": 8,
-        "hypothesisStartIndex": 0,
-        "hypothesisEndIndex": 0,
-    }
-
-    assert db_mock.fetch_file.call_count == 1
+    assert db_mock.get_transcriptions.call_count == 0
 
 
 def test_error_rate_ground_truth(db_mock, file_state):
-    file_state["reference"] = [{"value": "hai test"}]
-    file_state["hypothesis"] = [{"value": "hi"}]
+    file_state["reference"] = {}
+    file_state["reference"]["captions"] = [{"value": "hai test"}]
+    file_state["hypothesis"] = {}
+    file_state["hypothesis"]["captions"] = [{"value": "hi"}]
     response = client.get(
         "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
     )
@@ -385,7 +453,7 @@ def test_error_rate_ground_truth(db_mock, file_state):
     assert response.status_code == 200
     result = response.json()
 
-    word_level = result["errorRate"]["wordLevel"]
+    word_level = result["wordLevel"]
 
     assert word_level["wer"] == 1.0
     assert word_level["mer"] == 1.0
@@ -413,7 +481,7 @@ def test_error_rate_ground_truth(db_mock, file_state):
         "hypothesisEndIndex": 1,
     }
 
-    character_level = result["errorRate"]["characterLevel"]
+    character_level = result["characterLevel"]
 
     assert character_level["cer"] == 0.75
     assert character_level["hits"] == 2
@@ -452,7 +520,7 @@ def test_error_rate_ground_truth(db_mock, file_state):
         "hypothesisEndIndex": 2,
     }
 
-    assert db_mock.fetch_file.call_count == 1
+    assert db_mock.fetch_file.call_count == 0
 
 
 def test_phone_transcription(db_mock, file_state):
