@@ -6,6 +6,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Your profile</title>
+</svelte:head>
+
 <main class="mx-auto max-w-xl py-8">
 	<h1 class="text-5xl">
 		Hello, <strong>{data.user.username}</strong>!

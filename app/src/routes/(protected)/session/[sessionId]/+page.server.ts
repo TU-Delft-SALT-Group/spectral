@@ -12,7 +12,8 @@ export const load = (async ({ params: { sessionId } }) => {
 	const result = await db.query.sessionTable.findFirst({
 		where: eq(sessionTable.id, sessionId),
 		columns: {
-			state: true
+			state: true,
+			name: true
 		},
 		with: {
 			files: {
@@ -31,11 +32,13 @@ export const load = (async ({ params: { sessionId } }) => {
 	}
 
 	const [files, state] = await Promise.all([getFiles(result), getState(result)]);
+	const name = result.name;
 
 	return {
 		files,
 		state,
-		sessionId
+		sessionId,
+		name
 	};
 }) satisfies PageServerLoad;
 

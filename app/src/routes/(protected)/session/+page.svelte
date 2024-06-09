@@ -13,6 +13,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Your sessions</title>
+</svelte:head>
+
 <Dialog.Root>
 	<main class="mx-auto w-fit px-4 py-8">
 		<h1 class="text-3xl font-bold">Your sessions</h1>
