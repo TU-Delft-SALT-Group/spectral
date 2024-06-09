@@ -51,6 +51,10 @@
 	let workspace: Workspace;
 </script>
 
+<svelte:head>
+	<title>{data.name}</title>
+</svelte:head>
+
 <div class="flex h-full w-screen">
 	<Resizable.PaneGroup direction="horizontal">
 		<Resizable.Pane defaultSize={20} minSize={11} collapsible={true} collapsedSize={1}>

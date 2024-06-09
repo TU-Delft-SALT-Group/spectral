@@ -4,6 +4,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>About</title>
+</svelte:head>
+
 <main class="mx-auto max-w-xl px-4 py-8">
 	<!-- eslint-disable svelte/no-at-html-tags Markdown data is trusted because it comes from our own server. -->
 	{@html data.markDown}

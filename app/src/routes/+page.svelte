@@ -2,6 +2,10 @@
 	import { Button } from '$lib/components/ui/button';
 </script>
 
+<svelte:head>
+	<title>Spectral</title>
+</svelte:head>
+
 <div class="grid h-full place-content-center">
 	<div class="mb-4">
 		<h1 class="text-[12vw] font-bold">Spectral</h1>
