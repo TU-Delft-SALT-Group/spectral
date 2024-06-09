@@ -121,24 +121,12 @@ def error_rate_mode(database, file_state):
     result = error_rate_mode(database, file_state)
     ```
     """
-    if "transcriptions" not in file_state:
+    if "reference" not in file_state or "hypothesis" not in file_state:
         return None
 
-    transcriptions = file_state["transcriptions"]
+    errorRate = calculate_error_rates(file_state["reference"], file_state["hypothesis"])
 
-    file = get_file(database, file_state)
-
-    if file["groundTruth"] is None or transcriptions is None:
-        return None
-
-    errorRates = []
-
-    for transcription in transcriptions:
-        errorRates.append(
-            calculate_error_rates(file["groundTruth"], transcription["captions"])
-        )
-
-    return {"groundTruth": file["groundTruth"], "errorRates": errorRates}
+    return {"errorRate": errorRate}
 
 
 def get_file(database, file_state):

@@ -165,5 +165,4 @@ class ErrorRateResponse(BaseModel):
 
     """
 
-    errorRates: list[ErrorRateValue]
-    groundTruth: str
+    errorRate: ErrorRateValue

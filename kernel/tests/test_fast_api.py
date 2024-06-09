@@ -308,6 +308,7 @@ def mock_db(mocker):
     return mock_db_instance
 
 
+@pytest.mark.skip(reason="Protocol is being changed")
 def test_error_rate_no_ground_truth(db_mock, file_state):
     db_mock.fetch_file.return_value["groundTruth"] = None
     response = client.get(
@@ -374,9 +375,9 @@ def test_error_rate_no_transcription(db_mock, file_state):
     assert db_mock.fetch_file.call_count == 1
 
 
-@pytest.mark.skip(reason="Protocol is being changed")
 def test_error_rate_ground_truth(db_mock, file_state):
-    file_state["transcriptions"] = [[{"value": "hi"}]]
+    file_state["reference"] = [{"value": "hai test"}]
+    file_state["hypothesis"] = [{"value": "hi"}]
     response = client.get(
         "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
     )
@@ -384,9 +385,7 @@ def test_error_rate_ground_truth(db_mock, file_state):
     assert response.status_code == 200
     result = response.json()
 
-    assert result["groundTruth"] == "hai test"
-
-    word_level = result["errorRates"][0]["wordLevel"]
+    word_level = result["errorRate"]["wordLevel"]
 
     assert word_level["wer"] == 1.0
     assert word_level["mer"] == 1.0
@@ -414,7 +413,7 @@ def test_error_rate_ground_truth(db_mock, file_state):
         "hypothesisEndIndex": 1,
     }
 
-    character_level = result["errorRates"][0]["characterLevel"]
+    character_level = result["errorRate"]["characterLevel"]
 
     assert character_level["cer"] == 0.75
     assert character_level["hits"] == 2
