@@ -20,6 +20,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Recorder</title>
+</svelte:head>
+
 {#if state === null}
 	<UploadPrompt
 		onPromptUpload={({ filename, prompts }) => {
