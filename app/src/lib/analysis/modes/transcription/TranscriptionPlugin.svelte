@@ -2,7 +2,7 @@
 	import WaveSurfer from 'wavesurfer.js';
 	import type { mode } from '..';
 	import { onDestroy, onMount } from 'svelte';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
 	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';

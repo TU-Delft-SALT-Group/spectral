@@ -8,96 +8,91 @@
 
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import {
-		modeComponents,
-		type FileData,
-		type mode,
-		type ModeComponent,
-		type ModeComponentProps
-	} from '$lib/analysis/modes';
+	import { modeComponents, modeNames, type FileData, type mode } from '$lib/analysis/modes';
 	import Json from '$lib/components/Json.svelte';
+	import { memoize } from '$lib/utils';
 	import type { PaneState } from './analysis-pane';
 	import { getComputedFileData } from './kernel/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
-	import { fileState } from './modes/file-state';
+	import { fileState, type FileState } from './modes/file-state';
 
-	export let state: PaneState;
+	let {
+		state: paneState
+	}: {
+		state: PaneState;
+	} = $props();
 
-	type RendererBundle<M extends mode.Name> = {
-		component: ModeComponent<M>;
-		props: ModeComponentProps<M> | { error: unknown } | null;
-		stale: boolean;
-	};
-
-	let data = Object.fromEntries(
-		Object.entries(modeComponents).map(([mode, { component }]) => {
-			return [
-				mode,
-				{
-					component,
-					props: null,
-					stale: false
-				}
-			];
-		})
-	) as {
-		[M in mode.Name]: RendererBundle<M>;
-	};
-
-	async function getProps(state: PaneState) {
-		if (data[state.mode].props === null || data[state.mode].stale) {
-			try {
-				const modeState = state.modeState;
-				const fileData = state.files.map(
-					async (fileState): Promise<FileData<mode.Name>> => ({
-						fileState,
-						computedData: await getComputedFileData({
-							mode: state.mode,
-							fileState
-						})
+	const getFileData = memoize(
+		async (state: PaneState) => {
+			const fileData = state.files.map(
+				async (fileState): Promise<FileData> => ({
+					fileState,
+					computedData: await getComputedFileData({
+						mode: state.mode,
+						fileState
 					})
-				);
+				})
+			);
 
-				data[state.mode].props = {
-					modeState,
-					fileData: (await Promise.all(fileData)) as any // eslint-disable-line @typescript-eslint/no-explicit-any
-				};
-				data[state.mode].stale = false;
-			} catch (error) {
-				data[state.mode].props = { error };
-			}
+			return await Promise.all(fileData);
+		},
+		{
+			maxSize: modeNames.length * 5,
+			hashKey: (state) => structuredClone($state.snapshot(state))
+		}
+	);
+
+	/**
+	 * This variables holds the file data for the current mode.
+	 *
+	 *
+	 * It would be nice to bind `paneState.fileState` directly. However,
+	 * we need to bundle the file state with the computed data because we want it
+	 * to be one object in the consumer side. This variable is a dummy variable
+	 * so that the component has something to bind to.
+	 *
+	 * Then, whenever `fileData.value.state` changes, we update the `paneState.fileState`.
+
+	 */
+	let fileData: { value: FileData[]; for: mode.Name } | { error: unknown } | null = $state(null);
+
+	// Update the computed file data (i.e., `fileData`) whenever the pane state changes
+	$effect(() => {
+		if (browser) {
+			getFileData(paneState)
+				.then((awaitedFileData) => (fileData = { value: awaitedFileData, for: paneState.mode }))
+				.catch((error) => (fileData = { error }));
+		}
+	});
+
+	// Whenever a child updates the file data, sync the pane state to reflect the changes and
+	// compute the new computed file data from the kernel.
+	$effect(() => {
+		// Prevent infinite loops
+		if ($effect.active() || fileData === null || 'error' in fileData) {
+			return;
 		}
 
-		return data[state.mode].props as ModeComponentProps<mode.Name>;
-	}
-
-	$: browser && getProps(state);
-
-	function makeStale() {
-		for (const bundle of Object.values(data)) {
-			bundle.stale = true;
+		// Sync paneState <- fileData
+		for (let i = 0; i < paneState?.files.length ?? 0; i++) {
+			paneState.files[i]! = fileData.value[i].fileState as FileState;
 		}
-	}
+	});
 
 	export function removeFile(fileId: string) {
-		state.files = state.files.filter((file) => file.id !== fileId);
-		makeStale();
-	}
-
-	$: if (browser) {
-		getProps(state);
+		paneState.files = paneState.files.filter((file) => file.id !== fileId);
 	}
 </script>
 
 <section
 	class="relative h-full overflow-scroll"
-	on:dragover={(event) => {
+	ondragover={(event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {
 			event.dataTransfer.dropEffect = 'move';
 		}
 	}}
-	on:drop={async (event) => {
+	ondrop={async (event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {
 			const transferredData = event.dataTransfer.getData('application/json');
@@ -111,32 +106,31 @@
 			const file = fileState.parse(json);
 
 			// Don't add files already present
-			if (state.files.some((f) => f.id === file.id)) {
+			if (paneState.files.some((f) => f.id === file.id)) {
 				return;
 			}
 
-			state.files = [...state.files, file];
-			makeStale();
+			paneState.files = [...paneState.files, file];
 		}
 	}}
 	role="group"
 >
-	<ModeSelector bind:mode={state.mode} onModeHover={(mode) => getProps({ ...state, mode })}
+	<ModeSelector
+		bind:mode={paneState.mode}
+		onModeHover={(mode) => getFileData({ ...paneState, mode })}
 	></ModeSelector>
 
-	{#if data[state.mode].props === null}
+	{#if fileData === null || ('for' in fileData && fileData.for !== paneState.mode)}
 		Loading
-	{:else if 'error' in data[state.mode].props!}
-		<div class="h-full w-full p-8 text-2xl">
-			Error: <Json json={(data[state.mode].props as { error: unknown }).error}></Json>
+	{:else if 'error' in fileData}
+		Error: <Json json={fileData.error}></Json>
 
-			<!-- TODO:Add an option to reset session state  -->
-		</div>
+		<!-- TODO:Add an option to reset session state  -->
 	{:else}
 		<svelte:component
-			this={(data[state.mode] as RendererBundle<mode.Name>).component}
-			bind:modeState={(data[state.mode].props as ModeComponentProps<mode.Name>).modeState}
-			bind:fileData={(data[state.mode].props as ModeComponentProps<mode.Name>).fileData}
+			this={modeComponents[paneState.mode].component}
+			bind:modeState={/* eslint-disable-line @typescript-eslint/no-explicit-any */ paneState.modeState as any}
+			bind:fileData={/* eslint-disable-line @typescript-eslint/no-explicit-any */ fileData.value as any}
 			onRemoveFile={removeFile}
 		></svelte:component>
 	{/if}

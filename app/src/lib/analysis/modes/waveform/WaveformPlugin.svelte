@@ -5,7 +5,7 @@
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import type { mode } from '..';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 	import type { Frame } from '$lib/analysis/kernel/framing';
 
 	export let computedData: mode.ComputedData<'waveform'>;

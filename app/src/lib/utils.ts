@@ -80,7 +80,7 @@ export function todo(message: string = 'Not implemented'): never {
  * which is sometimes necessary for a component to adhere to an interface
  */
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export default function used(...args: unknown[]) {}
+export function used(..._args: unknown[]) {}
 
 /**
  * Utility function to compare the eqality of two objects
@@ -118,4 +118,39 @@ export function deepEqual(x: unknown, y: unknown): boolean {
 	}
 
 	return true;
+}
+
+export function memoize<Args extends unknown[], Return>(
+	fn: (...args: [...Args]) => Return,
+	opts?: { maxSize?: number; hashKey: (...args: [...Args]) => unknown }
+): (...args: [...Args]) => Return {
+	let cache: { key: unknown; value: Return }[] = [];
+	const maxSize = opts?.maxSize ?? 2048;
+	const hashKey = opts?.hashKey ?? ((...args) => args);
+
+	console.log('maxSize', maxSize);
+	return (...args: [...Args]) => {
+		const hash = hashKey(...args);
+		for (const { key, value } of cache) {
+			if (deepEqual(key, hash)) {
+				console.log('Cache hit');
+				return value;
+			}
+		}
+
+		console.log('Cache miss', cache.length);
+		const output = fn(...args);
+
+		// cache.push({ key: structuredClone($state.snapshot({ ...args })), value: output });
+		// console.log('putting in cache', hash)
+		cache.push({ key: hash, value: output });
+
+		// Make cache maximum size `CACHE_THRESHOLD` by removing the oldest elements
+		if (cache.length > maxSize) {
+			console.log('cache full, deleting');
+			cache = cache.toSpliced(0, maxSize - cache.length);
+		}
+
+		return output;
+	};
 }

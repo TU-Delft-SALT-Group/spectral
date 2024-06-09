@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ModeComponentProps } from '..';
 	import ErrorRateSingle from './ErrorRateSingle.svelte';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 
 	export let fileData: ModeComponentProps<'error-rate'>['fileData'];
 	export let modeState: ModeComponentProps<'error-rate'>['modeState'];
