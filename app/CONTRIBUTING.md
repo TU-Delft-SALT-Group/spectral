@@ -42,7 +42,7 @@ Try to use tailwind for most styling. Of course, if you want to something more c
 You can browse the available shadcn components and usage at [the website](https://www.shadcn-svelte.com/docs). If a component is not in the project already, you can add it via:
 
 ```bash
-pnpm dlx shadcn-svele add <component>
+pnpm dlx shadcn-svelte add <component>
 ```
 
 ### Testing
