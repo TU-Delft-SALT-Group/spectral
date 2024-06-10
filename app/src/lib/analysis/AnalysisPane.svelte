@@ -82,10 +82,6 @@
 	export function removeFile(fileId: string) {
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
 	}
-
-	$effect(() => {
-		console.log(paneState.mode);
-	});
 </script>
 
 <section

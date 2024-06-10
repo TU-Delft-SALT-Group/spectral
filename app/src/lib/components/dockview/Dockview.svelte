@@ -16,7 +16,7 @@
 		type DockviewReadyEvent
 	} from 'dockview-core';
 	import { type SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
-	import { SvelteRenderer, SvelteTabActionRenderer, SvelteWatermarkRenderer } from '.';
+	import { SvelteRenderer, SvelteTabActionRenderer, SvelteWatermarkRenderer } from './index.svelte';
 	import NewTabButton from './NewTabButton.svelte';
 	import Tab from './Tab.svelte';
 
@@ -25,7 +25,7 @@
 	// eslint-disable-next-line
 	export let component: Component<S>;
 	// eslint-disable-next-line
-	export let defaultProps: S;
+	export let propFactory: () => S;
 
 	let el: HTMLElement;
 	let instance: DockviewComponent | null;
@@ -44,14 +44,14 @@
 			},
 			createLeftHeaderActionComponent(group) {
 				// eslint-disable-next-line
-				return new SvelteTabActionRenderer<S>(NewTabButton, group, defaultProps);
+				return new SvelteTabActionRenderer<S>(NewTabButton, group, propFactory());
 			},
 			createTabComponent(options) {
 				return new SvelteRenderer(Tab, options);
 			},
 			createWatermarkComponent() {
 				// eslint-disable-next-line
-				return new SvelteWatermarkRenderer<S>(Watermark, defaultProps);
+				return new SvelteWatermarkRenderer<S>(Watermark, propFactory());
 			}
 		};
 

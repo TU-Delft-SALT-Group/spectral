@@ -3,19 +3,21 @@
 	import { DockviewApi, type DockviewReadyEvent, type SerializedDockview } from 'dockview-core';
 	import type { SessionState } from './workspace';
 	import Dockview from '$lib/components/dockview/Dockview.svelte';
-	import type { SvelteRenderer } from '$lib/components/dockview';
+	import type { SvelteRenderer } from '$lib/components/dockview/index.svelte';
 	import type { ComponentType } from 'svelte';
 	import { paneState } from '$lib/analysis/analysis-pane';
 
-	export let state: SessionState;
+	let { workspaceState = $bindable() }: { workspaceState: SessionState } = $props();
 	let panesApi: DockviewApi;
 
-	const defaultProps = {
-		title: 'default',
-		paneState: paneState.parse(undefined)
-	};
+	const propFactory = () => {
+		let stateWeWant = $state(paneState.parse(undefined));
 
-	console.log(defaultProps);
+		return {
+			title: 'default',
+			paneState: stateWeWant
+		};
+	};
 
 	export function deleteFile(fileId: string) {
 		for (const pane of panesApi.panels) {
@@ -30,12 +32,12 @@
 		panesApi = event.api;
 
 		// since layout is only stored from here, everything should be fine
-		let layout = state.layout as SerializedDockview | undefined;
+		let layout = workspaceState.layout as SerializedDockview | undefined;
 
 		if (layout !== undefined) layout.panels = {};
 
-		for (const paneId in state.panes) {
-			const pane = state.panes[paneId];
+		for (const paneId in workspaceState.panes) {
+			const pane = workspaceState.panes[paneId];
 
 			const panel = panesApi.addPanel({
 				id: paneId,
@@ -44,7 +46,7 @@
 				renderer: 'onlyWhenVisible',
 				tabComponent: 'not default',
 				params: {
-					paneState: state.panes[paneId]
+					paneState: workspaceState.panes[paneId]
 				}
 			});
 
@@ -58,7 +60,7 @@
 			for (const panel of panesApi.panels) {
 				panel.api.setRenderer('always');
 				panel.api.onDidTitleChange((e) => {
-					state.panes[panel.id].title = e.title;
+					workspaceState.panes[panel.id].title = e.title;
 				});
 			}
 		}
@@ -68,8 +70,8 @@
 				return;
 			}
 
-			state.panes[event.id] = event.params.paneState;
-			console.log({ panes: state.panes });
+			workspaceState.panes[event.id] = event.params.paneState;
+			console.log({ panes: workspaceState.panes });
 		});
 
 		panesApi.onDidRemovePanel((event) => {
@@ -77,15 +79,15 @@
 				return;
 			}
 
-			delete state.panes[event.id];
+			delete workspaceState.panes[event.id];
 		});
 
 		panesApi.onDidLayoutChange(() => {
-			state.layout = panesApi.toJSON();
+			workspaceState.layout = panesApi.toJSON();
 		});
 	}
 </script>
 
 <div class="h-full w-full">
-	<Dockview {onReady} component={AnalysisPane} {defaultProps} />
+	<Dockview {onReady} component={AnalysisPane} {propFactory} />
 </div>
