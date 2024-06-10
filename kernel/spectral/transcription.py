@@ -10,7 +10,9 @@ import os
 from typing import Any
 
 
-def calculate_error_rates(reference: str, annotations: list[dict]) -> dict:
+def calculate_error_rates(
+    reference_annotations: list[dict], hypothesis_annotations: list[dict]
+) -> dict | None:
     """
     Calculate error rates between the reference transcription and annotations.
 
@@ -25,14 +27,17 @@ def calculate_error_rates(reference: str, annotations: list[dict]) -> dict:
     - dict: A dictionary containing word-level and character-level error rates.
 
     """
-    hypothesis = annotation_to_hypothesis(annotations)
+    reference = annotation_to_sentence(reference_annotations)
+    if reference == "":
+        return None
+    hypothesis = annotation_to_sentence(hypothesis_annotations)
     word_level = word_level_processing(reference, hypothesis)
     character_level = character_level_processing(reference, hypothesis)
 
     return {"wordLevel": word_level, "characterLevel": character_level}
 
 
-def annotation_to_hypothesis(annotations: list) -> str:
+def annotation_to_sentence(annotations: list) -> str:
     """
     Convert annotations to a single hypothesis string.
 
@@ -50,6 +55,8 @@ def annotation_to_hypothesis(annotations: list) -> str:
         return res
 
     for annotation in annotations:
+        if annotation["value"] == "":
+            continue
         res += annotation["value"] + " "
 
     return res[: len(res) - 1]

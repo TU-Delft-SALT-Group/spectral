@@ -102,7 +102,6 @@ async def analyze_signal_mode(
     - HTTPException: If the mode is not found or input data is invalid.
     """
     fileState = json.loads(fileState)
-
     if mode == "simple-info":
         return simple_info_mode(database, fileState)
     if mode == "spectrogram":
