@@ -7,8 +7,8 @@
 	let previousTitle: string | null = null;
 	let titleElement: HTMLElement;
 
-	function handleClick(event: MouseEvent) {
-		if (event.detail !== 2 || titleElement.isContentEditable) {
+	function handleClick() {
+		if (titleElement.isContentEditable) {
 			return;
 		}
 
@@ -37,7 +37,7 @@
 >
 	<button
 		class="flex h-full flex-1 items-center justify-center px-1 transition focus:outline-transparent"
-		on:click={handleClick}
+		on:dblclick={handleClick}
 		on:keydown={handleKeydown}
 	>
 		<span bind:this={titleElement}>

@@ -5,9 +5,17 @@
 	import Dockview from '$lib/components/dockview/Dockview.svelte';
 	import type { SvelteRenderer } from '$lib/components/dockview';
 	import type { ComponentType } from 'svelte';
+	import { paneState } from '$lib/analysis/analysis-pane';
 
 	export let state: SessionState;
 	let panesApi: DockviewApi;
+
+	const defaultProps = {
+		title: 'default',
+		paneState: paneState.parse(undefined)
+	};
+
+	console.log(defaultProps);
 
 	export function deleteFile(fileId: string) {
 		for (const pane of panesApi.panels) {
@@ -36,7 +44,7 @@
 				renderer: 'onlyWhenVisible',
 				tabComponent: 'not default',
 				params: {
-					state: pane
+					paneState: state.panes[paneId]
 				}
 			});
 
@@ -60,7 +68,8 @@
 				return;
 			}
 
-			state.panes[event.id] = event.params.state;
+			state.panes[event.id] = event.params.paneState;
+			console.log({ panes: state.panes });
 		});
 
 		panesApi.onDidRemovePanel((event) => {
@@ -78,5 +87,5 @@
 </script>
 
 <div class="h-full w-full">
-	<Dockview {onReady} component={AnalysisPane} />
+	<Dockview {onReady} component={AnalysisPane} {defaultProps} />
 </div>

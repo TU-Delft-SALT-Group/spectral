@@ -17,9 +17,9 @@
 	import { fileState, type FileState } from './modes/file-state';
 
 	let {
-		state: paneState
+		paneState
 	}: {
-		state: PaneState;
+		paneState: PaneState;
 	} = $props();
 
 	const getFileData = memoize(
@@ -82,6 +82,10 @@
 	export function removeFile(fileId: string) {
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
 	}
+
+	$effect(() => {
+		console.log(paneState.mode);
+	});
 </script>
 
 <section
