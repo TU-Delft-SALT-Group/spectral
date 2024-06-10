@@ -1,12 +1,17 @@
-<script lang="ts">
+<script
+	lang="ts"
+	generics="
+	S extends Record<string, unknown> & { title?: string }
+"
+>
 	import type { DockviewApi, IDockviewGroupPanel } from 'dockview-core';
 	import { Button } from '../ui/button';
 	import { generateIdFromEntropySize } from 'lucia';
-	import type { PaneState } from '$lib/analysis/analysis-pane';
 
 	export let group: IDockviewGroupPanel;
 	export let containerApi: DockviewApi;
-	export let defaultProps: { state: PaneState };
+	// eslint-disable-next-line
+	export let defaultProps: S;
 
 	function onClick(event: MouseEvent) {
 		event.preventDefault();
@@ -14,7 +19,7 @@
 		containerApi.addPanel({
 			component: 'default',
 			id: generateIdFromEntropySize(10),
-			title: defaultProps.state.title,
+			title: defaultProps.title ?? 'default',
 			renderer: 'always',
 			params: defaultProps,
 			position: { referenceGroup: group.id },
@@ -24,7 +29,7 @@
 </script>
 
 <Button
-	class="bg-panes h-full rounded-none px-2 text-panes-color"
+	class="bg-panes text-panes-color h-full rounded-none px-2"
 	variant="ghost"
 	on:click={onClick}>+</Button
 >

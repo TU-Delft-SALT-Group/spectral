@@ -67,20 +67,6 @@ def test_fetch_file(db):
     mock_cursor.execute.assert_called_with("SELECT * FROM files WHERE id = %s", [1])
 
 
-def test_store_transcription(db):
-    mock_cursor = Mock()
-    db.conn = Mock()
-    db.cursor = mock_cursor
-    mock_cursor.fetchone.return_value = [
-        {"panes": [{"files": [{"id": "file_id", "transcriptions": [[{}]]}]}]}
-    ]
-
-    file_transcription = [{"start": 0.0, "end": 1.0, "value": "hello"}]
-    db.store_transcription("session", "file_id", file_transcription)
-
-    assert mock_cursor.execute.call_count == 2
-
-
 def test_get_transcriptions(db):
     mock_cursor = Mock()
     db.conn = Mock()

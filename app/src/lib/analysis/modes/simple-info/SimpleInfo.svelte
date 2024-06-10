@@ -1,5 +1,5 @@
 <script lang="ts">
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 	import { flip } from 'svelte/animate';
 	import type { ModeComponentProps } from '..';
 	import SimpleInfoSingle from './SimpleInfoSingle.svelte';
@@ -12,7 +12,7 @@
 	used(modeState);
 </script>
 
-<div class="flex h-full flex-wrap content-center items-center justify-center gap-4 p-4">
+<div class="flex h-full flex-wrap items-center justify-center gap-4 p-4">
 	{#each fileData as { fileState, computedData } (fileState.id)}
 		<div
 			class="min-w-sm h-fit max-w-2xl flex-1 rounded bg-secondary p-4 text-secondary-foreground"

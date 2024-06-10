@@ -11,6 +11,7 @@ import InfoIcon from 'lucide-svelte/icons/info';
 import { ZodDefault, ZodSchema } from 'zod';
 
 import type * as mode from './types';
+import { Transcription, TranscriptionIcon, transcriptionData } from './transcription';
 export type * as mode from './types';
 
 export type ModeValidator = {
@@ -56,6 +57,7 @@ export const modes = {
 	waveform: waveformData,
 	spectrogram: spectrogramData,
 	'vowel-space': vowelSpaceData,
+	transcription: transcriptionData,
 	'error-rate': errorRateData
 } as const satisfies Record<string, ModeValidator>;
 
@@ -66,7 +68,7 @@ export const modes = {
  */
 export const modeNames: mode.Name[] = Object.keys(modes) as Array<keyof typeof modes>;
 
-export type FileData<M extends mode.Name> = {
+export type FileData<M extends mode.Name = mode.Name> = {
 	computedData: mode.ComputedData<M>;
 	fileState: mode.FileState<M>;
 };
@@ -110,6 +112,11 @@ export const modeComponents: {
 	'vowel-space': {
 		component: VowelSpace,
 		icon: VowelSpaceIcon
+	},
+
+	transcription: {
+		component: Transcription,
+		icon: TranscriptionIcon
 	},
 
 	'error-rate': {

@@ -1,4 +1,4 @@
-import used from '$lib/utils';
+import { used } from '$lib/utils';
 import type {
 	DockviewApi,
 	DockviewGroupPanel,
@@ -27,10 +27,6 @@ abstract class AbstractSvelteRenderer<S extends Record<string, unknown>> {
 		return this._element;
 	}
 
-	get component() {
-		return this._component;
-	}
-
 	constructor(component: Component<S>) {
 		this._component = component;
 
@@ -46,23 +42,28 @@ abstract class AbstractSvelteRenderer<S extends Record<string, unknown>> {
 	}
 }
 
-export class SvelteRenderer<S extends Record<string, unknown>>
+export class SvelteRenderer<S extends Record<string, unknown> = Record<string, unknown>>
 	extends AbstractSvelteRenderer<S>
 	implements IContentRenderer, ITabRenderer
 {
 	private _props: S | undefined;
 
-	constructor(component: Component<S>) {
+	constructor(component: Component<S>, options: { id: string; name: string }) {
 		super(component);
+		used(options);
 	}
 
-	init(parameters: GroupPanelPartInitParameters): void {
-		this._props = parameters.params as S;
+	init(params: GroupPanelPartInitParameters): void {
+		this._props = { ...(params.params as S), ...params };
 
 		this._instance = mount(this._component, {
 			target: this._element,
-			props: { ...this._props, api: parameters.api, title: parameters.title }
+			props: this._props
 		}) as Component<S>;
+	}
+
+	getInstance(): Component<S> | undefined {
+		return this._instance;
 	}
 
 	update(event: PanelUpdateEvent<Parameters>): void {

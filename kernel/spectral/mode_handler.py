@@ -1,18 +1,21 @@
 from fastapi import HTTPException
 
-from .signal_analysis import simple_signal_info
+from .signal_analysis import simple_signal_info, get_audio
+
 from .frame_analysis import (
     simple_frame_info,
     calculate_frame_f1_f2,
     validate_frame_index,
 )
 from .transcription import calculate_error_rates
+from .types import FileStateType
+import tempfile
+import subprocess
+from .database import Database
+from typing import Any
 
-from pydub import AudioSegment
-import io
 
-
-def simple_info_mode(database, file_state):
+def simple_info_mode(database: Database, file_state: FileStateType) -> dict[str, Any]:
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -34,35 +37,35 @@ def simple_info_mode(database, file_state):
 
     file = get_file(database, file_state)
 
-    fs, data = get_audio(file)
+    audio = get_audio(file)
 
-    result = simple_signal_info(data, fs)
+    result = simple_signal_info(audio)
 
     result["fileSize"] = len(file["data"])
     result["fileCreationDate"] = file["creationTime"]
 
-    frame_index = validate_frame_index(data, file_state)
+    frame_index = validate_frame_index(audio.get_array_of_samples(), file_state)
 
-    result["frame"] = simple_frame_info(data, fs, frame_index)
+    result["frame"] = simple_frame_info(audio.get_array_of_samples(), audio.frame_rate, frame_index)
 
     return result
 
 
-def spectrogram_mode(database, file_state):
+def spectrogram_mode(database: Database, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def waveform_mode(database, file_state):
+def waveform_mode(database: Database, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def vowel_space_mode(database, file_state):
+def vowel_space_mode(database: Database, file_state: FileStateType) -> dict[str, float] | None:
     """
     Extracts and returns the first and second formants of a specified frame.
 
@@ -83,25 +86,26 @@ def vowel_space_mode(database, file_state):
     """
 
     file = get_file(database, file_state)
-    fs, data = get_audio(file)
+    audio = get_audio(file)
+    data = audio.get_array_of_samples()
     frame_index = validate_frame_index(data, file_state)
 
     if frame_index is None:
         return None
 
     frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
-    formants = calculate_frame_f1_f2(frame_data, fs)
+    formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(database, file_state):
+def transcription_mode(database: Database, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def error_rate_mode(database, file_state):
+def error_rate_mode(database: Database, file_state: FileStateType) -> dict[str, Any] | None:
     """
     Calculate the error rates of transcriptions against the ground truth.
 
@@ -118,25 +122,26 @@ def error_rate_mode(database, file_state):
     result = error_rate_mode(database, file_state)
     ```
     """
-    if "transcriptions" not in file_state:
+    if (
+        "reference" not in file_state
+        or file_state["reference"] is None
+        or "captions" not in file_state["reference"]
+        or file_state["reference"]["captions"] is None
+        or "hypothesis" not in file_state
+        or file_state["hypothesis"] is None
+        or "captions" not in file_state["hypothesis"]
+        or file_state["hypothesis"]["captions"] is None
+    ):
         return None
 
-    transcriptions = file_state["transcriptions"]
+    errorRate = calculate_error_rates(
+        file_state["reference"]["captions"], file_state["hypothesis"]["captions"]
+    )
 
-    file = get_file(database, file_state)
-
-    if file["groundTruth"] is None or transcriptions is None:
-        return None
-
-    errorRates = []
-
-    for transcription in transcriptions:
-        errorRates.append(calculate_error_rates(file["groundTruth"], transcription))
-
-    return {"groundTruth": file["groundTruth"], "errorRates": errorRates}
+    return errorRate
 
 
-def get_file(database, file_state):
+def get_file(database: Database, file_state: FileStateType) -> FileStateType:
     """
     Fetch a file from the database using the file_state information.
 
@@ -157,32 +162,22 @@ def get_file(database, file_state):
     """
     if "id" not in file_state:
         raise HTTPException(status_code=404, detail="file_state did not include id")
-
     try:
         file = database.fetch_file(file_state["id"])
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 
+    file["data"] = convert_to_wav(file["data"])
+
     return file
 
 
-def get_audio(file):
-    """
-    Extract audio data and sampling rate from the given file.
-
-    Parameters:
-    - file: A dictionary containing the file data, including audio bytes.
-
-    Returns:
-    - A tuple (fs, data) where fs is the sampling rate and data is the array of audio samples.
-
-    Example:
-    ```python
-    fs, data = get_audio(file)
-    ```
-    """
-    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
-    fs = audio.frame_rate
-    data = audio.get_array_of_samples()
-
-    return fs, data
+def convert_to_wav(data: bytes) -> bytes:
+    with tempfile.NamedTemporaryFile(delete=False) as temp_input:
+        temp_input.write(data)
+        temp_input.flush()  # Ensure data is written to disk
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_output:
+            command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
+            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+            temp_output.seek(0)  # Rewind to the beginning of the file
+            return temp_output.read()

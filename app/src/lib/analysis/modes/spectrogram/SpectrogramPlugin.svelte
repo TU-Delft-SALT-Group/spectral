@@ -6,7 +6,7 @@
 	import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import type { mode } from '..';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
@@ -41,6 +41,7 @@
 	export let current: number;
 	export let setAsSelected: () => void;
 	export let playing = false;
+	export let width: number = 100;
 
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
@@ -50,7 +51,9 @@
 		wavesurfer = new WaveSurfer({
 			container: element,
 			url: `/db/file/${fileState.id}`,
-			height: 0
+			height: 0,
+			width,
+			backend: 'WebAudio'
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());

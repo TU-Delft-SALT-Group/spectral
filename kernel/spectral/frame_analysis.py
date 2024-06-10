@@ -1,9 +1,14 @@
 import parselmouth
 import numpy as np
 from fastapi import HTTPException
+from array import array
+
+from .types import FileStateType
 
 
-def simple_frame_info(frame, fs, frame_info):
+def simple_frame_info(
+    frame: array, fs: int | float, frame_info: dict[str, int] | None
+) -> dict[str, float] | None:
     """
     Extracts and returns basic information from a given audio frame.
 
@@ -42,7 +47,7 @@ def simple_frame_info(frame, fs, frame_info):
     return res
 
 
-def calculate_frame_duration(frame, fs):
+def calculate_frame_duration(frame: array, fs: int | float) -> float:
     """
     This method calculates the duration of a frame based on the frame and the sample frequency.
 
@@ -61,7 +66,7 @@ def calculate_frame_duration(frame, fs):
     return len(frame) / fs
 
 
-def calculate_frame_pitch(frame, fs):
+def calculate_frame_pitch(frame: array, fs: float | int) -> float:
     """
     This method calculates the pitch of a frame.
 
@@ -84,11 +89,11 @@ def calculate_frame_pitch(frame, fs):
             time_step=calculate_frame_duration(frame, fs) + 1
         )  # the + 1 ensures that the complete frame is considered as 1 frame
         return pitch.get_value_at_time(0)
-    except Exception as _:
+    except Exception:
         return float("nan")
 
 
-def calculate_frame_f1_f2(frame, fs):
+def calculate_frame_f1_f2(frame: array, fs: int | float) -> list[float]:
     """
     This method calculates the first and second fromant of a frame.
 
@@ -114,11 +119,12 @@ def calculate_frame_f1_f2(frame, fs):
             formants.get_value_at_time(formant_number=1, time=0),
             formants.get_value_at_time(formant_number=2, time=0),
         ]
-    except Exception as _:
+    except Exception as e:
+        print(e)
         return [float("nan"), float("nan")]
 
 
-def validate_frame_index(data, file_state):
+def validate_frame_index(data: array, file_state: FileStateType):
     """
     Validate the frame index specified in the file_state.
 
@@ -162,11 +168,7 @@ def validate_frame_index(data, file_state):
             status_code=400, detail="startIndex should be strictly lower than endIndex"
         )
     if start_index < 0:
-        raise HTTPException(
-            status_code=400, detail="startIndex should be larger or equal to 0"
-        )
+        raise HTTPException(status_code=400, detail="startIndex should be larger or equal to 0")
     if end_index > len(data):
-        raise HTTPException(
-            status_code=400, detail="endIndex should be lower than the file length"
-        )
+        raise HTTPException(status_code=400, detail="endIndex should be lower than the file length")
     return {"startIndex": start_index, "endIndex": end_index}

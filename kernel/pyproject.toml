@@ -38,6 +38,8 @@ deepgram-sdk = "^3.2.7"
 pydub = "^0.25.1"
 ffmpeg-python = "^0.2.0"
 jiwer = "^3.0.4"
+allosaurus = "^1.0.2"
+python-magic = "^0.4.27"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
@@ -48,6 +50,7 @@ mutmut = "^2.5.0"
 pytest-xdist = "^3.6.1"
 pytest-testmon = "^2.1.1"
 pytest-mock = "^3.14.0"
+beartype = "^0.18.5"
 
 
 [tool.mutmut]
