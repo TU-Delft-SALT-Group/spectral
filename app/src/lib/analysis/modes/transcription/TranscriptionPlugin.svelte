@@ -19,7 +19,7 @@
 	let minZoom: number;
 	let duration: number;
 	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
-	const models: string[] = ['deepgram', 'allosaurus'];
+	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 
 	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
 		if (!newSelection) return;
@@ -152,7 +152,7 @@
 						...fileState.transcriptions,
 						{
 							id: generateIdFromEntropySize(10),
-							name: 'new track',
+							name: transcriptionType.value,
 							captions: response
 						}
 					];

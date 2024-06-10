@@ -51,17 +51,16 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def fetch_file(self, id: int) -> dict:
+    def fetch_file(self, id: str) -> dict:
         """
         Fetches a file record from the database by its ID.
 
         Args:
-            id (int): The ID of the file to fetch.
+            id (str): The ID of the file to fetch.
 
         Returns:
             dict: A dictionary containing the file record's details.
         """
-
         self.cursor.execute("""
             SELECT column_name, ordinal_position
             FROM information_schema.columns
@@ -97,12 +96,12 @@ class Database:
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
-    def get_transcriptions(self, file_id: int) -> list[list]:
+    def get_transcriptions(self, file_id: str) -> list[list]:
         """
         Fetches transcriptions associated with a file from the database.
 
         Args:
-            file_id (int): The ID of the file to fetch transcriptions for.
+            file_id (str): The ID of the file to fetch transcriptions for.
 
         Returns:
             list: A list of lists containing transcription entries, where each inner list represents a file transcription and contains dictionaries with "start", "end", and "value" keys.

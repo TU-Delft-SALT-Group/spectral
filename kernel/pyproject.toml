@@ -40,6 +40,7 @@ ffmpeg-python = "^0.2.0"
 jiwer = "^3.0.4"
 allosaurus = "^1.0.2"
 python-magic = "^0.4.27"
+openai = "^1.33.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
