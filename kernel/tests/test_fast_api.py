@@ -1,4 +1,5 @@
 import pytest
+from spectral.database import Database
 from spectral.main import app, get_db
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
@@ -48,6 +49,7 @@ def db_mock():
         "groundTruth": "hai test",
     }
     mock.get_transcriptions.return_value = [[{"value": "hi", "start": 0, "end": 1}]]
+    mock.__class__ = Database
 
     yield mock
 

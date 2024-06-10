@@ -18,7 +18,13 @@ class Database:
             Closes the database connection and cursor.
     """
 
-    def __init__(self, user, password, host, port, dbname):
+    user: str
+    password: str
+    host: str
+    port: int
+    dbname: str
+
+    def __init__(self, user: str, password: str, host: str, port: int, dbname: str):
         """
         Initializes the Database object and opens a connection to the specified PostgreSQL database.
 
@@ -35,7 +41,7 @@ class Database:
         self.port = port
         self.dbname = dbname
 
-    def connection(self):
+    def connection(self) -> None:
         self.conn = psycopg.connect(
             dbname=self.dbname,
             user=self.user,
@@ -45,12 +51,12 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def fetch_file(self, id):
+    def fetch_file(self, id: int) -> dict:
         """
         Fetches a file record from the database by its ID.
 
         Args:
-            id (string): The ID of the file to fetch.
+            id (int): The ID of the file to fetch.
 
         Returns:
             dict: A dictionary containing the file record's details.
@@ -73,7 +79,7 @@ class Database:
             result[self.snake_to_camel(column[0])] = db_res[column[1] - 1]
         return result
 
-    def snake_to_camel(self, snake_case_str):
+    def snake_to_camel(self, snake_case_str: str) -> str:
         """
         Converts a snake_case string to camelCase.
 
@@ -91,12 +97,12 @@ class Database:
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
-    def get_transcriptions(self, file_id):
+    def get_transcriptions(self, file_id: int) -> list[list]:
         """
         Fetches transcriptions associated with a file from the database.
 
         Args:
-            file_id (string): The ID of the file to fetch transcriptions for.
+            file_id (int): The ID of the file to fetch transcriptions for.
 
         Returns:
             list: A list of lists containing transcription entries, where each inner list represents a file transcription and contains dictionaries with "start", "end", and "value" keys.
@@ -131,7 +137,7 @@ class Database:
             res.append(parsed_file_transcriptions)
         return res
 
-    def close(self):
+    def close(self) -> None:
         """
         Closes the database connection and cursor.
         """
