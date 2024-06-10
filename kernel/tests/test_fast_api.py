@@ -307,7 +307,7 @@ def test_signal_mode_transcription_db_problem(db_mock):
 
 def test_transcription_model_found(db_mock):
     with patch(
-        "spectral.transcription.deepgram_transcription"
+        "spectral.transcription.transcription.deepgram_transcription"
     ) as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = [
             {"value": "word1", "start": 0.5, "end": 1.0},
@@ -369,7 +369,7 @@ def test_transcribe_file_invalid_model(db_mock):
 
 @pytest.mark.skip(reason="Not implemented")
 def test_transcribe_file_no_api_key(db_mock):
-    with patch("spectral.transcription.os.getenv") as mock_getenv:
+    with patch("spectral.transcription.models.deepgram.os.getenv") as mock_getenv:
         mock_getenv.return_value = None
         response = client.get("/transcription/deepgram/1")
         assert (
@@ -687,7 +687,7 @@ def test_error_rate_with_reference_and_hypothesis(db_mock, file_state):
 
 def test_phone_transcription(db_mock, file_state):
     with patch(
-        "spectral.transcription.deepgram_transcription"
+        "spectral.transcription.models.allosaurus.deepgram_transcription"
     ) as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = [
             {"value": "", "start": 0.0, "end": 1.04},
@@ -751,7 +751,7 @@ def test_phone_transcription(db_mock, file_state):
 
 def test_phone_transcription_no_words(db_mock, file_state):
     with patch(
-        "spectral.transcription.deepgram_transcription"
+        "spectral.transcription.models.deepgram.deepgram_transcription"
     ) as mock_deepgram_transcription:
         mock_deepgram_transcription.return_value = []
         response = client.get("/transcription/allosaurus/1")
