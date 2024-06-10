@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getPaletteColor } from '$lib/color';
-	import used, { unwrap } from '$lib/utils';
+	import { unwrap } from '$lib/utils';
 	import type { ModeComponentProps } from '..';
 	import * as d3 from 'd3';
 	import { Checkbox } from '$lib/components/ui/checkbox';
@@ -9,9 +9,9 @@
 	export let fileData: ModeComponentProps<'vowel-space'>['fileData'];
 	export let modeState: ModeComponentProps<'vowel-space'>['modeState'];
 
-	used(modeState);
-
 	let container: HTMLDivElement;
+	let clientWidth: number;
+	let clientHeight: number;
 
 	function d3Action(node: Node) {
 		const foreground = window && window.getComputedStyle(container).getPropertyValue('color');
@@ -118,9 +118,16 @@
 	}
 
 	$: d3.select('.legend').style('opacity', modeState.showLegend ? 1 : 0);
+
+	$: if (clientWidth && clientHeight) {
+		while (container.hasChildNodes()) {
+			container.firstChild?.remove();
+		}
+		d3Action(container);
+	}
 </script>
 
-<section class="grid h-full w-full grid-rows-[auto,1fr]">
+<section class="grid h-full w-full grid-rows-[auto,1fr]" bind:clientWidth bind:clientHeight>
 	<div class="w-full p-2">
 		<div class="flex items-center gap-2">
 			<Label

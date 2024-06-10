@@ -35,8 +35,9 @@ export async function seedSampleUser() {
 }
 
 const sampleSessionState: SessionState = {
-	panes: [
-		{
+	panes: {
+		'sample-session-id': {
+			title: 'sample',
 			mode: 'waveform',
 			files: [
 				{
@@ -44,7 +45,9 @@ const sampleSessionState: SessionState = {
 					name: sampleTorgo[0],
 					frame: null,
 					cycleEnabled: false,
-					transcriptions: []
+					transcriptions: [],
+					reference: null,
+					hypothesis: null
 				},
 
 				{
@@ -52,21 +55,24 @@ const sampleSessionState: SessionState = {
 					name: sampleTorgo[1],
 					frame: null,
 					cycleEnabled: true,
-					transcriptions: []
+					transcriptions: [],
+					reference: null,
+					hypothesis: null
 				}
 			],
 
 			modeState: {
 				'simple-info': {},
-				waveform: {},
-				spectrogram: {},
+				waveform: { width: 100 },
+				spectrogram: { width: 100 },
+				transcription: {},
 				'vowel-space': {
 					showLegend: true
 				},
 				'error-rate': {}
 			}
 		}
-	]
+	}
 };
 const sampleSession = {
 	id: 'sample-session',

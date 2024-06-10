@@ -3,12 +3,14 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
+	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import type { mode } from '..';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 	import type { Frame } from '$lib/analysis/kernel/framing';
 
 	export let computedData: mode.ComputedData<'waveform'>;
 	export let fileState: mode.FileState<'waveform'>;
+	let element: HTMLElement;
 
 	used(computedData);
 
@@ -40,18 +42,41 @@
 	export let current: number;
 	export let setAsSelected: () => void;
 	export let playing = false;
+	export let width: number;
 
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
+	let timeline: TimelinePlugin;
+	let minZoom: number;
+
+	$: if (width) {
+		minZoom = width / duration;
+		wavesurfer?.setOptions({
+			width
+		});
+	}
 
 	onMount(() => {
+		if (element === undefined) return;
+
 		wavesurfer = new WaveSurfer({
-			container: `#${fileState.id}-waveform`,
+			container: element,
 			url: `/db/file/${fileState.id}`,
-			height: 'auto'
+			height: 300,
+			barHeight: 0.9,
+			width,
+			backend: 'WebAudio'
 		});
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
+
+		timeline = wavesurfer.registerPlugin(
+			TimelinePlugin.create({
+				timeInterval: 0.1,
+				primaryLabelInterval: 1,
+				secondaryLabelInterval: 0.5
+			})
+		);
 
 		regions.enableDragSelection(
 			{
@@ -78,6 +103,7 @@
 		wavesurfer.on('decode', () => {
 			duration = wavesurfer.getDuration();
 			current = wavesurfer.getCurrentTime();
+			minZoom = width / duration;
 
 			if (fileState.frame !== null) {
 				regions.clearRegions();
@@ -109,13 +135,38 @@
 
 	onDestroy(() => {
 		regions.destroy();
+		timeline.destroy();
 
 		wavesurfer.destroy();
 	});
 </script>
 
 <div
-	id={`${fileState.id}-waveform`}
-	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
+	bind:this={element}
+	class="waveform w-full flex-1 rounded-tr bg-secondary"
 	role="region"
+	on:wheel={(event) => {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+
+		let oldPx = wavesurfer.options.minPxPerSec;
+		let px = wavesurfer.options.minPxPerSec - event.deltaY;
+		if (px < minZoom) px = minZoom - 1;
+
+		// most of this was copied from
+		// https://github.com/katspaugh/wavesurfer.js/blob/main/src/plugins/zoom.ts
+		const container = wavesurfer.getWrapper().parentElement!;
+		const x = event.clientX - element.getBoundingClientRect().left;
+		const scrollX = wavesurfer.getScroll();
+		const pointerTime = (scrollX + x) / oldPx;
+		const newLeftSec = (width / px) * (x / width);
+
+		if (px * duration < width) {
+			wavesurfer.zoom(width / duration);
+			container.scrollLeft = 0;
+		} else {
+			wavesurfer.zoom(px);
+			container.scrollLeft = (pointerTime - newLeftSec) * px;
+		}
+	}}
 ></div>

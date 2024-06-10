@@ -6,13 +6,16 @@
 
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
 
 	import PlusIcon from 'lucide-svelte/icons/plus';
 	import { enhance } from '$app/forms';
 
 	export let data: PageData;
 </script>
+
+<svelte:head>
+	<title>Your sessions</title>
+</svelte:head>
 
 <Dialog.Root>
 	<main class="mx-auto w-fit px-4 py-8">
@@ -37,9 +40,7 @@
 			<Dialog.Title class="text-3xl">Enter new session name</Dialog.Title>
 			<Dialog.Description>
 				<form method="POST" use:enhance>
-					<Label>
-						<Input type="text" name="sessionName" minlength={1} required></Input>
-					</Label>
+					<Input type="text" name="sessionName" minlength={1} required></Input>
 				</form>
 			</Dialog.Description>
 		</Dialog.Header>

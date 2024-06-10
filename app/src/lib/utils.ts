@@ -80,4 +80,71 @@ export function todo(message: string = 'Not implemented'): never {
  * which is sometimes necessary for a component to adhere to an interface
  */
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export default function used(...args: unknown[]) {}
+export function used(..._args: unknown[]) {}
+
+/**
+ * Utility function to compare the eqality of two objects
+ */
+export function deepEqual(x: unknown, y: unknown): boolean {
+	const tx = typeof x;
+	const ty = typeof y;
+
+	if (tx !== ty) {
+		return false;
+	}
+
+	if (tx !== 'object' || x === undefined || y === undefined || x === null || y === null) {
+		return x === y;
+	}
+
+	// Apparently dates are always the same or somwthing
+	if (x instanceof Date && y instanceof Date) {
+		return x.getTime() === y.getTime();
+	}
+
+	if (Object.keys(x).length !== Object.keys(y).length) {
+		return false;
+	}
+
+	for (const key in x) {
+		if (!(key in (y as object))) {
+			return false;
+		}
+
+		// @ts-expect-error TypeScript doesn't understand that 'key' is a property of both 'x' and 'y', but we check it previously.
+		if (!deepEqual(x[key], y[key])) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+export function memoize<Args extends unknown[], Return>(
+	fn: (...args: [...Args]) => Return,
+	opts?: { maxSize?: number; hashKey: (...args: [...Args]) => unknown }
+): (...args: [...Args]) => Return {
+	let cache: { key: unknown; value: Return }[] = [];
+	const maxSize = opts?.maxSize ?? 2048;
+	const hashKey = opts?.hashKey ?? ((...args) => args);
+
+	return (...args: [...Args]) => {
+		const hash = hashKey(...args);
+		for (const { key, value } of cache) {
+			if (deepEqual(key, hash)) {
+				return value;
+			}
+		}
+
+		const output = fn(...args);
+
+		cache.push({ key: hash, value: output });
+
+		// Make cache maximum size `CACHE_THRESHOLD` by removing the oldest elements
+		if (cache.length > maxSize) {
+			cache = cache.toSpliced(0, maxSize - cache.length);
+		}
+
+		return output;
+	};
+}

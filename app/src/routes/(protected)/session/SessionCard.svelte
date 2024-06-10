@@ -5,9 +5,6 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	export let session: typeof sessionTable.$inferSelect;
-
-	const msInHour = 1000 * 60 * 60;
-	$: msModifiedCreation = session.modifiedTime.getTime() - session.creationTime.getTime();
 </script>
 
 <Tooltip.Root>
@@ -26,8 +23,8 @@
 					Created: {humanSensibleDate(session.creationTime)}
 				</div>
 
-				<div class="text-sm" class:opacity-0={msModifiedCreation > msInHour}>
-					Modified: {humanSensibleDate(session.creationTime)}
+				<div class="text-sm">
+					Modified: {humanSensibleDate(session.modifiedTime)}
 				</div>
 			</section>
 		</Button>

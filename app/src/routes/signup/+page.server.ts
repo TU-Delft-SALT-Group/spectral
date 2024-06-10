@@ -51,7 +51,7 @@ export const actions: Actions = {
 			...sessionCookie.attributes
 		});
 
-		// TODO: Get last page the user was in before login
-		redirect(302, '/profile');
+		const redirectUrl = event.cookies.get('redirect-after-login') ?? '/profile';
+		redirect(302, redirectUrl);
 	}
 };

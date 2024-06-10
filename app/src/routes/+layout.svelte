@@ -1,4 +1,5 @@
 <script lang="ts">
+	import 'dockview-core/dist/styles/dockview.css';
 	import '../app.pcss';
 
 	import { ModeWatcher } from 'mode-watcher';
@@ -13,3 +14,6 @@
 		<slot></slot>
 	</div>
 </main>
+
+<style>
+</style>

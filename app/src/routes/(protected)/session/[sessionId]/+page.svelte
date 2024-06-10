@@ -51,9 +51,13 @@
 	let workspace: Workspace;
 </script>
 
-<div class="flex h-full">
+<svelte:head>
+	<title>{data.name}</title>
+</svelte:head>
+
+<div class="flex h-full w-screen">
 	<Resizable.PaneGroup direction="horizontal">
-		<Resizable.Pane defaultSize={20} minSize={11}>
+		<Resizable.Pane defaultSize={20} minSize={11} collapsible={true} collapsedSize={1}>
 			<FileExplorer
 				bind:files={data.files}
 				sessionId={data.sessionId}
@@ -64,7 +68,7 @@
 		<Resizable.Handle withHandle />
 
 		<Resizable.Pane defaultSize={80}>
-			<Workspace bind:state={data.state} bind:this={workspace}></Workspace>
+			<Workspace bind:workspaceState={data.state} bind:this={workspace}></Workspace>
 		</Resizable.Pane>
 	</Resizable.PaneGroup>
 </div>

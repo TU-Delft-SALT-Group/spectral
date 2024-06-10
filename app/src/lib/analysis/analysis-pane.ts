@@ -26,6 +26,7 @@ const parseModeState = (state: unknown) =>
 
 export const paneState = z
 	.object({
+		title: z.string().default('default'),
 		mode: zodEnumFromObjKeys(modes).default('waveform'),
 		// Using type casted transform to have correct inferred type
 		modeState: z.unknown().transform(parseModeState),

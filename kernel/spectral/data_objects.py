@@ -1,45 +1,6 @@
 from pydantic import BaseModel
-from typing import List, Optional, Literal
+from typing import List, Literal
 from datetime import datetime
-
-
-class Frame(BaseModel):
-    """
-    Frame model representing a frame of data with its sampling frequency.
-
-    Attributes:
-        data (list): The data contained in the frame.
-        fs (float): The sampling frequency of the data.
-    """
-
-    data: list
-    fs: float
-
-
-class Signal(BaseModel):
-    """
-    Signal model representing a signal which contains both various attributes related to its
-    sampling frequency and values, and parameters for calculating the pitches, spectrogram and formants
-
-    Attributes:
-        data (list): The data contained in the signal.
-        fs (float): The sampling frequency of the signal.
-        pitch_time_step (Optional[float]): The time step for pitch analysis. Defaults to None.
-        spectrogram_time_step (float): The time step for spectrogram analysis. Defaults to 0.002 seconds.
-        spectrogram_window_length (float): The window length for spectrogram analysis. Defaults to 0.005 seconds.
-        spectrogram_frequency_step (float): The frequency step for spectrogram analysis. Defaults to 20.0 Hz.
-        formants_time_step (Optional[float]): The time step for formants analysis. Defaults to None.
-        formants_window_length (float): The window length for formants analysis. Defaults to 0.025 seconds.
-    """
-
-    data: list
-    fs: float
-    pitch_time_step: Optional[float] = None
-    spectrogram_time_step: float = 0.002
-    spectrogram_window_length: float = 0.005
-    spectrogram_frequency_step: float = 20.0
-    formants_time_step: Optional[float] = None
-    formants_window_length: float = 0.025
 
 
 class FrameAnalysisResponse(BaseModel):
@@ -57,74 +18,6 @@ class FrameAnalysisResponse(BaseModel):
     pitch: float
     f1: float
     f2: float
-
-
-class SignalPitch(BaseModel):
-    """
-    SignalPitch model representing extracted pitch information from a signal.
-
-    Attributes:
-        time_step (float): Time step (in seconds) between pitch data points.
-        start_time (float): Starting time (in seconds) of the analysis.
-        data (List[float]): List containing the pitch values (in Hz) for each time step.
-    """
-
-    time_step: float
-    start_time: float
-    data: List[float]
-
-
-class SignalSpectrogram(BaseModel):
-    """
-    SignalSpectrogram model representing extracted spectrogram information from a signal.
-
-    Attributes:
-        time_step (float): Time step (in seconds) between spectrogram columns.
-        window_length (float): Window length (in seconds) used for spectrogram analysis.
-        frequency_step (float): Frequency step (in Hz) between spectrogram rows.
-        start_time (float): Starting time (in seconds) of the analysis.
-        data (List[float]): List containing the spectrogram data in row-major order (time, frequency).
-    """
-
-    time_step: float
-    window_length: float
-    frequency_step: float
-    start_time: float
-    data: List[List[float]]
-
-
-class SignalFormants(BaseModel):
-    """
-    SignalFormants model representing extracted formant information from a signal.
-
-    Attributes:
-        time_step (float): Time step (in seconds) between formant data points.
-        window_length (float): Window length (in seconds) used for formants analysis.
-        start_time (float): Starting time (in seconds) of the analysis.
-        data (List[List[float]]): List containing formant frequencies (in Hz) for each time step (inner list represents multiple formants).
-    """
-
-    time_step: float
-    window_length: float
-    start_time: float
-    data: List[List[float]]
-
-
-class SignalAnalysisResponse(BaseModel):
-    """
-    SignalAnalysisResponse model representing the results of signal analysis.
-
-    Attributes:
-        duration (float): Total duration (in seconds) of the signal.
-        pitch (SignalPitch): Extracted pitch information for the signal.
-        spectrogram (SignalSpectrogram): Extracted spectrogram information for the signal.
-        formants (SignalFormants): Extracted formant information for the signal.
-    """
-
-    duration: float
-    pitch: SignalPitch | None
-    spectrogram: SignalSpectrogram | None
-    formants: SignalFormants | None
 
 
 class SimpleInfoResponse(BaseModel):
@@ -249,7 +142,7 @@ class CharacterLevelErrorRate(BaseModel):
     alignments: List[Alignment]
 
 
-class ErrorRateValue(BaseModel):
+class ErrorRateResponse(BaseModel):
     """
     ErrorRateValue model representing both word-level and character-level error metrics.
 
@@ -260,16 +153,3 @@ class ErrorRateValue(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
-    
-class ErrorRateResponse(BaseModel):
-    """
-    ErrorRateResponse model representing a files ground-truth and its error rates
-    
-    Attributes:
-        errorRates list(ErrorRatesValue): list of calculated error rate metrics
-        groundTruth (str): String of the ground-truth 
-    
-    """
-    
-    errorRates: list[ErrorRateValue]
-    groundTruth: str

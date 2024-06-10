@@ -12,7 +12,8 @@ export const load = (async ({ params: { sessionId } }) => {
 	const result = await db.query.sessionTable.findFirst({
 		where: eq(sessionTable.id, sessionId),
 		columns: {
-			state: true
+			state: true,
+			name: true
 		},
 		with: {
 			files: {
@@ -31,11 +32,13 @@ export const load = (async ({ params: { sessionId } }) => {
 	}
 
 	const [files, state] = await Promise.all([getFiles(result), getState(result)]);
+	const name = result.name;
 
 	return {
 		files,
 		state,
-		sessionId
+		sessionId,
+		name
 	};
 }) satisfies PageServerLoad;
 
@@ -90,6 +93,20 @@ async function getState(result: { state: unknown }): Promise<SessionState> {
 }
 
 export const actions = {
+	renameFile: async ({ request }) => {
+		const json = await request.json();
+		if (
+			!('fileId' in json || 'name' in json) ||
+			typeof json.fileId !== 'string' ||
+			typeof json.name !== 'string'
+		) {
+			logger.trace('File to be renamed has invalid fileId/no name');
+			return fail(400, { message: 'Invalid fileId/name' });
+		}
+
+		await db.update(fileTable).set(json).where(eq(fileTable.id, json.fileId));
+		logger.trace(`File ${json.fileId} successfully renamed to ${json.name}`);
+	},
 	uploadFile: async ({ request, params: { sessionId }, locals }) => {
 		const { user } = locals;
 		if (!user) {
