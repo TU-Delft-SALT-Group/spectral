@@ -21,10 +21,10 @@ class Database:
     user: str
     password: str
     host: str
-    port: int
+    port: str
     dbname: str
 
-    def __init__(self, user: str, password: str, host: str, port: int, dbname: str):
+    def __init__(self, user: str, password: str, host: str, port: str, dbname: str):
         """
         Initializes the Database object and opens a connection to the specified PostgreSQL database.
 

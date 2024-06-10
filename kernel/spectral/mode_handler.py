@@ -8,14 +8,15 @@ from .frame_analysis import (
     validate_frame_index,
 )
 from .error_rates import calculate_error_rates
-from .types import FileStateType
+from .types import FileStateType, DatabaseType
 import tempfile
 import subprocess
-from .database import Database
 from typing import Any
 
 
-def simple_info_mode(database: Database, file_state: FileStateType) -> dict[str, Any]:
+def simple_info_mode(
+    database: DatabaseType, file_state: FileStateType
+) -> dict[str, Any]:
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -53,14 +54,14 @@ def simple_info_mode(database: Database, file_state: FileStateType) -> dict[str,
     return result
 
 
-def spectrogram_mode(database: Database, file_state: FileStateType) -> Any:
+def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def waveform_mode(database: Database, file_state: FileStateType) -> Any:
+def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
@@ -68,7 +69,7 @@ def waveform_mode(database: Database, file_state: FileStateType) -> Any:
 
 
 def vowel_space_mode(
-    database: Database, file_state: FileStateType
+    database: DatabaseType, file_state: FileStateType
 ) -> dict[str, float] | None:
     """
     Extracts and returns the first and second formants of a specified frame.
@@ -102,7 +103,7 @@ def vowel_space_mode(
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(database: Database, file_state: FileStateType) -> Any:
+def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
@@ -110,7 +111,7 @@ def transcription_mode(database: Database, file_state: FileStateType) -> Any:
 
 
 def error_rate_mode(
-    database: Database, file_state: FileStateType
+    database: DatabaseType, file_state: FileStateType
 ) -> dict[str, Any] | None:
     """
     Calculate the error rates of transcriptions against the ground truth.
@@ -147,7 +148,7 @@ def error_rate_mode(
     return errorRate
 
 
-def get_file(database: Database, file_state: FileStateType) -> FileStateType:
+def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType:
     """
     Fetch a file from the database using the file_state information.
 
@@ -171,7 +172,7 @@ def get_file(database: Database, file_state: FileStateType) -> FileStateType:
     try:
         print(file_state["id"])
         print(database)
-        file = database.fetch_file(file_state["id"])
+        file = database.fetch_file(file_state["id"])  # pyright: ignore[reportAttributeAccessIssue]
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 

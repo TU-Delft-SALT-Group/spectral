@@ -26,16 +26,15 @@ import orjson
 import json
 import os
 from typing import Any
-from collections.abc import Iterator
 
 
-def get_db() -> Iterator[Database]:  # pragma: no cover
+def get_db():  # pragma: no cover
     db = None
     try:
         user = os.getenv("POSTGRES_USER", "user")
         password = os.getenv("POSTGRES_PASSWORD", "password")
         host = os.getenv("POSTGRES_HOST", "localhost")
-        port = int(os.getenv("POSTGRES_PORT", "5432"))
+        port = os.getenv("POSTGRES_PORT", "5432")
         dbname = os.getenv("POSTGRES_DB", "postgres")
 
         db = Database(user, password, host, port, dbname)
@@ -101,7 +100,8 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
-    db_session = next(database)
+    db_session = database
+    # db_session = next(database)
     fileState = json.loads(fileState)
     if mode == "simple-info":
         return simple_info_mode(db_session, fileState)
@@ -142,7 +142,8 @@ async def transcribe_file(
     Raises:
     - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
     """
-    db_session = next(database)
+    db_session = database
+    # db_session = next(database)
     try:
         file = db_session.fetch_file(file_id)
     except Exception as _:
