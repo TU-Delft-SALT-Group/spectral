@@ -138,8 +138,6 @@ export function memoize<Args extends unknown[], Return>(
 
 		const output = fn(...args);
 
-		// cache.push({ key: structuredClone($state.snapshot({ ...args })), value: output });
-		// console.log('putting in cache', hash)
 		cache.push({ key: hash, value: output });
 
 		// Make cache maximum size `CACHE_THRESHOLD` by removing the oldest elements

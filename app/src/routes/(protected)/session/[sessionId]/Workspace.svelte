@@ -10,12 +10,12 @@
 	let { workspaceState = $bindable() }: { workspaceState: SessionState } = $props();
 	let panesApi: DockviewApi;
 
-	const propFactory = () => {
-		let stateWeWant = $state(paneState.parse(undefined));
+	const getDefaultProps = () => {
+		let defaultProps = $state(paneState.parse(undefined));
 
 		return {
 			title: 'default',
-			paneState: stateWeWant
+			paneState: defaultProps
 		};
 	};
 
@@ -71,7 +71,6 @@
 			}
 
 			workspaceState.panes[event.id] = event.params.paneState;
-			console.log({ panes: workspaceState.panes });
 		});
 
 		panesApi.onDidRemovePanel((event) => {
@@ -89,5 +88,5 @@
 </script>
 
 <div class="h-full w-full">
-	<Dockview {onReady} component={AnalysisPane} {propFactory} />
+	<Dockview {onReady} component={AnalysisPane} {getDefaultProps} />
 </div>

@@ -13,7 +13,7 @@
 		}
 
 		previousTitle = titleElement.textContent;
-		titleElement.contentEditable = 'plaintext-only';
+		titleElement.contentEditable = 'true';
 		window.getSelection()?.selectAllChildren(titleElement);
 	}
 

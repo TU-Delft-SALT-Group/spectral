@@ -25,7 +25,7 @@
 	// eslint-disable-next-line
 	export let component: Component<S>;
 	// eslint-disable-next-line
-	export let propFactory: () => S;
+	export let getDefaultProps: () => S;
 
 	let el: HTMLElement;
 	let instance: DockviewComponent | null;
@@ -44,14 +44,14 @@
 			},
 			createLeftHeaderActionComponent(group) {
 				// eslint-disable-next-line
-				return new SvelteTabActionRenderer<S>(NewTabButton, group, propFactory());
+				return new SvelteTabActionRenderer<S>(NewTabButton, group, getDefaultProps());
 			},
 			createTabComponent(options) {
 				return new SvelteRenderer(Tab, options);
 			},
 			createWatermarkComponent() {
 				// eslint-disable-next-line
-				return new SvelteWatermarkRenderer<S>(Watermark, propFactory());
+				return new SvelteWatermarkRenderer<S>(Watermark, getDefaultProps());
 			}
 		};
 
