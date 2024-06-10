@@ -145,7 +145,7 @@
 					];
 				} else if (models.includes(transcriptionType.value)) {
 					let response = await (
-						await fetch('/api/transcription/' + transcriptionType.value + '/' + fileState.id)
+						await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
 					).json();
 					logger.trace(response);
 					fileState.transcriptions = [
