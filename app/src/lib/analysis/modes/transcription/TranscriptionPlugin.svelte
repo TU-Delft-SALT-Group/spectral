@@ -144,7 +144,9 @@
 						}
 					];
 				} else if (models.includes(transcriptionType.value)) {
-					let response = await (await fetch('/api/transcription/deepgram/' + fileState.id)).json();
+					let response = await (
+						await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
+					).json();
 					logger.trace(response);
 					fileState.transcriptions = [
 						...fileState.transcriptions,
