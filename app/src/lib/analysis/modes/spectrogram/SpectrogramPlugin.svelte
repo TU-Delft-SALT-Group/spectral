@@ -47,7 +47,7 @@
 	let regions: RegionsPlugin;
 	let spectrogram: SpectrogramPlugin;
 
-	onMount(() => {
+	onMount(async () => {
 		wavesurfer = new WaveSurfer({
 			container: element,
 			url: `/db/file/${fileState.id}`,
@@ -55,6 +55,8 @@
 			width,
 			backend: 'WebAudio'
 		});
+
+		element.id = 'spectrogram' + fileState.id; // set id to later use for drawing formants
 
 		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
 		spectrogram = wavesurfer.registerPlugin(
@@ -95,6 +97,29 @@
 		});
 
 		wavesurfer.on('play', () => {
+			let canvas = document.getElementById('spectrogram' + fileState.id)?.children[0].shadowRoot
+				?.children[1].children[0].children[4].children[1] as HTMLCanvasElement; // get to the correct canvas to draw on
+			const ctx = canvas.getContext('2d');
+			if (ctx !== null && computedData !== null && computedData.formants !== null) {
+				for (let i = 0; i < computedData.formants.length; i++) {
+					// loop over all formant groups
+					for (let formant of computedData.formants[i]) {
+						// loop over all formants
+						if (formant === null) continue;
+						ctx.beginPath();
+						ctx.arc(
+							(i / computedData.formants.length) * canvas.width, // x position based on group index
+							(formant / 4000) * canvas.height, // y position based on height, divided by 4k, but maybe this is not always 4k
+							5,
+							0,
+							2 * Math.PI
+						);
+						ctx.strokeStyle = 'red';
+						ctx.stroke();
+					}
+				}
+			}
+
 			playing = true;
 		});
 
