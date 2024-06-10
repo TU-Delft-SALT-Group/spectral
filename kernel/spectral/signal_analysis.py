@@ -5,6 +5,7 @@ from .types import AudioType, SoundType
 import io
 from typing import Any
 from array import array
+import math
 
 
 def get_audio(file: dict[str, Any]) -> AudioType:
@@ -69,7 +70,9 @@ def signal_to_sound(signal: array, fs: float | int) -> SoundType:
     result = signal_to_sound(signal, fs)
     ```
     """
-    return parselmouth.Sound(values=np.array(signal).astype("float64"), sampling_frequency=fs)
+    return parselmouth.Sound(
+        values=np.array(signal).astype("float64"), sampling_frequency=fs
+    )
 
 
 def calculate_signal_duration(audio: AudioType) -> float:
@@ -122,50 +125,6 @@ def calculate_sound_pitch(
         return None
 
 
-def calculate_sound_spectrogram(
-    sound: SoundType,
-    time_step: float = 0.002,
-    window_length: float = 0.005,
-    frequency_step: float = 20.0,
-) -> dict[str, Any] | None:  # pragma: no cover
-    """
-    This method calculates the spectrogram of a sound fragment.
-
-    Parameters:
-    - sound (parselmouth.Sound): Sound object representing a speech fragment.
-    - time_step (float): Time between the center of the frames.
-    - window_length (float): Duration of the analysis window.
-    - frequency_step (float): Frequency resolution.
-
-    Returns:
-    - time_step (float): Time between spectrogram samples.
-    - window_length (float): Duration of the analysis window.
-    - frequency_step (float): Frequency resolution.
-    - start_time (float): Time of center of the frame.
-    - data (numpy.ndarray): 2D array representing the spectrogram.
-
-    Example:
-    ```python
-    result = calculate_sound_spectrogram(sound, time_step, window_length, frequency_step)
-    ```
-    """
-    try:
-        spectrogram = sound.to_spectrogram(
-            time_step=time_step,
-            window_length=window_length,
-            frequency_step=frequency_step,
-        )
-        return {
-            "time_step": spectrogram.time_step,
-            "window_length": window_length,
-            "frequency_step": frequency_step,
-            "start_time": spectrogram.get_time_from_frame_number(1),
-            "data": spectrogram.values.tolist(),
-        }
-    except Exception:
-        return None
-
-
 def calculate_sound_f1_f2(
     sound: SoundType, time_step: float | None = None, window_length: float = 0.025
 ):  # pragma: no cover
@@ -189,24 +148,69 @@ def calculate_sound_f1_f2(
     ```
     """
     try:
-        formants = sound.to_formant_burg(time_step=time_step, window_length=window_length)
+        formants = sound.to_formant_burg(
+            time_step=time_step, window_length=window_length
+        )
         data: list = []
         for frame in np.arange(1, len(formants) + 1):
-            data.append(
-                [
-                    formants.get_value_at_time(
-                        formant_number=1, time=formants.frame_number_to_time(frame)
-                    ),
-                    formants.get_value_at_time(
-                        formant_number=2, time=formants.frame_number_to_time(frame)
-                    ),
-                ]
-            )
+            frame_formant_data: list = []
+            for x in range(1, 6):
+                cur = formants.get_value_at_time(
+                    formant_number=x, time=formants.frame_number_to_time(frame)
+                )
+                if math.isnan(cur):
+                    cur = None
+                frame_formant_data.append(cur)
+            data.append(frame_formant_data)
         return {
             "time_step": formants.time_step,
             "window_length": window_length,
             "start_time": formants.get_time_from_frame_number(1),
             "data": data,
+        }
+    except Exception as _:
+        return None
+
+
+def calculate_sound_formants_for_spectrogram(
+    sound: SoundType, time_step: float | None = None, window_length: float = 0.025
+):  # pragma: no cover
+    """
+    This method calculates the first five formants of a sound fragment.
+
+    Parameters:
+    - sound (parselmouth.Sound): Sound object representing a speech fragment.
+    - time_step (float): Time between the center of the frames.
+    - window_length (float): Effective duration of the analysis window.
+
+    Returns:
+    - time_step (float): Time between the center of the frames.
+    - window_length (float): Effective duration of the analysis window.
+    - start_time (float): Time of center of the first frame.
+    - data (numpy.ndarray): 2D array with the f1 - f5 found in each frame.
+
+    Example:
+    ```python
+    result = calculate_sound_formants_for_spectrogram(sound, time_step, window_length)
+    ```
+    """
+    try:
+        formants = sound.to_formant_burg(
+            time_step=time_step, window_length=window_length
+        )
+        data: list = []
+        for frame in np.arange(1, len(formants) + 1):
+            frame_formant_data: list = []
+            for x in range(1, 6):
+                cur = formants.get_value_at_time(
+                    formant_number=x, time=formants.frame_number_to_time(frame)
+                )
+                if math.isnan(cur):
+                    cur = None
+                frame_formant_data.append(cur)
+            data.append(frame_formant_data)
+        return {
+            "formants": data,
         }
     except Exception as _:
         return None

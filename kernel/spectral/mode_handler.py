@@ -1,6 +1,11 @@
 from fastapi import HTTPException
 
-from .signal_analysis import simple_signal_info, get_audio
+from .signal_analysis import (
+    simple_signal_info,
+    get_audio,
+    calculate_sound_formants_for_spectrogram,
+    signal_to_sound,
+)
 
 from .frame_analysis import (
     simple_frame_info,
@@ -58,7 +63,12 @@ def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
-    return None
+    file = get_file(database, file_state)
+    audio = get_audio(file)
+    data = audio.get_array_of_samples()
+    sound = signal_to_sound(data, audio.frame_rate)
+
+    return calculate_sound_formants_for_spectrogram(sound)
 
 
 def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:

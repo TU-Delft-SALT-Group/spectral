@@ -153,3 +153,14 @@ class ErrorRateResponse(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
+
+
+class SpectrogramResponse(BaseModel):
+    """
+    SpectrogramResponse model representing the response of the spectrogram mode endpoint.
+
+    Attributes:
+        formants (List[List[float|None]]): List of 5 formants.
+    """
+
+    formants: List[List[float | None]]

@@ -97,8 +97,13 @@ def test_signal_correct_spectrogram(db_mock, file_state):
         "/signals/modes/spectrogram", params={"fileState": json.dumps(file_state)}
     )
     assert response.status_code == 200, "Expected status code 200 for spectrogram mode"
-    assert response.json() is None, "Expected response to be None"
-    assert db_mock.fetch_file.call_count == 0, "Expected fetch_file not to be called"
+
+    result = response.json()
+
+    assert result is not None, "Expected response to be not None"
+    assert len(result["formants"][0]) == 5, "Expect 5 formants"
+    assert len(result["formants"]) == 723, "Expect response length to be of length 723"
+    assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
 
 
 def test_signal_correct_waveform(db_mock, file_state):

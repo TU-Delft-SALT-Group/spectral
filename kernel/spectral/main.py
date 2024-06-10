@@ -20,6 +20,7 @@ from .data_objects import (
     VowelSpaceResponse,
     TranscriptionSegment,
     ErrorRateResponse,
+    SpectrogramResponse,
 )
 from .database import Database
 import orjson
@@ -67,6 +68,7 @@ app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
         VowelSpaceResponse,
         list[list[TranscriptionSegment]],
         ErrorRateResponse,
+        SpectrogramResponse,
     ],
     responses=signal_modes_response_examples,
 )
@@ -100,21 +102,19 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
-    db_session = database
-    # db_session = next(database)
     fileState = json.loads(fileState)
     if mode == "simple-info":
-        return simple_info_mode(db_session, fileState)
+        return simple_info_mode(database, fileState)
     if mode == "spectrogram":
-        return spectrogram_mode(db_session, fileState)
+        return spectrogram_mode(database, fileState)
     if mode == "waveform":
-        return waveform_mode(db_session, fileState)
+        return waveform_mode(database, fileState)
     if mode == "vowel-space":
-        return vowel_space_mode(db_session, fileState)
+        return vowel_space_mode(database, fileState)
     if mode == "transcription":
-        return transcription_mode(db_session, fileState)
+        return transcription_mode(database, fileState)
     if mode == "error-rate":
-        return error_rate_mode(db_session, fileState)
+        return error_rate_mode(database, fileState)
 
 
 @app.get(
