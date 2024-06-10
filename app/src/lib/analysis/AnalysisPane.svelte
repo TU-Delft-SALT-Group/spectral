@@ -1,14 +1,24 @@
 <!--
 	@component
 
-	A pane of analysis. TODO: Expand docs
+	A pane of analysis.
 
 	The analysis pane is responsible for fetching the data that the mode components need.
+
+	This component represents a single "tab".
+
+	@see Workspace
 -->
 
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { modeComponents, modeNames, type FileData, type mode } from '$lib/analysis/modes';
+	import {
+		modeComponents,
+		modeNames,
+		type FileData,
+		type ModeComponent,
+		type mode
+	} from '$lib/analysis/modes';
 	import Json from '$lib/components/Json.svelte';
 	import { memoize } from '$lib/utils';
 	import type { PaneState } from './analysis-pane';
@@ -22,6 +32,8 @@
 		paneState: PaneState;
 	} = $props();
 
+	// We memoize the file data so that we don't have to fetch and recompute it every time
+	// you switch modes.
 	const getFileData = memoize(
 		async (state: PaneState) => {
 			const fileData = state.files.map(
@@ -73,7 +85,7 @@
 			return;
 		}
 
-		// Sync paneState <- fileData
+		// Sync by setting paneState to the new fileData
 		for (let i = 0; i < paneState?.files.length ?? 0; i++) {
 			paneState.files[i]! = fileData.value[i].fileState as FileState;
 		}
@@ -127,10 +139,22 @@
 
 		<!-- TODO:Add an option to reset session state  -->
 	{:else}
+		<!--
+			The type of the component is a union of mode components. However, this means that
+			the resulting type only accepts the *intersection* of all modeState and fileData.
+
+			We can use (or abuse?) contravariance, setting the component as a component that accepts
+			the modeState and fileData of *any* mode. This is technically incorrect, but I've found
+			no way to make the types realize that we're passing *one* mode in two places.
+
+			This is particularly tricky because of the computed data :/
+
+			(prepend every word of this with an "I think")
+		-->
 		<svelte:component
-			this={modeComponents[paneState.mode].component}
-			bind:modeState={/* eslint-disable-line @typescript-eslint/no-explicit-any */ paneState.modeState as any}
-			bind:fileData={/* eslint-disable-line @typescript-eslint/no-explicit-any */ fileData.value as any}
+			this={modeComponents[paneState.mode].component as ModeComponent<mode.Name>}
+			bind:modeState={paneState.modeState[paneState.mode]}
+			bind:fileData={fileData.value}
 			onRemoveFile={removeFile}
 		></svelte:component>
 	{/if}
