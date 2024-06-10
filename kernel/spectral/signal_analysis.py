@@ -1,10 +1,13 @@
 import parselmouth
 import numpy as np
 from pydub import AudioSegment
+from .types import AudioType, SoundType
 import io
+from typing import Any
+from array import array
 
 
-def get_audio(file):
+def get_audio(file: dict[str, Any]) -> AudioType:
     """
     Extract audio data and sampling rate from the given file.
 
@@ -12,7 +15,7 @@ def get_audio(file):
     - file: A dictionary containing the file data, including audio bytes.
 
     Returns:
-    - A tuple (fs, data) where fs is the sampling rate and data is the array of audio samples.
+    - A list, that contains audio data
 
     Example:
     ```python
@@ -24,7 +27,7 @@ def get_audio(file):
     return audio
 
 
-def simple_signal_info(audio):
+def simple_signal_info(audio: AudioType) -> dict[str, Any]:
     """
     Extracts and returns basic information from a given audio signal.
 
@@ -32,7 +35,6 @@ def simple_signal_info(audio):
 
     Parameters:
     - signal (list of int): The audio signal data.
-    - fs (float): The sample frequency of the audio signal.
 
     Returns:
     - dict: A dictionary containing the duration and average pitch of the signal.
@@ -42,8 +44,8 @@ def simple_signal_info(audio):
     result = simple_signal_info(signal, fs)
     ```
     """
-    duration = calculate_signal_duration(audio)
-    avg_pitch = np.mean(
+    duration: float = calculate_signal_duration(audio)
+    avg_pitch: float = np.mean(
         calculate_sound_pitch(
             signal_to_sound(signal=audio.get_array_of_samples(), fs=audio.frame_rate)
         )["data"]  # type: ignore
@@ -51,7 +53,7 @@ def simple_signal_info(audio):
     return {"duration": duration, "averagePitch": avg_pitch}
 
 
-def signal_to_sound(signal, fs):
+def signal_to_sound(signal: array, fs: float | int) -> SoundType:
     """
     This method converts a signal to a parselmouth sound object.
 
@@ -67,12 +69,10 @@ def signal_to_sound(signal, fs):
     result = signal_to_sound(signal, fs)
     ```
     """
-    return parselmouth.Sound(
-        values=np.array(signal).astype("float64"), sampling_frequency=fs
-    )
+    return parselmouth.Sound(values=np.array(signal).astype("float64"), sampling_frequency=fs)
 
 
-def calculate_signal_duration(audio):
+def calculate_signal_duration(audio: AudioType) -> float:
     """
     This method calculates the duration of a signal based on the signal and the sample frequency.
 
@@ -91,7 +91,9 @@ def calculate_signal_duration(audio):
     return audio.duration_seconds
 
 
-def calculate_sound_pitch(sound, time_step=None):  # pragma: no cover
+def calculate_sound_pitch(
+    sound: SoundType, time_step: float | None = None
+) -> dict[str, Any] | None:  # pragma: no cover
     """
     This method calculates the pitches present in a sound object.
 
@@ -121,8 +123,11 @@ def calculate_sound_pitch(sound, time_step=None):  # pragma: no cover
 
 
 def calculate_sound_spectrogram(
-    sound, time_step=0.002, window_length=0.005, frequency_step=20.0
-):  # pragma: no cover
+    sound: SoundType,
+    time_step: float = 0.002,
+    window_length: float = 0.005,
+    frequency_step: float = 20.0,
+) -> dict[str, Any] | None:  # pragma: no cover
     """
     This method calculates the spectrogram of a sound fragment.
 
@@ -162,7 +167,7 @@ def calculate_sound_spectrogram(
 
 
 def calculate_sound_f1_f2(
-    sound, time_step=None, window_length=0.025
+    sound: SoundType, time_step: float | None = None, window_length: float = 0.025
 ):  # pragma: no cover
     """
     This method calculates the first and second formant of a sound fragment.
@@ -184,10 +189,8 @@ def calculate_sound_f1_f2(
     ```
     """
     try:
-        formants = sound.to_formant_burg(
-            time_step=time_step, window_length=window_length
-        )
-        data = []
+        formants = sound.to_formant_burg(time_step=time_step, window_length=window_length)
+        data: list = []
         for frame in np.arange(1, len(formants) + 1):
             data.append(
                 [

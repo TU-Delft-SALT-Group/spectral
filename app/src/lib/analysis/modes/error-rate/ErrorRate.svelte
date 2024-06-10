@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ModeComponentProps } from '..';
-	import ErrorRateSingle from './ErrorRateSingle.svelte';
+	import ErrorRatePlugin from './ErrorRatePlugin.svelte';
 	import { used } from '$lib/utils';
 
 	export let fileData: ModeComponentProps<'error-rate'>['fileData'];
@@ -9,8 +9,8 @@
 	used(modeState);
 </script>
 
-<section class="flex h-full w-full flex-col gap-6 p-6">
+<section class="flex h-fit w-full flex-col gap-6 p-6">
 	{#each fileData as { computedData, fileState } (fileState.id)}
-		<ErrorRateSingle {computedData} {fileState} />
+		<ErrorRatePlugin {computedData} {fileState} />
 	{/each}
 </section>
