@@ -61,9 +61,7 @@ def test_deepgram_transcription(mock_deepgram_client):
             ]
         }
     }
-    mock_client_instance.listen.prerecorded.v(
-        "1"
-    ).transcribe_file.return_value = mock_response
+    mock_client_instance.listen.prerecorded.v("1").transcribe_file.return_value = mock_response
 
     data = b"audio data"
     result = deepgram_transcription(data)
@@ -83,7 +81,7 @@ def test_deepgram_transcription_no_api_key(capfd):
 
 
 def test_get_phoneme_transcription_empty_transcription():
-    assert get_phoneme_transcriptions([[]]) == []
+    assert get_phoneme_transcriptions([{}]) == []
 
 
 def test_get_phoneme_word_splits_empty():

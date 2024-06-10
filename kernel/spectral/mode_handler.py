@@ -8,11 +8,14 @@ from .frame_analysis import (
     validate_frame_index,
 )
 from .transcription import calculate_error_rates
+from .types import FileStateType
 import tempfile
 import subprocess
+from .database import Database
+from typing import Any
 
 
-def simple_info_mode(database, file_state):
+def simple_info_mode(database: Database, file_state: FileStateType) -> dict[str, Any]:
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -43,28 +46,26 @@ def simple_info_mode(database, file_state):
 
     frame_index = validate_frame_index(audio.get_array_of_samples(), file_state)
 
-    result["frame"] = simple_frame_info(
-        audio.get_array_of_samples(), audio.frame_rate, frame_index
-    )
+    result["frame"] = simple_frame_info(audio.get_array_of_samples(), audio.frame_rate, frame_index)
 
     return result
 
 
-def spectrogram_mode(database, file_state):
+def spectrogram_mode(database: Database, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def waveform_mode(database, file_state):
+def waveform_mode(database: Database, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def vowel_space_mode(database, file_state):
+def vowel_space_mode(database: Database, file_state: FileStateType) -> dict[str, float] | None:
     """
     Extracts and returns the first and second formants of a specified frame.
 
@@ -97,14 +98,14 @@ def vowel_space_mode(database, file_state):
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(database, file_state):
+def transcription_mode(database: Database, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def error_rate_mode(database, file_state):
+def error_rate_mode(database: Database, file_state: FileStateType) -> dict[str, Any] | None:
     """
     Calculate the error rates of transcriptions against the ground truth.
 
@@ -139,7 +140,7 @@ def error_rate_mode(database, file_state):
     return {"groundTruth": file["groundTruth"], "errorRates": errorRates}
 
 
-def get_file(database, file_state):
+def get_file(database: Database, file_state: FileStateType) -> FileStateType:
     """
     Fetch a file from the database using the file_state information.
 
@@ -170,7 +171,7 @@ def get_file(database, file_state):
     return file
 
 
-def convert_to_wav(data):
+def convert_to_wav(data: bytes) -> bytes:
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk

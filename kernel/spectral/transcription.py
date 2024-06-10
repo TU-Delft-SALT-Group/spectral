@@ -1,13 +1,16 @@
 from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from fastapi import HTTPException
 from jiwer import process_words, process_characters
+import jiwer
 from .signal_analysis import get_audio, calculate_signal_duration
+from . import FileStateType
 from allosaurus.app import read_recognizer  # type: ignore
 import tempfile
 import os
+from typing import Any
 
 
-def calculate_error_rates(reference, annotations):
+def calculate_error_rates(reference: str, annotations: list[dict]) -> dict:
     """
     Calculate error rates between the reference transcription and annotations.
 
@@ -29,7 +32,7 @@ def calculate_error_rates(reference, annotations):
     return {"wordLevel": word_level, "characterLevel": character_level}
 
 
-def annotation_to_hypothesis(annotations):
+def annotation_to_hypothesis(annotations: list) -> str:
     """
     Convert annotations to a single hypothesis string.
 
@@ -52,7 +55,7 @@ def annotation_to_hypothesis(annotations):
     return res[: len(res) - 1]
 
 
-def word_level_processing(reference, hypothesis):
+def word_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
     """
     Process word-level error metrics between the reference and hypothesis.
 
@@ -84,7 +87,7 @@ def word_level_processing(reference, hypothesis):
     return result
 
 
-def character_level_processing(reference, hypothesis):
+def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
     """
     Process character-level error metrics between the reference and hypothesis.
 
@@ -114,7 +117,7 @@ def character_level_processing(reference, hypothesis):
     return result
 
 
-def get_alignments(unparsed_alignments):
+def get_alignments(unparsed_alignments: list[jiwer.process.AlignmentChunk]) -> list[dict]:
     """
     Convert unparsed alignments into a structured format.
 
@@ -143,7 +146,7 @@ def get_alignments(unparsed_alignments):
     return alignments
 
 
-def get_transcription(model, file):
+def get_transcription(model: str, file: FileStateType):
     """
     Get transcription of an audio file using the specified model.
 
@@ -166,7 +169,7 @@ def get_transcription(model, file):
     raise HTTPException(status_code=404, detail="Model was not found")
 
 
-def fill_gaps(transcriptions, file):
+def fill_gaps(transcriptions: list[dict], file: FileStateType) -> list[dict]:
     res = []
 
     audio = get_audio(file)
@@ -189,7 +192,7 @@ def fill_gaps(transcriptions, file):
     return res
 
 
-def deepgram_transcription(data):
+def deepgram_transcription(data: bytes) -> list[dict]:
     """
     Transcribe audio data using Deepgram API.
 
@@ -229,16 +232,15 @@ def deepgram_transcription(data):
 
         res = []
         for word in response["results"]["channels"][0]["alternatives"][0]["words"]:
-            res.append(
-                {"value": word["word"], "start": word["start"], "end": word["end"]}
-            )
+            res.append({"value": word["word"], "start": word["start"], "end": word["end"]})
         return res
 
     except Exception as e:
         print(f"Exception: {e}")
+        return []
 
 
-def allosaurs_transcription(file):
+def allosaurs_transcription(file: FileStateType) -> Any:
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
@@ -246,9 +248,7 @@ def allosaurs_transcription(file):
     word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
 
     model = read_recognizer()
-    phoneme_level_transcription = model.recognize(
-        temp_wav_filename, timestamp=True, emit=1.2
-    )
+    phoneme_level_transcription = model.recognize(temp_wav_filename, timestamp=True, emit=1.2)
 
     phoneme_level_parsed = []
 
@@ -257,13 +257,13 @@ def allosaurs_transcription(file):
             [float(phoneme_string.split(" ")[0]), phoneme_string.split(" ")[2]]
         )
 
-    phoneme_word_splits = get_phoneme_word_splits(
-        word_level_transcription, phoneme_level_parsed
-    )
+    phoneme_word_splits = get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed)
     return get_phoneme_transcriptions(phoneme_word_splits)
 
 
-def get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed):
+def get_phoneme_word_splits(
+    word_level_transcription: list[dict], phoneme_level_parsed: list[list]
+) -> list[dict]:
     if len(word_level_transcription) == 0:
         return []
 
@@ -277,10 +277,7 @@ def get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed):
     while word_pointer < len(word_level_transcription) and phoneme_pointer < len(
         phoneme_level_parsed
     ):
-        if (
-            phoneme_level_parsed[phoneme_pointer][0]
-            > word_level_transcription[word_pointer]["end"]
-        ):
+        if phoneme_level_parsed[phoneme_pointer][0] > word_level_transcription[word_pointer]["end"]:
             current_split["word_transcription"] = word_level_transcription[word_pointer]
             phoneme_word_splits.append(current_split)
             current_split = {"phonemes": [], "word_transcription": None}
@@ -297,7 +294,7 @@ def get_phoneme_word_splits(word_level_transcription, phoneme_level_parsed):
     return phoneme_word_splits
 
 
-def get_phoneme_transcriptions(phoneme_word_splits):
+def get_phoneme_transcriptions(phoneme_word_splits: list[Any]) -> list[dict]:
     res = []
 
     for phoneme_split in phoneme_word_splits:
@@ -310,22 +307,14 @@ def get_phoneme_transcriptions(phoneme_word_splits):
                 start = phoneme_split["word_transcription"]["start"]
             else:
                 # this is an (educated) guess, it could be way off :D
-                start = (
-                    phoneme_split["phonemes"][i - 1][0]
-                    + phoneme_split["phonemes"][i][0]
-                ) / 2
+                start = (phoneme_split["phonemes"][i - 1][0] + phoneme_split["phonemes"][i][0]) / 2
 
             end = 0
             if i + 1 == len(phoneme_split["phonemes"]):
                 end = phoneme_split["word_transcription"]["end"]
             else:
-                end = (
-                    phoneme_split["phonemes"][i + 1][0]
-                    + phoneme_split["phonemes"][i][0]
-                ) / 2
+                end = (phoneme_split["phonemes"][i + 1][0] + phoneme_split["phonemes"][i][0]) / 2
 
-            res.append(
-                {"value": phoneme_split["phonemes"][i][1], "start": start, "end": end}
-            )
+            res.append({"value": phoneme_split["phonemes"][i][1], "start": start, "end": end})
 
     return res
