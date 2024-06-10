@@ -7,7 +7,7 @@ import tempfile
 import os
 
 
-def calculate_error_rates(reference, annotations):
+def calculate_error_rates(reference_annotations, hypothesis_annotations):
     """
     Calculate error rates between the reference transcription and annotations.
 
@@ -22,14 +22,17 @@ def calculate_error_rates(reference, annotations):
     - dict: A dictionary containing word-level and character-level error rates.
 
     """
-    hypothesis = annotation_to_hypothesis(annotations)
+    reference = annotation_to_sentence(reference_annotations)
+    if reference == "":
+        return None
+    hypothesis = annotation_to_sentence(hypothesis_annotations)
     word_level = word_level_processing(reference, hypothesis)
     character_level = character_level_processing(reference, hypothesis)
 
     return {"wordLevel": word_level, "characterLevel": character_level}
 
 
-def annotation_to_hypothesis(annotations):
+def annotation_to_sentence(annotations):
     """
     Convert annotations to a single hypothesis string.
 
@@ -47,6 +50,8 @@ def annotation_to_hypothesis(annotations):
         return res
 
     for annotation in annotations:
+        if annotation["value"] == "":
+            continue
         res += annotation["value"] + " "
 
     return res[: len(res) - 1]
