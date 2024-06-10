@@ -59,9 +59,14 @@ services:
       - "8000"
     depends_on:
       - postgres
+    volumes:
+      - kernel_cache:/opt/volume
     env_file:
        - '.variables.env'
        - '.apikeys.env'
+
+volumes:
+  kernel_cache:
 
 networks:
   default:
