@@ -1,6 +1,6 @@
-from typing import Any, Dict
+from typing import Any
 
-signal_modes_response_examples: Dict[int | str, Dict[str, Any]] = {
+signal_modes_response_examples: dict[int | str, dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {
@@ -210,7 +210,7 @@ signal_modes_response_examples: Dict[int | str, Dict[str, Any]] = {
     404: {"content": {"application/json": {"example": {"detail": "error message"}}}},
 }
 
-transcription_response_examples: Dict[int | str, Dict[str, Any]] = {
+transcription_response_examples: dict[int | str, dict[str, Any]] = {
     200: {
         "content": {
             "application/json": {
