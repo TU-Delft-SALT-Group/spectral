@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from jiwer import process_words, process_characters
 import jiwer
 from .signal_analysis import get_audio, calculate_signal_duration
-from . import FileStateType
+from .types import FileStateType
 from allosaurus.app import read_recognizer  # type: ignore
 import tempfile
 import os
