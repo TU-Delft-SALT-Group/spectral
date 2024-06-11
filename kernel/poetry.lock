@@ -219,6 +219,17 @@ files = [
 ]
 
 [[package]]
+name = "chardet"
+version = "5.2.0"
+description = "Universal encoding detector for Python 3"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
+    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
+]
+
+[[package]]
 name = "click"
 version = "8.1.7"
 description = "Composable command line interface toolkit"
@@ -1238,6 +1249,22 @@ files = [
     {file = "mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
     {file = "mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
 ]
+
+[[package]]
+name = "mytextgrid"
+version = "0.8.0"
+description = "Create, read, modify and query TextGrid files."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mytextgrid-0.8.0-py3-none-any.whl", hash = "sha256:2747e04067d750fd8d354d2a78177712e69c1d683559df7a1241af9e49c10a49"},
+    {file = "mytextgrid-0.8.0.tar.gz", hash = "sha256:b349aa1a4910120bf4c4f015475555b37f3da4b21a8934afdbecf8cde80d58f2"},
+]
+
+[package.dependencies]
+chardet = ">=5.0.0"
+jinja2 = ">=3.1.2"
+markupsafe = ">=2.1.1"
 
 [[package]]
 name = "networkx"
@@ -3134,4 +3161,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "1d80abdd00b535835cd97ff65cebb5669c48b51dcf271f3802cf3db07ed3e7d8"
+content-hash = "d4340b02b4f25c1a005224e3dc72facf2c8e4682527c69f121026adc6f457607"

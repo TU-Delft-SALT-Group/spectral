@@ -20,8 +20,10 @@ from .data_objects import (
     VowelSpaceResponse,
     TranscriptionSegment,
     ErrorRateResponse,
+    TranscriptionsTextgridModel,
 )
 from .database import Database
+from .transcription.textgrid import convert_to_textgrid
 import orjson
 import json
 import os
@@ -153,3 +155,11 @@ async def transcribe_file(
 
     transcription = get_transcription(model, file)
     return transcription
+
+
+@app.post(
+    "/transcription/textgrid",
+    response_model=Any,
+)
+async def to_textgrid(transcriptions: TranscriptionsTextgridModel):
+    return convert_to_textgrid(transcriptions)

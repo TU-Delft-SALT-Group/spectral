@@ -41,6 +41,7 @@ jiwer = "^3.0.4"
 allosaurus = "^1.0.2"
 python-magic = "^0.4.27"
 openai = "^1.33.0"
+mytextgrid = "^0.8.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
