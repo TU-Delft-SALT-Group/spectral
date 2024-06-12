@@ -8,7 +8,6 @@
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import type { Selected } from 'bits-ui';
-	import { browser } from '$app/environment';
 
 	export let prompts: PromptResponse[];
 	export let promptName: string;
@@ -104,8 +103,8 @@
 		}
 	}
 
-	$: videoDevices = browser ? getConnectedDevices('videoinput') : new Promise<[]>((res) => res([]));
-	$: audioDevices = browser ? getConnectedDevices('audioinput') : new Promise<[]>((res) => res([]));
+	let videoDevices: MediaDeviceInfo[] | null = null;
+	let audioDevices: MediaDeviceInfo[] | null = null;
 
 	export async function getConnectedDevices(type: 'audioinput' | 'audiooutput' | 'videoinput') {
 		const devices = await navigator.mediaDevices.enumerateDevices();
@@ -118,6 +117,27 @@
 
 	const windowSize = 2;
 	$: center = Math.min(Math.max(windowSize, selectedIndex), prompts.length - windowSize);
+
+	// onMount(async() => {
+
+	// })
+
+	const checkDeviceInterval = setInterval(async () => {
+		const videoDevicesAttempt = await getConnectedDevices('videoinput');
+		const audioDevicesAttempt = await getConnectedDevices('audioinput');
+		console.log(videoDevicesAttempt);
+		console.log(audioDevicesAttempt);
+		if (
+			videoDevicesAttempt.filter((device) => device.deviceId !== '').length > 0 &&
+			audioDevicesAttempt.filter((device) => device.deviceId !== '').length > 0
+		) {
+			videoDevices = videoDevicesAttempt;
+			audioDevices = audioDevicesAttempt;
+			selectedCamera.label = videoDevices[0].label;
+			selectedMic.label = audioDevices[0].label;
+			clearInterval(checkDeviceInterval);
+		}
+	}, 500);
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -137,35 +157,31 @@
 
 			<div class="flex-1"></div>
 
-			{#await videoDevices}
-				loading...
-			{:then devices}
-				<Select.Root bind:selected={selectedCamera}>
-					<Select.Trigger>
-						{selectedCamera.label}
-					</Select.Trigger>
+			<Select.Root bind:selected={selectedCamera}>
+				<Select.Trigger class="h-fit">
+					{selectedCamera.label}
+				</Select.Trigger>
+				{#if videoDevices !== null}
 					<Select.Content>
-						{#each devices as device}
+						{#each videoDevices as device}
 							<Select.Item value={device}>{device.label}</Select.Item>
 						{/each}
 					</Select.Content>
-				</Select.Root>
-			{/await}
+				{/if}
+			</Select.Root>
 
-			{#await audioDevices}
-				loading...
-			{:then devices}
-				<Select.Root bind:selected={selectedMic}>
-					<Select.Trigger>
-						{selectedMic.label}
-					</Select.Trigger>
+			<Select.Root bind:selected={selectedMic}>
+				<Select.Trigger class="h-fit">
+					{selectedMic.label}
+				</Select.Trigger>
+				{#if audioDevices !== null}
 					<Select.Content>
-						{#each devices as device}
+						{#each audioDevices as device}
 							<Select.Item value={device}>{device.label}</Select.Item>
 						{/each}
 					</Select.Content>
-				</Select.Root>
-			{/await}
+				{/if}
+			</Select.Root>
 
 			<Button disabled={disableImport} on:click={importSession}>Export recording to session</Button>
 			<Button disabled={disableExport} on:click={downloadAllRecordings} variant="outline"
