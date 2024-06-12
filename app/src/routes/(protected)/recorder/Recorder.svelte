@@ -122,7 +122,7 @@
 
 	// })
 
-	const checkDeviceInterval = setInterval(async () => {
+	async function getAndLoadConnectedDevices(clear: boolean) {
 		const videoDevicesAttempt = await getConnectedDevices('videoinput');
 		const audioDevicesAttempt = await getConnectedDevices('audioinput');
 		console.log(videoDevicesAttempt);
@@ -135,9 +135,16 @@
 			audioDevices = audioDevicesAttempt;
 			selectedCamera.label = videoDevices[0].label;
 			selectedMic.label = audioDevices[0].label;
-			clearInterval(checkDeviceInterval);
+
+			if (clear) {
+				clearInterval(checkDeviceInterval);
+			}
 		}
-	}, 500);
+	}
+
+	const checkDeviceInterval = setInterval(() => getAndLoadConnectedDevices(true), 500);
+
+	navigator.mediaDevices.addEventListener('devicechange', () => getAndLoadConnectedDevices(false));
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
