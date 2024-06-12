@@ -800,3 +800,25 @@ def test_phone_transcription_no_words(db_mock, file_state):
         assert (
             db_mock.fetch_file.call_count == 1
         ), "Expected fetch_file to be called once"
+
+
+def test_textgrid_no_transcriptions():
+    response = client.post("/transcription/textgrid", json={"transcriptions": []})
+
+    assert response.status_code == 200
+
+    result = response.json()
+
+    assert result is None
+
+
+# def test_textgrid_one_track():
+#     response = client.post("/transcription/textgrid",json={"transcriptions":[{"id":"1","name":"track-1","captions": [{"value":"hi","start":0,"end": 2.0}]}]})
+
+#     assert response.status_code == 200
+
+#     result = response.json()
+#     mytextgrid.read_from_stream(result)
+
+#     result_parsed = m
+#     assert result is None
