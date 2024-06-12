@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
 
 	export let recording = false;
 	export let previewing: Blob | null = null;
+
+	export let cameraInfo: MediaDeviceInfo | null;
+	export let micInfo: MediaDeviceInfo | null;
 
 	export let onStopRecording: (blob: Blob) => void = () => {};
 
@@ -62,14 +64,20 @@
 		}
 	}
 
-	onMount(() => {
+	export async function loadVideo(
+		camneraInfo: MediaDeviceInfo | null,
+		audioInfo: MediaDeviceInfo | null
+	) {
 		navigator.mediaDevices
 			.getUserMedia({
 				video: {
+					deviceId: camneraInfo?.deviceId,
 					width: { min: 1280 },
 					height: { min: 720 }
 				},
-				audio: true
+				audio: {
+					deviceId: audioInfo?.deviceId
+				}
 			})
 			.then((obtainedStream) => {
 				mediaStream = obtainedStream;
@@ -86,7 +94,9 @@
 					onStopRecording(blob);
 				};
 			});
-	});
+	}
+
+	$: browser && loadVideo(cameraInfo, micInfo);
 </script>
 
 <video
