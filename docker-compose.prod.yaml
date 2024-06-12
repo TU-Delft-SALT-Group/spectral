@@ -3,10 +3,11 @@ services:
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    expose:
+    ports:
       - "8080"
     environment:
       DOZZLE_BASE: /log
+    stop_grace_period: 5s
     healthcheck:
       test: ["CMD", "/dozzle", "healthcheck"]
       interval: 3s
@@ -36,6 +37,7 @@ services:
       - "5173"
     depends_on:
       - kernel
+      - postgres
 
   nginx:
     image: nginx:latest
@@ -45,7 +47,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.prod.conf:/etc/nginx/nginx.conf
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - app
 
@@ -59,14 +61,9 @@ services:
       - "8000"
     depends_on:
       - postgres
-    volumes:
-      - kernel_cache:/opt/volume
     env_file:
        - '.variables.env'
        - '.apikeys.env'
-
-volumes:
-  kernel_cache:
 
 networks:
   default:
