@@ -1,21 +1,25 @@
-from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 import os
+
+from deepgram import DeepgramClient, FileSource, PrerecordedOptions
 
 
 def deepgram_transcription(data: bytes) -> list[dict]:
-    """
-    Transcribe audio data using Deepgram API.
+    """Transcribe audio data using Deepgram API.
 
     This function transcribes audio data using the Deepgram API.
 
-    Parameters:
+    Parameters
+    ----------
     - data (bytes): The audio data to transcribe.
 
-    Returns:
+    Returns
+    -------
     - list: A list of transcriptions containing words with their start and end times.
 
-    Raises:
+    Raises
+    ------
     - Exception: If an error occurs during the transcription process.
+
     """
     try:
         # STEP 1: Create a Deepgram client using the API key
@@ -43,7 +47,7 @@ def deepgram_transcription(data: bytes) -> list[dict]:
         res = []
         for word in response["results"]["channels"][0]["alternatives"][0]["words"]:
             res.append(
-                {"value": word["word"], "start": word["start"], "end": word["end"]}
+                {"value": word["word"], "start": word["start"], "end": word["end"]},
             )
         return res
 

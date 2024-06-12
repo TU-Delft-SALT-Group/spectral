@@ -1,31 +1,32 @@
-from typing import Annotated, Union, Literal
-from fastapi import FastAPI, HTTPException, Path, Depends
+import json
+import os
+from typing import Annotated, Any, Literal, Union
+
+import orjson
+from fastapi import Depends, FastAPI, HTTPException, Path
 from fastapi.responses import JSONResponse
+
+from .data_objects import (
+    ErrorRateResponse,
+    SimpleInfoResponse,
+    TranscriptionSegment,
+    VowelSpaceResponse,
+)
+from .database import Database
 from .mode_handler import (
-    simple_info_mode,
-    waveform_mode,
-    spectrogram_mode,
-    vowel_space_mode,
-    transcription_mode,
-    error_rate_mode,
     convert_to_wav,
+    error_rate_mode,
+    simple_info_mode,
+    spectrogram_mode,
+    transcription_mode,
+    vowel_space_mode,
+    waveform_mode,
 )
 from .response_examples import (
     signal_modes_response_examples,
     transcription_response_examples,
 )
 from .transcription.transcription import get_transcription
-from .data_objects import (
-    SimpleInfoResponse,
-    VowelSpaceResponse,
-    TranscriptionSegment,
-    ErrorRateResponse,
-)
-from .database import Database
-import orjson
-import json
-import os
-from typing import Any
 
 
 def get_db():  # pragma: no cover
@@ -46,8 +47,7 @@ def get_db():  # pragma: no cover
 
 
 class ORJSONResponse(JSONResponse):
-    """
-    Custom JSONResponse class using ORJSON to handle nan's.
+    """Custom JSONResponse class using ORJSON to handle nan's.
     """
 
     media_type = "application/json"
@@ -85,20 +85,23 @@ async def analyze_signal_mode(
     fileState,
     database=Depends(get_db),
 ):
-    """
-    Analyze an audio signal in different modes.
+    """Analyze an audio signal in different modes.
 
     This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
 
-    Parameters:
+    Parameters
+    ----------
     - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form", "vowel-space", "transcription", "error-rate").
     - fileState (dict): The important state data of the file
 
-    Returns:
+    Returns
+    -------
     - dict: The result of the analysis based on the selected mode.
 
-    Raises:
+    Raises
+    ------
     - HTTPException: If the mode is not found or input data is invalid.
+
     """
     db_session = database
     # db_session = next(database)
@@ -127,20 +130,23 @@ async def transcribe_file(
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
 ):
-    """
-    Transcribe an audio file.
+    """Transcribe an audio file.
 
     This endpoint transcribes an audio file using the specified model.
 
-    Parameters:
+    Parameters
+    ----------
     - model (str): The transcription model to use.
     - file_id (str): The ID of the file to transcribe.
 
-    Returns:
+    Returns
+    -------
     - list: A list of dictionaries with keys 'start', 'end' and 'value' containing the transcription of the audio file.
 
-    Raises:
+    Raises
+    ------
     - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
+
     """
     db_session = database
     # db_session = next(database)

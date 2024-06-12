@@ -62,3 +62,18 @@ tests_dir="tests/"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "C90", "I", "N", "D", "UP", "YTT", "ANN", "ASYNC",
+    "TRIO", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ",
+    "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "LOG", "G", "INP",
+    "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM",
+    "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH",
+    "PL", "C", "R", "TRY", "FLY", "NPY", "AIR", "PERF", "RUF"]
+
+ignore = ["ANN401"]
+
+

@@ -42,7 +42,7 @@ signal_modes_response_examples: dict[int | str, dict[str, Any]] = {
                             [
                                 {"value": "foo", "start": 0, "end": 0.12},
                                 {"value": "bar", "start": 0.12, "end": 0.24},
-                            ]
+                            ],
                         ],
                     },
                     "error_rate": {
@@ -200,9 +200,9 @@ signal_modes_response_examples: dict[int | str, dict[str, Any]] = {
                             },
                         },
                     },
-                }
-            }
-        }
+                },
+            },
+        },
     },
     400: {"content": {"application/json": {"example": {"detail": "error message"}}}},
     404: {"content": {"application/json": {"example": {"detail": "error message"}}}},
@@ -215,9 +215,9 @@ transcription_response_examples: dict[int | str, dict[str, Any]] = {
                 "example": [
                     {"value": "foo", "start": 0, "end": 0.12},
                     {"value": "bar", "start": 0.12, "end": 0.24},
-                ]
-            }
-        }
+                ],
+            },
+        },
     },
     404: {"content": {"application/json": {"example": {"detail": "error message"}}}},
     500: {"content": {"application/json": {"example": {"detail": "error message"}}}},

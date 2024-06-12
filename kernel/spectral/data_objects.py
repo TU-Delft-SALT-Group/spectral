@@ -1,17 +1,19 @@
-from pydantic import BaseModel
-from typing import List, Literal
 from datetime import datetime
+from typing import List, Literal
+
+from pydantic import BaseModel
 
 
 class FrameAnalysisResponse(BaseModel):
-    """
-    FrameAnalysisResponse model representing the results of frame analysis.
+    """FrameAnalysisResponse model representing the results of frame analysis.
 
-    Attributes:
+    Attributes
+    ----------
         duration (float): Duration (in seconds) of the frame.
         pitch (float): Fundamental frequency (F0) of the frame (in Hz).
         f1 (float): First formant frequency of the frame (in Hz).
         f2 (float): Second formant frequency of the frame (in Hz).
+
     """
 
     duration: float
@@ -21,15 +23,16 @@ class FrameAnalysisResponse(BaseModel):
 
 
 class SimpleInfoResponse(BaseModel):
-    """
-    SimpleInfoResponse model containing basic information about a signal.
+    """SimpleInfoResponse model containing basic information about a signal.
 
-    Attributes:
+    Attributes
+    ----------
         duration (float): Duration (in seconds) of the signal.
         averagePitch (float): Average pitch (F0) of the signal (in Hz).
         fileSize (int): File size of the signal data (in bytes).
         fileCreationDate (datetime): Date and time the signal file was created.
         frame (FrameAnalysisResponse): Frame analysis results for a representative frame of the signal.
+
     """
 
     duration: float
@@ -40,12 +43,13 @@ class SimpleInfoResponse(BaseModel):
 
 
 class VowelSpaceResponse(BaseModel):
-    """
-    VowelSpaceResponse model representing formant location in the vowel space.
+    """VowelSpaceResponse model representing formant location in the vowel space.
 
-    Attributes:
+    Attributes
+    ----------
         f1 (float): First formant frequency (in Hz).
         f2 (float): Second formant frequency (in Hz).
+
     """
 
     f1: float
@@ -53,13 +57,14 @@ class VowelSpaceResponse(BaseModel):
 
 
 class TranscriptionSegment(BaseModel):
-    """
-    TranscriptionSegment model representing a segment of a signal transcription.
+    """TranscriptionSegment model representing a segment of a signal transcription.
 
-    Attributes:
+    Attributes
+    ----------
         value (str): Textual content of the segment.
         start (float): Starting time (in seconds) of the segment.
         end (float): Ending time (in seconds) of the segment.
+
     """
 
     value: str
@@ -68,15 +73,16 @@ class TranscriptionSegment(BaseModel):
 
 
 class Alignment(BaseModel):
-    """
-    Alignment model representing the type and indices of the alignment.
+    """Alignment model representing the type and indices of the alignment.
 
-    Attributes:
+    Attributes
+    ----------
         type (Literal['insert', 'substitute', 'delete, 'equal']): Type of the alignment.
         referenceStartIndex (int): Starting index in the reference.
         referenceEndIndex (int): Ending index in the reference.
         hypothesisStartIndex (int): Starting index in the hypothesis.
         hypothesisEndIndex (int): Ending index in the hypothesis.
+
     """
 
     type: Literal["insert", "substitute", "delete", "equal"]
@@ -87,10 +93,10 @@ class Alignment(BaseModel):
 
 
 class WordLevelErrorRate(BaseModel):
-    """
-    WordLevelErrorRate model representing word-level error metrics.
+    """WordLevelErrorRate model representing word-level error metrics.
 
-    Attributes:
+    Attributes
+    ----------
         wer (float): Word Error Rate.
         mer (float): Match Error Rate.
         wil (float): Word Information Lost.
@@ -102,6 +108,7 @@ class WordLevelErrorRate(BaseModel):
         reference (List[str]): List of reference words.
         hypothesis (List[str]): List of hypothesis words.
         alignments (List[Alignment]): List of alignment objects.
+
     """
 
     wer: float
@@ -118,10 +125,10 @@ class WordLevelErrorRate(BaseModel):
 
 
 class CharacterLevelErrorRate(BaseModel):
-    """
-    CharacterLevelErrorRate model representing character-level error metrics.
+    """CharacterLevelErrorRate model representing character-level error metrics.
 
-    Attributes:
+    Attributes
+    ----------
         cer (float): Character Error Rate.
         hits (int): Number of correct characters.
         substitutions (int): Number of substituted characters.
@@ -130,6 +137,7 @@ class CharacterLevelErrorRate(BaseModel):
         reference (List[str]): List of reference characters.
         hypothesis (List[str]): List of hypothesis characters.
         alignments (List[Alignment]): List of alignment objects.
+
     """
 
     cer: float
@@ -143,12 +151,13 @@ class CharacterLevelErrorRate(BaseModel):
 
 
 class ErrorRateResponse(BaseModel):
-    """
-    ErrorRateValue model representing both word-level and character-level error metrics.
+    """ErrorRateValue model representing both word-level and character-level error metrics.
 
-    Attributes:
+    Attributes
+    ----------
         wordLevel (WordLevelErrorRate): Word-level error metrics.
         characterLevel (CharacterLevelErrorRate): Character-level error metrics.
+
     """
 
     wordLevel: WordLevelErrorRate

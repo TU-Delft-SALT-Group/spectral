@@ -1,6 +1,7 @@
-from openai import OpenAI
 import os
 import tempfile
+
+from openai import OpenAI
 
 
 def whisper_transcription(data: bytes) -> list[dict]:
@@ -24,7 +25,7 @@ def whisper_transcription(data: bytes) -> list[dict]:
 
             for word in words:
                 res.append(
-                    {"value": word["word"], "start": word["start"], "end": word["end"]}
+                    {"value": word["word"], "start": word["start"], "end": word["end"]},
                 )
 
         return res

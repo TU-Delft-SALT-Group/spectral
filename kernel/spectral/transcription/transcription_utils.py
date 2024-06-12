@@ -1,4 +1,4 @@
-from ..signal_analysis import get_audio, calculate_signal_duration
+from ..signal_analysis import calculate_signal_duration, get_audio
 from ..types import FileStateType
 
 

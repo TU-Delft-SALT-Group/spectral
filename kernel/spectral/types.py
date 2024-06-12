@@ -1,7 +1,9 @@
-import parselmouth
 from collections.abc import Iterator
-from .database import Database
+
+import parselmouth
 from pydub import AudioSegment
+
+from .database import Database
 
 # type definitions
 AudioType = AudioSegment

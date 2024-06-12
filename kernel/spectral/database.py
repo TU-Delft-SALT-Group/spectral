@@ -2,20 +2,22 @@ import psycopg
 
 
 class Database:
-    """
-    Database class for interacting with a PostgreSQL database.
+    """Database class for interacting with a PostgreSQL database.
 
     This class handles connecting to the database, fetching files, and closing the connection.
 
-    Attributes:
+    Attributes
+    ----------
         conn (psycopg.Connection): The connection object to the database.
         cursor (psycopg.Cursor): The cursor object to execute database queries.
 
-    Methods:
+    Methods
+    -------
         fetch_file(id: int) -> dict:
             Fetches a file record from the database by its ID.
         close():
             Closes the database connection and cursor.
+
     """
 
     user: str
@@ -25,15 +27,16 @@ class Database:
     dbname: str
 
     def __init__(self, user: str, password: str, host: str, port: str, dbname: str):
-        """
-        Initializes the Database object and opens a connection to the specified PostgreSQL database.
+        """Initializes the Database object and opens a connection to the specified PostgreSQL database.
 
         Args:
+        ----
             user (str): The username for the database.
             password (str): The password for the database.
             host (str): The host address of the database.
             port (int): The port number for the database.
             dbname (str): The name of the database.
+
         """
         self.user = user
         self.password = password
@@ -52,14 +55,16 @@ class Database:
         self.cursor = self.conn.cursor()
 
     def fetch_file(self, id: str) -> dict:
-        """
-        Fetches a file record from the database by its ID.
+        """Fetches a file record from the database by its ID.
 
         Args:
+        ----
             id (str): The ID of the file to fetch.
 
         Returns:
+        -------
             dict: A dictionary containing the file record's details.
+
         """
         self.cursor.execute("""
             SELECT column_name, ordinal_position
@@ -79,32 +84,36 @@ class Database:
         return result
 
     def snake_to_camel(self, snake_case_str: str) -> str:
-        """
-        Converts a snake_case string to camelCase.
+        """Converts a snake_case string to camelCase.
 
-        Parameters:
+        Parameters
+        ----------
         - snake_case_str (str): The snake_case string to be converted.
 
-        Returns:
+        Returns
+        -------
         - str: The camelCase version of the input string.
 
         Example:
         ```python
         camel_case_str = self.snake_to_camel('example_string')
         ```
+
         """
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
     def get_transcriptions(self, file_id: str) -> list[list]:
-        """
-        Fetches transcriptions associated with a file from the database.
+        """Fetches transcriptions associated with a file from the database.
 
         Args:
+        ----
             file_id (str): The ID of the file to fetch transcriptions for.
 
         Returns:
+        -------
             list: A list of lists containing transcription entries, where each inner list represents a file transcription and contains dictionaries with "start", "end", and "value" keys.
+
         """
         self.cursor.execute(
             """
@@ -131,14 +140,13 @@ class Database:
                         "start": transcription[0],
                         "end": transcription[1],
                         "value": transcription[2],
-                    }
+                    },
                 )
             res.append(parsed_file_transcriptions)
         return res
 
     def close(self) -> None:
-        """
-        Closes the database connection and cursor.
+        """Closes the database connection and cursor.
         """
         try:
             self.cursor.close()
