@@ -7,6 +7,7 @@
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import type { mode } from '..';
 	import { used } from '$lib/utils';
+	import SpectrogramVisualization from './SpectrogramVisualization.svelte';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
@@ -63,7 +64,7 @@
 			Spectrogram.create({
 				labels: true,
 				labelsColor: 'black',
-				height: 232
+				height: 200
 			})
 		);
 
@@ -139,3 +140,5 @@
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>
+
+<SpectrogramVisualization file={fileState.id} />
