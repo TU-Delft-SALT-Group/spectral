@@ -7,12 +7,16 @@ from .frame_analysis import (
     calculate_frame_f1_f2,
     validate_frame_index,
 )
-from .transcription import calculate_error_rates
+from .error_rates import calculate_error_rates
+from .types import FileStateType, DatabaseType
 import tempfile
 import subprocess
+from typing import Any
 
 
-def simple_info_mode(database, file_state):
+def simple_info_mode(
+    database: DatabaseType, file_state: FileStateType
+) -> dict[str, Any]:
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -50,21 +54,23 @@ def simple_info_mode(database, file_state):
     return result
 
 
-def spectrogram_mode(database, file_state):
+def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def waveform_mode(database, file_state):
+def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def vowel_space_mode(database, file_state):
+def vowel_space_mode(
+    database: DatabaseType, file_state: FileStateType
+) -> dict[str, float] | None:
     """
     Extracts and returns the first and second formants of a specified frame.
 
@@ -97,14 +103,16 @@ def vowel_space_mode(database, file_state):
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(database, file_state):
+def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     """
     TBD
     """
     return None
 
 
-def error_rate_mode(database, file_state):
+def error_rate_mode(
+    database: DatabaseType, file_state: FileStateType
+) -> dict[str, Any] | None:
     """
     Calculate the error rates of transcriptions against the ground truth.
 
@@ -121,25 +129,26 @@ def error_rate_mode(database, file_state):
     result = error_rate_mode(database, file_state)
     ```
     """
-    if "transcriptions" not in file_state:
+    if (
+        "reference" not in file_state
+        or file_state["reference"] is None
+        or "captions" not in file_state["reference"]
+        or file_state["reference"]["captions"] is None
+        or "hypothesis" not in file_state
+        or file_state["hypothesis"] is None
+        or "captions" not in file_state["hypothesis"]
+        or file_state["hypothesis"]["captions"] is None
+    ):
         return None
 
-    transcriptions = file_state["transcriptions"]
+    errorRate = calculate_error_rates(
+        file_state["reference"]["captions"], file_state["hypothesis"]["captions"]
+    )
 
-    file = get_file(database, file_state)
-
-    if file["groundTruth"] is None or transcriptions is None:
-        return None
-
-    errorRates = []
-
-    for transcription in transcriptions:
-        errorRates.append(calculate_error_rates(file["groundTruth"], transcription))
-
-    return {"groundTruth": file["groundTruth"], "errorRates": errorRates}
+    return errorRate
 
 
-def get_file(database, file_state):
+def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType:
     """
     Fetch a file from the database using the file_state information.
 
@@ -161,7 +170,9 @@ def get_file(database, file_state):
     if "id" not in file_state:
         raise HTTPException(status_code=404, detail="file_state did not include id")
     try:
-        file = database.fetch_file(file_state["id"])
+        print(file_state["id"])
+        print(database)
+        file = database.fetch_file(file_state["id"])  # pyright: ignore[reportAttributeAccessIssue]
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -170,7 +181,7 @@ def get_file(database, file_state):
     return file
 
 
-def convert_to_wav(data):
+def convert_to_wav(data: bytes) -> bytes:
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk

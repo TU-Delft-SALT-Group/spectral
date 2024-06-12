@@ -1,4 +1,4 @@
-import used from '$lib/utils';
+import { used } from '$lib/utils';
 import type {
 	DockviewApi,
 	DockviewGroupPanel,

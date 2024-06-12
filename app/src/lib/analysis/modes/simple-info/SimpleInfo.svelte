@@ -1,5 +1,5 @@
 <script lang="ts">
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 	import { flip } from 'svelte/animate';
 	import type { ModeComponentProps } from '..';
 	import SimpleInfoSingle from './SimpleInfoSingle.svelte';

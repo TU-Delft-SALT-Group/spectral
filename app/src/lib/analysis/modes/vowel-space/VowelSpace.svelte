@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getPaletteColor } from '$lib/color';
-	import used, { unwrap } from '$lib/utils';
+	import { unwrap } from '$lib/utils';
 	import type { ModeComponentProps } from '..';
 	import * as d3 from 'd3';
 	import { Checkbox } from '$lib/components/ui/checkbox';
@@ -8,8 +8,6 @@
 
 	export let fileData: ModeComponentProps<'vowel-space'>['fileData'];
 	export let modeState: ModeComponentProps<'vowel-space'>['modeState'];
-
-	used(modeState);
 
 	let container: HTMLDivElement;
 	let clientWidth: number;

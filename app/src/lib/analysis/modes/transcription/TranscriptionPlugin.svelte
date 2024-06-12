@@ -2,11 +2,12 @@
 	import WaveSurfer from 'wavesurfer.js';
 	import type { mode } from '..';
 	import { onDestroy, onMount } from 'svelte';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
 	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
+	import { logger } from '$lib/logger';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -18,7 +19,7 @@
 	let minZoom: number;
 	let duration: number;
 	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
-	const models: string[] = ['deepgram', 'allosaurus'];
+	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 
 	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
 		if (!newSelection) return;
@@ -144,18 +145,19 @@
 					];
 				} else if (models.includes(transcriptionType.value)) {
 					let response = await (
-						await fetch('/api/transcription/' + transcriptionType.value + '/' + fileState.id)
+						await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
 					).json();
+					logger.trace(response);
 					fileState.transcriptions = [
 						...fileState.transcriptions,
 						{
 							id: generateIdFromEntropySize(10),
-							name: 'new track',
+							name: transcriptionType.value,
 							captions: response
 						}
 					];
 				} else {
-					console.error('no match for: ' + transcriptionType.value);
+					logger.error('no match for: ' + transcriptionType.value);
 				}
 			}}
 		>

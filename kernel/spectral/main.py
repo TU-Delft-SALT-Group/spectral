@@ -14,7 +14,7 @@ from .response_examples import (
     signal_modes_response_examples,
     transcription_response_examples,
 )
-from .transcription import get_transcription
+from .transcription.transcription import get_transcription
 from .data_objects import (
     SimpleInfoResponse,
     VowelSpaceResponse,
@@ -25,18 +25,19 @@ from .database import Database
 import orjson
 import json
 import os
+from typing import Any
 
 
 def get_db():  # pragma: no cover
     db = None
     try:
-        db = Database(
-            os.getenv("POSTGRES_USER"),
-            os.getenv("POSTGRES_PASSWORD"),
-            os.getenv("POSTGRES_HOST"),
-            os.getenv("POSTGRES_PORT"),
-            os.getenv("POSTGRES_DB"),
-        )
+        user = os.getenv("POSTGRES_USER", "user")
+        password = os.getenv("POSTGRES_PASSWORD", "password")
+        host = os.getenv("POSTGRES_HOST", "localhost")
+        port = os.getenv("POSTGRES_PORT", "5432")
+        dbname = os.getenv("POSTGRES_DB", "postgres")
+
+        db = Database(user, password, host, port, dbname)
         db.connection()
         yield db
     finally:
@@ -51,7 +52,7 @@ class ORJSONResponse(JSONResponse):
 
     media_type = "application/json"
 
-    def render(self, content) -> bytes:
+    def render(self, content: Any) -> bytes:
         return orjson.dumps(content)
 
 
@@ -99,20 +100,21 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
+    db_session = database
+    # db_session = next(database)
     fileState = json.loads(fileState)
-
     if mode == "simple-info":
-        return simple_info_mode(database, fileState)
+        return simple_info_mode(db_session, fileState)
     if mode == "spectrogram":
-        return spectrogram_mode(database, fileState)
+        return spectrogram_mode(db_session, fileState)
     if mode == "waveform":
-        return waveform_mode(database, fileState)
+        return waveform_mode(db_session, fileState)
     if mode == "vowel-space":
-        return vowel_space_mode(database, fileState)
+        return vowel_space_mode(db_session, fileState)
     if mode == "transcription":
-        return transcription_mode(database, fileState)
+        return transcription_mode(db_session, fileState)
     if mode == "error-rate":
-        return error_rate_mode(database, fileState)
+        return error_rate_mode(db_session, fileState)
 
 
 @app.get(
@@ -140,8 +142,10 @@ async def transcribe_file(
     Raises:
     - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
     """
+    db_session = database
+    # db_session = next(database)
     try:
-        file = database.fetch_file(file_id)
+        file = db_session.fetch_file(file_id)
     except Exception as _:
         raise HTTPException(status_code=404, detail="File not found")
 

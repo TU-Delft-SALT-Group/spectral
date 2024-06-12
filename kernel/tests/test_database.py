@@ -9,7 +9,7 @@ def db():
         user="test_user",
         password="test_pass",
         host="test_host",
-        port=5432,
+        port="5432",
         dbname="test_db",
     )
 
@@ -22,7 +22,7 @@ def test_connection(mock_connect, db):
         user="test_user",
         password="test_pass",
         host="test_host",
-        port=5432,
+        port="5432",
     )
 
 
@@ -43,7 +43,7 @@ def test_fetch_file(db):
     ]
 
     mock_cursor.fetchone.return_value = [
-        1,
+        "1",
         "test_name",
         b"test_data",
         "creation_time",
@@ -53,9 +53,9 @@ def test_fetch_file(db):
         False,
     ]
 
-    result = db.fetch_file(1)
+    result = db.fetch_file("1")
     assert result == {
-        "id": 1,
+        "id": "1",
         "name": "test_name",
         "data": b"test_data",
         "creationTime": "creation_time",
@@ -64,7 +64,7 @@ def test_fetch_file(db):
         "session": "session",
         "emphemeral": False,
     }
-    mock_cursor.execute.assert_called_with("SELECT * FROM files WHERE id = %s", [1])
+    mock_cursor.execute.assert_called_with("SELECT * FROM files WHERE id = %s", ["1"])
 
 
 def test_get_transcriptions(db):
@@ -72,9 +72,9 @@ def test_get_transcriptions(db):
     db.conn = Mock()
     db.cursor = mock_cursor
 
-    mock_cursor.fetchall.side_effect = [[(1,)], [(0.0, 1.0, "hello")]]
+    mock_cursor.fetchall.side_effect = [[("1",)], [(0.0, 1.0, "hello")]]
 
-    result = db.get_transcriptions(1)
+    result = db.get_transcriptions("1")
     assert result == [[{"start": 0.0, "end": 1.0, "value": "hello"}]]
     mock_cursor.execute.assert_called()
 

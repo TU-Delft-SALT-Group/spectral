@@ -6,7 +6,7 @@
 	import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import type { mode } from '..';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ModeComponentProps } from '..';
 	import AudioControls from '$lib/components/audio-controls/AudioControls.svelte';
-	import used from '$lib/utils';
+	import { used } from '$lib/utils';
 
 	export let fileData: ModeComponentProps<'waveform'>['fileData'];
 	export let modeState: ModeComponentProps<'waveform'>['modeState'];

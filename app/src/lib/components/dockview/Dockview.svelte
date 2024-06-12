@@ -2,12 +2,10 @@
 	setup
 	lang="ts"
 	generics="
-	S extends Record<string, unknown>
+	S extends Record<string, unknown> & { title?: string }
 "
 >
 	import Watermark from './Watermark.svelte';
-
-	import { paneState } from '$lib/analysis/analysis-pane';
 
 	import { error } from '@sveltejs/kit';
 	import {
@@ -18,13 +16,16 @@
 		type DockviewReadyEvent
 	} from 'dockview-core';
 	import { type SvelteComponent, onDestroy, onMount, type ComponentType } from 'svelte';
-	import { SvelteRenderer, SvelteTabActionRenderer, SvelteWatermarkRenderer } from '.';
+	import { SvelteRenderer, SvelteTabActionRenderer, SvelteWatermarkRenderer } from './index.svelte';
 	import NewTabButton from './NewTabButton.svelte';
 	import Tab from './Tab.svelte';
 
 	export let onReady: (event: DockviewReadyEvent) => void;
+	type Component<T extends Record<string, unknown>> = ComponentType<SvelteComponent<T>>;
 	// eslint-disable-next-line
-	export let component: ComponentType<SvelteComponent<S>>;
+	export let component: Component<S>;
+	// eslint-disable-next-line
+	export let getDefaultProps: () => S;
 
 	let el: HTMLElement;
 	let instance: DockviewComponent | null;
@@ -42,17 +43,15 @@
 				return new SvelteRenderer(component, options);
 			},
 			createLeftHeaderActionComponent(group) {
-				return new SvelteTabActionRenderer(NewTabButton, group, {
-					state: paneState.parse(undefined)
-				});
+				// eslint-disable-next-line
+				return new SvelteTabActionRenderer<S>(NewTabButton, group, getDefaultProps());
 			},
 			createTabComponent(options) {
 				return new SvelteRenderer(Tab, options);
 			},
 			createWatermarkComponent() {
-				return new SvelteWatermarkRenderer(Watermark, {
-					state: paneState.parse(undefined)
-				});
+				// eslint-disable-next-line
+				return new SvelteWatermarkRenderer<S>(Watermark, getDefaultProps());
 			}
 		};
 

@@ -68,7 +68,7 @@
 		<Resizable.Handle withHandle />
 
 		<Resizable.Pane defaultSize={80}>
-			<Workspace bind:state={data.state} bind:this={workspace}></Workspace>
+			<Workspace bind:workspaceState={data.state} bind:this={workspace}></Workspace>
 		</Resizable.Pane>
 	</Resizable.PaneGroup>
 </div>
