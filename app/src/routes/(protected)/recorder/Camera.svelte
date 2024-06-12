@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
+	// import { loadVideo } from './media-devices';
+	// import { mediaStream } from './media-devices';
+	// import { mediaRecorder } from './media-devices';
 
 	export let recording = false;
 	export let previewing: Blob | null = null;
+
+	export let cameraInfo: MediaDeviceInfo | null;
+	export let micInfo: MediaDeviceInfo | null;
 
 	export let onStopRecording: (blob: Blob) => void = () => {};
 
@@ -62,14 +67,20 @@
 		}
 	}
 
-	onMount(() => {
+	export async function loadVideo(
+		camneraInfo: MediaDeviceInfo | null,
+		audioInfo: MediaDeviceInfo | null
+	) {
 		navigator.mediaDevices
 			.getUserMedia({
 				video: {
+					deviceId: camneraInfo?.deviceId,
 					width: { min: 1280 },
 					height: { min: 720 }
 				},
-				audio: true
+				audio: {
+					deviceId: audioInfo?.deviceId
+				}
 			})
 			.then((obtainedStream) => {
 				mediaStream = obtainedStream;
@@ -86,7 +97,40 @@
 					onStopRecording(blob);
 				};
 			});
-	});
+	}
+
+	//Call contents in onMount when another device is selected in Recoreder.svelte after changing currentCamera.
+	// onMount(async() => {
+	// 	await showCameras();
+	// 	currentCamera = availableCameras[0];
+	// 	console.log(currentCamera.deviceId);
+	// 	navigator.mediaDevices
+	// 		.getUserMedia({
+	// 			video: {
+	// 				deviceId: currentCamera.deviceId,
+	// 				width: { min: 1280 },
+	// 				height: { min: 720 }
+	// 			},
+	// 			audio: true
+	// 		})
+	// 		.then((obtainedStream) => {
+	// 			mediaStream = obtainedStream;
+
+	// 			mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
+
+	// 			mediaRecorder.ondataavailable = (event: BlobEvent) => {
+	// 				recordingChunks.push(event.data);
+	// 			};
+
+	// 			mediaRecorder.onstop = () => {
+	// 				const blob = new Blob(recordingChunks, { type: 'video/webm' });
+	// 				recordingChunks = [];
+	// 				onStopRecording(blob);
+	// 			};
+	// 		});
+	// });
+
+	$: browser && loadVideo(cameraInfo, micInfo);
 </script>
 
 <video

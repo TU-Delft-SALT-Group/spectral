@@ -1,11 +1,14 @@
 <script lang="ts">
 	import RecorderSingle from './RecorderSingle.svelte';
 	import * as Resizable from '$lib/components/ui/resizable';
+	import * as Select from '$lib/components/ui/select';
 	import type { PromptResponse } from './recorder';
 	import { Button } from '$lib/components/ui/button';
 	import JSZip from 'jszip';
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import type { Selected } from 'bits-ui';
+	import { browser } from '$app/environment';
 
 	export let prompts: PromptResponse[];
 	export let promptName: string;
@@ -14,6 +17,16 @@
 	let selectedIndex: number = 0;
 	let disableExport: boolean = false;
 	let disableImport: boolean = false;
+
+	let selectedCamera: Selected<MediaDeviceInfo | null> = {
+		label: 'Default camera',
+		value: null
+	};
+
+	let selectedMic: Selected<MediaDeviceInfo | null> = {
+		label: 'Default microphone',
+		value: null
+	};
 
 	function prependZeros(desiredLength: number, currentString: string) {
 		return '0'.repeat(desiredLength - currentString.length) + currentString;
@@ -91,6 +104,14 @@
 		}
 	}
 
+	$: videoDevices = browser ? getConnectedDevices('videoinput') : new Promise<[]>((res) => res([]));
+	$: audioDevices = browser ? getConnectedDevices('audioinput') : new Promise<[]>((res) => res([]));
+
+	export async function getConnectedDevices(type: 'audioinput' | 'audiooutput' | 'videoinput') {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		return devices.filter((device) => device.kind === type);
+	}
+
 	const next = () =>
 		!recording && (selectedIndex = Math.min(prompts.length - 1, selectedIndex + 1));
 	const previous = () => !recording && (selectedIndex = Math.max(0, selectedIndex - 1));
@@ -116,6 +137,36 @@
 
 			<div class="flex-1"></div>
 
+			{#await videoDevices}
+				loading...
+			{:then devices}
+				<Select.Root bind:selected={selectedCamera}>
+					<Select.Trigger>
+						{selectedCamera.label}
+					</Select.Trigger>
+					<Select.Content>
+						{#each devices as device}
+							<Select.Item value={device}>{device.label}</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			{/await}
+
+			{#await audioDevices}
+				loading...
+			{:then devices}
+				<Select.Root bind:selected={selectedMic}>
+					<Select.Trigger>
+						{selectedMic.label}
+					</Select.Trigger>
+					<Select.Content>
+						{#each devices as device}
+							<Select.Item value={device}>{device.label}</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			{/await}
+
 			<Button disabled={disableImport} on:click={importSession}>Export recording to session</Button>
 			<Button disabled={disableExport} on:click={downloadAllRecordings} variant="outline"
 				>Save files to disk</Button
@@ -138,6 +189,8 @@
 						bind:prompt={prompts[i]}
 						bind:recording
 						focused={i === selectedIndex}
+						cameraInfo={selectedCamera.value}
+						micInfo={selectedMic.value}
 						onNext={next}
 						onPrevious={previous}
 					/>
