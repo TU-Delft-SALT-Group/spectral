@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import io
-from array import array
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import parselmouth
 from pydub import AudioSegment
 
-from .types import AudioType, SoundType
+if TYPE_CHECKING:
+    from array import array
+
+    from .types import AudioType, SoundType
 
 
 def get_audio(file: dict[str, Any]) -> AudioType:
-    """Extract audio data and sampling rate from the given file.
+    """
+    Extract audio data and sampling rate from the given file.
 
     Parameters
     ----------
@@ -26,13 +31,13 @@ def get_audio(file: dict[str, Any]) -> AudioType:
     ```
 
     """
-    audio = AudioSegment.from_file(io.BytesIO(file["data"]))
+    return AudioSegment.from_file(io.BytesIO(file["data"]))
 
-    return audio
 
 
 def simple_signal_info(audio: AudioType) -> dict[str, Any]:
-    """Extracts and returns basic information from a given audio signal.
+    """
+    Extracts and returns basic information from a given audio signal.
 
     This function calculates the duration and average pitch of the provided audio signal.
 
@@ -60,7 +65,8 @@ def simple_signal_info(audio: AudioType) -> dict[str, Any]:
 
 
 def signal_to_sound(signal: array, fs: float | int) -> SoundType:
-    """This method converts a signal to a parselmouth sound object.
+    """
+    This method converts a signal to a parselmouth sound object.
 
     Parameters
     ----------
@@ -81,7 +87,8 @@ def signal_to_sound(signal: array, fs: float | int) -> SoundType:
 
 
 def calculate_signal_duration(audio: AudioType) -> float:
-    """This method calculates the duration of a signal based on the signal and the sample frequency.
+    """
+    This method calculates the duration of a signal based on the signal and the sample frequency.
 
     Parameters
     ----------
@@ -104,7 +111,8 @@ def calculate_signal_duration(audio: AudioType) -> float:
 def calculate_sound_pitch(
     sound: SoundType, time_step: float | None = None,
 ) -> dict[str, Any] | None:  # pragma: no cover
-    """This method calculates the pitches present in a sound object.
+    """
+    This method calculates the pitches present in a sound object.
 
     Parameters
     ----------
@@ -140,7 +148,8 @@ def calculate_sound_spectrogram(
     window_length: float = 0.005,
     frequency_step: float = 20.0,
 ) -> dict[str, Any] | None:  # pragma: no cover
-    """This method calculates the spectrogram of a sound fragment.
+    """
+    This method calculates the spectrogram of a sound fragment.
 
     Parameters
     ----------
@@ -183,7 +192,8 @@ def calculate_sound_spectrogram(
 def calculate_sound_f1_f2(
     sound: SoundType, time_step: float | None = None, window_length: float = 0.025,
 ):  # pragma: no cover
-    """This method calculates the first and second formant of a sound fragment.
+    """
+    This method calculates the first and second formant of a sound fragment.
 
     Parameters
     ----------

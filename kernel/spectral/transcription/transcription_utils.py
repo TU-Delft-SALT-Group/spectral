@@ -1,5 +1,11 @@
-from ..signal_analysis import calculate_signal_duration, get_audio
-from ..types import FileStateType
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from spectral.signal_analysis import calculate_signal_duration, get_audio
+
+if TYPE_CHECKING:
+    from spectral.types import FileStateType
 
 
 def fill_gaps(transcriptions: list[dict], file: FileStateType) -> list[dict]:

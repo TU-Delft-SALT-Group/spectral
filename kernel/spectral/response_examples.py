@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 signal_modes_response_examples: dict[int | str, dict[str, Any]] = {

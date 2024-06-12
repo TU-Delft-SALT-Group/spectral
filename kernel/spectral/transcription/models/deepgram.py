@@ -1,10 +1,15 @@
+"""The functionality related to the Deepgram transription models."""
+
+from __future__ import annotations
+
 import os
 
 from deepgram import DeepgramClient, FileSource, PrerecordedOptions
 
 
 def deepgram_transcription(data: bytes) -> list[dict]:
-    """Transcribe audio data using Deepgram API.
+    """
+    Transcribe audio data using Deepgram API.
 
     This function transcribes audio data using the Deepgram API.
 
@@ -51,6 +56,5 @@ def deepgram_transcription(data: bytes) -> list[dict]:
             )
         return res
 
-    except Exception as e:
-        print(f"Exception: {e}")
+    except Exception:
         return []

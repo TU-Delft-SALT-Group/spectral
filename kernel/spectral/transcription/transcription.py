@@ -1,6 +1,9 @@
+"""Orcestrates different trancribing methods."""
+
 from fastapi import HTTPException
 
-from ..types import FileStateType
+from spectral.types import FileStateType
+
 from .models.allosaurus import allosaurus_transcription
 from .models.deepgram import deepgram_transcription
 from .models.whisper import whisper_transcription
@@ -8,7 +11,8 @@ from .transcription_utils import fill_gaps
 
 
 def get_transcription(model: str, file: FileStateType):
-    """Get transcription of an audio file using the specified model.
+    """
+    Get transcription of an audio file using the specified model.
 
     This function gets the transcription of an audio file using the specified model.
 

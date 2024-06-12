@@ -1,16 +1,26 @@
-from array import array
+"""All the frame analysis related functionality."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 import parselmouth
 from fastapi import HTTPException
 
-from .types import FileStateType
+if TYPE_CHECKING:
+    from array import array
+
+    from .types import FileStateType
 
 
 def simple_frame_info(
-    frame: array, fs: int | float, frame_info: dict[str, int] | None,
+    frame: array,
+    fs: float | int,
+    frame_info: dict[str, int] | None,
 ) -> dict[str, float] | None:
-    """Extracts and returns basic information from a given audio frame.
+    """
+    Extract and return basic information from a given audio frame.
 
     This function calculates and returns the duration, pitch, and first two formants (f1 and f2)
     of a specified segment within the audio frame.
@@ -51,7 +61,8 @@ def simple_frame_info(
 
 
 def calculate_frame_duration(frame: array, fs: int | float) -> float:
-    """This method calculates the duration of a frame based on the frame and the sample frequency.
+    """
+    Calculate the duration of a frame based on the frame and the sample frequency.
 
     Parameters
     ----------
@@ -72,7 +83,8 @@ def calculate_frame_duration(frame: array, fs: int | float) -> float:
 
 
 def calculate_frame_pitch(frame: array, fs: float | int) -> float:
-    """This method calculates the pitch of a frame.
+    """
+    Calculate the pitch of a frame.
 
     Parameters
     ----------
@@ -91,7 +103,8 @@ def calculate_frame_pitch(frame: array, fs: float | int) -> float:
     """
     try:
         pitch = parselmouth.Sound(
-            values=np.array(frame).astype("float64"), sampling_frequency=fs,
+            values=np.array(frame).astype("float64"),
+            sampling_frequency=fs,
         ).to_pitch(
             time_step=calculate_frame_duration(frame, fs) + 1,
         )  # the + 1 ensures that the complete frame is considered as 1 frame
@@ -101,7 +114,8 @@ def calculate_frame_pitch(frame: array, fs: float | int) -> float:
 
 
 def calculate_frame_f1_f2(frame: array, fs: int | float) -> list[float]:
-    """This method calculates the first and second fromant of a frame.
+    """
+    Calculate the first and second fromant of a frame.
 
     Parameters
     ----------
@@ -120,7 +134,8 @@ def calculate_frame_f1_f2(frame: array, fs: int | float) -> list[float]:
     """
     try:
         formants = parselmouth.Sound(
-            values=np.array(frame).astype("float64"), sampling_frequency=fs,
+            values=np.array(frame).astype("float64"),
+            sampling_frequency=fs,
         ).to_formant_burg(
             time_step=calculate_frame_duration(frame, fs) + 1,
         )  # the + 1 ensures that the complete frame is considered as 1 frame
@@ -128,13 +143,13 @@ def calculate_frame_f1_f2(frame: array, fs: int | float) -> list[float]:
             formants.get_value_at_time(formant_number=1, time=0),
             formants.get_value_at_time(formant_number=2, time=0),
         ]
-    except Exception as e:
-        print(e)
+    except Exception:
         return [float("nan"), float("nan")]
 
 
 def validate_frame_index(data: array, file_state: FileStateType):
-    """Validate the frame index specified in the file_state.
+    """
+    Validate the frame index specified in the file_state.
 
     Parameters
     ----------
@@ -177,7 +192,8 @@ def validate_frame_index(data: array, file_state: FileStateType):
 
     if start_index >= end_index:
         raise HTTPException(
-            status_code=400, detail="startIndex should be strictly lower than endIndex",
+            status_code=400,
+            detail="startIndex should be strictly lower than endIndex",
         )
     if start_index < 0:
         raise HTTPException(status_code=400, detail="startIndex should be larger or equal to 0")

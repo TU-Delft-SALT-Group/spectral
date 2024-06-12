@@ -1,6 +1,10 @@
+"""All the mode orchestration functionality and some conversion related stuff."""
+
+from __future__ import annotations
+
 import subprocess
 import tempfile
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException
 
@@ -11,13 +15,17 @@ from .frame_analysis import (
     validate_frame_index,
 )
 from .signal_analysis import get_audio, simple_signal_info
-from .types import DatabaseType, FileStateType
+
+if TYPE_CHECKING:
+    from .types import DatabaseType, FileStateType
 
 
 def simple_info_mode(
-    database: DatabaseType, file_state: FileStateType,
+    database: DatabaseType,
+    file_state: FileStateType,
 ) -> dict[str, Any]:
-    """Extracts and returns basic information about a signal and its corresponding frame.
+    """
+    Extract and return basic information about a signal and its corresponding frame.
 
     This function combines the signal information, file metadata, and frame-specific details.
 
@@ -29,7 +37,8 @@ def simple_info_mode(
     Returns
     -------
     - dict: A dictionary containing the combined signal information, file size, file creation date,
-            and frame information. If the frame index is invalid, it still includes the basic file information.
+            and frame information. If the frame index is invalid, it still includes the basic file
+            information.
 
     Example:
     ```python
@@ -49,30 +58,33 @@ def simple_info_mode(
     frame_index = validate_frame_index(audio.get_array_of_samples(), file_state)
 
     result["frame"] = simple_frame_info(
-        audio.get_array_of_samples(), audio.frame_rate, frame_index,
+        audio.get_array_of_samples(),
+        audio.frame_rate,
+        frame_index,
     )
 
     return result
 
 
-def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
-    """TBD
-    """
+def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
+    """TBD."""
     return None
 
 
-def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:
-    """TBD
-    """
+def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
+    """TBD."""
     return None
 
 
 def vowel_space_mode(
-    database: DatabaseType, file_state: FileStateType,
+    database: DatabaseType,
+    file_state: FileStateType,
 ) -> dict[str, float] | None:
-    """Extracts and returns the first and second formants of a specified frame.
+    """
+    Extract and return the first and second formants of a specified frame.
 
-    This function calculates the first (f1) and second (f2) formants of a segment within the audio signal.
+    This function calculates the first (f1) and second (f2) formants of a segment within the
+    audio signal.
 
     Parameters
     ----------
@@ -103,16 +115,17 @@ def vowel_space_mode(
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:
-    """TBD
-    """
+def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
+    """TBD."""
     return None
 
 
 def error_rate_mode(
-    database: DatabaseType, file_state: FileStateType,
+    database: DatabaseType,  # noqa: ARG001
+    file_state: FileStateType,
 ) -> dict[str, Any] | None:
-    """Calculate the error rates of transcriptions against the ground truth.
+    """
+    Calculate the error rates of transcriptions against the ground truth.
 
     Parameters
     ----------
@@ -142,15 +155,15 @@ def error_rate_mode(
     ):
         return None
 
-    errorRate = calculate_error_rates(
-        file_state["reference"]["captions"], file_state["hypothesis"]["captions"],
+    return calculate_error_rates(
+        file_state["reference"]["captions"],
+        file_state["hypothesis"]["captions"],
     )
-
-    return errorRate
 
 
 def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType:
-    """Fetch a file from the database using the file_state information.
+    """
+    Fetch a file from the database using the file_state information.
 
     Parameters
     ----------
@@ -174,11 +187,9 @@ def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType
     if "id" not in file_state:
         raise HTTPException(status_code=404, detail="file_state did not include id")
     try:
-        print(file_state["id"])
-        print(database)
         file = database.fetch_file(file_state["id"])  # pyright: ignore[reportAttributeAccessIssue]
-    except Exception as _:
-        raise HTTPException(status_code=404, detail="File not found")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="File not found") from e
 
     file["data"] = convert_to_wav(file["data"])
 
@@ -186,11 +197,12 @@ def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType
 
 
 def convert_to_wav(data: bytes) -> bytes:
+    """Conver an arbitrary format recording into wav format."""
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_output:
             command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
-            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, check=False)
+            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, check=False)  # noqa: S603
             temp_output.seek(0)  # Rewind to the beginning of the file
             return temp_output.read()

@@ -12,7 +12,8 @@ def calculate_error_rates(
     reference_annotations: list[dict],
     hypothesis_annotations: list[dict],
 ) -> dict | None:
-    """Calculate error rates between the reference transcription and annotations.
+    """
+    Calculate error rates between the reference transcription and annotations.
 
     This function calculates both word-level and character-level error rates
     based on the provided reference transcription and annotations.
@@ -39,7 +40,8 @@ def calculate_error_rates(
 
 
 def word_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
-    """Process word-level error metrics between the reference and hypothesis.
+    """
+    Process word-level error metrics between the reference and hypothesis.
 
     This function processes word-level metrics.
 
@@ -70,7 +72,8 @@ def word_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
 
 
 def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
-    """Process character-level error metrics between the reference and hypothesis.
+    """
+    Process character-level error metrics between the reference and hypothesis.
 
     This function processes character-level metrics.
 
@@ -99,7 +102,8 @@ def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any
 
 
 def annotation_to_sentence(annotations: list) -> str:
-    """Convert annotations to a single hypothesis string.
+    """
+    Convert annotations to a single hypothesis string.
 
     This function concatenates the values from the annotations list to form a hypothesis string.
 
@@ -128,7 +132,8 @@ def annotation_to_sentence(annotations: list) -> str:
 def get_alignments(
     unparsed_alignments: list[jiwer.process.AlignmentChunk],
 ) -> list[dict]:
-    """Convert unparsed alignments into a structured format.
+    """
+    Convert unparsed alignments into a structured format.
 
     This function processes unparsed alignment data and converts it into a list of dictionaries
     with detailed alignment information.

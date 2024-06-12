@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import tempfile
+from typing import TYPE_CHECKING
 
 from allosaurus.app import read_recognizer  # type: ignore
 
-from ...types import FileStateType
-from ..transcription_utils import fill_gaps
+from spectral.transcription.transcription_utils import fill_gaps
+
 from .deepgram import deepgram_transcription
+
+if TYPE_CHECKING:
+    from spectral.types import FileStateType
 
 
 def allosaurus_transcription(file: FileStateType) -> list[dict]:
