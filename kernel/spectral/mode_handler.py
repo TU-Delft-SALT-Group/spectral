@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import tempfile
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from fastapi import HTTPException
 
@@ -15,9 +15,7 @@ from .frame_analysis import (
     validate_frame_index,
 )
 from .signal_analysis import get_audio, simple_signal_info
-
-if TYPE_CHECKING:
-    from .types import DatabaseType, FileStateType
+from .types import DatabaseType, FileStateType
 
 
 def simple_info_mode(
@@ -197,7 +195,7 @@ def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType
 
 
 def convert_to_wav(data: bytes) -> bytes:
-    """Conver an arbitrary format recording into wav format."""
+    """Convert an arbitrary format recording into wav format."""
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk

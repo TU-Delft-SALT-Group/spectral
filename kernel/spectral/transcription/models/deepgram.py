@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from deepgram import DeepgramClient, FileSource, PrerecordedOptions
+from deepgram import DeepgramClient, PrerecordedOptions
 
 
 def deepgram_transcription(data: bytes) -> list[dict]:
@@ -26,35 +26,28 @@ def deepgram_transcription(data: bytes) -> list[dict]:
     - Exception: If an error occurs during the transcription process.
 
     """
-    try:
-        # STEP 1: Create a Deepgram client using the API key
-        key = os.getenv("DG_KEY")
-        deepgram = None
-        if key is None:
-            raise Exception("No API key for Deepgram is found")
-        else:
-            deepgram = DeepgramClient(key)
+    # STEP 1: Create a Deepgram client using the API key
+    key = os.getenv("DG_KEY")
+    deepgram = None
+    if key is None:
+        raise RuntimeError("No API key for Deepgram is found")
+    deepgram = DeepgramClient(key)  # type: ignore
 
-        payload: FileSource = {
-            "buffer": data,
-        }
+    payload = {
+        "buffer": data,
+    }
 
-        # STEP 2: Configure Deepgram options for audio analysis
-        options = PrerecordedOptions(
-            model="nova-2",
-            smart_format=True,
-            profanity_filter=False,
-        )
+    # STEP 2: Configure Deepgram options for audio analysis
+    options = PrerecordedOptions(  # type: ignore
+        model="nova-2",
+        smart_format=True,
+        profanity_filter=False,
+    )
 
-        # STEP 3: Call the transcribe_file method with the text payload and options
-        response = deepgram.listen.prerecorded.v("1").transcribe_file(payload, options)
+    # STEP 3: Call the transcribe_file method with the text payload and options
+    response = deepgram.listen.prerecorded.v("1").transcribe_file(payload, options)
 
-        res = []
-        for word in response["results"]["channels"][0]["alternatives"][0]["words"]:
-            res.append(
-                {"value": word["word"], "start": word["start"], "end": word["end"]},
-            )
-        return res
-
-    except Exception:
-        return []
+    return [
+        {"value": word["word"], "start": word["start"], "end": word["end"]}
+        for word in response["results"]["channels"][0]["alternatives"][0]["words"]
+    ]

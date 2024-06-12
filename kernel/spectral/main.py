@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Annotated, Any, Literal, Self, Union
+from typing import Annotated, Any, Literal, Self, Union
 
 import orjson
 from fastapi import Depends, FastAPI, HTTPException, Path
@@ -31,9 +31,7 @@ from .response_examples import (
     transcription_response_examples,
 )
 from .transcription.transcription import get_transcription
-
-if TYPE_CHECKING:
-    from .types import FileStateType
+from .types import FileStateType
 
 
 def get_db():  # pragma: no cover # noqa

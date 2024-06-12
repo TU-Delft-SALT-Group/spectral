@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from array import array
 
 import numpy as np
 import parselmouth
 from fastapi import HTTPException
 
-if TYPE_CHECKING:
-    from array import array
-
-    from .types import FileStateType
+from .types import FileStateType
 
 
 def simple_frame_info(

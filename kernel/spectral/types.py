@@ -1,3 +1,5 @@
+"""All the types, that are reused throughout the Spectral."""
+
 from collections.abc import Iterator
 
 import parselmouth

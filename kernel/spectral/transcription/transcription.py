@@ -1,4 +1,4 @@
-"""Orcestrates different trancribing methods."""
+"""Orchestrates different trancribing methods."""
 
 from fastapi import HTTPException
 

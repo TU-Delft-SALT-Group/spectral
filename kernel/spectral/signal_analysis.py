@@ -1,16 +1,16 @@
+"""All the audio analysis related stuff."""
+
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING, Any
+from array import array
+from typing import Any
 
 import numpy as np
 import parselmouth
 from pydub import AudioSegment
 
-if TYPE_CHECKING:
-    from array import array
-
-    from .types import AudioType, SoundType
+from .types import AudioType, SoundType
 
 
 def get_audio(file: dict[str, Any]) -> AudioType:
@@ -34,10 +34,9 @@ def get_audio(file: dict[str, Any]) -> AudioType:
     return AudioSegment.from_file(io.BytesIO(file["data"]))
 
 
-
 def simple_signal_info(audio: AudioType) -> dict[str, Any]:
     """
-    Extracts and returns basic information from a given audio signal.
+    Extract and return basic information from a given audio signal.
 
     This function calculates the duration and average pitch of the provided audio signal.
 
@@ -66,7 +65,7 @@ def simple_signal_info(audio: AudioType) -> dict[str, Any]:
 
 def signal_to_sound(signal: array, fs: float | int) -> SoundType:
     """
-    This method converts a signal to a parselmouth sound object.
+    Convert a signal to a parselmouth sound object.
 
     Parameters
     ----------
@@ -88,7 +87,7 @@ def signal_to_sound(signal: array, fs: float | int) -> SoundType:
 
 def calculate_signal_duration(audio: AudioType) -> float:
     """
-    This method calculates the duration of a signal based on the signal and the sample frequency.
+    Calculate the duration of a signal based on the signal and the sample frequency.
 
     Parameters
     ----------
@@ -109,10 +108,11 @@ def calculate_signal_duration(audio: AudioType) -> float:
 
 
 def calculate_sound_pitch(
-    sound: SoundType, time_step: float | None = None,
+    sound: SoundType,
+    time_step: float | None = None,
 ) -> dict[str, Any] | None:  # pragma: no cover
     """
-    This method calculates the pitches present in a sound object.
+    Calculate the pitches present in a sound object.
 
     Parameters
     ----------
@@ -149,7 +149,7 @@ def calculate_sound_spectrogram(
     frequency_step: float = 20.0,
 ) -> dict[str, Any] | None:  # pragma: no cover
     """
-    This method calculates the spectrogram of a sound fragment.
+    Calculate the spectrogram of a sound fragment.
 
     Parameters
     ----------
@@ -183,17 +183,19 @@ def calculate_sound_spectrogram(
             "window_length": window_length,
             "frequency_step": frequency_step,
             "start_time": spectrogram.get_time_from_frame_number(1),
-            "data": spectrogram.values.tolist(),
+            "data": spectrogram.to_numpy().tolist(),
         }
     except Exception:
         return None
 
 
 def calculate_sound_f1_f2(
-    sound: SoundType, time_step: float | None = None, window_length: float = 0.025,
-):  # pragma: no cover
+    sound: SoundType,
+    time_step: float | None = None,
+    window_length: float = 0.025,
+):
     """
-    This method calculates the first and second formant of a sound fragment.
+    Calculate the first and second formant of a sound fragment.
 
     Parameters
     ----------
@@ -216,23 +218,24 @@ def calculate_sound_f1_f2(
     """
     try:
         formants = sound.to_formant_burg(time_step=time_step, window_length=window_length)
-        data: list = []
-        for frame in np.arange(1, len(formants) + 1):
-            data.append(
-                [
-                    formants.get_value_at_time(
-                        formant_number=1, time=formants.frame_number_to_time(frame),
-                    ),
-                    formants.get_value_at_time(
-                        formant_number=2, time=formants.frame_number_to_time(frame),
-                    ),
-                ],
-            )
+        data = [
+            [
+                formants.get_value_at_time(
+                    formant_number=1,
+                    time=formants.frame_number_to_time(frame),
+                ),
+                formants.get_value_at_time(
+                    formant_number=2,
+                    time=formants.frame_number_to_time(frame),
+                ),
+            ]
+            for frame in np.arange(1, len(formants) + 1)
+        ]
         return {
             "time_step": formants.time_step,
             "window_length": window_length,
             "start_time": formants.get_time_from_frame_number(1),
             "data": data,
         }
-    except Exception as _:
+    except Exception:
         return None
