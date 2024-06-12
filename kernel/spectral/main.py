@@ -1,6 +1,7 @@
-import json
+"""Main source file; contains the basic FastAPI setup."""
+
 import os
-from typing import Annotated, Any, Literal, Union
+from typing import Annotated, Any, Literal, Self, Union
 
 import orjson
 from fastapi import Depends, FastAPI, HTTPException, Path
@@ -27,20 +28,10 @@ from .response_examples import (
     transcription_response_examples,
 )
 from .transcription.transcription import get_transcription
-from .data_objects import (
-    SimpleInfoResponse,
-    VowelSpaceResponse,
-    TranscriptionSegment,
-    ErrorRateResponse,
-)
-from .database import Database
-import orjson
-import os
-from typing import Any
 from .types import FileStateBody, FileStateType
 
 
-def get_db():  # pragma: no cover
+def get_db():  # pragma: no cover # noqa
     db = None
     try:
         user = os.getenv("POSTGRES_USER", "user")
@@ -62,7 +53,8 @@ class ORJSONResponse(JSONResponse):
 
     media_type = "application/json"
 
-    def render(self, content: Any) -> bytes:
+    def render(self: Self, content: Any) -> bytes:
+        """Process the content, converting it into bytes."""
         return orjson.dumps(content)
 
 
@@ -94,7 +86,7 @@ async def analyze_signal_mode(
     ],
     fileState: FileStateBody,
     database=Depends(get_db),
-):
+) -> Any:
     """Analyze an audio signal in different modes.
 
     This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
@@ -128,6 +120,8 @@ async def analyze_signal_mode(
         return transcription_mode(db_session, file_state)
     if mode == "error-rate":
         return error_rate_mode(db_session, file_state)
+
+    raise HTTPException(404, detail="Model is not found")
 
 
 @app.get(

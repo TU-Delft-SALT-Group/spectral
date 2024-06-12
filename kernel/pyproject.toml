@@ -74,6 +74,4 @@ select = ["F", "E", "W", "C90", "I", "N", "D", "UP", "YTT", "ANN", "ASYNC",
     "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH",
     "PL", "C", "R", "TRY", "FLY", "NPY", "AIR", "PERF", "RUF"]
 
-ignore = ["ANN401"]
-
-
+ignore = ["ANN401", "D417", "PGH004", "EM101"]
