@@ -101,10 +101,7 @@
 
 <video
 	class={cn(
-		`mx-auto aspect-video h-full w-full max-w-xl rounded bg-gray-300 shadow outline outline-destructive transition-all dark:bg-gray-600
-${recording ? 'outline-[4px]' : 'outline-0'}
-${correctMirroring && previewing === null ? '-scale-x-100' : ''}
-`,
+		`mx-auto aspect-video h-full w-full max-w-xl rounded bg-gray-300 shadow outline outline-destructive transition-all dark:bg-gray-600 ${recording ? 'outline-[4px]' : 'outline-0'} ${correctMirroring && previewing === null ? '-scale-x-100' : ''} `,
 		className
 	)}
 	bind:this={videoElement}
