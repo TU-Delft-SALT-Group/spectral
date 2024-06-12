@@ -27,6 +27,17 @@ from .response_examples import (
     transcription_response_examples,
 )
 from .transcription.transcription import get_transcription
+from .data_objects import (
+    SimpleInfoResponse,
+    VowelSpaceResponse,
+    TranscriptionSegment,
+    ErrorRateResponse,
+)
+from .database import Database
+import orjson
+import os
+from typing import Any
+from .types import FileStateBody, FileStateType
 
 
 def get_db():  # pragma: no cover
@@ -47,8 +58,7 @@ def get_db():  # pragma: no cover
 
 
 class ORJSONResponse(JSONResponse):
-    """Custom JSONResponse class using ORJSON to handle nan's.
-    """
+    """Custom JSONResponse class using ORJSON to handle nan's."""
 
     media_type = "application/json"
 
@@ -59,7 +69,7 @@ class ORJSONResponse(JSONResponse):
 app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 
-@app.get(
+@app.post(
     "/signals/modes/{mode}",
     response_model=Union[
         None,
@@ -82,7 +92,7 @@ async def analyze_signal_mode(
         ],
         Path(title="The analysis mode"),
     ],
-    fileState,
+    fileState: FileStateBody,
     database=Depends(get_db),
 ):
     """Analyze an audio signal in different modes.
@@ -104,20 +114,20 @@ async def analyze_signal_mode(
 
     """
     db_session = database
-    # db_session = next(database)
-    fileState = json.loads(fileState)
+    file_state: FileStateType = fileState.fileState
+
     if mode == "simple-info":
-        return simple_info_mode(db_session, fileState)
+        return simple_info_mode(db_session, file_state)
     if mode == "spectrogram":
-        return spectrogram_mode(db_session, fileState)
+        return spectrogram_mode(db_session, file_state)
     if mode == "waveform":
-        return waveform_mode(db_session, fileState)
+        return waveform_mode(db_session, file_state)
     if mode == "vowel-space":
-        return vowel_space_mode(db_session, fileState)
+        return vowel_space_mode(db_session, file_state)
     if mode == "transcription":
-        return transcription_mode(db_session, fileState)
+        return transcription_mode(db_session, file_state)
     if mode == "error-rate":
-        return error_rate_mode(db_session, fileState)
+        return error_rate_mode(db_session, file_state)
 
 
 @app.get(

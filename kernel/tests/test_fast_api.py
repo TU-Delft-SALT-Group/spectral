@@ -65,9 +65,7 @@ def test_signal_correct_mode_file_not_found(db_mock, file_state):
     db_mock.fetch_file.side_effect = HTTPException(
         status_code=500, detail="database error"
     )
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 404
     ), "Expected status code 404 when file is not found"
@@ -79,9 +77,7 @@ def test_signal_correct_mode_file_not_found(db_mock, file_state):
 
 def test_signal_correct_simple_info(db_mock, file_state):
     file_state["frame"] = None
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for simple info mode"
     result = response.json()
     assert result["fileSize"] == 146158, "Expected file size to be 146158"
@@ -93,18 +89,14 @@ def test_signal_correct_simple_info(db_mock, file_state):
 
 
 def test_signal_correct_spectrogram(db_mock, file_state):
-    response = client.get(
-        "/signals/modes/spectrogram", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/spectrogram", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for spectrogram mode"
     assert response.json() is None, "Expected response to be None"
     assert db_mock.fetch_file.call_count == 0, "Expected fetch_file not to be called"
 
 
 def test_signal_correct_waveform(db_mock, file_state):
-    response = client.get(
-        "/signals/modes/waveform", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/waveform", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for waveform mode"
     result = response.json()
     assert result is None, "Expected response to be None"
@@ -112,9 +104,7 @@ def test_signal_correct_waveform(db_mock, file_state):
 
 
 def test_signal_correct_vowel_space(db_mock, file_state):
-    response = client.get(
-        "/signals/modes/vowel-space", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/vowel-space", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for vowel-space mode"
     assert response.json() == {
         "f1": 1242.857422568559,
@@ -124,8 +114,8 @@ def test_signal_correct_vowel_space(db_mock, file_state):
 
 
 def test_signal_correct_transcription(db_mock, file_state):
-    response = client.get(
-        "/signals/modes/transcription", params={"fileState": json.dumps(file_state)}
+    response = client.post(
+        "/signals/modes/transcription", json={"fileState": file_state}
     )
     assert (
         response.status_code == 200
@@ -134,18 +124,14 @@ def test_signal_correct_transcription(db_mock, file_state):
 
 
 def test_signal_mode_wrong_mode(db_mock, file_state):
-    response = client.get(
-        "/signals/modes/wrongmode", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/wrongmode", json={"fileState": file_state})
     assert response.status_code == 422, "Expected status code 422 for wrong mode"
     assert db_mock.fetch_file.call_count == 0, "Expected fetch_file not to be called"
 
 
 def test_signal_mode_frame_start_index_missing(db_mock, file_state):
     file_state["frame"] = {"endIndex": 1}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 400
     ), "Expected status code 400 when startIndex is missing"
@@ -157,9 +143,7 @@ def test_signal_mode_frame_start_index_missing(db_mock, file_state):
 
 def test_signal_mode_frame_end_index_missing(db_mock, file_state):
     file_state["frame"] = {"startIndex": 1}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 400
     ), "Expected status code 400 when endIndex is missing"
@@ -171,9 +155,7 @@ def test_signal_mode_frame_end_index_missing(db_mock, file_state):
 
 def test_signal_mode_frame_start_index_bigger_than_end_index(db_mock, file_state):
     file_state["frame"] = {"startIndex": 2, "endIndex": 1}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 400
     ), "Expected status code 400 when startIndex is bigger than endIndex"
@@ -187,9 +169,7 @@ def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(
     db_mock, file_state
 ):
     file_state["frame"] = {"startIndex": 2, "endIndex": 2}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 400
     ), "Expected status code 400 when startIndex is equal to endIndex"
@@ -201,9 +181,7 @@ def test_signal_mode_frame_start_index_bigger_than_end_index_equal_numbers(
 
 def test_signal_mode_frame_negative_start_index(db_mock, file_state):
     file_state["frame"] = {"startIndex": -1, "endIndex": 2}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 400
     ), "Expected status code 400 when startIndex is negative"
@@ -215,9 +193,7 @@ def test_signal_mode_frame_negative_start_index(db_mock, file_state):
 
 def test_signal_mode_frame_too_large_end_index(db_mock, file_state):
     file_state["frame"] = {"startIndex": 0, "endIndex": 73041}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 400
     ), "Expected status code 400 when endIndex is too large"
@@ -229,9 +205,7 @@ def test_signal_mode_frame_too_large_end_index(db_mock, file_state):
 
 def test_signal_mode_frame_too_large_boundary(db_mock, file_state):
     file_state["frame"] = {"startIndex": 0, "endIndex": 73040}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 200
     ), "Expected status code 200 when frame boundaries are valid"
@@ -240,9 +214,7 @@ def test_signal_mode_frame_too_large_boundary(db_mock, file_state):
 
 def test_signal_mode_simple_info_with_frame(db_mock, file_state):
     file_state["frame"] = {"startIndex": 22500, "endIndex": 23250}
-    response = client.get(
-        "/signals/modes/simple-info", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/simple-info", json={"fileState": file_state})
     assert (
         response.status_code == 200
     ), "Expected status code 200 for simple info mode with frame"
@@ -275,9 +247,7 @@ def test_signal_mode_simple_info_with_frame(db_mock, file_state):
 
 def test_signal_mode_vowel_space_mode_with_frame(db_mock, file_state):
     file_state["frame"] = {"startIndex": 22500, "endIndex": 23250}
-    response = client.get(
-        "/signals/modes/vowel-space", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/vowel-space", json={"fileState": file_state})
     assert (
         response.status_code == 200
     ), "Expected status code 200 for vowel-space mode with frame"
@@ -344,9 +314,7 @@ def test_transcription_model_not_found(db_mock):
 def test_analyze_signal_mode_invalid_id(db_mock, file_state):
     file_state["id"] = "invalid_id"
     db_mock.fetch_file.side_effect = Exception("Database error")
-    response = client.get(
-        "/signals/modes/vowel-space", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/vowel-space", json={"fileState": file_state})
     assert (
         response.status_code == 404
     ), "Expected status code 404 when file ID is invalid"
@@ -390,9 +358,7 @@ def mock_db(mocker):
 
 
 def test_error_rate_no_reference(db_mock, file_state):
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert (
         response.status_code == 200
@@ -403,9 +369,7 @@ def test_error_rate_no_reference(db_mock, file_state):
 
 def test_error_rate_reference_None(file_state):
     file_state["reference"] = None
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert (
         response.status_code == 200
@@ -415,9 +379,7 @@ def test_error_rate_reference_None(file_state):
 
 def test_error_rate_no_reference_caption(db_mock, file_state):
     file_state["reference"] = {}
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
     assert response.json() is None
@@ -427,9 +389,7 @@ def test_error_rate_no_reference_caption(db_mock, file_state):
 def test_error_rate_no_hypothesis(db_mock, file_state):
     file_state["reference"] = {"captions": [{"value": "Hi"}]}
     file_state["hypothesis"] = None
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
     assert response.json() is None
@@ -439,9 +399,7 @@ def test_error_rate_no_hypothesis(db_mock, file_state):
 def test_error_rate_hypothesis_None(db_mock, file_state):
     file_state["reference"] = {"captions": [{"value": "Hi"}]}
     file_state["hypothesis"] = None
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
     assert response.json() is None
@@ -451,9 +409,7 @@ def test_error_rate_hypothesis_None(db_mock, file_state):
 def test_error_rate_no_hypothesis_caption(db_mock, file_state):
     file_state["reference"] = {"captions": [{"value": "Hi"}]}
     file_state["hypothesis"] = {}
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
     assert response.json() is None
@@ -463,9 +419,7 @@ def test_error_rate_no_hypothesis_caption(db_mock, file_state):
 def test_error_rate_empty_reference_array(db_mock, file_state):
     file_state["reference"] = {"captions": []}
     file_state["hypothesis"] = {"captions": [{"value": "Hi"}]}
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
     assert response.json() is None
@@ -475,9 +429,7 @@ def test_error_rate_empty_reference_array(db_mock, file_state):
 def test_error_rate_empty_hypothesis_array(db_mock, file_state):
     file_state["reference"] = {"captions": [{"value": "Hi"}]}
     file_state["hypothesis"] = {"captions": []}
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
     print(response.json())
@@ -530,9 +482,7 @@ def test_error_rate_with_reference_no_hypothesis(db_mock, file_state):
     file_state["reference"]["captions"] = [{"value": "hai test"}]
     file_state["hypothesis"] = {}
     file_state["hypothesis"]["captions"] = []
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
     assert (
         response.status_code == 200
     ), "Expected status code 200 when ground truth is provided"
@@ -595,9 +545,7 @@ def test_error_rate_with_reference_and_hypothesis(db_mock, file_state):
     file_state["reference"]["captions"] = [{"value": "hai test"}]
     file_state["hypothesis"] = {}
     file_state["hypothesis"]["captions"] = [{"value": "hi"}]
-    response = client.get(
-        "/signals/modes/error-rate", params={"fileState": json.dumps(file_state)}
-    )
+    response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
     result = response.json()
     word_level = result["wordLevel"]
     assert word_level["wer"] == 1.0, "Expected word error rate (WER) to be 1.0"
