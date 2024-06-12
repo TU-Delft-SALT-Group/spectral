@@ -34,9 +34,15 @@ export async function getComputedFileData<M extends modeType.Name>({
 	fileState: modeType.FileState<M>;
 }): Promise<modeType.ComputedData<M>> {
 	const url = getURL(`signals/modes/${mode}`);
-	url.searchParams.set('fileState', JSON.stringify(fileState));
+	// url.searchParams.set('fileState', JSON.stringify(fileState));
 
-	const response = await fetch(url);
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ fileState: fileState })
+	});
 	const jsonResponse = (await response.json()) as unknown;
 	const result = modes[mode].computedFileData.safeParse(jsonResponse);
 
