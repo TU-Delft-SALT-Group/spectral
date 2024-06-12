@@ -118,15 +118,10 @@
 	const windowSize = 2;
 	$: center = Math.min(Math.max(windowSize, selectedIndex), prompts.length - windowSize);
 
-	// onMount(async() => {
-
-	// })
-
 	async function getAndLoadConnectedDevices(clear: boolean) {
 		const videoDevicesAttempt = await getConnectedDevices('videoinput');
 		const audioDevicesAttempt = await getConnectedDevices('audioinput');
-		console.log(videoDevicesAttempt);
-		console.log(audioDevicesAttempt);
+
 		if (
 			videoDevicesAttempt.filter((device) => device.deviceId !== '').length > 0 &&
 			audioDevicesAttempt.filter((device) => device.deviceId !== '').length > 0
