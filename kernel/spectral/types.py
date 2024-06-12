@@ -1,8 +1,8 @@
 from collections.abc import Iterator
 
 import parselmouth
-from pydub import AudioSegment
 from pydantic import BaseModel
+from pydub import AudioSegment
 
 from .database import Database
 

@@ -1,11 +1,17 @@
-from datetime import datetime
-from typing import List, Literal
+"""Contains all the Pydantic specifications for the requests received by FastAPI server."""
+
+# ruff: noqa: N815
+from __future__ import annotations
+
+from datetime import datetime  # noqa: TCH003
+from typing import Literal
 
 from pydantic import BaseModel
 
 
 class FrameAnalysisResponse(BaseModel):
-    """FrameAnalysisResponse model representing the results of frame analysis.
+    """
+    FrameAnalysisResponse model representing the results of frame analysis.
 
     Attributes
     ----------
@@ -23,7 +29,8 @@ class FrameAnalysisResponse(BaseModel):
 
 
 class SimpleInfoResponse(BaseModel):
-    """SimpleInfoResponse model containing basic information about a signal.
+    """
+    SimpleInfoResponse model containing basic information about a signal.
 
     Attributes
     ----------
@@ -31,7 +38,8 @@ class SimpleInfoResponse(BaseModel):
         averagePitch (float): Average pitch (F0) of the signal (in Hz).
         fileSize (int): File size of the signal data (in bytes).
         fileCreationDate (datetime): Date and time the signal file was created.
-        frame (FrameAnalysisResponse): Frame analysis results for a representative frame of the signal.
+        frame (FrameAnalysisResponse): Frame analysis results for a representative frame of
+                                       the signal.
 
     """
 
@@ -43,7 +51,8 @@ class SimpleInfoResponse(BaseModel):
 
 
 class VowelSpaceResponse(BaseModel):
-    """VowelSpaceResponse model representing formant location in the vowel space.
+    """
+    VowelSpaceResponse model representing formant location in the vowel space.
 
     Attributes
     ----------
@@ -57,7 +66,8 @@ class VowelSpaceResponse(BaseModel):
 
 
 class TranscriptionSegment(BaseModel):
-    """TranscriptionSegment model representing a segment of a signal transcription.
+    """
+    TranscriptionSegment model representing a segment of a signal transcription.
 
     Attributes
     ----------
@@ -73,7 +83,8 @@ class TranscriptionSegment(BaseModel):
 
 
 class Alignment(BaseModel):
-    """Alignment model representing the type and indices of the alignment.
+    """
+    Alignment model representing the type and indices of the alignment.
 
     Attributes
     ----------
@@ -93,7 +104,8 @@ class Alignment(BaseModel):
 
 
 class WordLevelErrorRate(BaseModel):
-    """WordLevelErrorRate model representing word-level error metrics.
+    """
+    WordLevelErrorRate model representing word-level error metrics.
 
     Attributes
     ----------
@@ -119,13 +131,14 @@ class WordLevelErrorRate(BaseModel):
     substitutions: int
     insertions: int
     deletions: int
-    reference: List[str]
-    hypothesis: List[str]
-    alignments: List[Alignment]
+    reference: list[str]
+    hypothesis: list[str]
+    alignments: list[Alignment]
 
 
 class CharacterLevelErrorRate(BaseModel):
-    """CharacterLevelErrorRate model representing character-level error metrics.
+    """
+    CharacterLevelErrorRate model representing character-level error metrics.
 
     Attributes
     ----------
@@ -145,13 +158,14 @@ class CharacterLevelErrorRate(BaseModel):
     substitutions: int
     insertions: int
     deletions: int
-    reference: List[str]
-    hypothesis: List[str]
-    alignments: List[Alignment]
+    reference: list[str]
+    hypothesis: list[str]
+    alignments: list[Alignment]
 
 
 class ErrorRateResponse(BaseModel):
-    """ErrorRateValue model representing both word-level and character-level error metrics.
+    """
+    ErrorRateValue model representing both word-level and character-level error metrics.
 
     Attributes
     ----------
@@ -162,3 +176,9 @@ class ErrorRateResponse(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
+
+
+class FileStateBody(BaseModel):
+    """The model of the fileState received from the frontend."""
+
+    fileState: dict

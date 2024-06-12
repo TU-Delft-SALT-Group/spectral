@@ -1,7 +1,9 @@
 """Main source file; contains the basic FastAPI setup."""
 
+from __future__ import annotations
+
 import os
-from typing import Annotated, Any, Literal, Self, Union
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Self, Union
 
 import orjson
 from fastapi import Depends, FastAPI, HTTPException, Path
@@ -9,6 +11,7 @@ from fastapi.responses import JSONResponse
 
 from .data_objects import (
     ErrorRateResponse,
+    FileStateBody,
     SimpleInfoResponse,
     TranscriptionSegment,
     VowelSpaceResponse,
@@ -28,7 +31,9 @@ from .response_examples import (
     transcription_response_examples,
 )
 from .transcription.transcription import get_transcription
-from .types import FileStateBody, FileStateType
+
+if TYPE_CHECKING:
+    from .types import FileStateType
 
 
 def get_db():  # pragma: no cover # noqa
@@ -84,16 +89,19 @@ async def analyze_signal_mode(
         ],
         Path(title="The analysis mode"),
     ],
-    fileState: FileStateBody,
+    file_state_body: FileStateBody,
     database=Depends(get_db),
 ) -> Any:
-    """Analyze an audio signal in different modes.
+    """
+    Analyze an audio signal in different modes.
 
-    This endpoint fetches an audio file from the database and performs the analysis based on the specified mode.
+    This endpoint fetches an audio file from the database and performs the analysis
+    based on the specified mode.
 
     Parameters
     ----------
-    - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form", "vowel-space", "transcription", "error-rate").
+    - mode (str): The analysis mode (e.g., "simple-info", "spectrogram", "wave-form",
+                  "vowel-space", "transcription", "error-rate").
     - fileState (dict): The important state data of the file
 
     Returns
@@ -106,7 +114,7 @@ async def analyze_signal_mode(
 
     """
     db_session = database
-    file_state: FileStateType = fileState.fileState
+    file_state: FileStateType = file_state_body.fileState
 
     if mode == "simple-info":
         return simple_info_mode(db_session, file_state)
@@ -121,8 +129,6 @@ async def analyze_signal_mode(
     if mode == "error-rate":
         return error_rate_mode(db_session, file_state)
 
-    raise HTTPException(404, detail="Model is not found")
-
 
 @app.get(
     "/transcription/{model}/{file_id}",
@@ -133,8 +139,9 @@ async def transcribe_file(
     model: Annotated[str, Path(title="The transcription model")],
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
-):
-    """Transcribe an audio file.
+) -> Any:
+    """
+    Transcribe an audio file.
 
     This endpoint transcribes an audio file using the specified model.
 
@@ -145,21 +152,21 @@ async def transcribe_file(
 
     Returns
     -------
-    - list: A list of dictionaries with keys 'start', 'end' and 'value' containing the transcription of the audio file.
+    - list: A list of dictionaries with keys 'start', 'end' and 'value' containing the
+            transcription of the audio file.
 
     Raises
     ------
-    - HTTPException: If the file is not found or an error occurs during transcription or storing the transcription.
+    - HTTPException: If the file is not found or an error occurs during
+                     transcription or storing the transcription.
 
     """
     db_session = database
-    # db_session = next(database)
     try:
         file = db_session.fetch_file(file_id)
-    except Exception as _:
-        raise HTTPException(status_code=404, detail="File not found")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="File not found") from e
 
     file["data"] = convert_to_wav(file["data"])
 
-    transcription = get_transcription(model, file)
-    return transcription
+    return get_transcription(model, file)

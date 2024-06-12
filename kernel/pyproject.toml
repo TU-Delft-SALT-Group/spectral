@@ -67,11 +67,11 @@ build-backend = "poetry.core.masonry.api"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["F", "E", "W", "C90", "I", "N", "D", "UP", "YTT", "ANN", "ASYNC",
+select = ["F", "E", "W", "C90", "I", "N", "D", "UP", "YTT", "ASYNC",
     "TRIO", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ",
     "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "LOG", "G", "INP",
     "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM",
-    "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH",
+    "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD",
     "PL", "C", "R", "TRY", "FLY", "NPY", "AIR", "PERF", "RUF"]
 
-ignore = ["ANN401", "D417", "PGH004", "EM101"]
+ignore = ["D417", "D205", "D203", "D212", "EM101", "B008", "RET503"]
