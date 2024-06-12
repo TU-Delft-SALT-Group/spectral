@@ -7,6 +7,7 @@ import json
 from scipy.io import wavfile as wv
 import os
 from unittest.mock import Mock, patch
+import mytextgrid
 
 client = TestClient(app)
 
@@ -805,20 +806,121 @@ def test_phone_transcription_no_words(db_mock, file_state):
 def test_textgrid_no_transcriptions():
     response = client.post("/transcription/textgrid", json={"transcriptions": []})
 
-    assert response.status_code == 200
+    assert response.status_code == 200, "Expected the status code to be 200"
 
     result = response.json()
 
-    assert result is None
+    assert result is None, "Expected the result to be None"
 
 
-# def test_textgrid_one_track():
-#     response = client.post("/transcription/textgrid",json={"transcriptions":[{"id":"1","name":"track-1","captions": [{"value":"hi","start":0,"end": 2.0}]}]})
+def test_textgrid_one_track():
+    response = client.post(
+        "/transcription/textgrid",
+        json={
+            "transcriptions": [
+                {
+                    "id": "1",
+                    "name": "track-1",
+                    "captions": [{"value": "hi", "start": 0, "end": 2.0}],
+                }
+            ]
+        },
+    )
 
-#     assert response.status_code == 200
+    assert response.status_code == 200, "Expected the status code to be 200"
 
-#     result = response.json()
-#     mytextgrid.read_from_stream(result)
+    result = response.json()
+    textgrid = mytextgrid.read_from_stream(result)
 
-#     result_parsed = m
-#     assert result is None
+    result_parsed = textgrid.to_dict()
+
+    assert result_parsed["xmin"] == 0, "Expected xmin to be 0"
+    assert result_parsed["xmax"] == 2.0, "Expected xmax to be 2"
+    assert (
+        result_parsed["tiers"][0]["name"] == "track-1"
+    ), "Expected the name of the first tier to be track-1"
+    assert (
+        result_parsed["tiers"][0]["items"][0]["xmin"] == 0
+    ), "Expected the first item of the first tier to have an xmin of 0"
+    assert (
+        result_parsed["tiers"][0]["items"][0]["xmax"] == 2.0
+    ), "Expected the first item of the first tier to have an xmax of 2"
+    assert (
+        result_parsed["tiers"][0]["items"][0]["text"] == "hi"
+    ), "Expected the first item of the first tier to have a text value of 'hi'"
+
+
+def test_textgrid_multiple_tracks():
+    response = client.post(
+        "/transcription/textgrid",
+        json={
+            "transcriptions": [
+                {
+                    "id": "1",
+                    "name": "track-1",
+                    "captions": [
+                        {"value": "hi", "start": 0, "end": 2.0},
+                        {"value": "hi2", "start": 2.0, "end": 4.0},
+                    ],
+                },
+                {
+                    "id": "2",
+                    "name": "track-2",
+                    "captions": [
+                        {"value": "word", "start": 0, "end": 1.5},
+                        {"value": "", "start": 1.5, "end": 4.0},
+                    ],
+                },
+            ]
+        },
+    )
+
+    assert response.status_code == 200, "Expected status code to be 200"
+
+    result = response.json()
+    textgrid = mytextgrid.read_from_stream(result)
+
+    result_parsed = textgrid.to_dict()
+
+    assert result_parsed["xmin"] == 0, "Expected xmin to be 0"
+    assert result_parsed["xmax"] == 4.0, "Expected xmax to be 4"
+    assert (
+        result_parsed["tiers"][0]["name"] == "track-1"
+    ), "Expected the name of the first tier to be track-1"
+    assert (
+        result_parsed["tiers"][0]["items"][0]["xmin"] == 0
+    ), "Expected the first item of the first tier to have an xmin of 0"
+    assert (
+        result_parsed["tiers"][0]["items"][0]["xmax"] == 2.0
+    ), "Expected the first item of the first tier to have an xmax of 2"
+    assert (
+        result_parsed["tiers"][0]["items"][0]["text"] == "hi"
+    ), "Expected the first item of the first tier to have a text value of 'hi'"
+    assert (
+        result_parsed["tiers"][0]["items"][1]["xmin"] == 2.0
+    ), "Expected the second item of the first tier to have an xmin of 2"
+    assert (
+        result_parsed["tiers"][0]["items"][1]["xmax"] == 4.0
+    ), "Expected the second item of the first tier to have an xmax of 4"
+    assert (
+        result_parsed["tiers"][0]["items"][1]["text"] == "hi2"
+    ), "Expected the second item of the first tier to have a text value of 'hi2'"
+
+    assert (
+        result_parsed["tiers"][1]["items"][0]["xmin"] == 0
+    ), "Expected the first item of the second tier to have an xmin of 0"
+    assert (
+        result_parsed["tiers"][1]["items"][0]["xmax"] == 1.5
+    ), "Expected the first item of the second tier to have an xmax of 1.5"
+    assert (
+        result_parsed["tiers"][1]["items"][0]["text"] == "word"
+    ), "Expected the first item of the second tier to have a text value of 'word'"
+    assert (
+        result_parsed["tiers"][1]["items"][1]["xmin"] == 1.5
+    ), "Expected the second item of the second tier to have an xmin of 1.5"
+    assert (
+        result_parsed["tiers"][1]["items"][1]["xmax"] == 4.0
+    ), "Expected the second item of the second tier to have an xmax of 4"
+    assert (
+        result_parsed["tiers"][1]["items"][1]["text"] == ""
+    ), "Expected the second item of the second tier to have a text value of ''"

@@ -3,6 +3,14 @@ import tempfile
 
 
 def convert_to_textgrid(transcriptions):
+    """Convert transcriptions of file to textgrid format
+
+    Args:
+        transcriptions (_type_): list of tracks with transcriptions
+
+    Returns:
+        _type_: string representing a textgrid file
+    """
     if len(transcriptions.transcriptions) == 0:
         return None
     tg = mytextgrid.create_textgrid(

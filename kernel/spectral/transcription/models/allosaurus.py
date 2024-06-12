@@ -6,6 +6,14 @@ from allosaurus.app import read_recognizer  # type: ignore
 
 
 def allosaurus_transcription(file: FileStateType) -> list[dict]:
+    """Calculate the transcription on phoneme level using the allosaurus model.
+
+    Args:
+        file (FileStateType): contains data about the file that is being transcribed.
+
+    Returns:
+        list[dict]: list of dictionaries containing a start, end and value.
+    """
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
@@ -33,6 +41,15 @@ def allosaurus_transcription(file: FileStateType) -> list[dict]:
 def get_phoneme_word_splits(
     word_level_transcription: list[dict], phoneme_level_parsed: list[list]
 ) -> list[dict]:
+    """group the calculated phonemes in intervals based on word transcription
+
+    Args:
+        word_level_transcription (list[dict]): list of word level transcription
+        phoneme_level_parsed (list[list]): list of phoneme level transcriptions
+
+    Returns:
+        list[dict]: list of dictionaries containing a list of phoneme transcription paired with a word level transcription
+    """
     if len(word_level_transcription) == 0:
         return []
 
@@ -67,6 +84,14 @@ def get_phoneme_word_splits(
 
 
 def get_phoneme_transcriptions(phoneme_word_splits: list[dict]) -> list[dict]:
+    """Convert the phoneme word groups to 1 list of phoneme transcriptions with adjusted start and end times
+
+    Args:
+        phoneme_word_splits (list[dict]): list of dictionaries containing a list of phoneme transcription paired with a word level transcription
+
+    Returns:
+        list[dict]: list of dictionaries containing start, end and value
+    """
     res = []
 
     for phoneme_split in phoneme_word_splits:
