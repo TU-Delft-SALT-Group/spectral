@@ -14,9 +14,7 @@ import subprocess
 from typing import Any
 
 
-def simple_info_mode(
-    database: DatabaseType, file_state: FileStateType
-) -> dict[str, Any]:
+def simple_info_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, Any]:
     """
     Extracts and returns basic information about a signal and its corresponding frame.
 
@@ -47,9 +45,7 @@ def simple_info_mode(
 
     frame_index = validate_frame_index(audio.get_array_of_samples(), file_state)
 
-    result["frame"] = simple_frame_info(
-        audio.get_array_of_samples(), audio.frame_rate, frame_index
-    )
+    result["frame"] = simple_frame_info(audio.get_array_of_samples(), audio.frame_rate, frame_index)
 
     return result
 
@@ -68,9 +64,7 @@ def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     return None
 
 
-def vowel_space_mode(
-    database: DatabaseType, file_state: FileStateType
-) -> dict[str, float] | None:
+def vowel_space_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, float] | None:
     """
     Extracts and returns the first and second formants of a specified frame.
 
@@ -110,9 +104,7 @@ def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any
     return None
 
 
-def error_rate_mode(
-    database: DatabaseType, file_state: FileStateType
-) -> dict[str, Any] | None:
+def error_rate_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, Any] | None:
     """
     Calculate the error rates of transcriptions against the ground truth.
 
@@ -187,6 +179,6 @@ def convert_to_wav(data: bytes) -> bytes:
         temp_input.flush()  # Ensure data is written to disk
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_output:
             command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
-            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+            subprocess.run(command, stdout=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
             temp_output.seek(0)  # Rewind to the beginning of the file
             return temp_output.read()
