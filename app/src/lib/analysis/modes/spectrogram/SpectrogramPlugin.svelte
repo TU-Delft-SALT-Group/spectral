@@ -6,6 +6,7 @@
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
+	import type { Frame } from '$lib/analysis/kernel/framing';
 	import type { mode } from '..';
 	import { used } from '$lib/utils';
 
@@ -23,6 +24,7 @@
 			if (regions.getRegions().length === 0) return false;
 
 			regions.clearRegions();
+			fileState.frame = null;
 			return true;
 		},
 		play() {
@@ -49,6 +51,7 @@
 	let regions: RegionsPlugin;
 	let spectrogram: SpectrogramPlugin;
 	let timeline: TimelinePlugin;
+	let spectrogramCanvas: HTMLCanvasElement;
 
 	$: if (width) {
 		minZoom = width / duration;
@@ -98,7 +101,20 @@
 				r.remove();
 			});
 
+			let frame: Frame = {
+				startIndex: Math.floor(region.start * wavesurfer.options.sampleRate),
+				endIndex: Math.ceil(region.end * wavesurfer.options.sampleRate)
+			};
+
+			fileState.frame = frame;
 			setAsSelected();
+		});
+
+		spectrogram.once('ready', () => {
+			spectrogramCanvas = element.children[0].shadowRoot?.children[1].children[0].children[4]
+				.children[1] as HTMLCanvasElement; // get to the correct canvas to draw on
+
+			spectrogramCanvas.style.zIndex = '-20';
 		});
 
 		wavesurfer.on('interaction', () => {
@@ -109,12 +125,20 @@
 			duration = wavesurfer.getDuration();
 			current = wavesurfer.getCurrentTime();
 			minZoom = width / duration;
+
+			if (fileState.frame !== null) {
+				regions.clearRegions();
+
+				regions.addRegion({
+					start: fileState.frame.startIndex / wavesurfer.options.sampleRate,
+					end: fileState.frame.endIndex / wavesurfer.options.sampleRate,
+					color: 'rgba(255, 0, 0, 0.1)'
+				});
+			}
 		});
 
 		wavesurfer.on('play', () => {
-			const canvas = element.children[0].shadowRoot?.children[1].children[0].children[4]
-				.children[1] as HTMLCanvasElement; // get to the correct canvas to draw on
-			let ctx = canvas.getContext('2d');
+			let ctx = spectrogramCanvas.getContext('2d');
 
 			// we do this because the property exists in spectrogram but isnt' available to us
 			const maxFrequency = (spectrogram as unknown as { frequencyMax: number }).frequencyMax;
@@ -134,8 +158,8 @@
 
 					ctx.beginPath();
 					ctx.arc(
-						(i / computedData.formants.length) * canvas.width, // x position based on group index
-						(1 - formant / maxFrequency) * canvas.height,
+						(i / computedData.formants.length) * spectrogramCanvas.width, // x position based on group index
+						(1 - formant / maxFrequency) * spectrogramCanvas.height,
 						2,
 						0,
 						2 * Math.PI
