@@ -69,7 +69,9 @@ def signal_to_sound(signal: array, fs: float | int) -> SoundType:
     result = signal_to_sound(signal, fs)
     ```
     """
-    return parselmouth.Sound(values=np.array(signal).astype("float64"), sampling_frequency=fs)
+    return parselmouth.Sound(
+        values=np.array(signal).astype("float64"), sampling_frequency=fs
+    )
 
 
 def calculate_signal_duration(audio: AudioType) -> float:
@@ -189,7 +191,9 @@ def calculate_sound_f1_f2(
     ```
     """
     try:
-        formants = sound.to_formant_burg(time_step=time_step, window_length=window_length)
+        formants = sound.to_formant_burg(
+            time_step=time_step, window_length=window_length
+        )
         data: list = []
         for frame in np.arange(1, len(formants) + 1):
             data.append(

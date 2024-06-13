@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('everything in session is visible', async ({ page }) => {
 	await page.goto('http://localhost/');
-	await page.getByRole('link', { name: 'Start analyzing' }).click();
+	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
@@ -16,7 +16,7 @@ test('everything in session is visible', async ({ page }) => {
 			.getByRole('group')
 			.locator('section')
 			.filter({
-				hasText: '00:00.000/00:04.800 1.00x F01_severe_head_sentence1 00:00.000/00:03.404 1.00x'
+				hasText: '00.511.522.533.544.5 00:00.000/00:04.800 1.00x F01_severe_head_sentence1 00.511'
 			})
 			.getByRole('button')
 			.first()
@@ -26,7 +26,7 @@ test('everything in session is visible', async ({ page }) => {
 			.getByRole('group')
 			.locator('section')
 			.filter({
-				hasText: '00:00.000/00:04.800 1.00x F01_severe_head_sentence1 00:00.000/00:03.404 1.00x'
+				hasText: '00.511.522.533.544.5 00:00.000/00:04.800 1.00x F01_severe_head_sentence1 00.511'
 			})
 			.getByRole('button')
 			.nth(1)

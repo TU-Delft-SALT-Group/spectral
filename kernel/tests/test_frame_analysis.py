@@ -122,5 +122,9 @@ def test_formants_noise_frame():
 def test_formants_empty_frame():
     formants = calculate_frame_f1_f2(array("h", []), 0)
     assert len(formants) == 2, "Expected two formants for empty frame"
-    assert math.isnan(formants[0]), "Expected first formant (f1) for empty frame to be NaN"
-    assert math.isnan(formants[1]), "Expected second formant (f2) for empty frame to be NaN"
+    assert math.isnan(
+        formants[0]
+    ), "Expected first formant (f1) for empty frame to be NaN"
+    assert math.isnan(
+        formants[1]
+    ), "Expected second formant (f2) for empty frame to be NaN"

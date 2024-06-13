@@ -9,7 +9,7 @@ test.use({
 
 test('register and walk through', async ({ page }) => {
 	await page.goto('http://localhost/');
-	await page.getByRole('link', { name: 'Start analyzing' }).click();
+	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByRole('link', { name: 'Sign up instead' }).click();
 	await page.getByLabel('Username').click();
 	await page.getByLabel('Username').fill('Roman');

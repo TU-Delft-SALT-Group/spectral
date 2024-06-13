@@ -168,7 +168,11 @@ def validate_frame_index(data: array, file_state: FileStateType):
             status_code=400, detail="startIndex should be strictly lower than endIndex"
         )
     if start_index < 0:
-        raise HTTPException(status_code=400, detail="startIndex should be larger or equal to 0")
+        raise HTTPException(
+            status_code=400, detail="startIndex should be larger or equal to 0"
+        )
     if end_index > len(data):
-        raise HTTPException(status_code=400, detail="endIndex should be lower than the file length")
+        raise HTTPException(
+            status_code=400, detail="endIndex should be lower than the file length"
+        )
     return {"startIndex": start_index, "endIndex": end_index}
