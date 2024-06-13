@@ -11,6 +11,7 @@ export const transcriptionData = {
 	fileState: fileState
 		.pick({
 			id: true,
+			name: true,
 			transcriptions: true
 		})
 		.default({}),

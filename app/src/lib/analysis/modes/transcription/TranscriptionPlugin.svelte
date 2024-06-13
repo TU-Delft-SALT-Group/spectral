@@ -9,6 +9,9 @@
 	import Track from './Track.svelte';
 	import { logger } from '$lib/logger';
 	import { doubleClick, focusOut, keyDown } from '.';
+	import { numberToTime } from '$lib/components/audio-controls';
+	import { Separator } from '$lib/components/ui/separator';
+	import { PauseIcon, PlayIcon } from 'lucide-svelte';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -19,6 +22,8 @@
 	let width: number;
 	let minZoom: number;
 	let duration: number;
+	let current: number;
+	let playing = false;
 	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 
@@ -57,6 +62,10 @@
 				width: duration * px
 			});
 		});
+
+		wavesurfer.on('timeupdate', (time) => (current = time));
+		wavesurfer.on('play', () => (playing = true));
+		wavesurfer.on('pause', () => (playing = false));
 	});
 
 	onDestroy(() => {
@@ -137,7 +146,27 @@
 	}
 </script>
 
-<section bind:clientWidth={width} class="w-full">
+<section bind:clientWidth={width} class="w-full bg-secondary/50">
+	<!-- This is the bar -->
+	<div class="flex w-full flex-row items-center bg-secondary/75">
+		<Button
+			class="h-fit w-fit rounded-none"
+			variant="ghost"
+			on:click={() => wavesurfer?.playPause()}
+		>
+			{#if playing}
+				<PlayIcon size="16" />
+			{:else}
+				<PauseIcon size="16" />
+			{/if}
+		</Button>
+		<div class="font-mono">
+			{numberToTime(current)}/{numberToTime(duration)}
+		</div>
+		<Separator orientation="vertical" class="mx-2" />
+		<span>{fileState.name}</span>
+	</div>
+
 	<div
 		class={`grid w-full overflow-x-scroll`}
 		style={`grid-template-columns: ${trackNameSpace}px 1fr;`}
@@ -153,6 +182,7 @@
 	>
 		<div></div>
 		<div bind:this={wavesurferContainer}></div>
+
 		{#each fileState.transcriptions as transcription}
 			<span
 				role="button"
@@ -166,9 +196,11 @@
 			<Track captions={transcription.captions} {duration} />
 		{/each}
 	</div>
+
+	<!-- Inserting/Exporting track stuff down here -->
 	<div class="flex w-full">
 		<Select.Root selected={transcriptionType} onSelectedChange={transcriptionTypeChanger}>
-			<Select.Trigger class="m-0 h-full w-1/6">
+			<Select.Trigger class="m-0 w-1/6 rounded-none rounded-bl">
 				{transcriptionType.value}
 			</Select.Trigger>
 			<Select.Content>
@@ -178,7 +210,9 @@
 				{/each}
 			</Select.Content>
 		</Select.Root>
-		<Button class="w-2/3 rounded-t-none" on:click={addTrack}>+</Button>
-		<Button class="m-0 h-full w-1/6" on:click={exportTextGrid}>Get Textgrid</Button>
+		<Button class="w-2/3 rounded-none" on:click={addTrack}>+</Button>
+		<Button class="m-0 w-1/6 rounded-none rounded-br" on:click={exportTextGrid} variant="outline"
+			>Get Textgrid</Button
+		>
 	</div>
 </section>
