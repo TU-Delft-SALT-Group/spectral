@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Resizable from '$lib/components/ui/resizable';
 	import type { PaneGroupAPI } from 'paneforge';
+	import { doubleClick, focusOut, keyDown } from '.';
 
 	let {
 		captions,
@@ -73,31 +74,9 @@
 						tabindex="0"
 						class="flex h-full w-full content-center justify-center overflow-hidden rounded-none bg-secondary text-secondary-foreground"
 						onclick={(event: MouseEvent) => onClick(event, caption)}
-						ondblclick={(event: MouseEvent) => {
-							const element = (event.target! as HTMLElement);
-							element.contentEditable = 'true';
-						}}
-						onfocusout={(event: FocusEvent) => {
-							const element = event.target! as HTMLElement;
-							element.contentEditable = 'false';
-							caption.value = element.textContent ?? '';
-						}}
-						onkeydown={(event: KeyboardEvent) => {
-							const element = event.target! as HTMLElement;
-
-							if (!element.isContentEditable) {
-								return;
-							}
-
-							if (event.key === 'Enter') {
-								element.contentEditable = 'false';
-								caption.value = element.textContent ?? '';
-							} else if (event.key === 'Escape') {
-								element.contentEditable = 'false';
-								element.textContent = caption.value;
-							}
-						}}
-						>{caption.value}</span
+						ondblclick={doubleClick}
+						onfocusout={(event: FocusEvent) => focusOut(event, caption)}
+						onkeydown={(event: KeyboardEvent) => keyDown(event, caption)}>{caption.value}</span
 					>
 				</Resizable.Pane>
 

@@ -8,6 +8,7 @@
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
 	import { logger } from '$lib/logger';
+	import { doubleClick, focusOut, keyDown } from '.';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -61,6 +62,79 @@
 	onDestroy(() => {
 		wavesurfer.destroy();
 	});
+
+	async function exportTextGrid() {
+		let text;
+		try {
+			const response = await fetch('/api/transcription/textgrid', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ transcriptions: fileState.transcriptions })
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch the TextGrid file');
+			}
+
+			text = JSON.parse(await response.text());
+			if (text === null) {
+				throw new Error('No tracks were given');
+			}
+		} catch (error) {
+			logger.error(error);
+			return;
+		}
+
+		const blob = new Blob([text], { type: 'text/plain' });
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+
+		a.style.display = 'none';
+		a.href = url;
+		a.download = 'transcription.TextGrid';
+
+		document.body.appendChild(a);
+		a.click();
+
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+	}
+
+	async function addTrack() {
+		if (transcriptionType.value === 'empty') {
+			fileState.transcriptions = [
+				...fileState.transcriptions,
+				{
+					id: generateIdFromEntropySize(10),
+					name: 'new track',
+					captions: [
+						{
+							start: 0,
+							end: duration,
+							value: ''
+						}
+					]
+				}
+			];
+		} else if (models.includes(transcriptionType.value)) {
+			let response = await (
+				await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
+			).json();
+			logger.trace(response);
+			fileState.transcriptions = [
+				...fileState.transcriptions,
+				{
+					id: generateIdFromEntropySize(10),
+					name: transcriptionType.value,
+					captions: response
+				}
+			];
+		} else {
+			logger.error('no match for: ' + transcriptionType.value);
+		}
+	}
 </script>
 
 <section bind:clientWidth={width} class="w-full">
@@ -84,30 +158,9 @@
 				role="button"
 				tabindex="0"
 				class="flex content-center justify-center bg-primary text-primary-foreground"
-				ondblclick={(event: MouseEvent) => {
-					const element = event.target! as HTMLElement;
-					element.contentEditable = 'true';
-			}}
-				onfocusout={(event: FocusEvent) => {
-					const element = event.target! as HTMLElement;
-					element.contentEditable = 'false';
-					transcription.name = element.textContent ?? '';
-				}}
-				onkeydown={(event: KeyboardEvent) => {
-					const element = event.target! as HTMLElement;
-
-					if (!element.isContentEditable) {
-						return;
-					}
-
-					if (event.key === 'Escape') {
-						element.contentEditable = 'false';
-						element.textContent = transcription.name;
-					} else if (event.key === 'Enter') {
-						element.contentEditable = 'false';
-						transcription.name = element.textContent ?? '';
-					}
-				}}
+				ondblclick={doubleClick}
+				onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
+				onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
 				>{transcription.name}</span
 			>
 			<Track captions={transcription.captions} {duration} />
@@ -125,80 +178,7 @@
 				{/each}
 			</Select.Content>
 		</Select.Root>
-		<Button
-			class="w-2/3 rounded-t-none"
-			on:click={async () => {
-				if (transcriptionType.value === 'empty') {
-					fileState.transcriptions = [
-						...fileState.transcriptions,
-						{
-							id: generateIdFromEntropySize(10),
-							name: 'new track',
-							captions: [
-								{
-									start: 0,
-									end: duration,
-									value: ''
-								}
-							]
-						}
-					];
-				} else if (models.includes(transcriptionType.value)) {
-					let response = await (
-						await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
-					).json();
-					logger.trace(response);
-					fileState.transcriptions = [
-						...fileState.transcriptions,
-						{
-							id: generateIdFromEntropySize(10),
-							name: transcriptionType.value,
-							captions: response
-						}
-					];
-				} else {
-					logger.error('no match for: ' + transcriptionType.value);
-				}
-			}}
-		>
-			+
-		</Button>
-		<Button
-			class="m-0 h-full w-1/6"
-			on:click={async () => {
-				try {
-					const response = await fetch('/api/transcription/textgrid', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({ transcriptions: fileState.transcriptions })
-					});
-
-					if (!response.ok) {
-						throw new Error('Failed to fetch the TextGrid file');
-					}
-
-					const text = JSON.parse(await response.text());
-					if (text === null) {
-						throw new Error('No tracks were given');
-					}
-					const blob = new Blob([text], { type: 'text/plain' });
-					const url = window.URL.createObjectURL(blob);
-					const a = document.createElement('a');
-					a.style.display = 'none';
-					a.href = url;
-					a.download = 'transcription.TextGrid';
-					document.body.appendChild(a);
-					a.click();
-					window.URL.revokeObjectURL(url);
-					document.body.removeChild(a);
-				} catch (error) {
-					console.error(error);
-				}
-			}}
-		>
-			Get Textgrid
-		</Button>
+		<Button class="w-2/3 rounded-t-none" on:click={addTrack}>+</Button>
+		<Button class="m-0 h-full w-1/6" on:click={exportTextGrid}>Get Textgrid</Button>
 	</div>
 </section>
