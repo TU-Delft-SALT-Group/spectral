@@ -1,5 +1,6 @@
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
+	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import { onDestroy, onMount } from 'svelte';
 	import { type ControlRequirements } from '$lib/components/audio-controls';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
@@ -47,6 +48,7 @@
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
 	let spectrogram: SpectrogramPlugin;
+	let timeline: TimelinePlugin;
 
 	$: if (width) {
 		minZoom = width / duration;
@@ -73,6 +75,13 @@
 			Spectrogram.create({
 				labels: true,
 				labelsColor: 'black'
+			})
+		);
+		timeline = wavesurfer.registerPlugin(
+			TimelinePlugin.create({
+				timeInterval: 0.1,
+				primaryLabelInterval: 1,
+				secondaryLabelInterval: 0.5
 			})
 		);
 
@@ -151,8 +160,8 @@
 	});
 
 	onDestroy(() => {
-		spectrogram.destroy();
-		regions.destroy();
+		timeline.destroy();
+		wavesurfer.destroy();
 	});
 </script>
 
