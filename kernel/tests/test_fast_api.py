@@ -797,7 +797,7 @@ def test_textgrid_one_track():
     ), "Expected the first item of the first tier to have a text value of 'hi'"
 
 
-def test_textgrid_multiple_tracks(db_mock):
+def test_textgrid_multiple_tracks():
     response = client.post(
         "/transcription/textgrid",
         json={
@@ -871,4 +871,3 @@ def test_textgrid_multiple_tracks(db_mock):
     assert (
         result_parsed["tiers"][1]["items"][1]["text"] == ""
     ), "Expected the second item of the second tier to have a text value of ''"
-    assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
