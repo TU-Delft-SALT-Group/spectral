@@ -24,9 +24,9 @@ from .data_objects import (
 )
 from .database import Database
 import orjson
-import json
 import os
 from typing import Any
+from .types import FileStateBody, FileStateType
 
 
 def get_db():  # pragma: no cover
@@ -60,7 +60,7 @@ class ORJSONResponse(JSONResponse):
 app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
 
 
-@app.get(
+@app.post(
     "/signals/modes/{mode}",
     response_model=Union[
         None,
@@ -84,7 +84,7 @@ async def analyze_signal_mode(
         ],
         Path(title="The analysis mode"),
     ],
-    fileState,
+    fileState: FileStateBody,
     database=Depends(get_db),
 ):
     """
@@ -102,19 +102,21 @@ async def analyze_signal_mode(
     Raises:
     - HTTPException: If the mode is not found or input data is invalid.
     """
-    fileState = json.loads(fileState)
+    db_session = database
+    file_state: FileStateType = fileState.fileState
+
     if mode == "simple-info":
-        return simple_info_mode(database, fileState)
+        return simple_info_mode(db_session, file_state)
     if mode == "spectrogram":
-        return spectrogram_mode(database, fileState)
+        return spectrogram_mode(db_session, file_state)
     if mode == "waveform":
-        return waveform_mode(database, fileState)
+        return waveform_mode(db_session, file_state)
     if mode == "vowel-space":
-        return vowel_space_mode(database, fileState)
+        return vowel_space_mode(db_session, file_state)
     if mode == "transcription":
-        return transcription_mode(database, fileState)
+        return transcription_mode(db_session, file_state)
     if mode == "error-rate":
-        return error_rate_mode(database, fileState)
+        return error_rate_mode(db_session, file_state)
 
 
 @app.get(
