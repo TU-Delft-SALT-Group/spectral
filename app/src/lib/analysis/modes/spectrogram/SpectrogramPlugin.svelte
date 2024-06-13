@@ -7,7 +7,6 @@
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import type { mode } from '..';
 	import { used } from '$lib/utils';
-	import SpectrogramVisualization from './SpectrogramVisualization.svelte';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
@@ -63,8 +62,7 @@
 		spectrogram = wavesurfer.registerPlugin(
 			Spectrogram.create({
 				labels: true,
-				labelsColor: 'black',
-				height: 200
+				labelsColor: 'black'
 			})
 		);
 
@@ -93,34 +91,46 @@
 			current = wavesurfer.getCurrentTime();
 		});
 
+		wavesurfer.on('play', () => {
+			const canvas = element.children[0].shadowRoot?.children[1].children[0].children[4]
+				.children[1] as HTMLCanvasElement; // get to the correct canvas to draw on
+			let ctx = canvas.getContext('2d');
+
+			// we do this because the property exists in spectrogram but isnt' available to us
+			const maxFrequency = (spectrogram as unknown as { frequencyMax: number }).frequencyMax;
+			const colours = ['red', 'orange', 'yellow', 'green', 'blue'];
+
+			if (ctx === null || computedData === null || computedData.formants === null) {
+				return;
+			}
+
+			for (let i = 0; i < computedData.formants.length; i++) {
+				// loop over all formant groups
+				computedData.formants[i].forEach((formant, j) => {
+					// loop over all formants
+					if (formant === null || computedData.formants === null) {
+						return;
+					}
+
+					ctx.beginPath();
+					ctx.arc(
+						(i / computedData.formants.length) * canvas.width, // x position based on group index
+						(1 - formant / maxFrequency) * canvas.height,
+						2,
+						0,
+						2 * Math.PI
+					);
+					ctx.strokeStyle = colours[j];
+					ctx.stroke();
+				});
+			}
+		});
+
 		wavesurfer.on('timeupdate', () => {
 			current = wavesurfer.getCurrentTime();
 		});
 
 		wavesurfer.on('play', () => {
-			let canvas = document.getElementById('spectrogram' + fileState.id)?.children[0].shadowRoot
-				?.children[1].children[0].children[4].children[1] as HTMLCanvasElement; // get to the correct canvas to draw on
-			const ctx = canvas.getContext('2d');
-			if (ctx !== null && computedData !== null && computedData.formants !== null) {
-				for (let i = 0; i < computedData.formants.length; i++) {
-					// loop over all formant groups
-					for (let formant of computedData.formants[i]) {
-						// loop over all formants
-						if (formant === null) continue;
-						ctx.beginPath();
-						ctx.arc(
-							(i / computedData.formants.length) * canvas.width, // x position based on group index
-							(formant / 4000) * canvas.height, // y position based on height, divided by 4k, but maybe this is not always 4k
-							5,
-							0,
-							2 * Math.PI
-						);
-						ctx.strokeStyle = 'red';
-						ctx.stroke();
-					}
-				}
-			}
-
 			playing = true;
 		});
 
@@ -140,5 +150,3 @@
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
 ></div>
-
-<SpectrogramVisualization file={fileState.id} />
