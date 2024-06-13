@@ -178,7 +178,16 @@ def convert_to_wav(data: bytes) -> bytes:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_output:
-            command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
+            command = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-i",
+                temp_input.name,
+                temp_output.name,
+            ]
             subprocess.run(command, stdout=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
             temp_output.seek(0)  # Rewind to the beginning of the file
             return temp_output.read()
