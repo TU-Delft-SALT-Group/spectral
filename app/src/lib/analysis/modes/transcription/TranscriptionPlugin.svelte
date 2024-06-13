@@ -12,6 +12,7 @@
 	import { numberToTime } from '$lib/components/audio-controls';
 	import { Separator } from '$lib/components/ui/separator';
 	import { PauseIcon, PlayIcon } from 'lucide-svelte';
+	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -19,11 +20,14 @@
 
 	let wavesurferContainer: HTMLElement;
 	let wavesurfer: WaveSurfer;
+	let timeline: TimelinePlugin;
+
 	let width: number;
 	let minZoom: number;
 	let duration: number;
 	let current: number;
 	let playing = false;
+
 	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 
@@ -35,6 +39,13 @@
 
 	const trackNameSpace = 100;
 
+	$: if (width) {
+		minZoom = (width - trackNameSpace) / duration;
+		wavesurfer?.setOptions({
+			width: minZoom * duration
+		});
+	}
+
 	onMount(() => {
 		wavesurfer = WaveSurfer.create({
 			container: wavesurferContainer,
@@ -42,6 +53,14 @@
 			height: 300,
 			backend: 'WebAudio'
 		});
+
+		timeline = wavesurfer.registerPlugin(
+			TimelinePlugin.create({
+				timeInterval: 0.1,
+				primaryLabelInterval: 1,
+				secondaryLabelInterval: 0.5
+			})
+		);
 
 		let wrapper = wavesurfer.getWrapper();
 
@@ -69,6 +88,8 @@
 	});
 
 	onDestroy(() => {
+		timeline.destroy();
+
 		wavesurfer.destroy();
 	});
 
