@@ -152,8 +152,8 @@
 						...fileState.transcriptions,
 						{
 							id: generateIdFromEntropySize(10),
-							name: transcriptionType.value,
-							captions: response
+							name: transcriptionType.value + '-' + response['language'],
+							captions: response['transcription']
 						}
 					];
 				} else {

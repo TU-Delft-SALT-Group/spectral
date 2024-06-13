@@ -121,7 +121,7 @@ async def analyze_signal_mode(
 
 @app.get(
     "/transcription/{model}/{file_id}",
-    response_model=list[TranscriptionSegment],
+    response_model=dict[str, str | list[TranscriptionSegment]],
     responses=transcription_response_examples,
 )
 async def transcribe_file(

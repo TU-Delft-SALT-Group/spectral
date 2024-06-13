@@ -30,21 +30,27 @@ def test_get_transcription_model_not_found():
 def test_get_transcription_deepgram(
     mock_calculate_signal_duration, mock_get_audio, mock_deepgram_transcription
 ):
-    mock_deepgram_transcription.return_value = [
-        {"value": "word1", "start": 0.5, "end": 1.0},
-        {"value": "word2", "start": 1.5, "end": 2.0},
-    ]
+    mock_deepgram_transcription.return_value = {
+        "language": "en",
+        "transcription": [
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+        ],
+    }
     mock_get_audio.return_value = Mock()
     mock_calculate_signal_duration.return_value = 4.565
     result = get_transcription("deepgram", {"data": b"audio data"})
 
-    expected_result = [
-        {"value": "", "start": 0, "end": 0.5},
-        {"value": "word1", "start": 0.5, "end": 1.0},
-        {"value": "", "start": 1.0, "end": 1.5},
-        {"value": "word2", "start": 1.5, "end": 2.0},
-        {"value": "", "start": 2.0, "end": 4.565},
-    ]
+    expected_result = {
+        "language": "en",
+        "transcription": [
+            {"value": "", "start": 0, "end": 0.5},
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "", "start": 1.0, "end": 1.5},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+            {"value": "", "start": 2.0, "end": 4.565},
+        ],
+    }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
     (mock_deepgram_transcription.assert_called_once_with(b"audio data"))
@@ -66,7 +72,8 @@ def test_deepgram_transcription(mock_deepgram_client):
                                 {"word": "word2", "start": 1.5, "end": 2.0},
                             ]
                         }
-                    ]
+                    ],
+                    "detected_language": "en",
                 }
             ]
         }
@@ -78,10 +85,13 @@ def test_deepgram_transcription(mock_deepgram_client):
     data = b"audio data"
     result = deepgram_transcription(data)
 
-    expected_result = [
-        {"value": "word1", "start": 0.5, "end": 1.0},
-        {"value": "word2", "start": 1.5, "end": 2.0},
-    ]
+    expected_result = {
+        "language": "en",
+        "transcription": [
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+        ],
+    }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
     (mock_deepgram_client.assert_called_once_with("test_key"))
@@ -104,8 +114,8 @@ def test_deepgram_transcription_no_api_key(capfd):
 
 
 def test_get_phoneme_transcription_empty_transcription():
-    result = get_phoneme_transcriptions([{}])
-    expected_result = []
+    result = get_phoneme_transcriptions("test-lang", [{}])
+    expected_result = {"language": "test-lang", "transcription": []}
 
     assert result == expected_result, f"Expected an empty list, but got {result}"
 
@@ -128,19 +138,23 @@ def test_get_transcription_whisper(
         {"word": "word1", "start": 0.5, "end": 1.0},
         {"word": "word2", "start": 1.5, "end": 2.0},
     ]
+    mock.language = "english"
     mock_whisper_transcription.return_value = mock
 
     mock_get_audio.return_value = Mock()
     mock_calculate_signal_duration.return_value = 4.565
     result = get_transcription("whisper", {"data": b"audio data"})
 
-    expected_result = [
-        {"value": "", "start": 0, "end": 0.5},
-        {"value": "word1", "start": 0.5, "end": 1.0},
-        {"value": "", "start": 1.0, "end": 1.5},
-        {"value": "word2", "start": 1.5, "end": 2.0},
-        {"value": "", "start": 2.0, "end": 4.565},
-    ]
+    expected_result = {
+        "language": "english",
+        "transcription": [
+            {"value": "", "start": 0, "end": 0.5},
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "", "start": 1.0, "end": 1.5},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+            {"value": "", "start": 2.0, "end": 4.565},
+        ],
+    }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
     (mock_whisper_transcription.assert_called_once_with(b"audio data"))
@@ -167,15 +181,19 @@ def test_whisper_transcription(mock_whisper_client):
         {"word": "word1", "start": 0.5, "end": 1.0},
         {"word": "word2", "start": 1.5, "end": 2.0},
     ]
+    mock_response.language = "english"
     mock_client_instance.audio.transcriptions.create.return_value = mock_response
 
     data = b"0"
     result = whisper_transcription(data)
 
-    expected_result = [
-        {"value": "word1", "start": 0.5, "end": 1.0},
-        {"value": "word2", "start": 1.5, "end": 2.0},
-    ]
+    expected_result = {
+        "language": "english",
+        "transcription": [
+            {"value": "word1", "start": 0.5, "end": 1.0},
+            {"value": "word2", "start": 1.5, "end": 2.0},
+        ],
+    }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
     (mock_whisper_client.assert_called_once_with(api_key="test_key"))

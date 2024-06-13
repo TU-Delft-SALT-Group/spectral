@@ -279,22 +279,28 @@ def test_transcription_model_found(db_mock):
     with patch(
         "spectral.transcription.transcription.deepgram_transcription"
     ) as mock_deepgram_transcription:
-        mock_deepgram_transcription.return_value = [
-            {"value": "word1", "start": 0.5, "end": 1.0},
-            {"value": "word2", "start": 1.5, "end": 2.0},
-        ]
+        mock_deepgram_transcription.return_value = {
+            "language": "en",
+            "transcription": [
+                {"value": "word1", "start": 0.5, "end": 1.0},
+                {"value": "word2", "start": 1.5, "end": 2.0},
+            ],
+        }
         response = client.get("/transcription/deepgram/1")
         assert (
             response.status_code == 200
         ), "Expected status code 200 for deepgram transcription"
         result = response.json()
-        assert result == [
-            {"value": "", "start": 0, "end": 0.5},
-            {"value": "word1", "start": 0.5, "end": 1.0},
-            {"value": "", "start": 1.0, "end": 1.5},
-            {"value": "word2", "start": 1.5, "end": 2.0},
-            {"end": 4.565, "start": 2.0, "value": ""},
-        ], "Expected transcription result to match the mock return value"
+        assert result == {
+            "language": "en",
+            "transcription": [
+                {"value": "", "start": 0, "end": 0.5},
+                {"value": "word1", "start": 0.5, "end": 1.0},
+                {"value": "", "start": 1.0, "end": 1.5},
+                {"value": "word2", "start": 1.5, "end": 2.0},
+                {"end": 4.565, "start": 2.0, "value": ""},
+            ],
+        }, "Expected transcription result to match the mock return value"
         assert (
             db_mock.fetch_file.call_count == 1
         ), "Expected fetch_file to be called once"
@@ -637,61 +643,67 @@ def test_phone_transcription(db_mock, file_state):
     with patch(
         "spectral.transcription.models.allosaurus.deepgram_transcription"
     ) as mock_deepgram_transcription:
-        mock_deepgram_transcription.return_value = [
-            {"value": "", "start": 0.0, "end": 1.04},
-            {"value": "the", "start": 1.04, "end": 1.36},
-            {"value": "quick", "start": 1.36, "end": 1.68},
-            {"value": "brown", "start": 1.68, "end": 2.0},
-            {"value": "fox", "start": 2.0, "end": 2.3999999},
-            {"value": "jumps", "start": 2.3999999, "end": 2.72},
-            {"value": "over", "start": 2.72, "end": 3.04},
-            {"value": "the", "start": 3.04, "end": 3.1999998},
-            {"value": "lazy", "start": 3.1999998, "end": 3.52},
-            {"value": "dog", "start": 3.52, "end": 4.02},
-            {"value": "", "start": 4.02, "end": 4.565},
-        ]
+        mock_deepgram_transcription.return_value = {
+            "language": "en",
+            "transcription": [
+                {"value": "", "start": 0.0, "end": 1.04},
+                {"value": "the", "start": 1.04, "end": 1.36},
+                {"value": "quick", "start": 1.36, "end": 1.68},
+                {"value": "brown", "start": 1.68, "end": 2.0},
+                {"value": "fox", "start": 2.0, "end": 2.3999999},
+                {"value": "jumps", "start": 2.3999999, "end": 2.72},
+                {"value": "over", "start": 2.72, "end": 3.04},
+                {"value": "the", "start": 3.04, "end": 3.1999998},
+                {"value": "lazy", "start": 3.1999998, "end": 3.52},
+                {"value": "dog", "start": 3.52, "end": 4.02},
+                {"value": "", "start": 4.02, "end": 4.565},
+            ],
+        }
         response = client.get("/transcription/allosaurus/1")
         assert (
             response.status_code == 200
         ), "Expected status code 200 for allosaurus transcription"
         result = response.json()
-        assert result == [
-            {"value": "", "start": 0, "end": 1.04},
-            {"value": "ð", "start": 1.04, "end": 1.275},
-            {"value": "ə", "start": 1.275, "end": 1.36},
-            {"value": "k", "start": 1.36, "end": 1.44},
-            {"value": "uə", "start": 1.44, "end": 1.5},
-            {"value": "ɪ", "start": 1.5, "end": 1.56},
-            {"value": "tʰ", "start": 1.56, "end": 1.68},
-            {"value": "b̥", "start": 1.68, "end": 1.77},
-            {"value": "a", "start": 1.77, "end": 1.845},
-            {"value": "l̪", "start": 1.845, "end": 2.0},
-            {"value": "f", "start": 2.0, "end": 2.085},
-            {"value": "ɑ", "start": 2.085, "end": 2.19},
-            {"value": "k", "start": 2.19, "end": 2.31},
-            {"value": "s", "start": 2.31, "end": 2.3999999},
-            {"value": "d͡ʒ", "start": 2.3999999, "end": 2.505},
-            {"value": "ʌ", "start": 2.505, "end": 2.565},
-            {"value": "m", "start": 2.565, "end": 2.6100000000000003},
-            {"value": "p", "start": 2.6100000000000003, "end": 2.67},
-            {"value": "ʂ", "start": 2.67, "end": 2.72},
-            {"value": "ə", "start": 2.72, "end": 2.76},
-            {"value": "o", "start": 2.76, "end": 2.8049999999999997},
-            {"value": "w", "start": 2.8049999999999997, "end": 2.8499999999999996},
-            {"value": "v", "start": 2.8499999999999996, "end": 2.895},
-            {"value": "ɾ", "start": 2.895, "end": 2.9400000000000004},
-            {"value": "u", "start": 2.9400000000000004, "end": 3.04},
-            {"value": "ð", "start": 3.04, "end": 3.075},
-            {"value": "ə", "start": 3.075, "end": 3.135},
-            {"value": "l", "start": 3.135, "end": 3.1999998},
-            {"value": "i", "start": 3.1999998, "end": 3.3},
-            {"value": "z", "start": 3.3, "end": 3.3899999999999997},
-            {"value": "i", "start": 3.3899999999999997, "end": 3.52},
-            {"value": "d", "start": 3.52, "end": 3.5700000000000003},
-            {"value": "ʌ", "start": 3.5700000000000003, "end": 3.675},
-            {"value": "g", "start": 3.675, "end": 4.02},
-            {"value": "", "start": 4.02, "end": 4.565},
-        ], "Expected phonetic transcription result to match the mock return value"
+        assert result == {
+            "language": "en",
+            "transcription": [
+                {"value": "", "start": 0, "end": 1.04},
+                {"value": "ð", "start": 1.04, "end": 1.275},
+                {"value": "ə", "start": 1.275, "end": 1.36},
+                {"value": "k", "start": 1.36, "end": 1.44},
+                {"value": "uə", "start": 1.44, "end": 1.5},
+                {"value": "ɪ", "start": 1.5, "end": 1.56},
+                {"value": "tʰ", "start": 1.56, "end": 1.68},
+                {"value": "b̥", "start": 1.68, "end": 1.77},
+                {"value": "a", "start": 1.77, "end": 1.845},
+                {"value": "l̪", "start": 1.845, "end": 2.0},
+                {"value": "f", "start": 2.0, "end": 2.085},
+                {"value": "ɑ", "start": 2.085, "end": 2.19},
+                {"value": "k", "start": 2.19, "end": 2.31},
+                {"value": "s", "start": 2.31, "end": 2.3999999},
+                {"value": "d͡ʒ", "start": 2.3999999, "end": 2.505},
+                {"value": "ʌ", "start": 2.505, "end": 2.565},
+                {"value": "m", "start": 2.565, "end": 2.6100000000000003},
+                {"value": "p", "start": 2.6100000000000003, "end": 2.67},
+                {"value": "ʂ", "start": 2.67, "end": 2.72},
+                {"value": "ə", "start": 2.72, "end": 2.76},
+                {"value": "o", "start": 2.76, "end": 2.8049999999999997},
+                {"value": "w", "start": 2.8049999999999997, "end": 2.8499999999999996},
+                {"value": "v", "start": 2.8499999999999996, "end": 2.895},
+                {"value": "ɾ", "start": 2.895, "end": 2.9400000000000004},
+                {"value": "u", "start": 2.9400000000000004, "end": 3.04},
+                {"value": "ð", "start": 3.04, "end": 3.075},
+                {"value": "ə", "start": 3.075, "end": 3.135},
+                {"value": "l", "start": 3.135, "end": 3.1999998},
+                {"value": "i", "start": 3.1999998, "end": 3.3},
+                {"value": "z", "start": 3.3, "end": 3.3899999999999997},
+                {"value": "i", "start": 3.3899999999999997, "end": 3.52},
+                {"value": "d", "start": 3.52, "end": 3.5700000000000003},
+                {"value": "ʌ", "start": 3.5700000000000003, "end": 3.675},
+                {"value": "g", "start": 3.675, "end": 4.02},
+                {"value": "", "start": 4.02, "end": 4.565},
+            ],
+        }, "Expected phonetic transcription result to match the mock return value"
         assert (
             db_mock.fetch_file.call_count == 1
         ), "Expected fetch_file to be called once"
@@ -699,9 +711,12 @@ def test_phone_transcription(db_mock, file_state):
 
 def test_phone_transcription_no_words(db_mock, file_state):
     with patch(
-        "spectral.transcription.models.deepgram.deepgram_transcription"
+        "spectral.transcription.models.allosaurus.deepgram_transcription"
     ) as mock_deepgram_transcription:
-        mock_deepgram_transcription.return_value = []
+        mock_deepgram_transcription.return_value = {
+            "language": "en",
+            "transcription": [],
+        }
         response = client.get("/transcription/allosaurus/1")
         assert (
             response.status_code == 200
@@ -709,41 +724,48 @@ def test_phone_transcription_no_words(db_mock, file_state):
         result = response.json()
         assert (
             result
-            == [
-                {"value": "ð", "start": 0, "end": 1.275},
-                {"value": "ə", "start": 1.275, "end": 1.35},
-                {"value": "k", "start": 1.35, "end": 1.44},
-                {"value": "uə", "start": 1.44, "end": 1.5},
-                {"value": "ɪ", "start": 1.5, "end": 1.56},
-                {"value": "tʰ", "start": 1.56, "end": 1.665},
-                {"value": "b̥", "start": 1.665, "end": 1.77},
-                {"value": "a", "start": 1.77, "end": 1.845},
-                {"value": "l̪", "start": 1.845, "end": 1.9649999999999999},
-                {"value": "f", "start": 1.9649999999999999, "end": 2.085},
-                {"value": "ɑ", "start": 2.085, "end": 2.19},
-                {"value": "k", "start": 2.19, "end": 2.31},
-                {"value": "s", "start": 2.31, "end": 2.415},
-                {"value": "d͡ʒ", "start": 2.415, "end": 2.505},
-                {"value": "ʌ", "start": 2.505, "end": 2.565},
-                {"value": "m", "start": 2.565, "end": 2.6100000000000003},
-                {"value": "p", "start": 2.6100000000000003, "end": 2.67},
-                {"value": "ʂ", "start": 2.67, "end": 2.715},
-                {"value": "ə", "start": 2.715, "end": 2.76},
-                {"value": "o", "start": 2.76, "end": 2.8049999999999997},
-                {"value": "w", "start": 2.8049999999999997, "end": 2.8499999999999996},
-                {"value": "v", "start": 2.8499999999999996, "end": 2.895},
-                {"value": "ɾ", "start": 2.895, "end": 2.9400000000000004},
-                {"value": "u", "start": 2.9400000000000004, "end": 3.015},
-                {"value": "ð", "start": 3.015, "end": 3.075},
-                {"value": "ə", "start": 3.075, "end": 3.135},
-                {"value": "l", "start": 3.135, "end": 3.21},
-                {"value": "i", "start": 3.21, "end": 3.3},
-                {"value": "z", "start": 3.3, "end": 3.3899999999999997},
-                {"value": "i", "start": 3.3899999999999997, "end": 3.48},
-                {"value": "d", "start": 3.48, "end": 3.5700000000000003},
-                {"value": "ʌ", "start": 3.5700000000000003, "end": 3.675},
-                {"value": "g", "start": 3.675, "end": 4.565},
-            ]
+            == {
+                "language": "en",
+                "transcription": [
+                    {"value": "ð", "start": 0, "end": 1.275},
+                    {"value": "ə", "start": 1.275, "end": 1.35},
+                    {"value": "k", "start": 1.35, "end": 1.44},
+                    {"value": "uə", "start": 1.44, "end": 1.5},
+                    {"value": "ɪ", "start": 1.5, "end": 1.56},
+                    {"value": "tʰ", "start": 1.56, "end": 1.665},
+                    {"value": "b̥", "start": 1.665, "end": 1.77},
+                    {"value": "a", "start": 1.77, "end": 1.845},
+                    {"value": "l̪", "start": 1.845, "end": 1.9649999999999999},
+                    {"value": "f", "start": 1.9649999999999999, "end": 2.085},
+                    {"value": "ɑ", "start": 2.085, "end": 2.19},
+                    {"value": "k", "start": 2.19, "end": 2.31},
+                    {"value": "s", "start": 2.31, "end": 2.415},
+                    {"value": "d͡ʒ", "start": 2.415, "end": 2.505},
+                    {"value": "ʌ", "start": 2.505, "end": 2.565},
+                    {"value": "m", "start": 2.565, "end": 2.6100000000000003},
+                    {"value": "p", "start": 2.6100000000000003, "end": 2.67},
+                    {"value": "ʂ", "start": 2.67, "end": 2.715},
+                    {"value": "ə", "start": 2.715, "end": 2.76},
+                    {"value": "o", "start": 2.76, "end": 2.8049999999999997},
+                    {
+                        "value": "w",
+                        "start": 2.8049999999999997,
+                        "end": 2.8499999999999996,
+                    },
+                    {"value": "v", "start": 2.8499999999999996, "end": 2.895},
+                    {"value": "ɾ", "start": 2.895, "end": 2.9400000000000004},
+                    {"value": "u", "start": 2.9400000000000004, "end": 3.015},
+                    {"value": "ð", "start": 3.015, "end": 3.075},
+                    {"value": "ə", "start": 3.075, "end": 3.135},
+                    {"value": "l", "start": 3.135, "end": 3.21},
+                    {"value": "i", "start": 3.21, "end": 3.3},
+                    {"value": "z", "start": 3.3, "end": 3.3899999999999997},
+                    {"value": "i", "start": 3.3899999999999997, "end": 3.48},
+                    {"value": "d", "start": 3.48, "end": 3.5700000000000003},
+                    {"value": "ʌ", "start": 3.5700000000000003, "end": 3.675},
+                    {"value": "g", "start": 3.675, "end": 4.565},
+                ],
+            }
         ), "Expected phonetic transcription result to match the mock return value when no words are provided"
         assert (
             db_mock.fetch_file.call_count == 1

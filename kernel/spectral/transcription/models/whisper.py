@@ -4,7 +4,7 @@ import tempfile
 from typing import Any
 
 
-def whisper_transcription(data: bytes) -> list[dict]:
+def whisper_transcription(data: bytes) -> dict[str, str | list[dict]]:
     """Get transcription from whisper from an list of WAV bytes
 
     Args:
@@ -26,11 +26,11 @@ def whisper_transcription(data: bytes) -> list[dict]:
                     {"value": word["word"], "start": word["start"], "end": word["end"]}
                 )
 
-        return res
+        return {"language": transcription.language, "transcription": res}
 
     except Exception as e:
         print(f"Exception: {e}")
-        return []
+        return {"language": "", "transcription": []}
 
 
 def get_whisper_transcription(data: bytes) -> Any:

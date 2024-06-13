@@ -5,7 +5,7 @@ from .deepgram import deepgram_transcription
 from allosaurus.app import read_recognizer  # type: ignore
 
 
-def allosaurus_transcription(file: FileStateType) -> list[dict]:
+def allosaurus_transcription(file: FileStateType) -> dict[str, str | list[dict]]:
     """Calculate the transcription on phoneme level using the allosaurus model.
 
     Args:
@@ -32,10 +32,24 @@ def allosaurus_transcription(file: FileStateType) -> list[dict]:
             [float(phoneme_string.split(" ")[0]), phoneme_string.split(" ")[2]]
         )
 
+    if not isinstance(word_level_transcription["transcription"], list):
+        if not isinstance(word_level_transcription["language"], str):
+            return {"language": "", "transcription": []}
+        return {"language": word_level_transcription["language"], "transcription": []}
+
     phoneme_word_splits = get_phoneme_word_splits(
-        word_level_transcription, phoneme_level_parsed
+        word_level_transcription["transcription"], phoneme_level_parsed
     )
-    return get_phoneme_transcriptions(phoneme_word_splits)
+
+    if not isinstance(word_level_transcription["language"], str):
+        return {
+            "language": "",
+            "transcription": word_level_transcription["transcription"],
+        }
+
+    return get_phoneme_transcriptions(
+        word_level_transcription["language"], phoneme_word_splits
+    )
 
 
 def get_phoneme_word_splits(
@@ -83,7 +97,9 @@ def get_phoneme_word_splits(
     return phoneme_word_splits
 
 
-def get_phoneme_transcriptions(phoneme_word_splits: list[dict]) -> list[dict]:
+def get_phoneme_transcriptions(
+    language: str, phoneme_word_splits: list[dict]
+) -> dict[str, str | list[dict]]:
     """Convert the phoneme word groups to 1 list of phoneme transcriptions with adjusted start and end times
 
     Args:
@@ -122,4 +138,4 @@ def get_phoneme_transcriptions(phoneme_word_splits: list[dict]) -> list[dict]:
                 {"value": phoneme_split["phonemes"][i][1], "start": start, "end": end}
             )
 
-    return res
+    return {"language": language, "transcription": res}
