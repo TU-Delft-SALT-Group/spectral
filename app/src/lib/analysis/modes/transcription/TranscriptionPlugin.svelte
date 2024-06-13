@@ -126,7 +126,7 @@
 			</Select.Content>
 		</Select.Root>
 		<Button
-			class="w-5/6 rounded-t-none"
+			class="w-2/3 rounded-t-none"
 			on:click={async () => {
 				if (transcriptionType.value === 'empty') {
 					fileState.transcriptions = [
@@ -162,6 +162,43 @@
 			}}
 		>
 			+
+		</Button>
+		<Button
+			class="m-0 h-full w-1/6"
+			on:click={async () => {
+				try {
+					const response = await fetch('/api/transcription/textgrid', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ transcriptions: fileState.transcriptions })
+					});
+
+					if (!response.ok) {
+						throw new Error('Failed to fetch the TextGrid file');
+					}
+
+					const text = JSON.parse(await response.text());
+					if (text === null) {
+						throw new Error('No tracks were given');
+					}
+					const blob = new Blob([text], { type: 'text/plain' });
+					const url = window.URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.style.display = 'none';
+					a.href = url;
+					a.download = 'transcription.TextGrid';
+					document.body.appendChild(a);
+					a.click();
+					window.URL.revokeObjectURL(url);
+					document.body.removeChild(a);
+				} catch (error) {
+					console.error(error);
+				}
+			}}
+		>
+			Get Textgrid
 		</Button>
 	</div>
 </section>
