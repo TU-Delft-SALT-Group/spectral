@@ -34,6 +34,7 @@ To try out your changes, you can run the whole application using docker. First i
 ```bash
 docker compose up --build
 ```
+**Important**: During the first run you need to populate the database with the schema. For some reason, we don't do this automatically, so you will have to do this by hand via entering the container with ```docker exec -it atypical-speech-project-app-1 /bin/sh``` (or maybe some other name, checkout ```docker ps``` if unsure), and then execute ```pnpm db:push```.
 
 Make sure to add tests when appropriate. Ideally, there should be a test that would fail without your PR. The `ci.py` script does all testing, typechecking and linting:
 
@@ -79,3 +80,12 @@ You can then see your local copy of the documentation by navigating to `localhos
 ## Documenting code
 
 As part of our standard, we require that non-trivial code to be explained with comments. Make sure the comments are reasonably written with your judgement.
+
+## Production
+
+For production we have a different set of docker configuration files, that are postfixed with ```.prod```. To run the production-wise setup use this command:
+
+```
+docker compose -f docker-compose.prod.yaml up --build
+```
+
