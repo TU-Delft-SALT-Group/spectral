@@ -43,9 +43,17 @@
 	export let playing = false;
 	export let width: number = 100;
 
+	let minZoom: number;
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
 	let spectrogram: SpectrogramPlugin;
+
+	$: if (width) {
+		minZoom = width / duration;
+		wavesurfer?.setOptions({
+			width
+		});
+	}
 
 	onMount(async () => {
 		wavesurfer = new WaveSurfer({
@@ -53,7 +61,9 @@
 			url: `/db/file/${fileState.id}`,
 			height: 0,
 			width,
-			backend: 'WebAudio'
+			backend: 'WebAudio',
+			autoScroll: true,
+			autoCenter: true
 		});
 
 		element.id = 'spectrogram' + fileState.id; // set id to later use for drawing formants
@@ -89,6 +99,7 @@
 		wavesurfer.on('decode', () => {
 			duration = wavesurfer.getDuration();
 			current = wavesurfer.getCurrentTime();
+			minZoom = width / duration;
 		});
 
 		wavesurfer.on('play', () => {
@@ -149,4 +160,28 @@
 	bind:this={element}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
+	on:wheel={(event) => {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+
+		let oldPx = wavesurfer.options.minPxPerSec;
+		let px = wavesurfer.options.minPxPerSec - event.deltaY;
+		if (px < minZoom) px = minZoom - 1;
+
+		// most of this was copied from
+		// https://github.com/katspaugh/wavesurfer.js/blob/main/src/plugins/zoom.ts
+		const container = wavesurfer.getWrapper().parentElement!;
+		const x = event.clientX - element.getBoundingClientRect().left;
+		const scrollX = wavesurfer.getScroll();
+		const pointerTime = (scrollX + x) / oldPx;
+		const newLeftSec = (width / px) * (x / width);
+
+		if (px * duration < width) {
+			wavesurfer.zoom(width / duration);
+			container.scrollLeft = 0;
+		} else {
+			wavesurfer.zoom(px);
+			container.scrollLeft = (pointerTime - newLeftSec) * px;
+		}
+	}}
 ></div>
