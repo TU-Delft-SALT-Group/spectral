@@ -21,7 +21,7 @@ test('simple info test', async ({ page }) => {
 		page.getByText('MC02_control_head_sentence1 Duration: 4.57 secondsFile size: 146 KBAverage')
 	).toHaveCount(0);
 	await page.locator('.select > .inline-flex').first().hover();
-	await page.locator('div:nth-child(2) > .inline-flex').click();
+	await page.locator('div:nth-child(2) > .inline-flex').first().click();
 	await page
 		.getByRole('button', { name: 'MC02_control_head_sentence1' })
 		.dragTo(
@@ -57,4 +57,8 @@ test('frame info test', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: 'Frame Pitch:' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Frame F1 formant:' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Frame F2 formant:' })).toBeVisible();
+});
+
+test.afterEach(async ({ page }) => {
+	await page.close();
 });

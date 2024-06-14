@@ -40,3 +40,7 @@ test('everything in session is visible', async ({ page }) => {
 	await expect(page.getByText('1.00x').first()).toBeVisible();
 	await expect(page.getByText('1.00x').nth(1)).toBeVisible();
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});

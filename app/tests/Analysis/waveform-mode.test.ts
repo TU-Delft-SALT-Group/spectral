@@ -67,3 +67,7 @@ test('frame selection test', async ({ page }) => {
 	await page.mouse.up();
 	await expect(page.locator('div:nth-child(4) > div')).toBeVisible();
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});

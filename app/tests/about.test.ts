@@ -8,3 +8,7 @@ test('test', async ({ page }) => {
 	await expect(page.getByText('In 2024, we were tasked by')).toBeVisible();
 	await expect(page.locator('body')).toContainText('About Us');
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});

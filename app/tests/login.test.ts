@@ -26,3 +26,7 @@ test('invalid username or password', async ({ page }) => {
 	await page.getByRole('button', { name: 'Submit' }).click();
 	await expect(page.locator('form')).toContainText('Invalid username or password');
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});

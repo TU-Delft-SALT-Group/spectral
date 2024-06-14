@@ -53,3 +53,7 @@ test('register and walk through', async ({ page }) => {
 	await page.getByRole('button', { name: 'Submit' }).click();
 	await expect(page.locator('h2')).toContainText('new session asdf');
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});

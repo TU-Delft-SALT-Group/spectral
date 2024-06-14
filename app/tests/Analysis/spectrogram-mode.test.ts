@@ -55,3 +55,7 @@ test('drag and drop test', async ({ page }) => {
 		);
 	await expect(page.getByText('00:00.000/00:04.565 1.00x')).toBeVisible();
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});

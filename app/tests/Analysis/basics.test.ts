@@ -46,3 +46,7 @@ test('file management test', async ({ page }) => {
 	await page.getByRole('button', { name: 'New tab' }).click();
 	await expect(page.getByRole('button', { name: 'default' })).toBeVisible();
 });
+
+test.afterEach(async ({ page }) => {
+	await page.close();
+});
