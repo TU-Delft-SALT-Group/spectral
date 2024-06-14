@@ -18,6 +18,8 @@
 	export let fileState: mode.FileState<'transcription'>;
 	used(computedData);
 
+	let scrollElement: HTMLElement;
+	let referenceElement: HTMLElement;
 	let wavesurferContainer: HTMLElement;
 	let wavesurfer: WaveSurfer;
 	let timeline: TimelinePlugin;
@@ -62,7 +64,7 @@
 			})
 		);
 
-		let wrapper = wavesurfer.getWrapper();
+		let wrapper = wavesurfer.getWrapper().parentElement!;
 
 		wrapper.style.overflow = 'visible';
 		wrapper.style.overflowX = 'visible';
@@ -167,7 +169,7 @@
 	}
 </script>
 
-<section bind:clientWidth={width} class="w-full bg-secondary/50">
+<section bind:this={referenceElement} bind:clientWidth={width} class="w-full bg-secondary/50">
 	<!-- This is the bar -->
 	<div class="flex w-full flex-row items-center bg-secondary/75">
 		<Button
@@ -189,14 +191,29 @@
 	</div>
 
 	<div
+		bind:this={scrollElement}
 		class={`grid w-full overflow-x-scroll`}
 		style={`grid-template-columns: ${trackNameSpace}px 1fr;`}
 		onwheel={(event) => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
 
+			let oldPx = wavesurfer.options.minPxPerSec;
 			let px = wavesurfer.options.minPxPerSec - event.deltaY;
 			if (px < minZoom) px = minZoom - 1;
+
+			const x = event.clientX - referenceElement.getBoundingClientRect().left;
+			const scrollX = scrollElement.scrollLeft;
+			const pointerTime = (scrollX + x) / oldPx;
+			const newLeftSec = x / px;
+
+			if (px * duration < width) {
+				wavesurfer.zoom(width / duration);
+				scrollElement.scrollLeft = 0;
+			} else {
+				wavesurfer.zoom(px);
+				scrollElement.scrollLeft = (pointerTime - newLeftSec) * px;
+			}
 
 			wavesurfer.zoom(px);
 		}}
