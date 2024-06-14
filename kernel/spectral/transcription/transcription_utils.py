@@ -1,17 +1,29 @@
-from ..signal_analysis import get_audio, calculate_signal_duration
+"""Useful utilities for transcription processing."""
+
+from __future__ import annotations
+
+from spectral.signal_analysis import calculate_signal_duration, get_audio
 
 
 def fill_gaps(
-    transcriptions_and_language: dict[str, str | list[dict]], file: dict
+    transcriptions_and_language: dict[str, str | list[dict]],
+    file: dict,
 ) -> dict[str, str | list[dict]]:
-    """Fill the gaps between consecutive transcription dictionaries such that all time is accounted for.
+    """
+    Fill the gaps between consecutive transcription dictionaries such that all
+    time is accounted for.
 
     Args:
-        transcriptions_and_language (dict): contains a language string and a list of transcriptions with possible gaps in time.
+    ----
+        transcriptions_and_language (dict): contains a language string and a list of transcriptions
+                                            with possible gaps in time.
         file (dict): The state of the file that is being transcribed.
 
     Returns:
-        dict: a dictionary with language and list of transcriptions with gaps filled with empty strings.
+    -------
+        dict: a dictionary with language and list of transcriptions with gaps
+              filled with empty strings.
+
     """
     transcriptions = transcriptions_and_language.get("transcription", [])
     res = []

@@ -1,3 +1,9 @@
+"""Handles all the interactions with the Postgres database."""
+
+from __future__ import annotations
+
+from typing import Self
+
 import psycopg
 
 
@@ -7,15 +13,18 @@ class Database:
 
     This class handles connecting to the database, fetching files, and closing the connection.
 
-    Attributes:
+    Attributes
+    ----------
         conn (psycopg.Connection): The connection object to the database.
         cursor (psycopg.Cursor): The cursor object to execute database queries.
 
-    Methods:
+    Methods
+    -------
         fetch_file(id: int) -> dict:
             Fetches a file record from the database by its ID.
         close():
             Closes the database connection and cursor.
+
     """
 
     user: str
@@ -24,16 +33,19 @@ class Database:
     port: str
     dbname: str
 
-    def __init__(self, user: str, password: str, host: str, port: str, dbname: str):
+    def __init__(self, user: str, password: str, host: str, port: str, dbname: str):  # noqa: PLR0913
         """
-        Initializes the Database object and opens a connection to the specified PostgreSQL database.
+        Initialize the Database object and opens a connection to the specified
+        PostgreSQL database.
 
         Args:
+        ----
             user (str): The username for the database.
             password (str): The password for the database.
             host (str): The host address of the database.
-            port (int): The port number for the database.
+            port (str): The port number for the database.
             dbname (str): The name of the database.
+
         """
         self.user = user
         self.password = password
@@ -41,7 +53,8 @@ class Database:
         self.port = port
         self.dbname = dbname
 
-    def connection(self) -> None:
+    def connection(self: Self) -> None:
+        """Establish the connection the database and setup cursor."""
         self.conn = psycopg.connect(
             dbname=self.dbname,
             user=self.user,
@@ -51,15 +64,18 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def fetch_file(self, id: str) -> dict:
+    def fetch_file(self: Self, file_id: str) -> dict:
         """
-        Fetches a file record from the database by its ID.
+        Fetch a file record from the database by its ID.
 
         Args:
-            id (str): The ID of the file to fetch.
+        ----
+            file_id (str): The ID of the file to fetch.
 
         Returns:
+        -------
             dict: A dictionary containing the file record's details.
+
         """
         self.cursor.execute("""
             SELECT column_name, ordinal_position
@@ -67,7 +83,7 @@ class Database:
             WHERE table_name = 'files'
         """)
         column_data = self.cursor.fetchall()
-        self.cursor.execute("SELECT * FROM files WHERE id = %s", [id])
+        self.cursor.execute("SELECT * FROM files WHERE id = %s", [file_id])
         db_res = self.cursor.fetchone()  # type: ignore
 
         if db_res is None:
@@ -80,31 +96,39 @@ class Database:
 
     def snake_to_camel(self, snake_case_str: str) -> str:
         """
-        Converts a snake_case string to camelCase.
+        Convert a snake_case string to camelCase.
 
-        Parameters:
+        Parameters
+        ----------
         - snake_case_str (str): The snake_case string to be converted.
 
-        Returns:
+        Returns
+        -------
         - str: The camelCase version of the input string.
 
         Example:
         ```python
         camel_case_str = self.snake_to_camel('example_string')
         ```
+
         """
         components = snake_case_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
     def get_transcriptions(self, file_id: str) -> list[list]:
         """
-        Fetches transcriptions associated with a file from the database.
+        Fetch transcriptions associated with a file from the database.
 
         Args:
+        ----
             file_id (str): The ID of the file to fetch transcriptions for.
 
         Returns:
-            list: A list of lists containing transcription entries, where each inner list represents a file transcription and contains dictionaries with "start", "end", and "value" keys.
+        -------
+            list: A list of lists containing transcription entries,
+                  where each inner list represents a file transcription
+                  and contains dictionaries with "start", "end", and "value" keys.
+
         """
         self.cursor.execute(
             """
@@ -124,22 +148,19 @@ class Database:
                 [file_transcription[0]],
             )
             transcriptions = self.cursor.fetchall()
-            parsed_file_transcriptions = []
-            for transcription in transcriptions:
-                parsed_file_transcriptions.append(
-                    {
-                        "start": transcription[0],
-                        "end": transcription[1],
-                        "value": transcription[2],
-                    }
-                )
+            parsed_file_transcriptions = [
+                {
+                    "start": transcription[0],
+                    "end": transcription[1],
+                    "value": transcription[2],
+                }
+                for transcription in transcriptions
+            ]
             res.append(parsed_file_transcriptions)
         return res
 
     def close(self) -> None:
-        """
-        Closes the database connection and cursor.
-        """
+        """Close the database connection and cursor."""
         try:
             self.cursor.close()
             self.conn.commit()
