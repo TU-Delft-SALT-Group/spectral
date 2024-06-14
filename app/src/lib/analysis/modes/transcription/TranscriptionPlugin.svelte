@@ -221,9 +221,18 @@
 		<div></div>
 		<div bind:this={wavesurferContainer}></div>
 
-		{#each fileState.transcriptions as transcription, i}
+		{#each fileState.transcriptions as transcription, i (transcription.id)}
 			<div class="flex w-full items-center gap-1 border-y">
-				<Button class="h-3/4 p-1" variant="destructive"><TrashIcon class="w-4" /></Button>
+				<Button
+					class="h-3/4 p-1"
+					variant="destructive"
+					on:click={() => {
+						fileState.transcriptions = [
+							...fileState.transcriptions.slice(0, i),
+							...fileState.transcriptions.slice(i + 1)
+						];
+					}}><TrashIcon class="w-4" /></Button
+				>
 				<span
 					role="button"
 					tabindex="0"
