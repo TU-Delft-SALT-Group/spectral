@@ -8,6 +8,7 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
+		"target": "ES2022",
 		"strict": true,
 		"moduleResolution": "bundler"
 	}

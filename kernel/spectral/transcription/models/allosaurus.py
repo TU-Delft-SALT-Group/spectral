@@ -12,8 +12,19 @@ from spectral.types import FileStateType
 from .deepgram import deepgram_transcription
 
 
-def allosaurus_transcription(file: FileStateType) -> list[dict]:
-    """Produce trancription of a wav file, the main access venue for the allosaurus."""
+def allosaurus_transcription(file: FileStateType) -> dict[str, str | list[dict]]:
+    """
+    Calculate the transcription on phoneme level using the allosaurus model.
+
+    Args:
+    ----
+        file (FileStateType): contains data about the file that is being transcribed.
+
+    Returns:
+    -------
+        list[dict]: list of dictionaries containing a start, end and value.
+
+    """
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
@@ -32,18 +43,43 @@ def allosaurus_transcription(file: FileStateType) -> list[dict]:
         for phoneme_string in phoneme_level_transcription.splitlines()
     ]
 
+    if not isinstance(word_level_transcription["transcription"], list):
+        if not isinstance(word_level_transcription["language"], str):
+            return {"language": "", "transcription": []}
+        return {"language": word_level_transcription["language"], "transcription": []}
+
     phoneme_word_splits = get_phoneme_word_splits(
-        word_level_transcription,
+        word_level_transcription["transcription"],
         phoneme_level_parsed,
     )
-    return get_phoneme_transcriptions(phoneme_word_splits)
+
+    if not isinstance(word_level_transcription["language"], str):
+        return {
+            "language": "",
+            "transcription": word_level_transcription["transcription"],
+        }
+
+    return get_phoneme_transcriptions(word_level_transcription["language"], phoneme_word_splits)
 
 
 def get_phoneme_word_splits(
     word_level_transcription: list[dict],
     phoneme_level_parsed: list[list],
 ) -> list[dict]:
-    """Aligns phonemes given word level transription."""
+    """
+    group the calculated phonemes in intervals based on word transcription.
+
+    Args:
+    ----
+        word_level_transcription (list[dict]): list of word level transcription
+        phoneme_level_parsed (list[list]): list of phoneme level transcriptions
+
+    Returns:
+    -------
+        list[dict]: list of dictionaries containing a list of phoneme transcription paired
+                    with a word level transcription
+
+    """
     if len(word_level_transcription) == 0:
         return []
 
@@ -74,8 +110,24 @@ def get_phoneme_word_splits(
     return phoneme_word_splits
 
 
-def get_phoneme_transcriptions(phoneme_word_splits: list[dict]) -> list[dict]:
-    """Produce phonemes given word splits."""
+def get_phoneme_transcriptions(
+    language: str,
+    phoneme_word_splits: list[dict],
+) -> dict[str, str | list[dict]]:
+    """
+    Convert the phoneme word groups to 1 list of phoneme transcriptions with adjusted start
+    and end times.
+
+    Args:
+    ----
+        phoneme_word_splits (list[dict]): list of dictionaries containing a list of phoneme
+                                          transcription paired with a word level transcription
+
+    Returns:
+    -------
+        list[dict]: list of dictionaries containing start, end and value
+
+    """
     res = []
 
     for phoneme_split in phoneme_word_splits:
@@ -100,4 +152,4 @@ def get_phoneme_transcriptions(phoneme_word_splits: list[dict]) -> list[dict]:
                 {"value": phoneme_split["phonemes"][i][1], "start": start, "end": end},
             )
 
-    return res
+    return {"language": language, "transcription": res}

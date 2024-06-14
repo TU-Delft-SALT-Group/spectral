@@ -10,6 +10,9 @@
 	export let focused: boolean;
 	export let recording: boolean = false;
 
+	export let cameraInfo: MediaDeviceInfo | null;
+	export let micInfo: MediaDeviceInfo | null;
+
 	/**
 	 * Called when requesting to go to previous prompt
 	 */
@@ -53,6 +56,8 @@
 		class="delay-50 mb-4 transition duration-200 {focused ? '' : 'opacity-20'}"
 		bind:this={cameraComponent}
 		bind:recording
+		{cameraInfo}
+		{micInfo}
 		previewing={previewing?.blob ?? null}
 		onStopRecording={(blob) => {
 			prompt.recordings.push({ blob, note: '' });

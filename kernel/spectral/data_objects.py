@@ -182,3 +182,17 @@ class FileStateBody(BaseModel):
     """The model of the fileState received from the frontend."""
 
     fileState: dict
+
+
+class TranscriptionTextgridModel(BaseModel):
+    """Textmodel transcription representation."""
+
+    id: str
+    name: str
+    captions: list[TranscriptionSegment]
+
+
+class TranscriptionsTextgridModel(BaseModel):
+    """Textgrid model transcription representation."""
+
+    transcriptions: list[TranscriptionTextgridModel]

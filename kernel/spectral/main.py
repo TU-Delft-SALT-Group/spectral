@@ -14,6 +14,7 @@ from .data_objects import (
     FileStateBody,
     SimpleInfoResponse,
     TranscriptionSegment,
+    TranscriptionsTextgridModel,
     VowelSpaceResponse,
 )
 from .database import Database
@@ -30,6 +31,7 @@ from .response_examples import (
     signal_modes_response_examples,
     transcription_response_examples,
 )
+from .transcription.textgrid import convert_to_textgrid
 from .transcription.transcription import get_transcription
 from .types import FileStateType
 
@@ -130,7 +132,7 @@ async def analyze_signal_mode(
 
 @app.get(
     "/transcription/{model}/{file_id}",
-    response_model=list[TranscriptionSegment],
+    response_model=dict[str, str | list[TranscriptionSegment]],
     responses=transcription_response_examples,
 )
 async def transcribe_file(
@@ -168,3 +170,12 @@ async def transcribe_file(
     file["data"] = convert_to_wav(file["data"])
 
     return get_transcription(model, file)
+
+
+@app.post(
+    "/transcription/textgrid",
+    response_model=Any,
+)
+async def to_textgrid(transcriptions: TranscriptionsTextgridModel):
+    """Convert some transcriptions to textgrid."""
+    return convert_to_textgrid(transcriptions)

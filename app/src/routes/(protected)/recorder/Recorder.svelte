@@ -1,11 +1,13 @@
 <script lang="ts">
 	import RecorderSingle from './RecorderSingle.svelte';
 	import * as Resizable from '$lib/components/ui/resizable';
+	import * as Select from '$lib/components/ui/select';
 	import type { PromptResponse } from './recorder';
 	import { Button } from '$lib/components/ui/button';
 	import JSZip from 'jszip';
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import type { Selected } from 'bits-ui';
 
 	export let prompts: PromptResponse[];
 	export let promptName: string;
@@ -14,6 +16,16 @@
 	let selectedIndex: number = 0;
 	let disableExport: boolean = false;
 	let disableImport: boolean = false;
+
+	let selectedCamera: Selected<MediaDeviceInfo | null> = {
+		label: 'Default camera',
+		value: null
+	};
+
+	let selectedMic: Selected<MediaDeviceInfo | null> = {
+		label: 'Default microphone',
+		value: null
+	};
 
 	function prependZeros(desiredLength: number, currentString: string) {
 		return '0'.repeat(desiredLength - currentString.length) + currentString;
@@ -91,12 +103,43 @@
 		}
 	}
 
+	let videoDevices: MediaDeviceInfo[] | null = null;
+	let audioDevices: MediaDeviceInfo[] | null = null;
+
+	export async function getConnectedDevices(type: 'audioinput' | 'audiooutput' | 'videoinput') {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		return devices.filter((device) => device.kind === type);
+	}
+
 	const next = () =>
 		!recording && (selectedIndex = Math.min(prompts.length - 1, selectedIndex + 1));
 	const previous = () => !recording && (selectedIndex = Math.max(0, selectedIndex - 1));
 
 	const windowSize = 2;
 	$: center = Math.min(Math.max(windowSize, selectedIndex), prompts.length - windowSize);
+
+	async function getAndLoadConnectedDevices(clear: boolean) {
+		const videoDevicesAttempt = await getConnectedDevices('videoinput');
+		const audioDevicesAttempt = await getConnectedDevices('audioinput');
+
+		if (
+			videoDevicesAttempt.filter((device) => device.deviceId !== '').length > 0 &&
+			audioDevicesAttempt.filter((device) => device.deviceId !== '').length > 0
+		) {
+			videoDevices = videoDevicesAttempt;
+			audioDevices = audioDevicesAttempt;
+			selectedCamera.label = videoDevices[0].label;
+			selectedMic.label = audioDevices[0].label;
+
+			if (clear) {
+				clearInterval(checkDeviceInterval);
+			}
+		}
+	}
+
+	const checkDeviceInterval = setInterval(() => getAndLoadConnectedDevices(true), 500);
+
+	navigator.mediaDevices.addEventListener('devicechange', () => getAndLoadConnectedDevices(false));
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -115,6 +158,32 @@
 			</p>
 
 			<div class="flex-1"></div>
+
+			<Select.Root bind:selected={selectedCamera}>
+				<Select.Trigger class="h-fit">
+					{selectedCamera.label}
+				</Select.Trigger>
+				{#if videoDevices !== null}
+					<Select.Content>
+						{#each videoDevices as device}
+							<Select.Item value={device}>{device.label}</Select.Item>
+						{/each}
+					</Select.Content>
+				{/if}
+			</Select.Root>
+
+			<Select.Root bind:selected={selectedMic}>
+				<Select.Trigger class="h-fit">
+					{selectedMic.label}
+				</Select.Trigger>
+				{#if audioDevices !== null}
+					<Select.Content>
+						{#each audioDevices as device}
+							<Select.Item value={device}>{device.label}</Select.Item>
+						{/each}
+					</Select.Content>
+				{/if}
+			</Select.Root>
 
 			<Button disabled={disableImport} on:click={importSession}>Export recording to session</Button>
 			<Button disabled={disableExport} on:click={downloadAllRecordings} variant="outline"
@@ -138,6 +207,8 @@
 						bind:prompt={prompts[i]}
 						bind:recording
 						focused={i === selectedIndex}
+						cameraInfo={selectedCamera.value}
+						micInfo={selectedMic.value}
 						onNext={next}
 						onPrevious={previous}
 					/>

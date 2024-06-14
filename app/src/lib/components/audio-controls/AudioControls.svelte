@@ -52,6 +52,7 @@
 	export let visualization: VisualizationType;
 	export let computedData: mode.ComputedData<VisualizationType>;
 	export let fileState: mode.FileState<VisualizationType>;
+
 	let width: number;
 
 	let component = getVisualizationPlugin(visualization);
@@ -122,9 +123,9 @@
 		<div class="flex h-fit w-full flex-col">
 			<svelte:component
 				this={component}
-				bind:controls
+				bind:fileState
 				{computedData}
-				{fileState}
+				bind:controls
 				bind:current={currentTime}
 				bind:duration
 				bind:playing

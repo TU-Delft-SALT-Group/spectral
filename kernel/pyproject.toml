@@ -34,13 +34,15 @@ orjson = "^3.10.3"
 pydantic = "^2.7.1"
 scipy = "^1.13.0"
 psycopg = {extras = ["binary", "pool"], version = "^3.1.19"}
-deepgram-sdk = "^3.2.7"
+deepgram-sdk = "3.2.7"
 pydub = "^0.25.1"
 ffmpeg-python = "^0.2.0"
 jiwer = "^3.0.4"
 allosaurus = "^1.0.2"
 python-magic = "^0.4.27"
 openai = "^1.33.0"
+mytextgrid = "^0.8.0"
+torch = {version = "^2.3.1+cpu", source = "pytorch_cpu"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
@@ -53,6 +55,12 @@ pytest-testmon = "^2.1.1"
 pytest-mock = "^3.14.0"
 beartype = "^0.18.5"
 
+
+
+[[tool.poetry.source]]
+name = "pytorch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
 
 [tool.mutmut]
 paths_to_mutate="spectral/"
