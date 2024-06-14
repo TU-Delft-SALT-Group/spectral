@@ -61,7 +61,7 @@ export const flyAndScale = (
 export function unwrap<T>(
 	value: T | null | undefined,
 	message = 'Tried to unwrap a null value'
-): T {
+): NonNullable<T> {
 	if (value === null || value === undefined) {
 		throw new Error(message);
 	}
@@ -147,4 +147,16 @@ export function memoize<Args extends unknown[], Return>(
 
 		return output;
 	};
+}
+
+/**
+ * Convenience function to not need to indent all code into a try/catch
+ * when parsing JSON safely.
+ */
+export function JsonSafeParse(json: string) {
+	try {
+		return { ok: true, value: JSON.parse(json) as unknown };
+	} catch {
+		return { ok: false };
+	}
 }

@@ -20,8 +20,10 @@ from .data_objects import (
     VowelSpaceResponse,
     TranscriptionSegment,
     ErrorRateResponse,
+    TranscriptionsTextgridModel,
 )
 from .database import Database
+from .transcription.textgrid import convert_to_textgrid
 import orjson
 import os
 from typing import Any
@@ -119,7 +121,7 @@ async def analyze_signal_mode(
 
 @app.get(
     "/transcription/{model}/{file_id}",
-    response_model=list[TranscriptionSegment],
+    response_model=dict[str, str | list[TranscriptionSegment]],
     responses=transcription_response_examples,
 )
 async def transcribe_file(
@@ -153,3 +155,11 @@ async def transcribe_file(
 
     transcription = get_transcription(model, file)
     return transcription
+
+
+@app.post(
+    "/transcription/textgrid",
+    response_model=Any,
+)
+async def to_textgrid(transcriptions: TranscriptionsTextgridModel):
+    return convert_to_textgrid(transcriptions)

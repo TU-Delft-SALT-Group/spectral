@@ -153,3 +153,13 @@ class ErrorRateResponse(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
+
+
+class TranscriptionTextgridModel(BaseModel):
+    id: str
+    name: str
+    captions: list[TranscriptionSegment]
+
+
+class TranscriptionsTextgridModel(BaseModel):
+    transcriptions: list[TranscriptionTextgridModel]

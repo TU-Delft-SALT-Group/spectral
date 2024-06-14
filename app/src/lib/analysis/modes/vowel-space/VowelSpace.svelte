@@ -6,8 +6,9 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 
-	export let fileData: ModeComponentProps<'vowel-space'>['fileData'];
+	export let fileStates: ModeComponentProps<'vowel-space'>['fileStates'];
 	export let modeState: ModeComponentProps<'vowel-space'>['modeState'];
+	export let getComputedData: ModeComponentProps<'vowel-space'>['getComputedData'];
 
 	let container: HTMLDivElement;
 	let clientWidth: number;
@@ -69,14 +70,13 @@
 
 		const legend = svg.append('g').attr('class', 'legend').style('transition', 'all 0.2s ease');
 
-		for (let i = 0; i < fileData.length; i++) {
-			const fileItem = fileData[i];
-			if (fileItem.computedData === null) continue;
+		for (let i = 0; i < fileStates.length; i++) {
+			const fileState = fileStates[i];
+			const computedData = getComputedData(fileState);
+			if (computedData === null) continue;
 
-			const {
-				computedData: { f1, f2 },
-				fileState: { name }
-			} = fileItem;
+			const { f1, f2 } = computedData;
+			const { name } = fileState;
 			const color = getPaletteColor(i);
 
 			svg
