@@ -10,6 +10,44 @@
 	import PlusIcon from 'lucide-svelte/icons/plus';
 	import { enhance } from '$app/forms';
 
+	import * as ContextMenu from '$lib/components/ui/context-menu';
+
+	async function handleFileUpload(event: Event) {
+		if (!(event.target instanceof HTMLInputElement)) {
+			throw new Error('Event target is not an input element');
+		}
+
+		const { target: input } = event;
+
+		if (input.files === null || input.files.length != 1) {
+			return;
+		}
+
+		const file = input.files[0];
+
+		if (file.type !== 'application/json') {
+			return;
+		}
+
+		const sessionJSON = await readAsJSONtext(file);
+
+		let response = await fetch('?/importSession', {
+			method: 'POST',
+			body: JSON.stringify(sessionJSON)
+		});
+
+		console.log(response);
+	}
+
+	function readAsJSONtext(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as string);
+			reader.onerror = reject;
+			reader.readAsText(file);
+		});
+	}
+
 	export let data: PageData;
 </script>
 
@@ -29,7 +67,9 @@
 
 			{#each data.sessions as session}
 				<li>
-					<SessionCard {session}></SessionCard>
+					<ContextMenu.Root>
+						<SessionCard {session}></SessionCard>
+					</ContextMenu.Root>
 				</li>
 			{/each}
 		</ul>
@@ -42,6 +82,16 @@
 				<form method="POST" use:enhance>
 					<Input type="text" name="sessionName" minlength={1} required></Input>
 				</form>
+			</Dialog.Description>
+			<Dialog.Title class="text-3xl">Or Import a session</Dialog.Title>
+			<Dialog.Description>
+				<Input
+					name="file"
+					type="file"
+					accept="application/json"
+					class={cn(buttonVariants({ variant: 'ghost' }))}
+					on:change={(event) => handleFileUpload(event)}
+				/>
 			</Dialog.Description>
 		</Dialog.Header>
 	</Dialog.Content>

@@ -31,6 +31,9 @@ export const byteArray = customType<{ data: Buffer }>({
 	fromDriver(value) {
 		if (typeof value === 'object' && value instanceof Uint8Array) {
 			return Buffer.from(value);
+		} else if (typeof value === 'string') {
+			// Decode base64 string to Buffer
+			return Buffer.from(value, 'base64');
 		}
 
 		throw new Error('Expected Uint8Array');
