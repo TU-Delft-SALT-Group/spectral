@@ -68,14 +68,10 @@ export const modes = {
  */
 export const modeNames: mode.Name[] = Object.keys(modes) as Array<keyof typeof modes>;
 
-export type FileData<M extends mode.Name = mode.Name> = {
-	computedData: mode.ComputedData<M>;
-	fileState: mode.FileState<M>;
-};
-
 export type ModeComponentProps<M extends mode.Name> = {
-	fileData: Array<FileData<M>>;
+	fileStates: Array<mode.FileState<M>>;
 	modeState: mode.ModeState<M>;
+	getComputedData: (fileState: mode.FileState<M>) => mode.ComputedData<M>;
 	onRemoveFile?: (fileId: string) => void;
 };
 
