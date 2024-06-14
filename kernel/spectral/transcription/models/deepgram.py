@@ -59,4 +59,5 @@ def deepgram_transcription(data: bytes) -> dict[str, str | list[dict]]:
         }
 
     except Exception:
+        print("No API key for Deepgram is found")  # noqa
         return {"language": "", "transcription": []}
