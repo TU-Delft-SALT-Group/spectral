@@ -178,9 +178,9 @@
 			on:click={() => wavesurfer?.playPause()}
 		>
 			{#if playing}
-				<PlayIcon size="16" />
+				<PlayIcon size="16" fill="currentColor" />
 			{:else}
-				<PauseIcon size="16" />
+				<PauseIcon size="16" fill="currentColor" />
 			{/if}
 		</Button>
 		<div class="font-mono">
@@ -192,8 +192,8 @@
 
 	<div
 		bind:this={scrollElement}
-		class={`grid w-full overflow-x-scroll`}
-		style={`grid-template-columns: ${trackNameSpace}px 1fr;`}
+		class="grid w-full overflow-x-scroll transition"
+		style:grid-template-columns="{trackNameSpace}px 1fr"
 		onwheel={(event) => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -225,13 +225,13 @@
 			<span
 				role="button"
 				tabindex="0"
-				class="flex content-center justify-center bg-primary text-primary-foreground"
+				class="flex content-center justify-center bg-secondary text-secondary-foreground"
 				ondblclick={doubleClick}
 				onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
 				onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
 				>{transcription.name}</span
 			>
-			<Track captions={transcription.captions} {duration} />
+			<Track bind:captions={transcription.captions} {duration} />
 		{/each}
 	</div>
 
@@ -248,7 +248,7 @@
 				{/each}
 			</Select.Content>
 		</Select.Root>
-		<Button class="w-2/3 rounded-none" on:click={addTrack}>+</Button>
+		<Button class="w-2/3 rounded-none" on:click={addTrack}>New Track</Button>
 		<Button class="m-0 w-1/6 rounded-none rounded-br" on:click={exportTextGrid} variant="outline"
 			>Get Textgrid</Button
 		>
