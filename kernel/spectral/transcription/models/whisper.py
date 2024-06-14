@@ -1,57 +1,69 @@
-from openai import OpenAI
+"""Whisper model APIs."""
+
+from __future__ import annotations
+
 import os
 import tempfile
+from pathlib import Path
 from typing import Any
 
+from openai import OpenAI
 
-def whisper_transcription(data: bytes) -> list[dict]:
-    """Get transcription from whisper from an list of WAV bytes
+
+def whisper_transcription(data: bytes) -> dict[str, str | list[dict]]:
+    """
+    Get transcription from whisper from an list of WAV bytes.
 
     Args:
+    ----
         data (bytes): list of data bytes representing a WAV audio signal
 
     Returns:
+    -------
         list[dict]: list of dictionaries containing start, end and value
+
     """
     try:
         transcription = get_whisper_transcription(data)
 
+    except Exception:
+        return {"language": "", "transcription": []}
+    else:
         res = []
 
         if hasattr(transcription, "words"):
             words = transcription.words  # pyright: ignore[reportAttributeAccessIssue]
 
-            for word in words:
-                res.append(
-                    {"value": word["word"], "start": word["start"], "end": word["end"]}
-                )
+            res = [
+                {"value": word["word"], "start": word["start"], "end": word["end"]}
+                for word in words
+            ]
 
-        return res
-
-    except Exception as e:
-        print(f"Exception: {e}")
-        return []
+        return {"language": transcription.language, "transcription": res}
 
 
 def get_whisper_transcription(data: bytes) -> Any:
-    """Get the Transcription from whisper
+    """
+    Get the Transcription from whisper.
 
     Args:
+    ----
         data (bytes): list of data bytes representing a WAV audio signal
 
     Returns:
+    -------
         Any: Transcription object from OpenAi
+
     """
     client = OpenAI(api_key=os.getenv("WHISPER_KEY"))
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(data)
         temp_wav_filename = temp_wav.name
 
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=open(temp_wav_filename, "rb"),
-        response_format="verbose_json",
-        timestamp_granularities=["word"],
-    )
-
-    return transcription
+    with Path(temp_wav_filename).open("rb") as f:
+        return client.audio.transcriptions.create(
+            model="whisper-1",
+            file=f,
+            response_format="verbose_json",
+            timestamp_granularities=["word"],
+        )

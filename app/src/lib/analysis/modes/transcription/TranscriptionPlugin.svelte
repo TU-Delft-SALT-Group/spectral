@@ -159,8 +159,8 @@
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: transcriptionType.value,
-					captions: response
+					name: transcriptionType.value + '-' + response.language,
+					captions: response.transcription
 				}
 			];
 		} else {
@@ -249,7 +249,6 @@
 				isLast={i === fileState.transcriptions.length - 1}
 			/>
 		{/each}
-
 		<div></div>
 		<!-- Inserting/Exporting track stuff down here -->
 		<div class="flex w-full justify-center gap-5 pt-2">
