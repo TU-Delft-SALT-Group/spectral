@@ -4,6 +4,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { used } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
@@ -11,7 +12,7 @@
 	import { doubleClick, focusOut, keyDown } from '.';
 	import { numberToTime } from '$lib/components/audio-controls';
 	import { Separator } from '$lib/components/ui/separator';
-	import { PauseIcon, PlayIcon } from 'lucide-svelte';
+	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 
 	export let computedData: mode.ComputedData<'transcription'>;
@@ -32,14 +33,13 @@
 
 	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
+	const trackNameSpace = 150;
 
 	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
 		if (!newSelection) return;
 
 		transcriptionType.value = newSelection.value;
 	}
-
-	const trackNameSpace = 100;
 
 	$: if (width) {
 		minZoom = (width - trackNameSpace) / duration;
@@ -169,7 +169,7 @@
 	}
 </script>
 
-<section bind:this={referenceElement} bind:clientWidth={width} class="w-full bg-secondary/50">
+<section bind:this={referenceElement} bind:clientWidth={width} class="w-full bg-accent/50">
 	<!-- This is the bar -->
 	<div class="flex w-full flex-row items-center bg-secondary/75">
 		<Button
@@ -221,36 +221,51 @@
 		<div></div>
 		<div bind:this={wavesurferContainer}></div>
 
-		{#each fileState.transcriptions as transcription}
-			<span
-				role="button"
-				tabindex="0"
-				class="flex content-center justify-center bg-secondary text-secondary-foreground"
-				ondblclick={doubleClick}
-				onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
-				onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
-				>{transcription.name}</span
-			>
-			<Track bind:captions={transcription.captions} {duration} />
+		{#each fileState.transcriptions as transcription, i}
+			<div class="flex w-full items-center gap-1 border-y">
+				<Button class="h-3/4 p-1" variant="destructive"><TrashIcon class="w-4" /></Button>
+				<span
+					role="button"
+					tabindex="0"
+					class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
+					ondblclick={doubleClick}
+					onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
+					onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
+					>{transcription.name}</span
+				>
+			</div>
+			<Track
+				bind:captions={transcription.captions}
+				{duration}
+				isLast={i === fileState.transcriptions.length - 1}
+			/>
 		{/each}
-	</div>
 
-	<!-- Inserting/Exporting track stuff down here -->
-	<div class="flex w-full">
-		<Select.Root selected={transcriptionType} onSelectedChange={transcriptionTypeChanger}>
-			<Select.Trigger class="m-0 w-1/6 rounded-none rounded-bl">
-				{transcriptionType.value}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="empty">empty</Select.Item>
-				{#each models as model}
-					<Select.Item value={model}>{model}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
-		<Button class="w-2/3 rounded-none" on:click={addTrack}>New Track</Button>
-		<Button class="m-0 w-1/6 rounded-none rounded-br" on:click={exportTextGrid} variant="outline"
-			>Get Textgrid</Button
-		>
+		<div></div>
+		<!-- Inserting/Exporting track stuff down here -->
+		<div class="flex w-full justify-center gap-5 pt-2">
+			<Select.Root selected={transcriptionType} onSelectedChange={transcriptionTypeChanger}>
+				<Select.Trigger class="m-0 w-32">
+					{transcriptionType.value}
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="empty">empty</Select.Item>
+					{#each models as model}
+						<Select.Item value={model}>{model}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+			<Button class="w-fit" variant="secondary" on:click={addTrack}>Create New Track</Button>
+
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<Button class="m-0 w-fit" on:click={exportTextGrid} variant="outline"><Download /></Button
+					>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Export to TextGrid</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</div>
 	</div>
 </section>

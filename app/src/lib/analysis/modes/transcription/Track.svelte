@@ -5,10 +5,12 @@
 
 	let {
 		captions = $bindable(),
-		duration
+		duration,
+		isLast
 	}: {
 		captions: Caption[];
 		duration: number;
+		isLast: boolean;
 	} = $props();
 
 	let paneGroup: PaneGroupAPI | undefined = $state(undefined);
@@ -61,7 +63,10 @@
 	}
 </script>
 
-<div class="flex w-full flex-row items-center gap-4">
+<div
+	class="flex w-full flex-row items-center gap-4 border-t border-primary/60"
+	class:border-b={isLast}
+>
 	<Resizable.PaneGroup direction="horizontal" class="w-full" bind:paneGroup>
 		{#if duration !== undefined}
 			{#each captions as caption, i ([caption.start, caption.end])}
@@ -69,7 +74,7 @@
 					<span
 						role="button"
 						tabindex="0"
-						class="flex h-full w-full content-center justify-center overflow-hidden rounded-none bg-accent text-accent-foreground"
+						class="flex h-full w-full items-center justify-center overflow-clip rounded-none bg-accent text-accent-foreground"
 						onclick={(event: MouseEvent) => handleCreate(event, caption)}
 						ondblclick={doubleClick}
 						onfocusout={(event: FocusEvent) => focusOut(event, caption)}
@@ -78,7 +83,7 @@
 				</Resizable.Pane>
 
 				{#if caption !== captions[captions.length - 1]}
-					<Resizable.Handle class="bg-primary" onclick={(event) => handleDelete(event, i)} />
+					<Resizable.Handle class="bg-primary/20" onclick={(event) => handleDelete(event, i)} />
 				{/if}
 			{/each}
 		{/if}
