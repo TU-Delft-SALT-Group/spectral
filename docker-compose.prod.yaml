@@ -33,6 +33,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile.prod
+    image: knyazer/spectral-app
     expose:
       - "5173"
     depends_on:
@@ -57,6 +58,7 @@ services:
     build:
       context: ./kernel
       dockerfile: Dockerfile.prod
+    image: knyazer/spectral-kernel
     expose:
       - "8000"
     depends_on:
