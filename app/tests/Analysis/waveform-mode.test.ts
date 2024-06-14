@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('waveform test', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -12,6 +12,9 @@ test('waveform test', async ({ page }) => {
 	await page.getByLabel('Password').fill('password');
 	await page.getByRole('button', { name: 'Submit' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
+});
+
+test('playback test', async ({ page }) => {
 	await expect(page.getByRole('group')).toContainText('1.00x');
 	await page.getByText('1.00x').first().click();
 	await page.getByRole('option', { name: '1.50x' }).click();
@@ -54,4 +57,13 @@ test('waveform test', async ({ page }) => {
 			.getByRole('button')
 			.nth(2)
 	).toBeVisible;
+});
+
+test('frame selection test', async ({ page }) => {
+	await expect(page.locator('div:nth-child(4) > div')).toHaveCount(0);
+	await page.locator('canvas').first().hover();
+	await page.mouse.down();
+	await page.mouse.move(500, 0);
+	await page.mouse.up();
+	await expect(page.locator('div:nth-child(4) > div')).toBeVisible();
 });
