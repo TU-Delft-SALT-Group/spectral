@@ -14,6 +14,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
+	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.esm.js';
 
 	export let computedData: mode.ComputedData<'transcription'>;
 	export let fileState: mode.FileState<'transcription'>;
@@ -24,6 +25,7 @@
 	let wavesurferContainer: HTMLElement;
 	let wavesurfer: WaveSurfer;
 	let timeline: TimelinePlugin;
+	let hover: HoverPlugin;
 
 	let width: number;
 	let minZoom: number;
@@ -63,6 +65,24 @@
 				secondaryLabelInterval: 0.5
 			})
 		);
+
+		hover = wavesurfer.registerPlugin(
+			HoverPlugin.create({
+				formatTimeCallback: () => ''
+			})
+		);
+		hover.on('hover', (event) => {
+			const shadowRoot = wavesurferContainer.children[0].shadowRoot;
+			if (shadowRoot) {
+				const hoverLabel = shadowRoot.querySelector('span[part="hover-label"]');
+				if (hoverLabel) {
+					hoverLabel.innerHTML =
+						numberToTime(wavesurfer.getDuration() * event) +
+						'<br>' +
+						getHoverString(wavesurfer.getDuration() * event);
+				}
+			}
+		});
 
 		let wrapper = wavesurfer.getWrapper().parentElement!;
 
@@ -132,6 +152,20 @@
 
 		window.URL.revokeObjectURL(url);
 		document.body.removeChild(a);
+	}
+
+	function getHoverString(time: number) {
+		let result = '';
+		for (let transcription of fileState.transcriptions) {
+			result += transcription.name + ': ';
+			for (let caption of transcription.captions) {
+				if (time >= caption.start && time <= caption.end) {
+					result += caption.value + '<br>';
+					break;
+				}
+			}
+		}
+		return result;
 	}
 
 	async function addTrack() {
