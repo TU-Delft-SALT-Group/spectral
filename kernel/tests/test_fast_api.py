@@ -357,6 +357,8 @@ def test_error_rate_empty_hypothesis_array(db_mock, file_state):
             "mer": 1.0,
             "wil": 1.0,
             "wip": 0.0,
+            "bert": 0.0,
+            "jaroWinkler": 0.0,
             "hits": 0,
             "substitutions": 0,
             "insertions": 0,
@@ -408,6 +410,8 @@ def test_error_rate_with_reference_no_hypothesis(db_mock, file_state):
     assert word_level["mer"] == 1.0, "Expected match error rate (MER) to be 1.0"
     assert word_level["wil"] == 1.0, "Expected word information lost (WIL) to be 1.0"
     assert word_level["wip"] == 0, "Expected word information preserved (WIP) to be 0"
+    assert word_level["bert"] == 0, "BERT score to be 0"
+    assert word_level["jaroWinkler"] == 0, "Jaro Winkler score to be 0"
     assert word_level["hits"] == 0, "Expected hits to be 0"
     assert word_level["substitutions"] == 0, "Expected substitutions to be 0"
     assert word_level["insertions"] == 0, "Expected insertions to be 0"
@@ -468,6 +472,8 @@ def test_error_rate_with_reference_and_hypothesis(db_mock, file_state):
     assert word_level["mer"] == 1.0, "Expected match error rate (MER) to be 1.0"
     assert word_level["wil"] == 1.0, "Expected word information lost (WIL) to be 1.0"
     assert word_level["wip"] == 0, "Expected word information preserved (WIP) to be 0"
+    assert word_level["bert"] == 0.53, "BERT score to be 0.53"
+    assert word_level["jaroWinkler"] == 0.78, "Jaro Winkler score to be 0.78"
     assert word_level["hits"] == 0, "Expected hits to be 0"
     assert word_level["substitutions"] == 1, "Expected substitutions to be 1"
     assert word_level["insertions"] == 0, "Expected insertions to be 0"

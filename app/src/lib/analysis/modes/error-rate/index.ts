@@ -105,7 +105,7 @@ export const errorRateData = {
 					bert: z.number(),
 
 					/**
-					 * bert score
+					 * jaroWinkler score
 					 */
 					jaroWinkler: z.number()
 				})
