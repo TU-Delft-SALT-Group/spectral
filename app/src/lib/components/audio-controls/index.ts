@@ -1,5 +1,6 @@
 import { SpectrogramPlugin } from '$lib/analysis/modes/spectrogram';
 import { WaveformPlugin } from '$lib/analysis/modes/waveform';
+import type { ComponentType } from 'svelte';
 
 export type VisualizationType = 'waveform' | 'spectrogram';
 
@@ -12,14 +13,14 @@ export type ControlRequirements = {
 	seek: (amount: number) => void;
 };
 
-export const getVisualizationPlugin = (type: VisualizationType) => {
-	switch (type) {
-		case 'waveform':
-			return WaveformPlugin;
-		case 'spectrogram':
-			return SpectrogramPlugin;
-	}
+const pluginsRecord: Record<VisualizationType, ComponentType> = {
+	waveform: WaveformPlugin,
+	spectrogram: SpectrogramPlugin
 };
+
+export function getVisualizationPlugin(type: VisualizationType): ComponentType {
+	return pluginsRecord[type];
+}
 
 // TODO: implement a better method in time.ts
 export function numberToTime(current: number): string {
