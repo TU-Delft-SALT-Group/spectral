@@ -13,6 +13,7 @@ from .data_objects import (
     ErrorRateResponse,
     FileStateBody,
     SimpleInfoResponse,
+    SpectrogramResponse,
     TranscriptionSegment,
     TranscriptionsTextgridModel,
     VowelSpaceResponse,
@@ -74,6 +75,7 @@ app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
         VowelSpaceResponse,
         list[list[TranscriptionSegment]],
         ErrorRateResponse,
+        SpectrogramResponse,
     ],
     responses=signal_modes_response_examples,
 )
@@ -115,7 +117,6 @@ async def analyze_signal_mode(
     """
     db_session = database
     file_state: FileStateType = file_state_body.fileState
-
     if mode == "simple-info":
         return simple_info_mode(db_session, file_state)
     if mode == "spectrogram":

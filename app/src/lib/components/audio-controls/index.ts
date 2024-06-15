@@ -1,5 +1,7 @@
+import type { mode } from '$lib/analysis/modes';
 import { SpectrogramPlugin } from '$lib/analysis/modes/spectrogram';
 import { WaveformPlugin } from '$lib/analysis/modes/waveform';
+import type { ComponentType, SvelteComponent } from 'svelte';
 
 export type VisualizationType = 'waveform' | 'spectrogram';
 
@@ -12,13 +14,27 @@ export type ControlRequirements = {
 	seek: (amount: number) => void;
 };
 
-export const getVisualizationPlugin = (type: VisualizationType) => {
-	switch (type) {
-		case 'waveform':
-			return WaveformPlugin;
-		case 'spectrogram':
-			return SpectrogramPlugin;
-	}
+type PluginProps<M extends VisualizationType> = {
+	computedData: mode.ComputedData<M>;
+	fileState: mode.FileState<M>;
+	duration: number;
+	current: number;
+	playing: boolean;
+	width: number;
+	controls: ControlRequirements;
+	setAsSelected: () => void;
+};
+
+export type PluginComponent<T extends VisualizationType> = ComponentType<
+	SvelteComponent<PluginProps<T>>
+>;
+
+export const pluginsRecord: Record<
+	VisualizationType,
+	PluginComponent<'waveform'> | PluginComponent<'spectrogram'>
+> = {
+	waveform: WaveformPlugin as PluginComponent<'waveform'>,
+	spectrogram: SpectrogramPlugin as PluginComponent<'spectrogram'>
 };
 
 // TODO: implement a better method in time.ts
