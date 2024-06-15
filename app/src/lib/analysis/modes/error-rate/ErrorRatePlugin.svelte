@@ -66,10 +66,14 @@
 		<h3 class="pt-4 text-xl">Word Error Rate</h3>
 
 		<div class="flex flex-wrap gap-3 font-mono">
-			<span>wer: {(computedData.wordLevel.wer * 100).toFixed(2) + '%'}</span>
-			<span>mer: {(computedData.wordLevel.mer * 100).toFixed(2) + '%'}</span>
-			<span>wil: {(computedData.wordLevel.wil * 100).toFixed(2) + '%'}</span>
-			<span>wip: {(computedData.wordLevel.wip * 100).toFixed(2) + '%'}</span>
+			<span>WER: {(computedData.wordLevel.wer * 100).toFixed(2) + '%'}</span>
+			<span>MER: {(computedData.wordLevel.mer * 100).toFixed(2) + '%'}</span>
+			<span>WIL: {(computedData.wordLevel.wil * 100).toFixed(2) + '%'}</span>
+			<span>WIP: {(computedData.wordLevel.wip * 100).toFixed(2) + '%'}</span>
+		</div>
+		<div class="flex flex-wrap gap-3 font-mono">
+			<span>BERT: {computedData.wordLevel.bert.toFixed(2)}</span>
+			<span>Jaro Winkler: {computedData.wordLevel.jaroWinkler.toFixed(2)}</span>
 		</div>
 		<ErrorDiff common={computedData.wordLevel} joinString=" " />
 
@@ -77,7 +81,7 @@
 
 		<h3 class="pt-4 text-xl">Character Error Rate</h3>
 
-		<span class="font-mono">cer: {(computedData.characterLevel.cer * 100).toFixed(2) + '%'}</span>
+		<span class="font-mono">CER: {(computedData.characterLevel.cer * 100).toFixed(2) + '%'}</span>
 		<ErrorDiff common={computedData.characterLevel} joinString="" />
 	{:else}
 		<h2 class="text-muted-foreground">This file has no ground truth.</h2>

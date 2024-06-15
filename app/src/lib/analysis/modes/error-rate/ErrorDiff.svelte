@@ -38,6 +38,7 @@
 		if (replace) ret = ret.replaceAll(/\S/g, '_');
 
 		if (ret[0] === ' ') ret = '\u00A0' + ret.substring(1);
+		if (ret[ret.length - 1] === ' ') ret = ret.substring(0, ret.length - 1) + '\u00A0';
 
 		return ret;
 	}
@@ -48,6 +49,7 @@
 		<span>hits: {common.hits}</span>
 		<span>substitutions: {common.substitutions}</span>
 		<span>deletions: {common.deletions}</span>
+		<span>insertions: {common.insertions}</span>
 	</div>
 
 	<section class="flex flex-col overflow-x-auto font-mono text-xl tracking-wider">
