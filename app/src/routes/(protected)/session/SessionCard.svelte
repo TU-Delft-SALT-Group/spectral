@@ -40,34 +40,35 @@
 
 <Tooltip.Root>
 	<Tooltip.Trigger>
-		<ContextMenu.Trigger>
-			<Button class="h-fit px-6 py-8" variant="outline" href="session/{session.id}">
-				<section class="flex flex-col items-start">
-					<h2 class="w-[12rem] overflow-hidden text-ellipsis text-left text-xl">
-						{session.name}
-					</h2>
+		<ContextMenu.Root>
+			<ContextMenu.Trigger>
+				<Button class="h-fit px-6 py-8" variant="outline" href="session/{session.id}">
+					<section class="flex flex-col items-start">
+						<h2 class="w-[12rem] overflow-hidden text-ellipsis text-left text-xl">
+							{session.name}
+						</h2>
 
-					<span class="mb-3 text-xs text-muted-foreground">
-						{session.id}
-					</span>
+						<span class="mb-3 text-xs text-muted-foreground">
+							{session.id}
+						</span>
 
-					<div class="text-sm">
-						Created: {humanSensibleDate(session.creationTime)}
-					</div>
+						<div class="text-sm">
+							Created: {humanSensibleDate(session.creationTime)}
+						</div>
 
-					<div class="text-sm">
-						Modified: {humanSensibleDate(session.modifiedTime)}
-					</div>
-				</section>
-			</Button>
-		</ContextMenu.Trigger>
+						<div class="text-sm">
+							Modified: {humanSensibleDate(session.modifiedTime)}
+						</div>
+					</section>
+				</Button>
+			</ContextMenu.Trigger>
+			<ContextMenu.Content>
+				<ContextMenu.Item on:click={() => exportSession()}>Export</ContextMenu.Item>
+			</ContextMenu.Content>
+		</ContextMenu.Root>
 	</Tooltip.Trigger>
 
 	<Tooltip.Content>
 		<p>{session.name}</p>
 	</Tooltip.Content>
-
-	<ContextMenu.Content>
-		<ContextMenu.Item on:click={() => exportSession()}>Export</ContextMenu.Item>
-	</ContextMenu.Content>
 </Tooltip.Root>

@@ -13,8 +13,6 @@
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
 
-	import * as ContextMenu from '$lib/components/ui/context-menu';
-
 	let importingSession: boolean = false;
 
 	async function handleFileUpload(event: Event) {
@@ -95,9 +93,7 @@
 
 			{#each data.sessions as session}
 				<li>
-					<ContextMenu.Root closeOnOutsideClick>
-						<SessionCard {session}></SessionCard>
-					</ContextMenu.Root>
+					<SessionCard {session}></SessionCard>
 				</li>
 			{/each}
 		</ul>
