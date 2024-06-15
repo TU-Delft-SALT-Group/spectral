@@ -10,22 +10,41 @@
 	import PlusIcon from 'lucide-svelte/icons/plus';
 	import { enhance } from '$app/forms';
 
+	import { toast } from 'svelte-sonner';
+	import { Toaster } from '$lib/components/ui/sonner';
+
 	import * as ContextMenu from '$lib/components/ui/context-menu';
 
+	let importingSession: boolean = false;
+
 	async function handleFileUpload(event: Event) {
+		importingSession = true;
 		if (!(event.target instanceof HTMLInputElement)) {
-			throw new Error('Event target is not an input element');
+			importingSession = false;
+			toast.error('session import was unsuccessful', {
+				description:
+					'This is most likely due to an error on the website, please contact the developers'
+			});
+			return;
 		}
 
 		const { target: input } = event;
 
 		if (input.files === null || input.files.length != 1) {
+			toast.error('session import was unsuccessful', {
+				description: 'You must upload 1 file'
+			});
+			importingSession = false;
 			return;
 		}
 
 		const file = input.files[0];
 
 		if (file.type !== 'application/json') {
+			toast.error('session import was unsuccessful', {
+				description: 'The file has to be in the JSON format'
+			});
+			importingSession = false;
 			return;
 		}
 
@@ -36,11 +55,16 @@
 			body: sessionJSON
 		}).then(async (response) => {
 			const responseJSON = await response.json();
-			// The page should redirect on a successful import
 			if (responseJSON.status === 301) {
 				window.location.href = `/${responseJSON.location}`;
+			} else {
+				toast.error('session import was unsuccessful', {
+					description:
+						'This is most likely because the file format is not correct or because of internet issues'
+				});
 			}
 		});
+		importingSession = false;
 	}
 
 	function readAsJSONtext(file: File): Promise<string> {
@@ -84,7 +108,8 @@
 			<Dialog.Title class="text-3xl">Enter new session name</Dialog.Title>
 			<Dialog.Description>
 				<form action="?/createSession" method="POST" use:enhance>
-					<Input type="text" name="sessionName" minlength={1} required></Input>
+					<Input disabled={importingSession} type="text" name="sessionName" minlength={1} required
+					></Input>
 				</form>
 			</Dialog.Description>
 			<Dialog.Title class="text-3xl">Or Import a session</Dialog.Title>
@@ -93,6 +118,7 @@
 					name="file"
 					type="file"
 					accept="application/json"
+					disabled={importingSession}
 					class={cn(buttonVariants({ variant: 'ghost' }))}
 					on:change={(event) => handleFileUpload(event)}
 				/>
@@ -100,3 +126,5 @@
 		</Dialog.Header>
 	</Dialog.Content>
 </Dialog.Root>
+
+<Toaster />

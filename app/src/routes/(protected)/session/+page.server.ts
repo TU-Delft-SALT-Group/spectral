@@ -55,47 +55,51 @@ export const actions: Actions = {
 
 		// create new 'blank' session with new id and correct name
 		const sessionId = await createSession(userId, sessionJSON.name);
+		try {
+			const newIdDict = [];
 
-		const newIdDict = [];
-
-		// loop to store the files again
-		for (const file of sessionJSON.files) {
-			const data = Buffer.from(file.data.data);
-			const fileId = generateIdFromEntropySize(10);
-			newIdDict.push({ oldId: file.id, newId: fileId });
-			await db.insert(fileTable).values({
-				...file,
-				id: fileId,
-				uploader: userId,
-				session: sessionId,
-				data
-			});
-		}
-
-		// loop to update the old file id's to the new ones in the panes
-		for (const key in sessionJSON.state.panes) {
-			for (const file in sessionJSON.state.panes[key].files) {
-				sessionJSON.state.panes[key].files[file].id = newIdDict.filter(
-					(x) => x.oldId == sessionJSON.state.panes[key].files[file].id
-				)[0].newId;
+			// loop to store the files again
+			for (const file of sessionJSON.files) {
+				const data = Buffer.from(file.data.data);
+				const fileId = generateIdFromEntropySize(10);
+				newIdDict.push({ oldId: file.id, newId: fileId });
+				await db.insert(fileTable).values({
+					...file,
+					id: fileId,
+					uploader: userId,
+					session: sessionId,
+					data
+				});
 			}
-		}
 
-		// loop to update the old file id's to the new ones in the panels
-		for (const key in sessionJSON.state.panels) {
-			for (const file in sessionJSON.state.panels[key].params.files) {
-				sessionJSON.state.panels[key].params.files[file].id = newIdDict.filter(
-					(x) => x.oldId == sessionJSON.state.panes[key].files[file].id
-				)[0].newId;
+			// loop to update the old file id's to the new ones in the panes
+			for (const key in sessionJSON.state.panes) {
+				for (const file in sessionJSON.state.panes[key].files) {
+					sessionJSON.state.panes[key].files[file].id = newIdDict.filter(
+						(x) => x.oldId == sessionJSON.state.panes[key].files[file].id
+					)[0].newId;
+				}
 			}
+
+			// loop to update the old file id's to the new ones in the panels
+			for (const key in sessionJSON.state.panels) {
+				for (const file in sessionJSON.state.panels[key].params.files) {
+					sessionJSON.state.panels[key].params.files[file].id = newIdDict.filter(
+						(x) => x.oldId == sessionJSON.state.panes[key].files[file].id
+					)[0].newId;
+				}
+			}
+
+			sessionJSON.id = sessionId;
+			const state = sessionJSON;
+
+			// update database with new state
+			await db.update(sessionTable).set(state).where(eq(sessionTable.id, sessionId));
+		} catch {
+			// in case of error delete created session from database
+			await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+			throw new Error('Something went wrong will importing');
 		}
-
-		sessionJSON.id = sessionId;
-		const state = sessionJSON;
-
-		// update database with new state
-		await db.update(sessionTable).set(state).where(eq(sessionTable.id, sessionId));
-
 		redirect(301, `session/${sessionId}`);
 	},
 	createSession: async ({ request, locals }) => {
