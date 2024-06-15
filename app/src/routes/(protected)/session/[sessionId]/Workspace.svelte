@@ -14,7 +14,7 @@
 		let defaultProps = $state(paneState.parse(undefined));
 
 		return {
-			title: 'default',
+			title: 'New Tab',
 			paneState: defaultProps
 		};
 	};
