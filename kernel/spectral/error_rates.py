@@ -1,10 +1,16 @@
-from jiwer import process_words, process_characters
-import jiwer
+"""All the functionality related to computing errors between transcriptions."""
+
+from __future__ import annotations
+
 from typing import Any
+
+import jiwer
+from jiwer import process_characters, process_words
 
 
 def calculate_error_rates(
-    reference_annotations: list[dict], hypothesis_annotations: list[dict]
+    reference_annotations: list[dict],
+    hypothesis_annotations: list[dict],
 ) -> dict | None:
     """
     Calculate error rates between the reference transcription and annotations.
@@ -12,11 +18,14 @@ def calculate_error_rates(
     This function calculates both word-level and character-level error rates
     based on the provided reference transcription and annotations.
 
-    Parameters:
-    - reference (str): The reference transcription.
-    - annotations (list of dict): The list of annotations where each annotation is a dictionary with a "value" key.
+    Parameters
+    ----------
+    - reference_annotations: The reference transcription.
+    - hypothesis_annotations: The list of annotations where each annotation is a
+    dictionary with a "value" key.
 
-    Returns:
+    Returns
+    -------
     - dict: A dictionary containing word-level and character-level error rates.
 
     """
@@ -36,16 +45,18 @@ def word_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
 
     This function processes word-level metrics.
 
-    Parameters:
+    Parameters
+    ----------
     - reference (str): The reference transcription.
     - hypothesis (str): The hypothesis transcription.
 
-    Returns:
+    Returns
+    -------
     - dict: A dictionary containing word-level error metrics and alignments.
 
     """
     processed_data = process_words(reference=reference, hypothesis=hypothesis)
-    result = {
+    return {
         "wer": processed_data.wer,
         "mer": processed_data.mer,
         "wil": processed_data.wil,
@@ -59,8 +70,6 @@ def word_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
         "alignments": get_alignments(processed_data.alignments[0]),
     }
 
-    return result
-
 
 def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
     """
@@ -68,17 +77,19 @@ def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any
 
     This function processes character-level metrics.
 
-    Parameters:
+    Parameters
+    ----------
     - reference (str): The reference transcription.
     - hypothesis (str): The hypothesis transcription.
 
-    Returns:
+    Returns
+    -------
     - dict: A dictionary containing character-level error metrics and alignments.
 
     """
     processed_data = process_characters(reference=reference, hypothesis=hypothesis)
 
-    result = {
+    return {
         "cer": processed_data.cer,
         "hits": processed_data.hits,
         "substitutions": processed_data.substitutions,
@@ -89,8 +100,6 @@ def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any
         "alignments": get_alignments(processed_data.alignments[0]),
     }
 
-    return result
-
 
 def annotation_to_sentence(annotations: list) -> str:
     """
@@ -98,10 +107,13 @@ def annotation_to_sentence(annotations: list) -> str:
 
     This function concatenates the values from the annotations list to form a hypothesis string.
 
-    Parameters:
-    - annotations (list of dict): The list of annotations where each annotation is a dictionary with a "value" key.
+    Parameters
+    ----------
+    - annotations (list of dict): The list of annotations where each annotation is a dictionary
+    with a "value" key.
 
-    Returns:
+    Returns
+    -------
     - str: A single concatenated hypothesis string.
 
     """
@@ -126,10 +138,12 @@ def get_alignments(
     This function processes unparsed alignment data and converts it into a list of dictionaries
     with detailed alignment information.
 
-    Parameters:
+    Parameters
+    ----------
     - unparsed_alignments (list): A list of unparsed alignment objects.
 
-    Returns:
+    Returns
+    -------
     - list of dict: A list of dictionaries where each dictionary contains alignment information.
 
     """

@@ -3,7 +3,7 @@
 	import type { PaneGroupAPI } from 'paneforge';
 
 	let {
-		captions,
+		captions = $bindable(),
 		duration
 	}: {
 		captions: Caption[];

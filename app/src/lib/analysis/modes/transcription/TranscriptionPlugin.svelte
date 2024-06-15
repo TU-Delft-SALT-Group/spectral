@@ -110,7 +110,7 @@
 				}}
 				>{transcription.name}</span
 			>
-			<Track captions={transcription.captions} {duration} />
+			<Track bind:captions={transcription.captions} {duration} />
 		{/each}
 	</div>
 	<div class="flex w-full">
@@ -161,7 +161,7 @@
 				}
 			}}
 		>
-			+
+			New track
 		</Button>
 		<Button
 			class="m-0 h-full w-1/6"

@@ -1,39 +1,49 @@
-from fastapi import HTTPException
+"""All the mode orchestration functionality and some conversion related stuff."""
 
-from .signal_analysis import simple_signal_info, get_audio
+from __future__ import annotations
 
-from .frame_analysis import (
-    simple_frame_info,
-    calculate_frame_f1_f2,
-    validate_frame_index,
-)
-from .error_rates import calculate_error_rates
-from .types import FileStateType, DatabaseType
-import tempfile
 import subprocess
+import tempfile
 from typing import Any
 
+from fastapi import HTTPException
 
-def simple_info_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, Any]:
+from .error_rates import calculate_error_rates
+from .frame_analysis import (
+    calculate_frame_f1_f2,
+    simple_frame_info,
+    validate_frame_index,
+)
+from .signal_analysis import get_audio, simple_signal_info
+from .types import DatabaseType, FileStateType
+
+
+def simple_info_mode(
+    database: DatabaseType,
+    file_state: FileStateType,
+) -> dict[str, Any]:
     """
-    Extracts and returns basic information about a signal and its corresponding frame.
+    Extract and return basic information about a signal and its corresponding frame.
 
     This function combines the signal information, file metadata, and frame-specific details.
 
-    Parameters:
+    Parameters
+    ----------
     - database: The database object used to fetch the file.
     - file_state: A dictionary containing the state of the file, including frame indices.
 
-    Returns:
+    Returns
+    -------
     - dict: A dictionary containing the combined signal information, file size, file creation date,
-            and frame information. If the frame index is invalid, it still includes the basic file information.
+            and frame information. If the frame index is invalid, it still includes the basic file
+            information.
 
     Example:
     ```python
     result = simple_info_mode(database, file_state)
     ```
-    """
 
+    """
     file = get_file(database, file_state)
 
     audio = get_audio(file)
@@ -45,36 +55,42 @@ def simple_info_mode(database: DatabaseType, file_state: FileStateType) -> dict[
 
     frame_index = validate_frame_index(audio.get_array_of_samples(), file_state)
 
-    result["frame"] = simple_frame_info(audio.get_array_of_samples(), audio.frame_rate, frame_index)
+    result["frame"] = simple_frame_info(
+        audio.get_array_of_samples(),
+        audio.frame_rate,
+        frame_index,
+    )
 
     return result
 
 
-def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
-    """
-    TBD
-    """
+def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
+    """TBD."""
     return None
 
 
-def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:
-    """
-    TBD
-    """
+def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
+    """TBD."""
     return None
 
 
-def vowel_space_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, float] | None:
+def vowel_space_mode(
+    database: DatabaseType,
+    file_state: FileStateType,
+) -> dict[str, float] | None:
     """
-    Extracts and returns the first and second formants of a specified frame.
+    Extract and return the first and second formants of a specified frame.
 
-    This function calculates the first (f1) and second (f2) formants of a segment within the audio signal.
+    This function calculates the first (f1) and second (f2) formants of a segment within the
+    audio signal.
 
-    Parameters:
+    Parameters
+    ----------
     - database: The database object used to fetch the file.
     - file_state: A dictionary containing the state of the file, including frame indices.
 
-    Returns:
+    Returns
+    -------
     - dict: A dictionary containing the first formant (f1) and the second formant (f2).
     - Returns None if the frame index is invalid.
 
@@ -82,8 +98,8 @@ def vowel_space_mode(database: DatabaseType, file_state: FileStateType) -> dict[
     ```python
     result = vowel_space_mode(database, file_state)
     ```
-    """
 
+    """
     file = get_file(database, file_state)
     audio = get_audio(file)
     data = audio.get_array_of_samples()
@@ -97,22 +113,25 @@ def vowel_space_mode(database: DatabaseType, file_state: FileStateType) -> dict[
     return {"f1": formants[0], "f2": formants[1]}
 
 
-def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:
-    """
-    TBD
-    """
+def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
+    """TBD."""
     return None
 
 
-def error_rate_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, Any] | None:
+def error_rate_mode(
+    database: DatabaseType,  # noqa: ARG001
+    file_state: FileStateType,
+) -> dict[str, Any] | None:
     """
     Calculate the error rates of transcriptions against the ground truth.
 
-    Parameters:
+    Parameters
+    ----------
     - database: The database object used to fetch the file.
     - file_state: A dictionary containing the state of the file, including transcriptions.
 
-    Returns:
+    Returns
+    -------
     - A dictionary with the ground truth and a list of error rates for each transcription.
     - Returns None if there are no transcriptions or if the ground truth is missing.
 
@@ -120,6 +139,7 @@ def error_rate_mode(database: DatabaseType, file_state: FileStateType) -> dict[s
     ```python
     result = error_rate_mode(database, file_state)
     ```
+
     """
     if (
         "reference" not in file_state
@@ -133,40 +153,41 @@ def error_rate_mode(database: DatabaseType, file_state: FileStateType) -> dict[s
     ):
         return None
 
-    errorRate = calculate_error_rates(
-        file_state["reference"]["captions"], file_state["hypothesis"]["captions"]
+    return calculate_error_rates(
+        file_state["reference"]["captions"],
+        file_state["hypothesis"]["captions"],
     )
-
-    return errorRate
 
 
 def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType:
     """
     Fetch a file from the database using the file_state information.
 
-    Parameters:
+    Parameters
+    ----------
     - database: The database object used to fetch the file.
     - file_state: A dictionary containing the state of the file, including its ID.
 
-    Returns:
+    Returns
+    -------
     - The file object fetched from the database.
 
-    Raises:
+    Raises
+    ------
     - HTTPException: If the 'id' is not in file_state or if the file is not found.
 
     Example:
     ```python
     file = get_file(database, file_state)
     ```
+
     """
     if "id" not in file_state:
         raise HTTPException(status_code=404, detail="file_state did not include id")
     try:
-        print(file_state["id"])
-        print(database)
         file = database.fetch_file(file_state["id"])  # pyright: ignore[reportAttributeAccessIssue]
-    except Exception as _:
-        raise HTTPException(status_code=404, detail="File not found")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="File not found") from e
 
     file["data"] = convert_to_wav(file["data"])
 
@@ -174,6 +195,7 @@ def get_file(database: DatabaseType, file_state: FileStateType) -> FileStateType
 
 
 def convert_to_wav(data: bytes) -> bytes:
+    """Convert an arbitrary format recording into wav format."""
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk
