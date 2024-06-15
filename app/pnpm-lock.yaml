@@ -155,9 +155,6 @@ importers:
       wavesurfer.js:
         specifier: ^7.7.14
         version: 7.7.15
-      webfft:
-        specifier: ^1.0.3
-        version: 1.0.3
       webm-to-mp4:
         specifier: ^1.0.0
         version: 1.0.0
