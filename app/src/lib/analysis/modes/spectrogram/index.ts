@@ -9,7 +9,8 @@ export const spectrogramData = {
 	fileState: fileState
 		.pick({
 			id: true,
-			name: true
+			name: true,
+			frame: true
 		})
 		.default({}),
 
