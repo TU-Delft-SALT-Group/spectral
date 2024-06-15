@@ -32,8 +32,9 @@ export const byteArray = customType<{ data: Buffer }>({
 		if (typeof value === 'object' && value instanceof Uint8Array) {
 			return Buffer.from(value);
 		} else if (typeof value === 'string') {
-			// Decode base64 string to Buffer
-			return Buffer.from(value, 'base64');
+			const cleanedValue = value.replace(/\\x/g, '');
+			const buffer = Buffer.from(cleanedValue, 'hex');
+			return buffer;
 		}
 
 		throw new Error('Expected Uint8Array');

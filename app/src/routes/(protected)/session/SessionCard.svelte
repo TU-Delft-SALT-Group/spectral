@@ -14,21 +14,27 @@
 			body: JSON.stringify(session.id)
 		});
 		let dataString = await response.json();
-		let data = await JSON.parse(dataString['data']);
-		let name = (await JSON.parse(data)).name;
-		let blob = new Blob([data], { type: 'application/json' });
+		if (dataString.status === 200) {
+			let data = await JSON.parse(dataString['data']);
+			let name = (await JSON.parse(data)).name;
+			let blob = new Blob([data], { type: 'application/json' });
 
-		let link = document.createElement('a');
+			// Download the json file
+			let link = document.createElement('a');
 
-		link.href = URL.createObjectURL(blob);
+			link.href = URL.createObjectURL(blob);
 
-		link.download = `${name}-spectral.json`;
+			link.download = `${name}-spectral.json`;
 
-		document.body.appendChild(link);
+			document.body.appendChild(link);
 
-		link.click();
+			link.click();
 
-		document.body.removeChild(link);
+			document.body.removeChild(link);
+			return;
+		}
+		// in case the session could not be found for
+		console.error('session could not be exported');
 	}
 </script>
 

@@ -31,12 +31,16 @@
 
 		const sessionJSON = await readAsJSONtext(file);
 
-		let response = await fetch('?/importSession', {
+		await fetch('?/importSession', {
 			method: 'POST',
-			body: JSON.stringify(sessionJSON)
+			body: sessionJSON
+		}).then(async (response) => {
+			const responseJSON = await response.json();
+			// The page should redirect on a successful import
+			if (responseJSON.status === 301) {
+				window.location.href = `/${responseJSON.location}`;
+			}
 		});
-
-		console.log(response);
 	}
 
 	function readAsJSONtext(file: File): Promise<string> {
@@ -67,7 +71,7 @@
 
 			{#each data.sessions as session}
 				<li>
-					<ContextMenu.Root>
+					<ContextMenu.Root closeOnOutsideClick>
 						<SessionCard {session}></SessionCard>
 					</ContextMenu.Root>
 				</li>
@@ -79,7 +83,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="text-3xl">Enter new session name</Dialog.Title>
 			<Dialog.Description>
-				<form method="POST" use:enhance>
+				<form action="?/createSession" method="POST" use:enhance>
 					<Input type="text" name="sessionName" minlength={1} required></Input>
 				</form>
 			</Dialog.Description>

@@ -43,62 +43,60 @@ export const actions: Actions = {
 			}
 		});
 		if (session) {
-			const sessionWithBlobs = {
-				name: session.name,
-				status: session.state,
-				files: session.files.map((file) => ({
-					id: file.id,
-					name: file.name,
-					state: file.state,
-					groundTruth: file.groundTruth,
-					data: file.data.toString('base64')
-				}))
-			};
-
-			console.log(JSON.stringify(sessionWithBlobs));
-
-			return JSON.stringify(sessionWithBlobs);
+			return JSON.stringify(session);
 		}
-		return null;
+		// if something went wrong,
+		throw new Error('Bad request');
 	},
 	importSession: async ({ request, locals }) => {
-		const sessionJSON = await JSON.parse(await request.json());
-		// console.log(JSON.stringify(sessionJSON))
+		const sessionJSON = await request.json();
 
 		const userId = unwrap(locals.user).id;
 
+		// create new 'blank' session with new id and correct name
 		const sessionId = await createSession(userId, sessionJSON.name);
 
 		const newIdDict = [];
 
+		// loop to store the files again
 		for (const file of sessionJSON.files) {
+			const data = Buffer.from(file.data.data);
 			const fileId = generateIdFromEntropySize(10);
 			newIdDict.push({ oldId: file.id, newId: fileId });
-			db.insert(fileTable).values({
+			await db.insert(fileTable).values({
 				...file,
-				id: fileId
+				id: fileId,
+				uploader: userId,
+				session: sessionId,
+				data
 			});
 		}
 
-		for (const key in sessionJSON.status.panes) {
-			for (const file in sessionJSON.status.panes[key].files) {
-				sessionJSON.status.panes[key].files[file].id = newIdDict.filter(
-					(x) => x.oldId == sessionJSON.status.panes[key].files[file].id
+		// loop to update the old file id's to the new ones in the panes
+		for (const key in sessionJSON.state.panes) {
+			for (const file in sessionJSON.state.panes[key].files) {
+				sessionJSON.state.panes[key].files[file].id = newIdDict.filter(
+					(x) => x.oldId == sessionJSON.state.panes[key].files[file].id
 				)[0].newId;
 			}
 		}
 
-		for (const key in sessionJSON.status.panels) {
-			for (const file in sessionJSON.status.panels[key].params.files) {
-				sessionJSON.status.panels[key].params.files[file].id = newIdDict.filter(
-					(x) => x.oldId == sessionJSON.status.panes[key].files[file].id
+		// loop to update the old file id's to the new ones in the panels
+		for (const key in sessionJSON.state.panels) {
+			for (const file in sessionJSON.state.panels[key].params.files) {
+				sessionJSON.state.panels[key].params.files[file].id = newIdDict.filter(
+					(x) => x.oldId == sessionJSON.state.panes[key].files[file].id
 				)[0].newId;
 			}
 		}
 
-		console.log(sessionJSON);
+		sessionJSON.id = sessionId;
+		const state = sessionJSON;
 
-		await db.update(sessionTable).set(sessionJSON).where(eq(sessionTable.id, sessionId));
+		// update database with new state
+		await db.update(sessionTable).set(state).where(eq(sessionTable.id, sessionId));
+
+		redirect(301, `session/${sessionId}`);
 	},
 	createSession: async ({ request, locals }) => {
 		const formData = await request.formData();
