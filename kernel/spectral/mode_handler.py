@@ -210,6 +210,11 @@ def convert_to_wav(data: bytes) -> bytes:
                 temp_input.name,
                 temp_output.name,
             ]
-            subprocess.run(command, stdout=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+            subprocess.run(
+                command,  # noqa: S603
+                stdout=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                check=False,
+            )
             temp_output.seek(0)  # Rewind to the beginning of the file
             return temp_output.read()
