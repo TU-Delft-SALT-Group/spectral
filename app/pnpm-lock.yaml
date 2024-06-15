@@ -3719,9 +3719,6 @@ packages:
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
-  webfft@1.0.3:
-    resolution: {integrity: sha512-Xi9V1yiKuxJvfo9TysWs17C4++7c62KSr1uS9WKj6o3ZMVJdxkoT301qltym0hZxvSU0+8tWuGF1FHNdeP158g==}
-
   webm-to-mp4@1.0.0:
     resolution: {integrity: sha512-XCqDsNF9QoUxhsDI2bL+IyAjU+O/u80G8pojnpzMqKVgqIj9+++G8jSzNwMqlTRWP1nRnuVhMIiu3Kszs+PAbQ==}
     engines: {node: '>=10'}
@@ -7328,8 +7325,6 @@ snapshots:
   wavesurfer.js@7.7.15: {}
 
   web-namespaces@2.0.1: {}
-
-  webfft@1.0.3: {}
 
   webm-to-mp4@1.0.0:
     dependencies:

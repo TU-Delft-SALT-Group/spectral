@@ -355,7 +355,6 @@ def test_error_rate_empty_hypothesis_array(db_mock, file_state):
     response = client.post("/signals/modes/error-rate", json={"fileState": file_state})
 
     assert response.status_code == 200
-    print(response.json())
     assert response.json() == {
         "wordLevel": {
             "wer": 1.0,

@@ -117,7 +117,6 @@ async def analyze_signal_mode(
     """
     db_session = database
     file_state: FileStateType = file_state_body.fileState
-
     if mode == "simple-info":
         return simple_info_mode(db_session, file_state)
     if mode == "spectrogram":
