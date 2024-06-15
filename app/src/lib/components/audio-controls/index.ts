@@ -20,3 +20,16 @@ export const getVisualizationPlugin = (type: VisualizationType) => {
 			return SpectrogramPlugin;
 	}
 };
+
+// TODO: implement a better method in time.ts
+export function numberToTime(current: number): string {
+	if (current === undefined) current = 0;
+
+	const time = new Date(current * 1000);
+
+	return time.toLocaleString('en-GB', {
+		minute: '2-digit',
+		second: '2-digit',
+		fractionalSecondDigits: 3
+	});
+}
