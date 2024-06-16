@@ -4,6 +4,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { used } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';
@@ -157,6 +158,7 @@
 	function getHoverString(time: number) {
 		let result = '';
 		for (let transcription of fileState.transcriptions) {
+			if (!transcription.selected) continue;
 			result += transcription.name + ': ';
 			for (let caption of transcription.captions) {
 				if (time >= caption.start && time <= caption.end) {
@@ -175,6 +177,7 @@
 				{
 					id: generateIdFromEntropySize(10),
 					name: 'new track',
+					selected: true,
 					captions: [
 						{
 							start: 0,
@@ -194,6 +197,7 @@
 				{
 					id: generateIdFromEntropySize(10),
 					name: transcriptionType.value + '-' + response.language,
+					selected: true,
 					captions: response.transcription
 				}
 			];
@@ -257,6 +261,7 @@
 
 		{#each fileState.transcriptions as transcription, i (transcription.id)}
 			<div class="flex w-full items-center gap-1 border-y">
+				<Checkbox bind:checked={transcription.selected}></Checkbox>
 				<Button
 					class="h-3/4 p-1"
 					variant="destructive"
