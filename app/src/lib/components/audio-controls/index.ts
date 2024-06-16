@@ -29,13 +29,18 @@ export type PluginComponent<T extends VisualizationType> = ComponentType<
 	SvelteComponent<PluginProps<T>>
 >;
 
-export const pluginsRecord: Record<
-	VisualizationType,
-	PluginComponent<'waveform'> | PluginComponent<'spectrogram'>
-> = {
-	waveform: WaveformPlugin as PluginComponent<'waveform'>,
-	spectrogram: SpectrogramPlugin as PluginComponent<'spectrogram'>
-};
+export function getVisualizationComponent<M extends VisualizationType>(
+	type: M
+): PluginComponent<M> {
+	switch (type) {
+		case 'waveform':
+			return WaveformPlugin as PluginComponent<M>;
+		case 'spectrogram':
+			return SpectrogramPlugin as PluginComponent<M>;
+	}
+
+	throw new Error('Unreachable');
+}
 
 // TODO: implement a better method in time.ts
 export function numberToTime(current: number): string {

@@ -47,7 +47,7 @@
 	import { browser } from '$app/environment';
 	import {
 		numberToTime,
-		pluginsRecord,
+		getVisualizationComponent,
 		type ControlRequirements,
 		type VisualizationType,
 		type PluginComponent
@@ -61,8 +61,7 @@
 
 	let width: number;
 
-	// @ts-expect-error Plugin component type gets messed up, and it complains
-	let component: PluginComponent<VisualizationType> = pluginsRecord[visualization];
+	let component: PluginComponent<VisualizationType> = getVisualizationComponent(visualization);
 	let controls: ControlRequirements;
 	let playing = false;
 	let duration: number;
