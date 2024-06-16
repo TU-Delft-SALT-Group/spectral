@@ -17,8 +17,14 @@
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.esm.js';
 
-	export let computedData: mode.ComputedData<'transcription'>;
-	export let fileState: mode.FileState<'transcription'>;
+	let {
+		fileState = $bindable(),
+		computedData
+	}: {
+		computedData: mode.ComputedData<'transcription'>;
+		fileState: mode.FileState<'transcription'>;
+	} = $props();
+
 	used(computedData);
 
 	let scrollElement: HTMLElement;
@@ -28,13 +34,13 @@
 	let timeline: TimelinePlugin;
 	let hover: HoverPlugin;
 
-	let width: number;
+	let width: number = $state(100);
 	let minZoom: number;
-	let duration: number;
-	let current: number;
-	let playing = false;
+	let duration: number = $state(0);
+	let current: number = $state(0);
+	let playing: boolean = $state(false);
 
-	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
+	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 	const trackNameSpace = 150;
 
@@ -44,12 +50,12 @@
 		transcriptionType.value = newSelection.value;
 	}
 
-	$: if (width) {
+	$effect(() => {
 		minZoom = (width - trackNameSpace) / duration;
 		wavesurfer?.setOptions({
 			width: minZoom * duration
 		});
-	}
+	});
 
 	onMount(() => {
 		wavesurfer = WaveSurfer.create({
