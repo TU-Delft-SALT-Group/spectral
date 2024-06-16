@@ -1,27 +1,36 @@
-import parselmouth
-import numpy as np
-from fastapi import HTTPException
+"""All the frame analysis related functionality."""
+
+from __future__ import annotations
+
 from array import array
+
+import numpy as np
+import parselmouth
+from fastapi import HTTPException
 
 from .types import FileStateType
 
 
 def simple_frame_info(
-    frame: array, fs: int | float, frame_info: dict[str, int] | None
+    frame: array,
+    fs: float | int,
+    frame_info: dict[str, int] | None,
 ) -> dict[str, float] | None:
     """
-    Extracts and returns basic information from a given audio frame.
+    Extract and return basic information from a given audio frame.
 
     This function calculates and returns the duration, pitch, and first two formants (f1 and f2)
     of a specified segment within the audio frame.
 
-    Parameters:
+    Parameters
+    ----------
     - frame (list of int): The audio frame data.
     - fs (float): The sample frequency of the audio signal.
     - frame_info (dict): A dictionary containing the 'startIndex' and 'endIndex' that specify
                          the segment of the frame to analyze.
 
-    Returns:
+    Returns
+    -------
     - dict or None: A dictionary with the following keys and their corresponding values if
                     `frame_info` is provided, otherwise returns None:
                     - "duration" (float): Duration of the frame segment.
@@ -34,6 +43,7 @@ def simple_frame_info(
     frame_info = {"startIndex": 0, "endIndex": 1000}
     result = simple_frame_info(frame, fs, frame_info)
     ```
+
     """
     if frame_info is None:
         return None
@@ -49,44 +59,51 @@ def simple_frame_info(
 
 def calculate_frame_duration(frame: array, fs: int | float) -> float:
     """
-    This method calculates the duration of a frame based on the frame and the sample frequency.
+    Calculate the duration of a frame based on the frame and the sample frequency.
 
-    Parameters:
+    Parameters
+    ----------
     - frame (arr['float']): array of floats representing an audio frame.
     - fs (float): sample frequency of speech signal.
 
-    Returns:
+    Returns
+    -------
     - (return float): Duration of the frame.
 
     Example:
     ```python
     result = calculate_frame_duration(frame, fs)
     ```
+
     """
     return len(frame) / fs
 
 
 def calculate_frame_pitch(frame: array, fs: float | int) -> float:
     """
-    This method calculates the pitch of a frame.
+    Calculate the pitch of a frame.
 
-    Parameters:
+    Parameters
+    ----------
     - frame (arr['float']): array of floats representing an audio frame.
     - fs (float): sample frequency of speech signal.
 
-    Returns:
+    Returns
+    -------
     - (return float): Pitch of the frame.
 
     Example:
     ```python
     result = calculate_frame_pitch(frame, fs)
     ```
+
     """
     try:
         pitch = parselmouth.Sound(
-            values=np.array(frame).astype("float64"), sampling_frequency=fs
+            values=np.array(frame).astype("float64"),
+            sampling_frequency=fs,
         ).to_pitch(
-            time_step=calculate_frame_duration(frame, fs) + 1
+            time_step=calculate_frame_duration(frame, fs) + 1,
         )  # the + 1 ensures that the complete frame is considered as 1 frame
         return pitch.get_value_at_time(0)
     except Exception:
@@ -95,32 +112,35 @@ def calculate_frame_pitch(frame: array, fs: float | int) -> float:
 
 def calculate_frame_f1_f2(frame: array, fs: int | float) -> list[float]:
     """
-    This method calculates the first and second fromant of a frame.
+    Calculate the first and second fromant of a frame.
 
-    Parameters:
+    Parameters
+    ----------
     - frame (arr['float']): array of floats representing an audio frame.
     - fs (float): sample frequency of speech signal.
 
-    Returns:
+    Returns
+    -------
     - (return arr['float']): with position 0 containing f1 and position 1 containing f2.
 
     Example:
     ```python
     result = calculate_frame_f1_f2(frame, fs)
     ```
+
     """
     try:
         formants = parselmouth.Sound(
-            values=np.array(frame).astype("float64"), sampling_frequency=fs
+            values=np.array(frame).astype("float64"),
+            sampling_frequency=fs,
         ).to_formant_burg(
-            time_step=calculate_frame_duration(frame, fs) + 1
+            time_step=calculate_frame_duration(frame, fs) + 1,
         )  # the + 1 ensures that the complete frame is considered as 1 frame
         return [
             formants.get_value_at_time(formant_number=1, time=0),
             formants.get_value_at_time(formant_number=2, time=0),
         ]
-    except Exception as e:
-        print(e)
+    except Exception:
         return [float("nan"), float("nan")]
 
 
@@ -128,20 +148,24 @@ def validate_frame_index(data: array, file_state: FileStateType):
     """
     Validate the frame index specified in the file_state.
 
-    Parameters:
+    Parameters
+    ----------
     - data: An array representing the data from which the frame indices are validated.
     - file_state: A dictionary containing the state of the file, including frame indices.
 
-    Returns:
+    Returns
+    -------
     - A dictionary with validated 'startIndex' and 'endIndex'.
 
-    Raises:
+    Raises
+    ------
     - HTTPException: If required frame indices are not provided or are invalid.
 
     Example:
     ```python
     validated_indices = validate_frame_index(data, file_state)
     ```
+
     """
     if "frame" not in file_state or file_state["frame"] is None:
         return None
@@ -165,14 +189,17 @@ def validate_frame_index(data: array, file_state: FileStateType):
 
     if start_index >= end_index:
         raise HTTPException(
-            status_code=400, detail="startIndex should be strictly lower than endIndex"
+            status_code=400,
+            detail="startIndex should be strictly lower than endIndex",
         )
     if start_index < 0:
         raise HTTPException(
-            status_code=400, detail="startIndex should be larger or equal to 0"
+            status_code=400,
+            detail="startIndex should be larger or equal to 0",
         )
     if end_index > len(data):
         raise HTTPException(
-            status_code=400, detail="endIndex should be lower than the file length"
+            status_code=400,
+            detail="endIndex should be lower than the file length",
         )
     return {"startIndex": start_index, "endIndex": end_index}

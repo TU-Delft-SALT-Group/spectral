@@ -1,3 +1,5 @@
+"""Spectral: kernel for the Atypical Speech Recognition toolkit."""
+
 try:
     from beartype.claw import beartype_this_package
 
