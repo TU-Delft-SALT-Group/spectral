@@ -19,7 +19,7 @@
 		containerApi.addPanel({
 			component: 'default',
 			id: generateIdFromEntropySize(10),
-			title: defaultProps.title ?? 'default',
+			title: defaultProps.title ?? 'New Tab',
 			renderer: 'always',
 			params: defaultProps,
 			position: { referenceGroup: group.id },
