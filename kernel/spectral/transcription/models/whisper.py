@@ -9,8 +9,10 @@ from typing import Any
 
 from openai import OpenAI
 
+from spectral.types import TranscriptionType
 
-def whisper_transcription(data: bytes) -> dict[str, str | list[dict]]:
+
+def whisper_transcription(data: bytes) -> TranscriptionType:
     """
     Get transcription from whisper from an list of WAV bytes.
 

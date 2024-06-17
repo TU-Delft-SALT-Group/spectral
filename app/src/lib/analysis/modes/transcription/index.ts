@@ -21,11 +21,12 @@ export const transcriptionData = {
 
 export function doubleClick(event: MouseEvent) {
 	const element = event.target! as HTMLElement;
-	element.contentEditable = 'true';
+	element.contentEditable = 'plaintext-only';
 }
 
 export function focusOut(event: FocusEvent, toChange: { name: string } | { value: string }) {
 	const element = event.target! as HTMLElement;
+	// if (!element.isContentEditable) return;
 	element.contentEditable = 'false';
 
 	if ('name' in toChange) {

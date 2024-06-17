@@ -7,12 +7,12 @@ import tempfile
 from allosaurus.app import read_recognizer  # type: ignore
 
 from spectral.transcription.transcription_utils import fill_gaps
-from spectral.types import FileStateType
+from spectral.types import FileStateType, TranscriptionType
 
 from .deepgram import deepgram_transcription
 
 
-def allosaurus_transcription(file: FileStateType) -> dict[str, str | list[dict]]:
+def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
     """
     Calculate the transcription on phoneme level using the allosaurus model.
 
@@ -113,7 +113,7 @@ def get_phoneme_word_splits(
 def get_phoneme_transcriptions(
     language: str,
     phoneme_word_splits: list[dict],
-) -> dict[str, str | list[dict]]:
+) -> TranscriptionType:
     """
     Convert the phoneme word groups to 1 list of phoneme transcriptions with adjusted start
     and end times.
