@@ -8,6 +8,8 @@ RUN corepack enable
 
 RUN pnpm install --prod
 
+RUN PORT=5173 node -r dotenv/config build
+
 RUN pnpm run build
 
 CMD pnpm run preview --host --port 5173 | pnpm exec pino-pretty

@@ -45,6 +45,7 @@
 		"clsx": "^2.1.1",
 		"d3": "^7.9.0",
 		"dockview-core": "^1.14.0",
+		"dotenv": "^16.4.5",
 		"drizzle-kit": "^0.20.18",
 		"drizzle-orm": "^0.30.10",
 		"formsnap": "^1.0.0",
