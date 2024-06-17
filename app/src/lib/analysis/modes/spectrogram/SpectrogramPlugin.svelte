@@ -193,7 +193,9 @@
 	bind:this={element}
 	class="waveform w-full flex-1 overflow-x-scroll rounded-tr bg-secondary"
 	role="region"
-	on:wheel={(event) => {
+	on:wheel|nonpassive={(event) => {
+		if (!event.ctrlKey) return;
+
 		event.preventDefault();
 		event.stopImmediatePropagation();
 
