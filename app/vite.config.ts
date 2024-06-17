@@ -6,6 +6,9 @@ export default defineConfig({
 	test: {
 		include: ['src/**/*{test,spec}.{js,ts}']
 	},
+	build: {
+		target: 'ES2022'
+	},
 	esbuild: {
 		target: 'esnext'
 	}

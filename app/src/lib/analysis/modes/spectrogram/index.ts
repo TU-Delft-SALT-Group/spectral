@@ -3,12 +3,13 @@ import type { ModeValidator } from '..';
 import { fileState } from '../file-state';
 
 export const spectrogramData = {
-	computedFileData: z.null(),
+	computedFileData: z.object({ formants: z.array(z.array(z.number().nullable())).nullable() }),
 
 	fileState: fileState
 		.pick({
 			id: true,
-			name: true
+			name: true,
+			frame: true
 		})
 		.default({}),
 

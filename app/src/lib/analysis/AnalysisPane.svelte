@@ -11,84 +11,46 @@
 -->
 
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import {
-		modeComponents,
-		modeNames,
-		type FileData,
-		type ModeComponent,
-		type mode
-	} from '$lib/analysis/modes';
-	import Json from '$lib/components/Json.svelte';
-	import { memoize } from '$lib/utils';
+	import { modeComponents, modeNames, type ModeComponent, type mode } from '$lib/analysis/modes';
+	import { memoize, deepEqual, JsonSafeParse } from '$lib/utils';
+	import { snapshotState } from '$lib/utils.svelte';
 	import type { PaneState } from './analysis-pane';
 	import { getComputedFileData } from './kernel/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
-	import { fileState, type FileState } from './modes/file-state';
+	import { fileState } from './modes/file-state';
 
-	let {
-		paneState
-	}: {
-		paneState: PaneState;
-	} = $props();
+	let { paneState }: { paneState: PaneState } = $props();
 
-	// We memoize the file data so that we don't have to fetch and recompute it every time
-	// you switch modes.
-	const getFileData = memoize(
-		async (state: PaneState) => {
-			const fileData = state.files.map(
-				async (fileState): Promise<FileData> => ({
-					fileState,
-					computedData: await getComputedFileData({
-						mode: state.mode,
-						fileState
-					})
-				})
-			);
-
-			return await Promise.all(fileData);
-		},
-		{
-			maxSize: modeNames.length * 5,
-			hashKey: (state) => structuredClone($state.snapshot(state))
-		}
-	);
-
-	/**
-	 * This variables holds the file data for the current mode.
-	 *
-	 *
-	 * It would be nice to bind `paneState.fileState` directly. However,
-	 * we need to bundle the file state with the computed data because we want it
-	 * to be one object in the consumer side. This variable is a dummy variable
-	 * so that the component has something to bind to.
-	 *
-	 * Then, whenever `fileData.value.state` changes, we update the `paneState.fileState`.
-
-	 */
-	let fileData: { value: FileData[]; for: mode.Name } | { error: unknown } | null = $state(null);
-
-	// Update the computed file data (i.e., `fileData`) whenever the pane state changes
-	$effect(() => {
-		if (browser) {
-			getFileData(paneState)
-				.then((awaitedFileData) => (fileData = { value: awaitedFileData, for: paneState.mode }))
-				.catch((error) => (fileData = { error }));
-		}
+	// Computed data is memoized for each mode and fileState
+	const memoizedGetComputedData = memoize(getComputedFileData, {
+		maxSize: modeNames.length * paneState.files.length * 5,
+		hashKey: ({ mode, fileState }) => structuredClone({ mode, fileState: snapshotState(fileState) })
 	});
 
-	// Whenever a child updates the file data, sync the pane state to reflect the changes and
-	// compute the new computed file data from the kernel.
-	$effect(() => {
-		// Prevent infinite loops
-		if ($effect.active() || fileData === null || 'error' in fileData) {
-			return;
-		}
+	// This function returns a closure when all the computed data is loaded, so that the consumers
+	// don't need to handle asynchronicity
+	const getComputedDataFunction = async (mode: mode.Name, paneState: PaneState) => {
+		const computedFileData = await Promise.all(
+			paneState.files.map(async (fileState) => await memoizedGetComputedData({ mode, fileState }))
+		);
 
-		// Sync by setting paneState to the new fileData
-		for (let i = 0; i < paneState?.files.length ?? 0; i++) {
-			paneState.files[i]! = fileData.value[i].fileState as FileState;
-		}
+		return (fileState: mode.FileState<mode.Name>) => {
+			const index = paneState.files.findIndex((file) => deepEqual(file, fileState));
+			return computedFileData[index];
+		};
+	};
+
+	let getComputedDataProp: null | mode.GetComputedData = $state(null);
+
+	// We delay changing mode until we have the data properly loaded
+	let activeMode = $state(paneState.mode);
+
+	// Whenever we have data ready, update mode and the `getComputedData` function
+	$effect(() => {
+		getComputedDataFunction(paneState.mode, paneState).then((fn) => {
+			getComputedDataProp = fn;
+			activeMode = paneState.mode;
+		});
 	});
 
 	export function removeFile(fileId: string) {
@@ -108,36 +70,38 @@
 		event.preventDefault();
 		if (event.dataTransfer) {
 			const transferredData = event.dataTransfer.getData('application/json');
-			let json;
-			try {
-				json = JSON.parse(transferredData);
-			} catch (e) {
-				// TODO: find a better fix
-				return; // this might be from the dockview
+			const { value: json, ok } = JsonSafeParse(transferredData);
+			if (!ok) {
+				// From Dockview
+				return;
 			}
+
 			const file = fileState.parse(json);
 
 			// Don't add files already present
 			if (paneState.files.some((f) => f.id === file.id)) {
+				// TODO: Show message (in a Sonner)
 				return;
 			}
 
-			paneState.files = [...paneState.files, file];
+			// When adding a file, wait until we compute the data to add it in
+			const newFiles = [...paneState.files, file];
+			getComputedDataProp = await getComputedDataFunction(paneState.mode, {
+				...paneState,
+				files: newFiles
+			});
+			paneState.files = newFiles;
 		}
 	}}
 	role="group"
 >
 	<ModeSelector
 		bind:mode={paneState.mode}
-		onModeHover={(mode) => getFileData({ ...paneState, mode })}
+		onModeHover={(mode) => getComputedDataFunction(mode, paneState)}
 	></ModeSelector>
 
-	{#if fileData === null || ('for' in fileData && fileData.for !== paneState.mode)}
-		Loading
-	{:else if 'error' in fileData}
-		Error: <Json json={fileData.error}></Json>
-
-		<!-- TODO:Add an option to reset session state  -->
+	{#if getComputedDataProp === null}
+		Loading...
 	{:else}
 		<!--
 			The type of the component is a union of mode components. However, this means that
@@ -152,9 +116,10 @@
 			(prepend every word of this with an "I think")
 		-->
 		<svelte:component
-			this={modeComponents[paneState.mode].component as ModeComponent<mode.Name>}
-			bind:modeState={paneState.modeState[paneState.mode]}
-			bind:fileData={fileData.value}
+			this={modeComponents[activeMode].component as ModeComponent<mode.Name>}
+			bind:modeState={paneState.modeState[activeMode]}
+			bind:fileStates={paneState.files}
+			getComputedData={getComputedDataProp}
 			onRemoveFile={removeFile}
 		></svelte:component>
 	{/if}
