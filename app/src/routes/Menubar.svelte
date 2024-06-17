@@ -13,7 +13,7 @@
 	page;
 
 	let loading: boolean = false;
-	uploadingStateStore.subscribe(val => loading = val);
+	uploadingStateStore.subscribe((val) => (loading = val));
 </script>
 
 <Menubar.Root class="flex h-12 justify-center bg-secondary py-0 text-secondary-foreground">
@@ -28,7 +28,7 @@
 			<!-- TODO: Add logo -->
 		</div>
 
-		<div class="flex flex-1 h-full justify-end text-muted-foreground">
+		<div class="flex h-full flex-1 justify-end text-muted-foreground">
 			{#if loading}
 				<Spinner />
 			{/if}
