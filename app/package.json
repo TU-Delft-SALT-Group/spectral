@@ -34,6 +34,7 @@
 		"@lucia-auth/adapter-drizzle": "^1.0.7",
 		"@node-rs/argon2": "^1.8.3",
 		"@sveltejs/adapter-auto": "^3.2.0",
+		"@sveltejs/adapter-node": "^5.1.1",
 		"@sveltejs/kit": "^2.5.7",
 		"@sveltejs/vite-plugin-svelte": "^3.1.0",
 		"@types/d3": "^7.4.3",
