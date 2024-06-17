@@ -55,6 +55,6 @@ WORKDIR /kernel
 COPY . .
 
 # Command to run the application
-RUN poetry export -f requirements.txt --without-hashes --without dev | poetry run pip3 install -r /dev/stdin
+RUN poetry export -f requirements.txt --without-hashes --without=dev | poetry run pip3 install -r /dev/stdin
 
 CMD poetry run uvicorn --workers=5 spectral.main:app --host 0.0.0.0 --proxy-headers --timeout-graceful-shutdown 10
