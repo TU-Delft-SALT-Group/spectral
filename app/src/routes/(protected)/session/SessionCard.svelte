@@ -7,6 +7,8 @@
 	import * as ContextMenu from '$lib/components/ui/context-menu';
 
 	export let session: typeof sessionTable.$inferSelect;
+	export let closeAllContextMenus: () => void;
+	export let isContextMenuOpen = false;
 
 	async function exportSession() {
 		let response = await fetch('?/exportSession', {
@@ -40,7 +42,15 @@
 
 <Tooltip.Root>
 	<Tooltip.Trigger>
-		<ContextMenu.Root>
+		<ContextMenu.Root
+			bind:open={isContextMenuOpen}
+			onOpenChange={(isOpened) => {
+				if (!isOpened) return;
+
+				closeAllContextMenus();
+				isContextMenuOpen = true;
+			}}
+		>
 			<ContextMenu.Trigger>
 				<Button class="h-fit px-6 py-8" variant="outline" href="session/{session.id}">
 					<section class="flex flex-col items-start">
