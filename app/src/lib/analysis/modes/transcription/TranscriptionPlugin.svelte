@@ -24,6 +24,7 @@
 		computedData: mode.ComputedData<'transcription'>;
 		fileState: mode.FileState<'transcription'>;
 	} = $props();
+	$effect(() => console.log('in transcription plugin', fileState));
 
 	used(computedData);
 
@@ -36,7 +37,7 @@
 
 	let width: number = $state(100);
 	let minZoom: number;
-	let duration: number = $state(0);
+	let duration: number | null = $state(null);
 	let current: number = $state(0);
 	let playing: boolean = $state(false);
 
@@ -44,13 +45,9 @@
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 	const trackNameSpace = 150;
 
-	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
-		if (!newSelection) return;
-
-		transcriptionType.value = newSelection.value;
-	}
-
 	$effect(() => {
+		if (duration === null) return;
+
 		minZoom = (width - trackNameSpace) / duration;
 		wavesurfer?.setOptions({
 			width: minZoom * duration
@@ -106,6 +103,8 @@
 		});
 
 		wavesurfer.on('zoom', (px) => {
+			if (duration === null) return;
+
 			wavesurfer.setOptions({
 				width: duration * px
 			});
@@ -177,6 +176,8 @@
 	}
 
 	async function addTrack() {
+		if (duration === null) return;
+
 		if (transcriptionType.value === 'empty') {
 			fileState.transcriptions = [
 				...fileState.transcriptions,
@@ -228,7 +229,7 @@
 			{/if}
 		</Button>
 		<div class="font-mono">
-			{numberToTime(current)}/{numberToTime(duration)}
+			{numberToTime(current)}/{numberToTime(duration ?? 0)}
 		</div>
 		<Separator orientation="vertical" class="mx-2" />
 		<span>{fileState.name}</span>
@@ -239,6 +240,8 @@
 		class="grid w-full overflow-x-scroll transition"
 		style:grid-template-columns="{trackNameSpace}px 1fr"
 		onwheel={(event) => {
+			if (duration === null) return;
+
 			event.preventDefault();
 			event.stopImmediatePropagation();
 
@@ -267,7 +270,7 @@
 
 		{#each fileState.transcriptions as transcription, i (transcription.id)}
 			<div class="flex w-full items-center gap-1 border-y">
-				<Checkbox bind:checked={transcription.selected}></Checkbox>
+				<Checkbox bind:checked={transcription.selected} />
 				<Button
 					class="h-3/4 p-1"
 					variant="destructive"
@@ -297,7 +300,7 @@
 		<div></div>
 		<!-- Inserting/Exporting track stuff down here -->
 		<div class="flex w-full justify-center gap-5 pt-2">
-			<Select.Root selected={transcriptionType} onSelectedChange={transcriptionTypeChanger}>
+			<Select.Root bind:selected={transcriptionType}>
 				<Select.Trigger class="m-0 w-32">
 					{transcriptionType.value}
 				</Select.Trigger>

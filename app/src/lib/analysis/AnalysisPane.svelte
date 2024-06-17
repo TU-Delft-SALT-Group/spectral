@@ -19,7 +19,7 @@
 	import ModeSelector from './modes/ModeSelector.svelte';
 	import { fileState } from './modes/file-state';
 
-	export let paneState: PaneState;
+	let { paneState }: { paneState: PaneState } = $props();
 
 	// Computed data is memoized for each mode and fileState
 	const memoizedGetComputedData = memoize(getComputedFileData, {
@@ -40,16 +40,21 @@
 		};
 	};
 
-	let getComputedDataProp: null | mode.GetComputedData = null;
+	let getComputedDataProp: null | mode.GetComputedData = $state(null);
 
 	// We delay changing mode until we have the data properly loaded
-	let activeMode = paneState.mode;
+	let activeMode = $state(paneState.mode);
 
 	// Whenever we have data ready, update mode and the `getComputedData` function
-	$: getComputedDataFunction(paneState.mode, paneState).then((fn) => {
-		getComputedDataProp = fn;
-		activeMode = paneState.mode;
+	$effect(() => {
+		console.log('computing data');
+		getComputedDataFunction(paneState.mode, paneState).then((fn) => {
+			getComputedDataProp = fn;
+			activeMode = paneState.mode;
+		});
 	});
+
+	$effect(() => console.log('Updating in anal pain', paneState, paneState.mode));
 
 	export function removeFile(fileId: string) {
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
@@ -58,13 +63,13 @@
 
 <section
 	class="relative h-full overflow-scroll"
-	on:dragover={(event) => {
+	ondragover={(event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {
 			event.dataTransfer.dropEffect = 'move';
 		}
 	}}
-	on:drop={async (event) => {
+	ondrop={async (event) => {
 		event.preventDefault();
 		if (event.dataTransfer) {
 			const transferredData = event.dataTransfer.getData('application/json');

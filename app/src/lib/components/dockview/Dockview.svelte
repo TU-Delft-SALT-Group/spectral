@@ -20,12 +20,19 @@
 	import NewTabButton from './NewTabButton.svelte';
 	import Tab from './Tab.svelte';
 
-	export let onReady: (event: DockviewReadyEvent) => void;
 	type Component<T extends Record<string, unknown>> = ComponentType<SvelteComponent<T>>;
-	// eslint-disable-next-line
-	export let component: Component<S>;
-	// eslint-disable-next-line
-	export let getDefaultProps: () => S;
+
+	let {
+		onReady,
+		component,
+		getDefaultProps
+	}: {
+		// eslint-disable-next-line
+		component: Component<S>;
+		onReady: (event: DockviewReadyEvent) => void;
+		// eslint-disable-next-line
+		getDefaultProps: () => S;
+	} = $props();
 
 	let el: HTMLElement;
 	let instance: DockviewComponent | null;
