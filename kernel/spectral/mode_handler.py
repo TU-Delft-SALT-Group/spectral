@@ -14,7 +14,12 @@ from .frame_analysis import (
     simple_frame_info,
     validate_frame_index,
 )
-from .signal_analysis import get_audio, simple_signal_info
+from .signal_analysis import (
+    calculate_sound_formants_for_spectrogram,
+    get_audio,
+    signal_to_sound,
+    simple_signal_info,
+)
 from .types import DatabaseType, FileStateType
 
 
@@ -64,9 +69,26 @@ def simple_info_mode(
     return result
 
 
-def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
-    """TBD."""
-    return None
+def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
+    """
+    Extract first 5 formants from signal to show in spectrogram.
+
+    Parameters
+    ----------
+    - database: The database object used to fetch the file.
+    - file_state: A dictionary containing the state of the file, including frame indices.
+
+    Returns
+    -------
+    - list: A list of a list with 5 formants for each frame.
+
+    """
+    file = get_file(database, file_state)
+    audio = get_audio(file)
+    data = audio.get_array_of_samples()
+    sound = signal_to_sound(data, audio.frame_rate)
+
+    return calculate_sound_formants_for_spectrogram(sound)
 
 
 def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
@@ -200,7 +222,21 @@ def convert_to_wav(data: bytes) -> bytes:
         temp_input.write(data)
         temp_input.flush()  # Ensure data is written to disk
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_output:
-            command = ["ffmpeg", "-y", "-i", temp_input.name, temp_output.name]
-            subprocess.run(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, check=False)  # noqa: S603
+            command = [
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-i",
+                temp_input.name,
+                temp_output.name,
+            ]
+            subprocess.run(
+                command,  # noqa: S603
+                stdout=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                check=False,
+            )
             temp_output.seek(0)  # Rewind to the beginning of the file
             return temp_output.read()

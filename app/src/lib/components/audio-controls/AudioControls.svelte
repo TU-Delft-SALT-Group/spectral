@@ -45,7 +45,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 	import { browser } from '$app/environment';
-	import { getVisualizationPlugin, type ControlRequirements, type VisualizationType } from '.';
+	import {
+		numberToTime,
+		getVisualizationComponent,
+		type ControlRequirements,
+		type VisualizationType,
+		type PluginComponent
+	} from '.';
 	import { writable, type Writable } from 'svelte/store';
 	import type { mode } from '$lib/analysis/modes';
 
@@ -55,7 +61,7 @@
 
 	let width: number;
 
-	let component = getVisualizationPlugin(visualization);
+	let component: PluginComponent<VisualizationType> = getVisualizationComponent(visualization);
 	let controls: ControlRequirements;
 	let playing = false;
 	let duration: number;
@@ -88,17 +94,6 @@
 			setAsSelected();
 			selected?.play();
 		}
-	}
-
-	// TODO: implement a better method in time.ts
-	function numberToTime(current: number): string {
-		let time = new Date(current * 1000);
-
-		return time.toLocaleString('en-GB', {
-			minute: '2-digit',
-			second: '2-digit',
-			fractionalSecondDigits: 3
-		});
 	}
 </script>
 

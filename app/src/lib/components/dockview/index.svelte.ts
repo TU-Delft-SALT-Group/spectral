@@ -79,19 +79,19 @@ export class SvelteRenderer<S extends Record<string, unknown> = Record<string, u
 type TabRequirements<S = Record<string, unknown>> = {
 	containerApi: DockviewApi;
 	group: IDockviewGroupPanel;
-	defaultProps: S;
+	defaultProps: () => S;
 };
 
 export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 	extends AbstractSvelteRenderer<TabRequirements<P>>
 	implements IHeaderActionsRenderer
 {
-	private _defaultProps: P;
+	private _defaultProps: () => P;
 
 	constructor(
 		component: Component<TabRequirements<P>>,
 		group: DockviewGroupPanel,
-		defaultProps: P
+		defaultProps: () => P
 	) {
 		super(component);
 		used(group);
@@ -114,16 +114,16 @@ export class SvelteTabActionRenderer<P extends Record<string, unknown>>
 type WatermarkRequirements<S = Record<string, unknown>> = {
 	containerApi: DockviewApi;
 	group: IDockviewGroupPanel | undefined;
-	defaultProps: S;
+	defaultProps: () => S;
 };
 
 export class SvelteWatermarkRenderer<P extends Record<string, unknown>>
 	extends AbstractSvelteRenderer<WatermarkRequirements<P>>
 	implements IWatermarkRenderer
 {
-	private _defaultProps: P;
+	private _defaultProps: () => P;
 
-	constructor(component: Component<WatermarkRequirements<P>>, defaultProps: P) {
+	constructor(component: Component<WatermarkRequirements<P>>, defaultProps: () => P) {
 		super(component);
 		this._defaultProps = defaultProps;
 	}

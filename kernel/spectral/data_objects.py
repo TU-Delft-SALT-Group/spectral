@@ -120,6 +120,8 @@ class WordLevelErrorRate(BaseModel):
         reference (List[str]): List of reference words.
         hypothesis (List[str]): List of hypothesis words.
         alignments (List[Alignment]): List of alignment objects.
+        bert (float): BERT score.
+        jaroWinkler (float): Jaro Winkler score.
 
     """
 
@@ -134,6 +136,8 @@ class WordLevelErrorRate(BaseModel):
     reference: list[str]
     hypothesis: list[str]
     alignments: list[Alignment]
+    bert: float
+    jaroWinkler: float
 
 
 class CharacterLevelErrorRate(BaseModel):
@@ -176,6 +180,19 @@ class ErrorRateResponse(BaseModel):
 
     wordLevel: WordLevelErrorRate
     characterLevel: CharacterLevelErrorRate
+
+
+class SpectrogramResponse(BaseModel):
+    """
+    SpectrogramResponse model representing the response of the spectrogram mode endpoint.
+
+    Attributes
+    ----------
+        formants (List[List[float|None]]): List of 5 formants.
+
+    """
+
+    formants: list[list[float | None]]
 
 
 class FileStateBody(BaseModel):

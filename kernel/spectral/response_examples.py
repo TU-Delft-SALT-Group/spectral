@@ -72,6 +72,8 @@ signal_modes_response_examples: dict[int | str, dict[str, Any]] = {
                                         "short",
                                         "test",
                                     ],
+                                    "bert": 0.91,
+                                    "jaroWinkler": 0.59,
                                     "alignments": [
                                         {
                                             "type": "insert",

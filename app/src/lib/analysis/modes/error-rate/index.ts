@@ -47,6 +47,11 @@ const common = z.object({
 	deletions: z.number().int(),
 
 	/**
+	 * The number of character level insertions
+	 */
+	insertions: z.number().int(),
+
+	/**
 	 * Array of characters representing the ground-truth
 	 */
 	reference: z.array(z.string()),
@@ -92,7 +97,17 @@ export const errorRateData = {
 					/**
 					 * The word information preserved, still has to be converted to percentages
 					 */
-					wip: z.number()
+					wip: z.number(),
+
+					/**
+					 * bert score
+					 */
+					bert: z.number(),
+
+					/**
+					 * jaroWinkler score
+					 */
+					jaroWinkler: z.number()
 				})
 				.merge(common),
 
