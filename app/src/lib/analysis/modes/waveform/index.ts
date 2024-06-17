@@ -12,7 +12,9 @@ export const waveformData = {
 		.pick({
 			id: true,
 			name: true,
-			frame: true
+			frame: true,
+			transcriptions: true,
+			matchStrings: true
 		})
 		.default({}),
 

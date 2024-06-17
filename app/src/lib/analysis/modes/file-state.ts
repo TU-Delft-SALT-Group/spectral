@@ -24,6 +24,7 @@ export const fileState = z.object({
 	frame: frame.nullable().default(null),
 	cycleEnabled: z.boolean().default(false),
 	transcriptions: z.array(transcription).default([]),
+	matchStrings: z.array(z.string()).default([]),
 	reference: z
 		.object({
 			id: z.string(),

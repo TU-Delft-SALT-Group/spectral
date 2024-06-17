@@ -50,9 +50,9 @@ class SimpleInfoResponse(BaseModel):
     frame: FrameAnalysisResponse | None
 
 
-class VowelSpaceResponse(BaseModel):
+class Formants(BaseModel):
     """
-    VowelSpaceResponse model representing formant location in the vowel space.
+    Formants model representing formant location in the vowel space.
 
     Attributes
     ----------
@@ -63,6 +63,19 @@ class VowelSpaceResponse(BaseModel):
 
     f1: float
     f2: float
+
+
+class VowelSpaceResponse(BaseModel):
+    """
+    VowelSpaceResponse model representing a list of formant location in the vowel space.
+
+    Attributes
+    ----------
+        formants (list[Formants]): list of formants used for vowel space
+
+    """
+
+    formants: list[Formants]
 
 
 class TranscriptionSegment(BaseModel):

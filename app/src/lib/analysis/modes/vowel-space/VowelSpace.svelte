@@ -6,6 +6,8 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 
+	import VowelSpaceSingle from './VowelSpaceSingle.svelte';
+
 	export let fileStates: ModeComponentProps<'vowel-space'>['fileStates'];
 	export let modeState: ModeComponentProps<'vowel-space'>['modeState'];
 	export let getComputedData: ModeComponentProps<'vowel-space'>['getComputedData'];
@@ -74,44 +76,45 @@
 			const fileState = fileStates[i];
 			const computedData = getComputedData(fileState);
 			if (computedData === null) continue;
+			for (let { f1, f2 } of computedData.formants) {
+				// const { f1, f2 } = computedData;
+				const { name } = fileState;
+				const color = getPaletteColor(i);
 
-			const { f1, f2 } = computedData;
-			const { name } = fileState;
-			const color = getPaletteColor(i);
+				svg
+					.append('circle')
+					.attr('cx', x(f2 - f1))
+					.attr('cy', y(f1))
+					.attr('r', 10)
+					.attr('fill', color)
+					.attr('cursor', 'pointer')
+					.attr('title', name);
 
-			svg
-				.append('circle')
-				.attr('cx', x(f2 - f1))
-				.attr('cy', y(f1))
-				.attr('r', 10)
-				.attr('fill', color)
-				.attr('cursor', 'pointer')
-				.attr('title', name);
+				svg
+					.append('text')
+					.attr('x', x(f2 - f1) + 10)
+					.attr('y', y(f1) + 17)
+					.text(name)
+					.attr('fill', foreground)
+					.attr('font-size', '0.9rem')
+					.attr('alignment-baseline', 'middle');
 
-			svg
-				.append('text')
-				.attr('x', x(f2 - f1) + 10)
-				.attr('y', y(f1) + 17)
-				.text(name)
-				.attr('fill', foreground)
-				.attr('font-size', '0.9rem')
-				.attr('alignment-baseline', 'middle');
+				legend
+					.append('circle')
+					.attr('cx', marginLeft)
+					.attr('cy', height - marginBottom - 50 - 30 * i)
+					.attr('r', 6)
+					.style('fill', color);
 
-			legend
-				.append('circle')
-				.attr('cx', marginLeft)
-				.attr('cy', height - marginBottom - 50 - 30 * i)
-				.attr('r', 6)
-				.style('fill', color);
-
-			legend
-				.append('text')
-				.attr('x', marginLeft + 12)
-				.attr('y', height - marginBottom - 50 - 30 * i)
-				.text(name)
-				.attr('fill', foreground)
-				.attr('font-size', '1rem')
-				.attr('alignment-baseline', 'middle');
+				legend
+					.append('text')
+					.attr('x', marginLeft + 12)
+					.attr('y', height - marginBottom - 50 - 30 * i)
+					.text(name)
+					.attr('fill', foreground)
+					.attr('font-size', '1rem')
+					.attr('alignment-baseline', 'middle');
+			}
 		}
 
 		node.appendChild(unwrap(svg.node()));
@@ -140,4 +143,10 @@
 	</div>
 
 	<div use:d3Action bind:this={container}></div>
+
+	<div>
+		{#each fileStates as fileState}
+			<VowelSpaceSingle {fileState}></VowelSpaceSingle>
+		{/each}
+	</div>
 </section>
