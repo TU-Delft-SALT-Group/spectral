@@ -16,6 +16,7 @@
 	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.esm.js';
+	import type { Action } from 'svelte/action';
 
 	let {
 		fileState = $bindable(),
@@ -24,7 +25,6 @@
 		computedData: mode.ComputedData<'transcription'>;
 		fileState: mode.FileState<'transcription'>;
 	} = $props();
-	$effect(() => console.log('in transcription plugin', fileState));
 
 	used(computedData);
 
@@ -212,6 +212,16 @@
 			logger.error('no match for: ' + transcriptionType.value);
 		}
 	}
+
+	const nonPassiveWheel: Action<HTMLElement, (event: WheelEvent) => void> = (node, callback) => {
+		node.addEventListener('wheel', callback, { passive: false });
+
+		return {
+			destroy() {
+				node.removeEventListener('wheel', callback);
+			}
+		};
+	};
 </script>
 
 <section bind:this={referenceElement} bind:clientWidth={width} class="w-full bg-accent/50">
@@ -239,8 +249,9 @@
 		bind:this={scrollElement}
 		class="grid w-full overflow-x-scroll transition"
 		style:grid-template-columns="{trackNameSpace}px 1fr"
-		onwheel={(event) => {
+		use:nonPassiveWheel={(event: WheelEvent) => {
 			if (duration === null) return;
+			if (!event.ctrlKey) return;
 
 			event.preventDefault();
 			event.stopImmediatePropagation();

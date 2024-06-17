@@ -47,14 +47,11 @@
 
 	// Whenever we have data ready, update mode and the `getComputedData` function
 	$effect(() => {
-		console.log('computing data');
 		getComputedDataFunction(paneState.mode, paneState).then((fn) => {
 			getComputedDataProp = fn;
 			activeMode = paneState.mode;
 		});
 	});
-
-	$effect(() => console.log('Updating in anal pain', paneState, paneState.mode));
 
 	export function removeFile(fileId: string) {
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
@@ -86,8 +83,6 @@
 				// TODO: Show message (in a Sonner)
 				return;
 			}
-
-			console.log(paneState);
 
 			// When adding a file, wait until we compute the data to add it in
 			const newFiles = [...paneState.files, file];
