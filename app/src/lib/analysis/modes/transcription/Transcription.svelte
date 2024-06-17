@@ -3,11 +3,17 @@
 	import type { ModeComponentProps } from '..';
 	import TranscriptionPlugin from './TranscriptionPlugin.svelte';
 
-	let {
-		fileStates = $bindable(),
-		modeState = $bindable(),
-		getComputedData
-	}: ModeComponentProps<'transcription'> = $props();
+	export let fileStates: ModeComponentProps<'transcription'>['fileStates'];
+	export let modeState: ModeComponentProps<'transcription'>['modeState'];
+	export let getComputedData: ModeComponentProps<'transcription'>['getComputedData'];
+	// let {
+	// 	fileStates = $bindable(),
+	// 	modeState = $bindable(),
+	// 	getComputedData
+	// }: ModeComponentProps<'transcription'> = $props();
+
+	// $effect(() => console.log("file state in Transcription", fileStates))
+	$: console.log('in transcription', fileStates);
 
 	used(modeState);
 </script>
