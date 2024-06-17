@@ -5,18 +5,20 @@
 
 	export let containerApi: DockviewApi;
 	// eslint-disable-next-line
-	export let defaultProps: S;
+	export let defaultProps: () => S;
 	export let group: IDockviewGroupPanel | undefined;
 
 	function onClick(event: MouseEvent) {
 		event.preventDefault();
 
+		const props = defaultProps();
+
 		containerApi.addPanel({
 			component: 'default',
 			id: generateIdFromEntropySize(10),
-			title: defaultProps.title ?? 'default',
+			title: props.title ?? 'default',
 			renderer: 'always',
-			params: defaultProps,
+			params: props,
 			position: group === undefined ? undefined : { referenceGroup: group.id },
 			tabComponent: 'non default'
 		});
