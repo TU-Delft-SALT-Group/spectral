@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { uploadingStateStore } from '$lib';
 	import * as Resizable from '$lib/components/ui/resizable';
 	import type { PageData } from './$types';
 	import FileExplorer from './FileExplorer.svelte';
@@ -19,6 +20,7 @@
 	 */
 	function attemptSync() {
 		if (!browser || timeout !== null) return;
+		uploadingStateStore.set(true);
 
 		let now = Date.now();
 
@@ -27,6 +29,7 @@
 				syncState(data.state);
 				lastUpdate = Date.now();
 				timeout = null;
+				uploadingStateStore.set(false);
 			},
 			5 * 1000 - (now - lastUpdate)
 		);
