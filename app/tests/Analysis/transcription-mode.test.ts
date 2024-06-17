@@ -20,12 +20,7 @@ test('track test', async ({ page }) => {
 	await expect(page.getByText('empty').first()).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Create New Track' }).first()).toBeVisible();
 	await expect(
-		page
-			.getByRole('group')
-			.locator('div')
-			.filter({ hasText: '00.511.522.533.544.5 empty' })
-			.getByRole('button')
-			.nth(2)
+		page.getByText('empty Create New Track').first().getByRole('button').nth(1)
 	).toBeVisible();
 	await expect(page.getByText(':00.000/00:04.800 F01_severe_head_sentence1')).toBeVisible();
 	await page.getByText('empty Create New Track').nth(1).getByRole('combobox').click();
