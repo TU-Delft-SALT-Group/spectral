@@ -44,14 +44,14 @@
 			},
 			createLeftHeaderActionComponent(group) {
 				// eslint-disable-next-line
-				return new SvelteTabActionRenderer<S>(NewTabButton, group, getDefaultProps());
+				return new SvelteTabActionRenderer<S>(NewTabButton, group, getDefaultProps);
 			},
 			createTabComponent(options) {
 				return new SvelteRenderer(Tab, options);
 			},
 			createWatermarkComponent() {
 				// eslint-disable-next-line
-				return new SvelteWatermarkRenderer<S>(Watermark, getDefaultProps());
+				return new SvelteWatermarkRenderer<S>(Watermark, getDefaultProps);
 			}
 		};
 

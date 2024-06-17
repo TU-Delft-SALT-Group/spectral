@@ -11,7 +11,8 @@
 	let panesApi: DockviewApi;
 
 	const getDefaultProps = () => {
-		let defaultProps = $state(paneState.parse(undefined));
+		const defaultState = structuredClone(paneState.parse(undefined));
+		const defaultProps = $state(defaultState);
 
 		return {
 			title: 'New Tab',
