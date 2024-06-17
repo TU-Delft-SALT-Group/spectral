@@ -266,30 +266,51 @@
 		}}
 	>
 		<div></div>
-		<div bind:this={wavesurferContainer}></div>
+		<div bind:this={wavesurferContainer} class="bg-accent"></div>
 
 		{#each fileState.transcriptions as transcription, i (transcription.id)}
 			<div class="flex w-full items-center gap-1 border-y">
-				<Checkbox class="h-3/4 p-1" bind:checked={transcription.selected} />
-				<Button
-					class="h-3/4 p-1"
-					variant="destructive"
-					on:click={() => {
-						fileState.transcriptions = [
-							...fileState.transcriptions.slice(0, i),
-							...fileState.transcriptions.slice(i + 1)
-						];
-					}}><TrashIcon class="w-4" /></Button
-				>
-				<span
-					role="button"
-					tabindex="0"
-					class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
-					ondblclick={doubleClick}
-					onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
-					onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
-					>{transcription.name}</span
-				>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Checkbox class="flex h-4 w-4 p-1" bind:checked={transcription.selected} />
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Show caption on hover</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button
+							class="flex h-6 p-1"
+							variant="destructive"
+							on:click={() => {
+								fileState.transcriptions = [
+									...fileState.transcriptions.slice(0, i),
+									...fileState.transcriptions.slice(i + 1)
+								];
+							}}><TrashIcon class="w-4" /></Button
+						>
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Delete track</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<span
+							role="button"
+							tabindex="0"
+							class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
+							ondblclick={doubleClick}
+							onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
+							onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
+							>{transcription.name}</span
+						>
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Name of the track</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
 			</div>
 			<Track
 				bind:captions={transcription.captions}
