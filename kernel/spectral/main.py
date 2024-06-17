@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from .data_objects import (
     ErrorRateResponse,
     FileStateBody,
+    GeneratedTranscriptionsModel,
     SimpleInfoResponse,
     SpectrogramResponse,
     TranscriptionSegment,
@@ -133,11 +134,18 @@ async def analyze_signal_mode(
 
 @app.get(
     "/transcription/{model}/{file_id}",
-    response_model=dict[str, str | list[TranscriptionSegment]],
+    response_model=GeneratedTranscriptionsModel,
     responses=transcription_response_examples,
 )
 async def transcribe_file(
-    model: Annotated[str, Path(title="The transcription model")],
+    model: Annotated[
+        Literal[
+            "whisper",
+            "deepgram",
+            "allosaurus",
+        ],
+        Path(title="The transcription model"),
+    ],
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
 ) -> Any:

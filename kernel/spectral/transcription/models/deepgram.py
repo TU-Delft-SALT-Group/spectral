@@ -6,8 +6,10 @@ import os
 
 from deepgram import DeepgramClient, PrerecordedOptions
 
+from spectral.types import TranscriptionType
 
-def deepgram_transcription(data: bytes) -> dict[str, str | list[dict]]:
+
+def deepgram_transcription(data: bytes) -> TranscriptionType:
     """
     Transcribe audio data using Deepgram API.
 
