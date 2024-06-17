@@ -12,6 +12,8 @@
 	let tempName: string;
 	export let file: FileState;
 	export let onDeleteFile: (fileId: string) => void = () => {};
+	export let contextMenuOpen = false;
+	export let closeAllContextMenus: () => void;
 
 	// Manual fetch because it's a hassle to set up the form
 	async function deleteFile(fileId: string) {
@@ -24,22 +26,35 @@
 	}
 </script>
 
-<ContextMenu.Trigger>
-	<Button class="flex-2 w-full gap-2 rounded text-left" variant="ghost">
-		<FileIcon></FileIcon>
-		<span class="max-w-full flex-1 overflow-hidden text-ellipsis">
-			{file.name}
-		</span>
-	</Button>
-</ContextMenu.Trigger>
+<ContextMenu.Root
+	bind:open={contextMenuOpen}
+	onOpenChange={(opened) => {
+		if (!opened) return;
 
-<ContextMenu.Content>
-	<ContextMenu.Item on:click={() => (renameDialogOpen = true)}>Rename</ContextMenu.Item>
-	<ContextMenu.Item
-		><a href={`/db/file/${file.id}`} download={file.name}>Download</a></ContextMenu.Item
-	>
-	<ContextMenu.Item on:click={() => (deleteAlertOpen = true)}><span>Delete</span></ContextMenu.Item>
-</ContextMenu.Content>
+		closeAllContextMenus();
+
+		contextMenuOpen = true;
+	}}
+>
+	<ContextMenu.Trigger>
+		<Button class="flex-2 w-full gap-2 rounded text-left" variant="ghost">
+			<FileIcon></FileIcon>
+			<span class="max-w-full flex-1 overflow-hidden text-ellipsis">
+				{file.name}
+			</span>
+		</Button>
+	</ContextMenu.Trigger>
+
+	<ContextMenu.Content>
+		<ContextMenu.Item on:click={() => (renameDialogOpen = true)}>Rename</ContextMenu.Item>
+		<ContextMenu.Item
+			><a href={`/db/file/${file.id}`} download={file.name}>Download</a></ContextMenu.Item
+		>
+		<ContextMenu.Item on:click={() => (deleteAlertOpen = true)}
+			><span>Delete</span></ContextMenu.Item
+		>
+	</ContextMenu.Content>
+</ContextMenu.Root>
 
 <AlertDialog.Root bind:open={deleteAlertOpen}>
 	<AlertDialog.Content>

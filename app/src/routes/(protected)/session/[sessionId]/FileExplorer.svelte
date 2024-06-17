@@ -15,43 +15,49 @@
 	import Recorder from './Recorder.svelte';
 	import FileEntry from './FileEntry.svelte';
 	import type { FileState } from '$lib/analysis/modes/file-state';
-	import * as ContextMenu from '$lib/components/ui/context-menu';
 
 	export let files: FileState[];
 	export let sessionId: string;
 	export let onDeleteFile: (fileId: string) => void;
 
+	let filesContextMenu: boolean[] = [];
 	let submitButton: HTMLInputElement;
+
+	function closeAllContextMenus() {
+		for (let i = 0; i < filesContextMenu.length; i++) {
+			filesContextMenu[i] = false;
+		}
+	}
 </script>
 
 <div class="flex h-full flex-col bg-secondary/75 text-secondary-foreground">
 	<ol class="flex-1 py-2">
-		<ContextMenu.Root>
-			{#each files as file (file.id)}
-				<li
-					class="px-2 py-1"
-					animate:flip={{ duration: 400 }}
-					transition:fade={{ duration: 400 }}
-					draggable={true}
-					on:dragstart={(event) => {
-						event.dataTransfer?.setData('application/json', JSON.stringify(file));
-						if (event.dataTransfer) {
-							event.dataTransfer.dropEffect = 'copy';
-						}
+		{#each files as file, i (file.id)}
+			<li
+				class="px-2 py-1"
+				animate:flip={{ duration: 400 }}
+				transition:fade={{ duration: 400 }}
+				draggable={true}
+				on:dragstart={(event) => {
+					event.dataTransfer?.setData('application/json', JSON.stringify(file));
+					if (event.dataTransfer) {
+						event.dataTransfer.dropEffect = 'copy';
+					}
+				}}
+			>
+				<FileEntry
+					{file}
+					onDeleteFile={() => {
+						onDeleteFile(file.id);
+						files = files.filter((f) => f.id !== file.id);
 					}}
-				>
-					<FileEntry
-						{file}
-						onDeleteFile={() => {
-							onDeleteFile(file.id);
-							files = files.filter((f) => f.id !== file.id);
-						}}
-					></FileEntry>
-				</li>
-			{:else}
-				<div class="text-muted-foreground w-full text-center py-3">No files yet!</div>
-			{/each}
-		</ContextMenu.Root>
+					bind:contextMenuOpen={filesContextMenu[i]}
+					{closeAllContextMenus}
+				/>
+			</li>
+		{:else}
+			<div class="text-muted-foreground w-full text-center py-3">No files yet!</div>
+		{/each}
 	</ol>
 
 	<Separator class=""></Separator>
