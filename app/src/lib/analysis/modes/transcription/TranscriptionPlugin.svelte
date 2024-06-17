@@ -4,6 +4,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { used } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Select from '$lib/components/ui/select';
 	import { generateIdFromEntropySize } from 'lucia';
@@ -14,9 +15,17 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
+	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.esm.js';
 
-	export let computedData: mode.ComputedData<'transcription'>;
-	export let fileState: mode.FileState<'transcription'>;
+	let {
+		fileState = $bindable(),
+		computedData
+	}: {
+		computedData: mode.ComputedData<'transcription'>;
+		fileState: mode.FileState<'transcription'>;
+	} = $props();
+	$effect(() => console.log('in transcription plugin', fileState));
+
 	used(computedData);
 
 	let scrollElement: HTMLElement;
@@ -24,29 +33,26 @@
 	let wavesurferContainer: HTMLElement;
 	let wavesurfer: WaveSurfer;
 	let timeline: TimelinePlugin;
+	let hover: HoverPlugin;
 
-	let width: number;
+	let width: number = $state(100);
 	let minZoom: number;
-	let duration: number;
-	let current: number;
-	let playing = false;
+	let duration: number | null = $state(null);
+	let current: number = $state(0);
+	let playing: boolean = $state(false);
 
-	let transcriptionType: { label?: string; value: string } = { value: 'empty' };
+	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 	const trackNameSpace = 150;
 
-	function transcriptionTypeChanger(newSelection: { label?: string; value: string } | undefined) {
-		if (!newSelection) return;
+	$effect(() => {
+		if (duration === null) return;
 
-		transcriptionType.value = newSelection.value;
-	}
-
-	$: if (width) {
 		minZoom = (width - trackNameSpace) / duration;
 		wavesurfer?.setOptions({
 			width: minZoom * duration
 		});
-	}
+	});
 
 	onMount(() => {
 		wavesurfer = WaveSurfer.create({
@@ -64,6 +70,24 @@
 			})
 		);
 
+		hover = wavesurfer.registerPlugin(
+			HoverPlugin.create({
+				formatTimeCallback: () => ''
+			})
+		);
+		hover.on('hover', (event) => {
+			const shadowRoot = wavesurferContainer.children[0].shadowRoot;
+			if (shadowRoot) {
+				const hoverLabel = shadowRoot.querySelector('span[part="hover-label"]');
+				if (hoverLabel) {
+					hoverLabel.innerHTML =
+						numberToTime(wavesurfer.getDuration() * event) +
+						'<br>' +
+						getHoverString(wavesurfer.getDuration() * event);
+				}
+			}
+		});
+
 		let wrapper = wavesurfer.getWrapper().parentElement!;
 
 		wrapper.style.overflow = 'visible';
@@ -79,6 +103,8 @@
 		});
 
 		wavesurfer.on('zoom', (px) => {
+			if (duration === null) return;
+
 			wavesurfer.setOptions({
 				width: duration * px
 			});
@@ -134,13 +160,31 @@
 		document.body.removeChild(a);
 	}
 
+	function getHoverString(time: number) {
+		let result = '';
+		for (let transcription of fileState.transcriptions) {
+			if (!transcription.selected) continue;
+			result += transcription.name + ': ';
+			for (let caption of transcription.captions) {
+				if (time >= caption.start && time <= caption.end) {
+					result += caption.value + '<br>';
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
 	async function addTrack() {
+		if (duration === null) return;
+
 		if (transcriptionType.value === 'empty') {
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
 					name: 'new track',
+					selected: true,
 					captions: [
 						{
 							start: 0,
@@ -160,6 +204,7 @@
 				{
 					id: generateIdFromEntropySize(10),
 					name: transcriptionType.value + '-' + response.language,
+					selected: true,
 					captions: response.transcription
 				}
 			];
@@ -184,7 +229,7 @@
 			{/if}
 		</Button>
 		<div class="font-mono">
-			{numberToTime(current)}/{numberToTime(duration)}
+			{numberToTime(current)}/{numberToTime(duration ?? 0)}
 		</div>
 		<Separator orientation="vertical" class="mx-2" />
 		<span>{fileState.name}</span>
@@ -195,6 +240,8 @@
 		class="grid w-full overflow-x-scroll transition"
 		style:grid-template-columns="{trackNameSpace}px 1fr"
 		onwheel={(event) => {
+			if (duration === null) return;
+
 			event.preventDefault();
 			event.stopImmediatePropagation();
 
@@ -219,29 +266,51 @@
 		}}
 	>
 		<div></div>
-		<div bind:this={wavesurferContainer}></div>
+		<div bind:this={wavesurferContainer} class="bg-accent"></div>
 
 		{#each fileState.transcriptions as transcription, i (transcription.id)}
 			<div class="flex w-full items-center gap-1 border-y">
-				<Button
-					class="h-3/4 p-1"
-					variant="destructive"
-					on:click={() => {
-						fileState.transcriptions = [
-							...fileState.transcriptions.slice(0, i),
-							...fileState.transcriptions.slice(i + 1)
-						];
-					}}><TrashIcon class="w-4" /></Button
-				>
-				<span
-					role="button"
-					tabindex="0"
-					class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
-					ondblclick={doubleClick}
-					onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
-					onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
-					>{transcription.name}</span
-				>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Checkbox class="flex h-4 w-4 p-1" bind:checked={transcription.selected} />
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Show caption on hover</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button
+							class="flex h-6 p-1"
+							variant="destructive"
+							on:click={() => {
+								fileState.transcriptions = [
+									...fileState.transcriptions.slice(0, i),
+									...fileState.transcriptions.slice(i + 1)
+								];
+							}}><TrashIcon class="w-4" /></Button
+						>
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Delete track</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<span
+							role="button"
+							tabindex="0"
+							class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
+							ondblclick={doubleClick}
+							onfocusout={(event: FocusEvent) => focusOut(event, transcription)}
+							onkeydown={(event: KeyboardEvent) => keyDown(event, transcription)}
+							>{transcription.name}</span
+						>
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Name of the track</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
 			</div>
 			<Track
 				bind:captions={transcription.captions}
@@ -252,7 +321,7 @@
 		<div></div>
 		<!-- Inserting/Exporting track stuff down here -->
 		<div class="flex w-full justify-center gap-5 pt-2">
-			<Select.Root selected={transcriptionType} onSelectedChange={transcriptionTypeChanger}>
+			<Select.Root bind:selected={transcriptionType}>
 				<Select.Trigger class="m-0 w-32">
 					{transcriptionType.value}
 				</Select.Trigger>
