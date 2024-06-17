@@ -329,31 +329,29 @@
 				isLast={i === fileState.transcriptions.length - 1}
 			/>
 		{/each}
-		<div></div>
-		<!-- Inserting/Exporting track stuff down here -->
-		<div class="flex w-full justify-center gap-5 pt-2">
-			<Select.Root bind:selected={transcriptionType}>
-				<Select.Trigger class="m-0 w-32">
-					{transcriptionType.value}
-				</Select.Trigger>
-				<Select.Content>
-					<Select.Item value="empty">empty</Select.Item>
-					{#each models as model}
-						<Select.Item value={model}>{model}</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
-			<Button class="w-fit" variant="secondary" on:click={addTrack}>Create New Track</Button>
+	</div>
+	<!-- Inserting/Exporting track stuff down here -->
+	<div class="flex w-full justify-center gap-5 pt-2">
+		<Select.Root bind:selected={transcriptionType}>
+			<Select.Trigger class="m-0 w-32">
+				{transcriptionType.value}
+			</Select.Trigger>
+			<Select.Content>
+				<Select.Item value="empty">empty</Select.Item>
+				{#each models as model}
+					<Select.Item value={model}>{model}</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
+		<Button class="w-fit" variant="secondary" on:click={addTrack}>Create New Track</Button>
 
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button class="m-0 w-fit" on:click={exportTextGrid} variant="outline"><Download /></Button
-					>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Export to TextGrid</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</div>
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<Button class="m-0 w-fit" on:click={exportTextGrid} variant="outline"><Download /></Button>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>Export to TextGrid</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 	</div>
 </section>
