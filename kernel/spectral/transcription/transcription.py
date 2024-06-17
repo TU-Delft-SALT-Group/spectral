@@ -2,7 +2,7 @@
 
 from fastapi import HTTPException
 
-from spectral.types import FileStateType
+from spectral.types import FileStateType, TranscriptionType
 
 from .models.allosaurus import allosaurus_transcription
 from .models.deepgram import deepgram_transcription
@@ -10,7 +10,7 @@ from .models.whisper import whisper_transcription
 from .transcription_utils import fill_gaps
 
 
-def get_transcription(model: str, file: FileStateType):
+def get_transcription(model: str, file: FileStateType) -> TranscriptionType:
     """
     Get transcription of an audio file using the specified model.
 

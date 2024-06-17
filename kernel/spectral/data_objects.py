@@ -213,3 +213,10 @@ class TranscriptionsTextgridModel(BaseModel):
     """Textgrid model transcription representation."""
 
     transcriptions: list[TranscriptionTextgridModel]
+
+
+class GeneratedTranscriptionsModel(BaseModel):
+    """Transcriptions that have been generated automatically with one of the possible models."""
+
+    language: str | None
+    transcription: list[TranscriptionSegment]
