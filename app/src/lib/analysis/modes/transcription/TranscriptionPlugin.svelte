@@ -203,7 +203,7 @@
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: transcriptionType.value + '-' + response.language,
+					name: transcriptionType.value + (response.language ? '-' + response.language : ''),
 					selected: true,
 					captions: response.transcription
 				}
