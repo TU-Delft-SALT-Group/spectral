@@ -8,6 +8,8 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
 	export let session: typeof sessionTable.$inferSelect;
+	export let closeAllContextMenus: () => void;
+	export let isContextMenuOpen = false;
 
 	export let onDeleteSession: (fileId: string) => void = () => {};
 
@@ -57,7 +59,15 @@
 
 <Tooltip.Root>
 	<Tooltip.Trigger>
-		<ContextMenu.Root>
+		<ContextMenu.Root
+			bind:open={isContextMenuOpen}
+			onOpenChange={(isOpened) => {
+				if (!isOpened) return;
+
+				closeAllContextMenus();
+				isContextMenuOpen = true;
+			}}
+		>
 			<ContextMenu.Trigger>
 				<Button class="h-fit px-6 py-8" variant="outline" href="session/{session.id}">
 					<section class="flex flex-col items-start">

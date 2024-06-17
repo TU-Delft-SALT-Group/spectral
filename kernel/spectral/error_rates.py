@@ -9,6 +9,8 @@ from bert_score import BERTScorer
 from jarowinkler import jarowinkler_similarity
 from jiwer import process_characters, process_words
 
+scorer = BERTScorer(model_type="bert-base-uncased")
+
 
 def calculate_error_rates(
     reference_annotations: list[dict],
@@ -92,7 +94,6 @@ def calculate_bert_score(reference: str, hypothesis: str) -> float:
     if hypothesis == "":
         return 0.0
 
-    scorer = BERTScorer(model_type="bert-base-uncased")
     (p, r, f) = scorer.score([hypothesis], [reference])
 
     # Return the F1 score

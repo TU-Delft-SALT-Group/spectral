@@ -14,6 +14,13 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 
 	let importingSession: boolean = false;
+	let openContextMenus: boolean[] = [];
+
+	function closeAllContextMenus() {
+		for (let i = 0; i < openContextMenus.length; i++) {
+			openContextMenus[i] = false;
+		}
+	}
 
 	async function handleFileUpload(event: Event) {
 		importingSession = true;
@@ -91,10 +98,12 @@
 				</Dialog.Trigger>
 			</li>
 
-			{#each data.sessions as session (session.id)}
+			{#each data.sessions as session, i}
 				<li>
 					<SessionCard
 						{session}
+						{closeAllContextMenus}
+						bind:isContextMenuOpen={openContextMenus[i]}
 						onDeleteSession={() => {
 							data.sessions = data.sessions.filter((s) => s.id !== session.id);
 						}}

@@ -95,5 +95,5 @@ export const sessionTable = pgTable('session', {
 });
 
 export const sessionRelations = relations(sessionTable, ({ many }) => ({
-	files: many(fileTable, { onDelete: 'cascade' })
+	files: many(fileTable)
 }));
