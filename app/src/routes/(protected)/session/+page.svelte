@@ -91,9 +91,14 @@
 				</Dialog.Trigger>
 			</li>
 
-			{#each data.sessions as session}
+			{#each data.sessions as session (session.id)}
 				<li>
-					<SessionCard {session}></SessionCard>
+					<SessionCard
+						{session}
+						onDeleteSession={() => {
+							data.sessions = data.sessions.filter((s) => s.id !== session.id);
+						}}
+					></SessionCard>
 				</li>
 			{/each}
 		</ul>
