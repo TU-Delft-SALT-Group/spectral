@@ -6,12 +6,20 @@
 	export let fileStates: ModeComponentProps<'transcription'>['fileStates'];
 	export let modeState: ModeComponentProps<'transcription'>['modeState'];
 	export let getComputedData: ModeComponentProps<'transcription'>['getComputedData'];
+	// let {
+	// 	fileStates = $bindable(),
+	// 	modeState = $bindable(),
+	// 	getComputedData
+	// }: ModeComponentProps<'transcription'> = $props();
+
+	// $effect(() => console.log("file state in Transcription", fileStates))
+	$: console.log('in transcription', fileStates);
 
 	used(modeState);
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 p-6">
-	{#each fileStates as fileState (fileState.id)}
-		<TranscriptionPlugin bind:fileState computedData={getComputedData(fileState)} />
+	{#each fileStates as fileState, i (fileState.id)}
+		<TranscriptionPlugin bind:fileState={fileStates[i]} computedData={getComputedData(fileState)} />
 	{/each}
 </section>

@@ -9,7 +9,7 @@
 		isLast
 	}: {
 		captions: Caption[];
-		duration: number;
+		duration: number | null;
 		isLast: boolean;
 	} = $props();
 
@@ -68,7 +68,7 @@
 	class:border-b={isLast}
 >
 	<Resizable.PaneGroup direction="horizontal" class="w-full" bind:paneGroup>
-		{#if duration !== undefined}
+		{#if duration !== null}
 			{#each captions as caption, i ([caption.start, caption.end])}
 				<Resizable.Pane class="w-full" defaultSize={(caption.start - caption.end) / duration}>
 					<span
