@@ -82,6 +82,8 @@
 				return;
 			}
 
+			console.log(paneState);
+
 			// When adding a file, wait until we compute the data to add it in
 			const newFiles = [...paneState.files, file];
 			getComputedDataProp = await getComputedDataFunction(paneState.mode, {

@@ -222,9 +222,9 @@
 			on:click={() => wavesurfer?.playPause()}
 		>
 			{#if playing}
-				<PlayIcon size="16" fill="currentColor" />
-			{:else}
 				<PauseIcon size="16" fill="currentColor" />
+			{:else}
+				<PlayIcon size="16" fill="currentColor" />
 			{/if}
 		</Button>
 		<div class="font-mono">

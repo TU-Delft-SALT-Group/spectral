@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import math
 from array import array
 from typing import Any
 
@@ -82,7 +83,10 @@ def signal_to_sound(signal: array, fs: float | int) -> SoundType:
     ```
 
     """
-    return parselmouth.Sound(values=np.array(signal).astype("float64"), sampling_frequency=fs)
+    return parselmouth.Sound(
+        values=np.array(signal).astype("float64"),
+        sampling_frequency=fs,
+    )
 
 
 def calculate_signal_duration(audio: AudioType) -> float:
@@ -217,20 +221,22 @@ def calculate_sound_f1_f2(
 
     """
     try:
-        formants = sound.to_formant_burg(time_step=time_step, window_length=window_length)
-        data = [
-            [
-                formants.get_value_at_time(
-                    formant_number=1,
+        formants = sound.to_formant_burg(
+            time_step=time_step,
+            window_length=window_length,
+        )
+        data: list = []
+        for frame in np.arange(1, len(formants) + 1):
+            frame_formant_data: list = []
+            for x in range(1, 3):
+                cur = formants.get_value_at_time(
+                    formant_number=x,
                     time=formants.frame_number_to_time(frame),
-                ),
-                formants.get_value_at_time(
-                    formant_number=2,
-                    time=formants.frame_number_to_time(frame),
-                ),
-            ]
-            for frame in np.arange(1, len(formants) + 1)
-        ]
+                )
+                if math.isnan(cur):
+                    cur = None
+                frame_formant_data.append(cur)
+            data.append(frame_formant_data)
         return {
             "time_step": formants.time_step,
             "window_length": window_length,
@@ -239,3 +245,55 @@ def calculate_sound_f1_f2(
         }
     except Exception:
         return None
+
+
+def calculate_sound_formants_for_spectrogram(
+    sound: SoundType,
+    time_step: float | None = None,
+    window_length: float = 0.025,
+):  # pragma: no cover
+    """
+    calculate the first five formants of a sound fragment.
+
+    Parameters
+    ----------
+    - sound (parselmouth.Sound): Sound object representing a speech fragment.
+    - time_step (float): Time between the center of the frames.
+    - window_length (float): Effective duration of the analysis window.
+
+    Returns
+    -------
+    - time_step (float): Time between the center of the frames.
+    - window_length (float): Effective duration of the analysis window.
+    - start_time (float): Time of center of the first frame.
+    - data (numpy.ndarray): 2D array with the f1 - f5 found in each frame.
+
+    Example:
+    ```python
+    result = calculate_sound_formants_for_spectrogram(sound, time_step, window_length)
+    ```
+
+    """
+    try:
+        formants = sound.to_formant_burg(
+            time_step=time_step,
+            window_length=window_length,
+        )
+        data: list = []
+        for frame in np.arange(1, len(formants) + 1):
+            frame_formant_data: list = []
+            for x in range(1, 6):
+                cur = formants.get_value_at_time(
+                    formant_number=x,
+                    time=formants.frame_number_to_time(frame),
+                )
+                if math.isnan(cur):
+                    cur = None
+                frame_formant_data.append(cur)
+            data.append(frame_formant_data)
+    except Exception as _:
+        return None
+    else:
+        return {
+            "formants": data,
+        }

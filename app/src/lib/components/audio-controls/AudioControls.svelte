@@ -46,10 +46,11 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { browser } from '$app/environment';
 	import {
-		getVisualizationPlugin,
 		numberToTime,
+		getVisualizationComponent,
 		type ControlRequirements,
-		type VisualizationType
+		type VisualizationType,
+		type PluginComponent
 	} from '.';
 	import { writable, type Writable } from 'svelte/store';
 	import type { mode } from '$lib/analysis/modes';
@@ -60,7 +61,7 @@
 
 	let width: number;
 
-	let component = getVisualizationPlugin(visualization);
+	let component: PluginComponent<VisualizationType> = getVisualizationComponent(visualization);
 	let controls: ControlRequirements;
 	let playing = false;
 	let duration: number;
