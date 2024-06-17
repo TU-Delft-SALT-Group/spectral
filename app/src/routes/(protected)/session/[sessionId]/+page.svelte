@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import * as Resizable from '$lib/components/ui/resizable';
+	import type { PageData } from './$types';
 	import FileExplorer from './FileExplorer.svelte';
 	import Workspace from './Workspace.svelte';
 	import type { SessionState } from './workspace';
 
-	let { data } = $props();
+	export let data: PageData;
 	let lastUpdate: number = -Infinity;
 
 	// for some reason it complains that timeout doesn't get used, even though it does
@@ -43,11 +44,9 @@
 		lastUpdate = Date.now();
 	}
 
-	$effect(() => {
-		if (data.state) {
-			attemptSync();
-		}
-	});
+	$: if (data && data.state) {
+		attemptSync();
+	}
 
 	let workspace: Workspace;
 </script>
