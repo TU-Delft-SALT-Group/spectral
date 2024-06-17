@@ -4,11 +4,16 @@
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
 	import UserIcon from 'lucide-svelte/icons/user';
+	import { uploadingStateStore } from '$lib';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	$: segments = $page.url.pathname.split('/');
 
 	// Workaround for https://github.com/sveltejs/eslint-plugin-svelte/issues/652
 	page;
+
+	let loading: boolean = false;
+	uploadingStateStore.subscribe(val => loading = val);
 </script>
 
 <Menubar.Root class="flex h-12 justify-center bg-secondary py-0 text-secondary-foreground">
@@ -23,7 +28,10 @@
 			<!-- TODO: Add logo -->
 		</div>
 
-		<div class="flex flex-1 justify-end text-muted-foreground">
+		<div class="flex flex-1 h-full justify-end text-muted-foreground">
+			{#if loading}
+				<Spinner />
+			{/if}
 			<Button href="/profile" variant="ghost">
 				<div class="pr-3">Profile</div>
 				<UserIcon></UserIcon>
