@@ -31,6 +31,10 @@ export const byteArray = customType<{ data: Buffer }>({
 	fromDriver(value) {
 		if (typeof value === 'object' && value instanceof Uint8Array) {
 			return Buffer.from(value);
+		} else if (typeof value === 'string') {
+			const cleanedValue = value.replace(/\\x/g, '');
+			const buffer = Buffer.from(cleanedValue, 'hex');
+			return buffer;
 		}
 
 		throw new Error('Expected Uint8Array');
