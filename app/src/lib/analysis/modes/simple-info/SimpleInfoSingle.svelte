@@ -38,7 +38,8 @@
 	$: frameData = getFrameData(computedData.frame);
 </script>
 
-<h1 class="overflow-hidden text-ellipsis text-xl font-bold">{fileState.id}</h1>
+<h1 class="overflow-hidden text-ellipsis text-xl font-bold">{fileState.name}</h1>
+<p class="overflow-hidden text-ellipsis text-xs text-muted-foreground">{fileState.id}</p>
 
 <div class="flex flex-col flex-wrap opacity-80">
 	{#each displayData as { label, value }}
