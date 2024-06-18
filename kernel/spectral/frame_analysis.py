@@ -222,6 +222,9 @@ def get_matching_captions(file_state: FileStateType) -> list[dict]:
     response = []
 
     for match_string in file_state["matchStrings"]:
+        if not match_string["selected"]:
+            continue
+
         for transcription in file_state["transcriptions"]:
             # check if the transcription has been selected
             if not transcription["selected"]:
@@ -230,7 +233,7 @@ def get_matching_captions(file_state: FileStateType) -> list[dict]:
             for caption in transcription["captions"]:
                 # check if the match string is present in the caption
                 value: str = caption["value"]
-                if value.find(match_string) == -1:
+                if value.find(match_string["matchString"]) == -1:
                     continue
 
                 for matched_caption in response:

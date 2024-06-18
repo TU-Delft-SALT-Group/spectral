@@ -43,9 +43,13 @@ export async function getComputedFileData<M extends modeType.Name>({
 		},
 		body: JSON.stringify({ fileState: fileState })
 	});
+
+	console.log('hi');
+	console.log(response);
+
 	const jsonResponse = (await response.json()) as unknown;
 	const result = modes[mode].computedFileData.safeParse(jsonResponse);
-
+	console.log(result);
 	if (!result.success) {
 		logger.error(
 			`Kernel response could not be parsed (response was ${JSON.stringify(jsonResponse)})`

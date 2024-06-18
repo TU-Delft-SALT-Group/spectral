@@ -16,7 +16,17 @@
 	let clientWidth: number;
 	let clientHeight: number;
 
+	// $: if (fileStates) {
+	// 	console.log(fileStates)
+	// 	if(container){
+	// 		d3Action(container);
+	// 	}
+	// }
+
 	function d3Action(node: Node) {
+		while (container.hasChildNodes()) {
+			container.firstChild?.remove();
+		}
 		const foreground = window && window.getComputedStyle(container).getPropertyValue('color');
 		// const background = window && window.getComputedStyle(container).getPropertyValue('background-color')
 
@@ -71,10 +81,10 @@
 			.text('F1');
 
 		const legend = svg.append('g').attr('class', 'legend').style('transition', 'all 0.2s ease');
-
 		for (let i = 0; i < fileStates.length; i++) {
 			const fileState = fileStates[i];
 			const computedData = getComputedData(fileState);
+			console.log(computedData);
 			if (computedData === null) continue;
 			for (let { f1, f2 } of computedData.formants) {
 				// const { f1, f2 } = computedData;
@@ -122,10 +132,7 @@
 
 	$: d3.select('.legend').style('opacity', modeState.showLegend ? 1 : 0);
 
-	$: if (clientWidth && clientHeight) {
-		while (container.hasChildNodes()) {
-			container.firstChild?.remove();
-		}
+	$: if (clientWidth && clientHeight && fileStates) {
 		d3Action(container);
 	}
 </script>
@@ -146,7 +153,7 @@
 
 	<div>
 		{#each fileStates as fileState}
-			<VowelSpaceSingle {fileState}></VowelSpaceSingle>
+			<VowelSpaceSingle bind:fileState></VowelSpaceSingle>
 		{/each}
 	</div>
 </section>
