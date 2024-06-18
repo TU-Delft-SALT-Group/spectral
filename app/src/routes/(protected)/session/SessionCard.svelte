@@ -11,7 +11,7 @@
 	export let closeAllContextMenus: () => void;
 	export let isContextMenuOpen = false;
 
-	export let onDeleteSession: (fileId: string) => void = () => {};
+	export let onDeleteSession: (fileId: string) => void;
 
 	let deleteAlertOpen = false;
 
@@ -21,7 +21,6 @@
 			body: JSON.stringify(session.id)
 		}).then(async (response) => {
 			if ((await response.json()).status == 204) {
-				console.log('success?');
 				onDeleteSession(session.id);
 			}
 		});
