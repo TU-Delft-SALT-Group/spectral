@@ -6,7 +6,7 @@
 </script>
 
 <Dialog.Root>
-	<Dialog.Trigger>
+	<Dialog.Trigger class="h-fit">
 		<!-- TODO: Change it to a better phrase -->
 		<Button variant="ghost">Show Info</Button>
 	</Dialog.Trigger>
