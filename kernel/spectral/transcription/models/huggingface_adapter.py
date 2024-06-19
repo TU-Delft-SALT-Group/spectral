@@ -31,7 +31,7 @@ def _get_model_by_name(model_name: str) -> tuple:
 def get_transcribe_fn(model_name: str) -> Callable[[bytes], str]:
     """Return a complete prediction function, that adheres to the usual API."""
     model, processor = _get_model_by_name(model_name)
-    required_sr = 16000
+    required_sr = 16000  # magic number, requirement of the model
 
     def transcribe_fn(data: bytes) -> str:
         audio = signal_analysis.get_audio({"data": data})
@@ -71,6 +71,6 @@ def hf_transcription(data: bytes, model_name: str) -> TranscriptionType:
         return {}
     else:
         return {
-            "language": "??",
+            "language": "unk",
             "transcription": [{"value": transcription, "start": 0, "end": duration}],
         }

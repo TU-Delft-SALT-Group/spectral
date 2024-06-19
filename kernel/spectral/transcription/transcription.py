@@ -42,4 +42,7 @@ def get_transcription(model: str, file: FileStateType) -> TranscriptionType:
         return fill_gaps(hf_transcription(file["data"], model_name="torgo"), file)
     if model == "allosaurus":
         return fill_gaps(allosaurus_transcription(file), file)
+    # When adding a new mode make sure you also change it in the main.py, where the fastapi request
+    # is validated with pydantic. Otherwise you will just get 422 as a response.
+    # And add it in /app/src/lib/analysis/modes/transcription/TranscriptionPlugin.svelte
     raise HTTPException(status_code=404, detail="Model was not found")
