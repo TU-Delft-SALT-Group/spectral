@@ -14,6 +14,20 @@ test.beforeEach(async ({ page }) => {
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
 
+test('drag and drop test', async ({ page }) => {
+	await page.locator('div:nth-child(2) > .inline-flex').hover();
+	await page.locator('.main > div:nth-child(3) > .inline-flex').click();
+	await expect(page.getByText('00:00.000/00:04.565 1.00x')).toHaveCount(0);
+	await page
+		.getByRole('button', { name: 'MC02_control_head_sentence1' })
+		.dragTo(
+			page.getByText(
+				'00.511.522.533.544.5 00:00.000/00:04.800 1.00x F01_severe_head_sentence1 00.511'
+			)
+		);
+	await expect(page.getByText('00:00.000/00:04.565 1.00x')).toBeVisible();
+});
+
 test('playback test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
 	await page.locator('.main > div:nth-child(3) > .inline-flex').click();
@@ -32,28 +46,15 @@ test('playback test', async ({ page }) => {
 		.getByRole('group')
 		.locator('section')
 		.filter({
-			hasText: '00:00.000/00:04.800 1.50x F01_severe_head_sentence1 00:00.000/00:03.404 1.00x'
+			hasText: '00.511.522.533.544.5 00:00.000/00:04.800 1.50x F01_severe_head_sentence1 00.511'
 		})
 		.getByRole('button')
 		.first()
 		.click();
+	await page.waitForTimeout(3200);
 	await expect(page.getByText('00:00.000/00:04.800')).toHaveCount(0);
-	await page.locator('canvas:nth-child(2)').first().click();
+	await page.locator('.wrapper > div:nth-child(5)').first().click();
 	await expect(page.getByRole('group')).toContainText('00:02.398/00:04.800');
-});
-
-test('drag and drop test', async ({ page }) => {
-	await page.locator('div:nth-child(2) > .inline-flex').hover();
-	await page.locator('.main > div:nth-child(3) > .inline-flex').click();
-	await expect(page.getByText('00:00.000/00:04.565 1.00x')).toHaveCount(0);
-	await page
-		.getByRole('button', { name: 'MC02_control_head_sentence1' })
-		.dragTo(
-			page.getByText(
-				'00:00.000/00:04.800 1.00x F01_severe_head_sentence1 00:00.000/00:03.404 1.00x'
-			)
-		);
-	await expect(page.getByText('00:00.000/00:04.565 1.00x')).toBeVisible();
 });
 
 test.afterEach(async ({ page }) => {
