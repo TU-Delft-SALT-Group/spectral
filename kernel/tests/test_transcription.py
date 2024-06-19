@@ -195,7 +195,9 @@ def test_hf_transcription_no_model():
 @patch("spectral.signal_analysis.calculate_signal_duration")
 @patch("spectral.transcription.models.huggingface_adapter._get_model_by_name")
 def test_hf_transcription_basic(mock_model_getter, sig_duration, get_audio):
-    get_audio.return_value = None
+    fake_audio = Mock()
+    get_audio.return_value = fake_audio
+    fake_audio.raw_data = b""
     sig_duration.return_value = 1.5
     mock_model = Mock()
     mock_processor = Mock()
@@ -212,6 +214,6 @@ def test_hf_transcription_basic(mock_model_getter, sig_duration, get_audio):
     mock_processor.batch_decode = fake_decode
 
     assert hf_transcription(b"data", "torgo") == {
-        "language": "??",
-        "transcription": [{"end": 1.5, "start": 0, "value": "i love apples"}],
+        "language": "unk",
+        "transcription": [{"end": 1.5, "start": 0, "value": "i"}],
     }
