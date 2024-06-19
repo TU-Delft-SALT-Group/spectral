@@ -21,6 +21,11 @@ const config: PlaywrightTestConfig = {
 			name: 'firefox',
 			use: { ...devices['Desktop Firefox'] },
 			dependencies: ['setup sample account']
+		},
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'], permissions: ['microphone', 'camera'] },
+			dependencies: ['setup sample account']
 		}
 	],
 	use: {

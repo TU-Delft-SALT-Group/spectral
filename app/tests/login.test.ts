@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('can login under sample user', async ({ page }) => {
 	await page.goto('http://localhost/');
-	await page.getByRole('link', { name: 'Start analyzing' }).click();
+	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
@@ -18,11 +18,15 @@ test('can login under sample user', async ({ page }) => {
 
 test('invalid username or password', async ({ page }) => {
 	await page.goto('http://localhost/');
-	await page.getByRole('link', { name: 'Start analyzing' }).click();
+	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
 	await page.getByLabel('Username').fill('Spectral');
 	await page.getByLabel('Username').press('Tab');
 	await page.getByLabel('Password').fill('password');
 	await page.getByRole('button', { name: 'Submit' }).click();
 	await expect(page.locator('form')).toContainText('Invalid username or password');
+});
+
+test.afterEach(async ({ page }) => {
+	await page.close();
 });

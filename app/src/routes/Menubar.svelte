@@ -6,6 +6,7 @@
 	import UserIcon from 'lucide-svelte/icons/user';
 	import { uploadingStateStore } from '$lib';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { InfoButton } from '$lib/components/InfoButton';
 
 	$: segments = $page.url.pathname.split('/');
 
@@ -13,6 +14,8 @@
 	page;
 
 	let loading: boolean = false;
+	$: isInSession = segments.length > 2 && segments[1] === 'session';
+
 	uploadingStateStore.subscribe((val) => (loading = val));
 </script>
 
@@ -31,6 +34,9 @@
 		<div class="flex h-full flex-1 justify-end text-muted-foreground">
 			{#if loading}
 				<Spinner />
+			{/if}
+			{#if isInSession}
+				<InfoButton />
 			{/if}
 			<Button href="/profile" variant="ghost">
 				<div class="pr-3">Profile</div>
