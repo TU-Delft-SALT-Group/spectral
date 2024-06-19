@@ -1,6 +1,8 @@
 import pytest
+import torch
 from unittest.mock import Mock, patch
 from fastapi import HTTPException
+from spectral.transcription.models.huggingface_adapter import hf_transcription
 from spectral.transcription.transcription import (
     get_transcription,
     deepgram_transcription,
@@ -183,3 +185,33 @@ def test_whisper_transcription(mock_whisper_client):
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
     (mock_whisper_client.assert_called_once_with(api_key="test_key"))
     (mock_client_instance.audio.transcriptions.create.assert_called_once())
+
+
+def test_hf_transcription_no_model():
+    assert hf_transcription(b"audio data", "arst") == {}
+
+
+@patch("spectral.signal_analysis.get_audio")
+@patch("spectral.signal_analysis.calculate_signal_duration")
+@patch("spectral.transcription.models.huggingface_adapter._get_model_by_name")
+def test_hf_transcription_basic(mock_model_getter, sig_duration, get_audio):
+    get_audio.return_value = None
+    sig_duration.return_value = 1.5
+    mock_model = Mock()
+    mock_processor = Mock()
+    mock_model_getter.return_value = (mock_model, mock_processor)
+    mock_model.generate.return_value = torch.tensor([1, 2, 3])
+    mock_input = Mock()
+    mock_processor.return_value = mock_input
+    mock_input.return_value = None
+
+    def fake_decode(input, *args, **kws):
+        assert torch.allclose(input, torch.tensor([1, 2, 3]))
+        return "i love apples"
+
+    mock_processor.batch_decode = fake_decode
+
+    assert hf_transcription(b"data", "torgo") == {
+        "language": "??",
+        "transcription": [{"end": 1.5, "start": 0, "value": "i love apples"}],
+    }
