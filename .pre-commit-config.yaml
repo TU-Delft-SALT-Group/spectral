@@ -24,7 +24,7 @@ repos:
     hooks:
     - id: pyright
       types_or: [python, pyi, jupyter]
-      additional_dependencies: [numpy, pytest, fastapi, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python, jiwer, beartype, openai, mytextgrid, bert-score, jaroWinkler]
+      additional_dependencies: [numpy, pytest, fastapi, torch, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python, jiwer, beartype, openai, mytextgrid, bert-score, jaroWinkler, "--extra-index-url", "https://download.pytorch.org/whl/cpu"]
       stages: [pre-commit]
   - repo: https://github.com/crate-ci/typos
     rev: v1.21.0
