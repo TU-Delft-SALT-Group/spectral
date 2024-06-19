@@ -31,9 +31,9 @@ test('register and walk through', async ({ page }) => {
 	await page.getByRole('button').click();
 	await page.waitForTimeout(100);
 	await expect(page.locator('div').filter({ hasText: 'Profile' }).nth(2)).toBeVisible();
-	await page.getByRole('textbox').click();
-	await page.getByRole('textbox').fill('new session asdf');
-	await page.getByRole('textbox').press('Enter');
+	await page.locator('input[name="sessionName"]').click();
+	await page.locator('input[name="sessionName"]').fill('new session asdf');
+	await page.locator('input[name="sessionName"]').press('Enter');
 	await expect(page.getByRole('main').filter({ hasNotText: 'sessions' })).toContainText(
 		'No files yet!'
 	);
