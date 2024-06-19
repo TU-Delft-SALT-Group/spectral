@@ -1,4 +1,31 @@
-"""Interface to load arbitrary* HF models."""
+"""
+Interface to load arbitrary* HF models.
+
+Some notes:
+
+Most of the models from HF we tried require patching by hand to be run. Don't
+be the person who is not capable of checking the correctness of export of their model!
+If the model is exported very well, you can use just a single line (with transformers.pipeline)
+to run it, which is very convenient. But, the current model we use requires patching of its
+tokenizer by hand, which is *very* annoying. And this is the reason for such an awkward loading
+of the model, where we don't load it from the huggingface, but load it from the local folder.
+
+Creating such a folder is actually not thaaat hard:
+clone the whisper tiny:  git clone https://huggingface.co/openai/whisper-tiny
+clone the torgo-whatever model: git clone https://huggingface.co/jindaznb/torgo_tiny_finetune_F01_frozen_encoder
+
+Make sure you run ```git lfs pull``` in each repo, this will pull the actual weights. You might need
+to install the git-lfs as a system package, with something like ```apt install git-lfs```.
+
+Afterwards, you need to copy these files from the "whisper" folder into the "torgo-whatever" folder:
+* merges.txt
+* vocab.json
+* tokenizer.json
+* tokenizer_config.json
+
+And then rename the folder torgo-whatever into just torgo.
+Now the support for the torgo transcription mode should be present.
+"""
 
 from collections.abc import Callable
 from functools import lru_cache
