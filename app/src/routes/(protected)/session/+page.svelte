@@ -100,7 +100,13 @@
 
 			{#each data.sessions as session, i}
 				<li>
-					<SessionCard {session} {closeAllContextMenus} bind:isContextMenuOpen={openContextMenus[i]}
+					<SessionCard
+						{session}
+						{closeAllContextMenus}
+						bind:isContextMenuOpen={openContextMenus[i]}
+						onDeleteSession={() => {
+							data.sessions = data.sessions.filter((s) => s.id !== session.id);
+						}}
 					></SessionCard>
 				</li>
 			{/each}
