@@ -17,6 +17,8 @@
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.esm.js';
 	import type { Action } from 'svelte/action';
+	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
+	import type { Frame } from '$lib/analysis/kernel/framing';
 
 	let {
 		fileState = $bindable(),
@@ -34,6 +36,7 @@
 	let wavesurfer: WaveSurfer;
 	let timeline: TimelinePlugin;
 	let hover: HoverPlugin;
+	let regions: RegionsPlugin;
 
 	let width: number = $state(100);
 	let minZoom: number;
@@ -69,6 +72,8 @@
 				secondaryLabelInterval: 0.5
 			})
 		);
+
+		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
 
 		hover = wavesurfer.registerPlugin(
 			HoverPlugin.create({
@@ -110,9 +115,54 @@
 			});
 		});
 
-		wavesurfer.on('timeupdate', (time) => (current = time));
-		wavesurfer.on('play', () => (playing = true));
+		wavesurfer.on('timeupdate', () => {
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+				wavesurfer.setTime(wavesurfer.getDuration());
+			if (regions.getRegions().length == 1) {
+				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
+					wavesurfer.pause();
+					wavesurfer.setTime(regions.getRegions()[0].end);
+				}
+			}
+			current = wavesurfer.getCurrentTime();
+		});
+		wavesurfer.on('play', () => {
+			if (regions.getRegions().length == 1) {
+				wavesurfer.setTime(regions.getRegions()[0].start);
+			}
+			playing = true;
+		});
 		wavesurfer.on('pause', () => (playing = false));
+
+		// regions.enableDragSelection(
+		// 	{
+		// 		color: 'rgba(255, 0, 0, 0.1)'
+		// 	},
+		// 	10
+		// );
+
+		regions.on('region-created', (region: Region) => {
+			regions.getRegions().forEach((r) => {
+				if (r.id === region.id) return;
+				r.remove();
+			});
+
+			let frame: Frame = {
+				startIndex: Math.floor(region.start * wavesurfer.options.sampleRate),
+				endIndex: Math.ceil(region.end * wavesurfer.options.sampleRate)
+			};
+
+			fileState.frame = frame;
+		});
+
+		// window.addEventListener('keydown', (e: KeyboardEvent) => {
+		// 	console.log(e)
+		// 	switch (e.key) {
+		// 		case 'Escape':
+		// 			regions.clearRegions();
+		// 			break;
+		// 	}
+		// })
 	});
 
 	onDestroy(() => {
@@ -222,6 +272,10 @@
 			}
 		};
 	};
+
+	function createRegion(start: number, end: number) {
+		regions.addRegion({ start, end });
+	}
 </script>
 
 <section bind:this={referenceElement} bind:clientWidth={width} class="w-full bg-accent/50">
@@ -326,6 +380,7 @@
 			<Track
 				bind:captions={transcription.captions}
 				{duration}
+				{createRegion}
 				isLast={i === fileState.transcriptions.length - 1}
 			/>
 		{/each}

@@ -6,11 +6,13 @@
 	let {
 		captions = $bindable(),
 		duration,
-		isLast
+		isLast,
+		createRegion
 	}: {
 		captions: Caption[];
 		duration: number | null;
 		isLast: boolean;
+		createRegion: (start: number, end: number) => void;
 	} = $props();
 
 	let paneGroup: PaneGroupAPI | undefined = $state(undefined);
@@ -76,7 +78,10 @@
 						tabindex="0"
 						class="flex h-full w-full items-center justify-center overflow-clip rounded-none bg-accent text-accent-foreground"
 						onclick={(event: MouseEvent) => handleCreate(event, caption)}
-						ondblclick={doubleClick}
+						ondblclick={(event: MouseEvent)=>{
+							doubleClick(event)
+							createRegion(caption.start, caption.end)
+						}}
 						onfocusout={(event: FocusEvent) => focusOut(event, caption)}
 						onkeydown={(event: KeyboardEvent) => keyDown(event, caption)}>{caption.value}</span
 					>

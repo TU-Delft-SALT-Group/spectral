@@ -9,6 +9,8 @@
 	import type { Frame } from '$lib/analysis/kernel/framing';
 	import type { mode } from '..';
 	import { used } from '$lib/utils';
+	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
+	import { numberToTime } from '$lib/components/audio-controls';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
@@ -50,6 +52,7 @@
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
 	let spectrogram: SpectrogramPlugin;
+	let hover: HoverPlugin;
 	let timeline: TimelinePlugin;
 	let spectrogramCanvas: HTMLCanvasElement;
 
@@ -87,6 +90,23 @@
 				secondaryLabelInterval: 0.5
 			})
 		);
+
+		hover = wavesurfer.registerPlugin(
+			HoverPlugin.create({
+				formatTimeCallback: () => ''
+			})
+		);
+
+		hover.on('hover', (event) => {
+			const shadowRoot = element.children[0].shadowRoot;
+			if (shadowRoot) {
+				const hoverLabel = shadowRoot.querySelector('span[part="hover-label"]');
+				if (hoverLabel) {
+					hoverLabel.innerHTML =
+						numberToTime(wavesurfer.getDuration() * event) + '<br>' + getFormants(event);
+				}
+			}
+		});
 
 		regions.enableDragSelection(
 			{
@@ -138,6 +158,9 @@
 		});
 
 		wavesurfer.on('play', () => {
+			if (regions.getRegions().length == 1) {
+				wavesurfer.setTime(regions.getRegions()[0].start);
+			}
 			let ctx = spectrogramCanvas.getContext('2d');
 
 			// we do this because the property exists in spectrogram but isnt' available to us
@@ -171,6 +194,14 @@
 		});
 
 		wavesurfer.on('timeupdate', () => {
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+				wavesurfer.setTime(wavesurfer.getDuration());
+			if (regions.getRegions().length == 1) {
+				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
+					wavesurfer.pause();
+					wavesurfer.setTime(regions.getRegions()[0].end);
+				}
+			}
 			current = wavesurfer.getCurrentTime();
 		});
 
@@ -187,6 +218,20 @@
 		timeline.destroy();
 		wavesurfer.destroy();
 	});
+
+	function getFormants(index: number) {
+		if (!computedData.formants) return '';
+		let position = Math.min(
+			Math.max(0, Math.floor(computedData.formants.length * index)),
+			computedData.formants.length - 1
+		);
+		let response = '';
+		for (let i = 0; i < computedData.formants[position].length; i++) {
+			if (computedData.formants[position][i] === null) continue;
+			response += 'f' + (i + 1) + ': ' + computedData.formants[position][i] + '<br>';
+		}
+		return response;
+	}
 </script>
 
 <div

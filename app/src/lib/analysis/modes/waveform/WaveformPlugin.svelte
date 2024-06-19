@@ -7,6 +7,8 @@
 	import type { mode } from '..';
 	import { used } from '$lib/utils';
 	import type { Frame } from '$lib/analysis/kernel/framing';
+	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
+	import { numberToTime } from '$lib/components/audio-controls';
 
 	export let computedData: mode.ComputedData<'waveform'>;
 	export let fileState: mode.FileState<'waveform'>;
@@ -47,6 +49,7 @@
 	let wavesurfer: WaveSurfer;
 	let regions: RegionsPlugin;
 	let timeline: TimelinePlugin;
+	let hover: HoverPlugin;
 	let minZoom: number;
 
 	$: if (width) {
@@ -77,6 +80,22 @@
 				secondaryLabelInterval: 0.5
 			})
 		);
+
+		hover = wavesurfer.registerPlugin(
+			HoverPlugin.create({
+				formatTimeCallback: () => ''
+			})
+		);
+
+		hover.on('hover', (event) => {
+			const shadowRoot = element.children[0].shadowRoot;
+			if (shadowRoot) {
+				const hoverLabel = shadowRoot.querySelector('span[part="hover-label"]');
+				if (hoverLabel) {
+					hoverLabel.innerHTML = numberToTime(wavesurfer.getDuration() * event) + '<br>';
+				}
+			}
+		});
 
 		regions.enableDragSelection(
 			{
@@ -117,6 +136,14 @@
 		});
 
 		wavesurfer.on('timeupdate', () => {
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+				wavesurfer.setTime(wavesurfer.getDuration());
+			if (regions.getRegions().length == 1) {
+				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
+					wavesurfer.pause();
+					wavesurfer.setTime(regions.getRegions()[0].end);
+				}
+			}
 			current = wavesurfer.getCurrentTime();
 		});
 
@@ -125,6 +152,9 @@
 		});
 
 		wavesurfer.on('play', () => {
+			if (regions.getRegions().length == 1) {
+				wavesurfer.setTime(regions.getRegions()[0].start);
+			}
 			playing = true;
 		});
 
