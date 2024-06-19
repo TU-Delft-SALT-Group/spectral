@@ -63,6 +63,9 @@ class Formants(BaseModel):
 
     f1: float
     f2: float
+    start: float
+    end: float
+    matchString: str | None
 
 
 class VowelSpaceResponse(BaseModel):

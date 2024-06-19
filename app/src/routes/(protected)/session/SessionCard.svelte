@@ -21,7 +21,6 @@
 			body: JSON.stringify(session.id)
 		}).then(async (response) => {
 			if ((await response.json()).status == 204) {
-				console.log('success?');
 				onDeleteSession(session.id);
 			}
 		});

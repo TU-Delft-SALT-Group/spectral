@@ -1,15 +1,22 @@
 <script lang="ts">
-	import type { ModeComponentProps } from '..';
 	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { generateIdFromEntropySize } from 'lucia';
 	import { Button } from '$lib/components/ui/button';
 	import { TrashIcon } from 'lucide-svelte';
+	import type { mode } from '..';
 
-	export let fileState: ModeComponentProps<'vowel-space'>['fileStates'][0];
+	let {
+		fileState = $bindable(),
+		computedData
+	}: {
+		computedData: mode.ComputedData<'vowel-space'>;
+		fileState: mode.FileState<'vowel-space'>;
+	} = $props();
 
-	let newMatchString = '';
+	let newMatchString = $state('');
 
 	function addMatchString() {
 		if (
@@ -28,13 +35,15 @@
 
 <div>
 	<h2>
-		{fileState.name}
+		Name: {fileState.name}
 	</h2>
 	<form
-		on:submit={() => {
+		class="flex"
+		onsubmit={() => {
 			addMatchString();
 		}}
 	>
+		<Label>New Match String</Label>
 		<Input bind:value={newMatchString} />
 	</form>
 	<ul>
@@ -55,7 +64,6 @@
 								class="flex h-6 p-1"
 								variant="destructive"
 								on:click={() => {
-									console.log('delete: ' + matchString.id);
 									fileState.matchStrings = fileState.matchStrings.filter(
 										(x) => x.id !== matchString.id
 									);
@@ -69,8 +77,6 @@
 					<Tooltip.Root>
 						<Tooltip.Trigger>
 							<span
-								role="button"
-								tabindex="0"
 								class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
 								>{matchString.matchString}</span
 							>
@@ -79,6 +85,28 @@
 							<p>Match String</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
+					{#if matchString.selected}
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<span
+									class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
+									>f1:{computedData?.formants
+										.filter((f) => f.matchString === matchString.matchString)
+										.map((f1) => f1.f1)
+										.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0)
+										.toFixed(2)}
+									f2:{computedData?.formants
+										.filter((f) => f.matchString === matchString.matchString)
+										.map((f2) => f2.f2)
+										.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0)
+										.toFixed(2)}
+								</span>
+							</Tooltip.Trigger>
+							<Tooltip.Content>
+								<p>Average score of all captions matching this string</p>
+							</Tooltip.Content>
+						</Tooltip.Root>
+					{/if}
 				</div>
 			</li>
 		{/each}

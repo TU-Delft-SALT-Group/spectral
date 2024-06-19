@@ -134,16 +134,32 @@ def vowel_space_mode(
         frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
         formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
 
-        response.append({"f1": formants[0], "f2": formants[1]})
+        response.append(
+            {
+                "f1": formants[0],
+                "f2": formants[1],
+                "matchString": None,
+                "start": audio.duration_seconds * frame_index["startIndex"] / len(data),
+                "end": audio.duration_seconds * frame_index["endIndex"] / len(data),
+            }
+        )
 
-    for captions in get_matching_captions(file_state):
+    for caption in get_matching_captions(file_state):
         frame_data = data[
-            int(len(data) / audio.duration_seconds * captions["start"]) : int(
-                len(data) / audio.duration_seconds * captions["end"]
+            int(len(data) / audio.duration_seconds * caption["start"]) : int(
+                len(data) / audio.duration_seconds * caption["end"]
             )
         ]
         formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
-        response.append({"f1": formants[0], "f2": formants[1]})
+        response.append(
+            {
+                "f1": formants[0],
+                "f2": formants[1],
+                "matchString": caption["matchString"],
+                "start": caption["start"],
+                "end": caption["end"],
+            }
+        )
 
     return {"formants": response}
 

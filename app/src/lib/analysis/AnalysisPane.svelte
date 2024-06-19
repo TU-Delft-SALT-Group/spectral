@@ -34,8 +34,6 @@
 			paneState.files.map(async (fileState) => await memoizedGetComputedData({ mode, fileState }))
 		);
 
-		console.log(computedFileData);
-
 		return (fileState: mode.FileState<mode.Name>) => {
 			const index = paneState.files.findIndex((file) => deepEqual(file, fileState));
 			return computedFileData[index];

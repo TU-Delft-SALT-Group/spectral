@@ -233,7 +233,7 @@ def get_matching_captions(file_state: FileStateType) -> list[dict]:
             for caption in transcription["captions"]:
                 # check if the match string is present in the caption
                 value: str = caption["value"]
-                if value.find(match_string["matchString"]) == -1:
+                if value != match_string["matchString"]:
                     continue
 
                 for matched_caption in response:
@@ -244,5 +244,7 @@ def get_matching_captions(file_state: FileStateType) -> list[dict]:
                         and matched_caption["value"] == caption["value"]
                     ):
                         continue
+                caption["matchString"] = match_string["matchString"]
+                caption["transcriptionId"] = transcription["id"]
                 response.append(caption)
     return response

@@ -16,7 +16,13 @@ export const vowelSpaceData = {
 					/**
 					 * Second formant
 					 */
-					f2: z.number()
+					f2: z.number(),
+
+					start: z.number(),
+
+					end: z.number(),
+
+					matchString: z.string().nullable()
 				})
 			)
 		})
