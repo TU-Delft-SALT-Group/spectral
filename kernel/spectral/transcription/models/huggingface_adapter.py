@@ -30,14 +30,14 @@ def get_transcribe_fn(model_name):
     required_sr = 16000
 
     def transcribe_fn(data):
-        input_features = processor(
+        input_features = processor(  # type: ignore
             data, sampling_rate=required_sr, return_tensors="pt"
         ).input_features
 
         # Generate transcription
         with torch.no_grad():
             predicted_ids = model.generate(input_features)  # type: ignore
-            return processor.batch_decode(predicted_ids, skip_special_tokens=False)
+            return processor.batch_decode(predicted_ids, skip_special_tokens=False)  # type: ignore
 
     return transcribe_fn
 
