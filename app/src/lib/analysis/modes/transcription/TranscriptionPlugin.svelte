@@ -42,7 +42,7 @@
 	let playing: boolean = $state(false);
 
 	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
-	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
+	const models: string[] = ['whisper', 'deepgram', 'allosaurus', 'whisper-torgo-1-epoch'];
 	const trackNameSpace = 150;
 
 	$effect(() => {

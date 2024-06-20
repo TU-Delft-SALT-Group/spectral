@@ -139,11 +139,7 @@ async def analyze_signal_mode(
 )
 async def transcribe_file(
     model: Annotated[
-        Literal[
-            "whisper",
-            "deepgram",
-            "allosaurus",
-        ],
+        Literal["whisper", "deepgram", "allosaurus", "whisper-torgo-1-epoch"],
         Path(title="The transcription model"),
     ],
     file_id: Annotated[str, Path(title="The ID of the file")],
