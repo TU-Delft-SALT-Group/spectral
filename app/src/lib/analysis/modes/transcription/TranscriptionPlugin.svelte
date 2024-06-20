@@ -44,7 +44,7 @@
 	let current: number = $state(0);
 	let playing: boolean = $state(false);
 
-	let previousSelection: number[]|null = null; 
+	let previousSelection: number[] | null = null;
 
 	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
@@ -164,7 +164,7 @@
 					previousSelection = null;
 					break;
 			}
-		})
+		});
 	});
 
 	onDestroy(() => {
@@ -262,7 +262,7 @@
 				},
 				{
 					id: generateIdFromEntropySize(10),
-					name: model + "-sentence"+(response.language ? '-' + response.language : ''),
+					name: model + '-sentence' + (response.language ? '-' + response.language : ''),
 					selected: true,
 					captions: sentenceCaption(response.transcription)
 				}
@@ -272,16 +272,16 @@
 		}
 	}
 
-	function sentenceCaption(captions: {start:number, end:number, value:string}[]){
-		let sentence = ""
-		for(const caption of captions){
-			if(caption.value==="") continue;
-			sentence += caption.value + " ";
+	function sentenceCaption(captions: { start: number; end: number; value: string }[]) {
+		let sentence = '';
+		for (const caption of captions) {
+			if (caption.value === '') continue;
+			sentence += caption.value + ' ';
 		}
-		if(sentence.charAt(sentence.length-1)===" "){
-			sentence = sentence.substring(0,sentence.length-1);
+		if (sentence.charAt(sentence.length - 1) === ' ') {
+			sentence = sentence.substring(0, sentence.length - 1);
 		}
-		return [{start:captions[0].start,end:captions[captions.length-1].end,value:sentence}]
+		return [{ start: captions[0].start, end: captions[captions.length - 1].end, value: sentence }];
 	}
 
 	const nonPassiveWheel: Action<HTMLElement, (event: WheelEvent) => void> = (node, callback) => {
@@ -294,21 +294,21 @@
 		};
 	};
 
-	function createRegion(start: number, end: number, currentTime: number[]|null) {
-		if(currentTime != null && previousSelection != null){
-			if(Math.abs(previousSelection[0]-currentTime[1])<0.00001){
+	function createRegion(start: number, end: number, currentTime: number[] | null) {
+		if (currentTime != null && previousSelection != null) {
+			if (Math.abs(previousSelection[0] - currentTime[1]) < 0.00001) {
 				start = end;
 				end = previousSelection[1];
-			} 
-			if(start>end){
+			}
+			if (start > end) {
 				start = end;
 			}
 		}
-		previousSelection = [start,end];
-		regions.addRegion({ start, end, drag: false, resize: false, color: 'rgba(255, 0, 0, 0.1)'});
+		previousSelection = [start, end];
+		regions.addRegion({ start, end, drag: false, resize: false, color: 'rgba(255, 0, 0, 0.1)' });
 	}
 
-	function resetRegion(){
+	function resetRegion() {
 		regions.clearRegions();
 		previousSelection = null;
 	}
@@ -397,7 +397,7 @@
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<Tooltip.Root>
-					<Tooltip.Trigger class= "h-full w-full">
+					<Tooltip.Trigger class="h-full w-full">
 						<span
 							role="button"
 							tabindex="0"
@@ -425,9 +425,7 @@
 	<!-- Inserting/Exporting track stuff down here -->
 	<div class="flex w-full justify-center gap-5 pt-2">
 		<div>
-			<span class="flex align-middle">
-				Select Genereated transcription:
-			</span>
+			<span class="flex align-middle"> Select Generated transcription: </span>
 			<Select.Root bind:selected={transcriptionType}>
 				<Select.Trigger class="m-0 w-32">
 					{transcriptionType.value}
@@ -440,7 +438,7 @@
 				</Select.Content>
 			</Select.Root>
 		</div>
-		
+
 		<Button class="w-fit" variant="secondary" on:click={addTrack}>Create New Track</Button>
 
 		<Tooltip.Root>

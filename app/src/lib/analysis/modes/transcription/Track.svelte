@@ -13,7 +13,7 @@
 		captions: Caption[];
 		duration: number | null;
 		isLast: boolean;
-		createRegion: (start: number, end: number, currentTime: number[]|null) => void;
+		createRegion: (start: number, end: number, currentTime: number[] | null) => void;
 		resetRegion: () => void;
 	} = $props();
 
@@ -113,9 +113,9 @@
 						class="bg-primary/20"
 						onclick={(event) => handleDelete(event, i)}
 						onmouseup={() => {
-							const currentTime = [caption.start, caption.end]
-							resize()
-							createRegion(caption.start, caption.end, currentTime)
+							const currentTime = [caption.start, caption.end];
+							resize();
+							createRegion(caption.start, caption.end, currentTime);
 						}}
 					/>
 				{/if}

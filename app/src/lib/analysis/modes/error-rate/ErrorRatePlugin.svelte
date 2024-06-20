@@ -72,13 +72,13 @@
 			<span>WIP: {(computedData.wordLevel.wip * 100).toFixed(2) + '%'}</span>
 		</div>
 		<ErrorDiff common={computedData.wordLevel} joinString=" " />
-		
+
 		<Separator />
 		<h3 class="pt-4 text-xl">BERT</h3>
 		<div class="flex flex-wrap gap-3 font-mono">
 			<span>BERT: {computedData.wordLevel.bert.toFixed(2)}</span>
 		</div>
-		<Separator/>
+		<Separator />
 		<h3 class="pt-4 text-xl">Jaro Winkler</h3>
 		<div class="flex flex-wrap gap-3 font-mono">
 			<span>Jaro Winkler: {computedData.wordLevel.jaroWinkler.toFixed(2)}</span>
@@ -90,6 +90,8 @@
 		<span class="font-mono">CER: {(computedData.characterLevel.cer * 100).toFixed(2) + '%'}</span>
 		<ErrorDiff common={computedData.characterLevel} joinString="" />
 	{:else}
-		<h2 class="text-muted-foreground">Select a non-empty track for both the reference and hypothesis</h2>
+		<h2 class="text-muted-foreground">
+			Select a non-empty track for both the reference and hypothesis
+		</h2>
 	{/if}
 </div>

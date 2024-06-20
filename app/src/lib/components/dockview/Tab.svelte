@@ -49,7 +49,7 @@
 	</button>
 	<button
 		class="ml-auto h-full cursor-pointer items-center justify-center rounded-none p-0 px-1 transition hover:bg-destructive/30"
-		on:mousedown={() => deleteAlertOpen = true}
+		on:mousedown={() => (deleteAlertOpen = true)}
 	>
 		<XIcon class="h-4 w-4 text-secondary-foreground"></XIcon>
 	</button>
@@ -60,7 +60,8 @@
 		<AlertDialog.Header>
 			<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
 			<AlertDialog.Description>
-				This action cannot be undone. This will permanently delete this pane and the analysis conducted in it.
+				This action cannot be undone. This will permanently delete this pane and the analysis
+				conducted in it.
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
