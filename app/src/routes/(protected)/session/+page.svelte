@@ -86,8 +86,7 @@
 
 	export let data: PageData;
 
-	for (let i in data.sessions) {
-		let session = data.sessions[i];
+	for (const session of data.sessions) {
 		menubarOverrides.update((oldStore) => {
 			return { ...oldStore, [session['id']]: session['name'] };
 		});
