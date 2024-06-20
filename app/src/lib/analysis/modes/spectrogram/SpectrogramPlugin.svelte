@@ -8,15 +8,12 @@
 	import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js';
 	import type { Frame } from '$lib/analysis/kernel/framing';
 	import type { mode } from '..';
-	import { used } from '$lib/utils';
 	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 	import { numberToTime } from '$lib/components/audio-controls';
 
 	export let computedData: mode.ComputedData<'spectrogram'>;
 	export let fileState: mode.FileState<'spectrogram'>;
 	let element: HTMLElement;
-
-	used(computedData);
 
 	export const controls: ControlRequirements = {
 		setSpeed(speed: number) {
