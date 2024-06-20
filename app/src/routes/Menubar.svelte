@@ -12,12 +12,9 @@
 	$: segments = $page.url.pathname.split('/');
 
 	// now, if the segment looks like an internal ID of the session
-	// just replace it with the actual name of the session
-	// genius? yeah, that's me :)
+	// just replace it with the actual name of the session, and in the snippet
 	let overrideSegments: { [id: string]: string } = {};
-	menubarOverrides.subscribe((value) => {
-		overrideSegments = value;
-	});
+	menubarOverrides.subscribe((value) => (overrideSegments = value));
 
 	// Workaround for https://github.com/sveltejs/eslint-plugin-svelte/issues/652
 	page;
