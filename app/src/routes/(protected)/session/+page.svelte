@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
+	import { menubarOverrides } from '$lib/components/ui/menubar/overrides';
 	import type { PageData } from './$types';
 	import SessionCard from './SessionCard.svelte';
 	import { cn } from '$lib/utils';
@@ -84,6 +85,12 @@
 	}
 
 	export let data: PageData;
+
+	for (const session of data.sessions) {
+		menubarOverrides.update((oldStore) => {
+			return { ...oldStore, [session['id']]: session['name'] };
+		});
+	}
 </script>
 
 <svelte:head>

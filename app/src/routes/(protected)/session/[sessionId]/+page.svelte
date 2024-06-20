@@ -73,7 +73,7 @@
 		}
 	});
 
-	let workspace: Workspace;
+	let workspace: Workspace | undefined = undefined;
 </script>
 
 <svelte:head>
@@ -87,7 +87,7 @@
 				bind:files={data.files}
 				bind:workspace
 				sessionId={data.sessionId}
-				onDeleteFile={(fileId) => workspace.deleteFile(fileId)}
+				onDeleteFile={(fileId) => workspace?.deleteFile(fileId)}
 			></FileExplorer>
 		</Resizable.Pane>
 
