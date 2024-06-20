@@ -57,7 +57,7 @@
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
 	}
 
-	export async function addFile(fileJSON) {
+	export async function addFile(fileJSON: string) {
 		const { value: json, ok } = JsonSafeParse(fileJSON);
 		if (!ok) {
 			// From Dockview

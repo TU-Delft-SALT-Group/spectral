@@ -20,11 +20,13 @@
 		};
 	};
 
-	export function addFileJSON(fileJSON) {
+	export function addFileJSON(fileJSON: string) {
 		for (const pane of panesApi.panels) {
 			const instance = pane.view.content as SvelteRenderer;
 			(
-				instance.getInstance() as (ComponentType & { addFile: (file) => void }) | undefined
+				instance.getInstance() as
+					| (ComponentType & { addFile: (fileJSON: string) => void })
+					| undefined
 			)?.addFile(fileJSON);
 		}
 	}
