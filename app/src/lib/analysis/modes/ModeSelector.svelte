@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { flip } from 'svelte/animate';
 	import { modeNames, modeComponents, type mode as modeType } from '.';
 
 	export let mode: modeType.Name;
@@ -14,7 +13,6 @@
 			style:--index={i}
 			class:opacity-0={mode !== currentMode}
 			class="select relative transition duration-300"
-			animate:flip={{ delay: 300 }}
 		>
 			<Button
 				on:click={() => (mode = currentMode)}
@@ -60,7 +58,7 @@
 
 	.main:hover > div > .label {
 		opacity: 0.7;
-		transition-delay: 1s;
+		transition-delay: 0.3s;
 	}
 
 	.main > div > .label {

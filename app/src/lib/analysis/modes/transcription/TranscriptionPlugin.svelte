@@ -46,7 +46,7 @@
 
 	let previousSelection: number[] | null = null;
 
-	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
+	let transcriptionType: { label?: string; value: string } = $state({ value: 'no model' });
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 	const trackNameSpace = 150;
 
@@ -230,7 +230,7 @@
 	async function addTrack() {
 		if (duration === null) return;
 
-		if (transcriptionType.value === 'empty') {
+		if (transcriptionType.value === 'no model') {
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
@@ -424,15 +424,15 @@
 	</div>
 	<!-- Inserting/Exporting track stuff down here -->
 	<div class="flex w-full justify-center gap-5 pt-2">
-		<div>
-			<span class="flex align-middle"> Select Generated transcription: </span>
+		<div class="flex items-center">
+			<span class="mr-2 flex"> Select transcription model: </span>
 			<Select.Root bind:selected={transcriptionType}>
 				<Select.Trigger class="m-0 w-32">
 					{transcriptionType.value}
 				</Select.Trigger>
 				<Select.Content>
-					<Select.Item value="empty">empty</Select.Item>
-					s{#each models as model}
+					<Select.Item value="no model">no model</Select.Item>
+					{#each models as model}
 						<Select.Item value={model}>{model}</Select.Item>
 					{/each}
 				</Select.Content>
