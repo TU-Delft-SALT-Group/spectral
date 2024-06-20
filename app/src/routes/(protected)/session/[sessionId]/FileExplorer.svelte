@@ -15,8 +15,9 @@
 	import Recorder from './Recorder.svelte';
 	import FileEntry from './FileEntry.svelte';
 	import type { FileState } from '$lib/analysis/modes/file-state';
+	import Workspace from './Workspace.svelte';
 
-	export let workspace;
+	export let workspace: Workspace | undefined;
 
 	export let files: FileState[];
 	export let sessionId: string;
@@ -41,7 +42,7 @@
 				transition:fade={{ duration: 400 }}
 				draggable={true}
 				on:click={() => {
-					workspace.addFileJSON(JSON.stringify(file));
+					workspace?.addFileJSON(JSON.stringify(file));
 				}}
 				on:dragstart={(event) => {
 					event.dataTransfer?.setData('application/json', JSON.stringify(file));
