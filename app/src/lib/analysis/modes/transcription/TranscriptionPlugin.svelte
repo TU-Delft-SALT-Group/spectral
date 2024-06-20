@@ -44,6 +44,8 @@
 	let current: number = $state(0);
 	let playing: boolean = $state(false);
 
+	let previousSelection: number[]|null = null; 
+
 	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
 	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
 	const trackNameSpace = 150;
@@ -155,14 +157,14 @@
 			fileState.frame = frame;
 		});
 
-		// window.addEventListener('keydown', (e: KeyboardEvent) => {
-		// 	console.log(e)
-		// 	switch (e.key) {
-		// 		case 'Escape':
-		// 			regions.clearRegions();
-		// 			break;
-		// 	}
-		// })
+		window.addEventListener('keydown', (e: KeyboardEvent) => {
+			switch (e.key) {
+				case 'Escape':
+					regions.clearRegions();
+					previousSelection = null;
+					break;
+			}
+		})
 	});
 
 	onDestroy(() => {
@@ -201,7 +203,7 @@
 
 		a.style.display = 'none';
 		a.href = url;
-		a.download = 'transcription.TextGrid';
+		a.download = `${fileState.name}.TextGrid`;
 
 		document.body.appendChild(a);
 		a.click();
@@ -233,7 +235,7 @@
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: 'new track',
+					name: 'track name',
 					selected: true,
 					captions: [
 						{
@@ -245,6 +247,7 @@
 				}
 			];
 		} else if (models.includes(transcriptionType.value)) {
+			const model = transcriptionType.value;
 			let response = await (
 				await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
 			).json();
@@ -253,14 +256,32 @@
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: transcriptionType.value + (response.language ? '-' + response.language : ''),
+					name: model + (response.language ? '-' + response.language : ''),
 					selected: true,
 					captions: response.transcription
+				},
+				{
+					id: generateIdFromEntropySize(10),
+					name: model + "-sentence"+(response.language ? '-' + response.language : ''),
+					selected: true,
+					captions: sentenceCaption(response.transcription)
 				}
 			];
 		} else {
 			logger.error('no match for: ' + transcriptionType.value);
 		}
+	}
+
+	function sentenceCaption(captions: {start:number, end:number, value:string}[]){
+		let sentence = ""
+		for(const caption of captions){
+			if(caption.value==="") continue;
+			sentence += caption.value + " ";
+		}
+		if(sentence.charAt(sentence.length-1)===" "){
+			sentence = sentence.substring(0,sentence.length-1);
+		}
+		return [{start:captions[0].start,end:captions[captions.length-1].end,value:sentence}]
 	}
 
 	const nonPassiveWheel: Action<HTMLElement, (event: WheelEvent) => void> = (node, callback) => {
@@ -273,8 +294,23 @@
 		};
 	};
 
-	function createRegion(start: number, end: number) {
-		regions.addRegion({ start, end });
+	function createRegion(start: number, end: number, currentTime: number[]|null) {
+		if(currentTime != null && previousSelection != null){
+			if(Math.abs(previousSelection[0]-currentTime[1])<0.00001){
+				start = end;
+				end = previousSelection[1];
+			} 
+			if(start>end){
+				start = end;
+			}
+		}
+		previousSelection = [start,end];
+		regions.addRegion({ start, end, drag: false, resize: false, color: 'rgba(255, 0, 0, 0.1)'});
+	}
+
+	function resetRegion(){
+		regions.clearRegions();
+		previousSelection = null;
 	}
 </script>
 
@@ -361,7 +397,7 @@
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<Tooltip.Root>
-					<Tooltip.Trigger>
+					<Tooltip.Trigger class= "h-full w-full">
 						<span
 							role="button"
 							tabindex="0"
@@ -381,23 +417,30 @@
 				bind:captions={transcription.captions}
 				{duration}
 				{createRegion}
+				{resetRegion}
 				isLast={i === fileState.transcriptions.length - 1}
 			/>
 		{/each}
 	</div>
 	<!-- Inserting/Exporting track stuff down here -->
 	<div class="flex w-full justify-center gap-5 pt-2">
-		<Select.Root bind:selected={transcriptionType}>
-			<Select.Trigger class="m-0 w-32">
-				{transcriptionType.value}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="empty">empty</Select.Item>
-				{#each models as model}
-					<Select.Item value={model}>{model}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+		<div>
+			<span class="flex align-middle">
+				Select Genereated transcription:
+			</span>
+			<Select.Root bind:selected={transcriptionType}>
+				<Select.Trigger class="m-0 w-32">
+					{transcriptionType.value}
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="empty">empty</Select.Item>
+					s{#each models as model}
+						<Select.Item value={model}>{model}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		
 		<Button class="w-fit" variant="secondary" on:click={addTrack}>Create New Track</Button>
 
 		<Tooltip.Root>
@@ -405,7 +448,7 @@
 				<Button class="m-0 w-fit" on:click={exportTextGrid} variant="outline"><Download /></Button>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
-				<p>Export to TextGrid</p>
+				<p>Export the transcriptions to TextGrid</p>
 			</Tooltip.Content>
 		</Tooltip.Root>
 	</div>
