@@ -114,11 +114,11 @@ def waveform_mode(database: DatabaseType, file_state: FileStateType) -> dict[str
 
     pitch_dict = calculate_sound_pitch(sound)
     pitch = []
-    if(pitch_dict is not None):
+    if pitch_dict is not None:
         pitch = pitch_dict["data"]
-    formants_dict = calculate_sound_pitch(sound)
+    formants_dict = calculate_sound_f1_f2(sound)
     formants = []
-    if(formants_dict is not None):
+    if formants_dict is not None:
         formants = formants_dict["data"]
     return {"pitch": pitch, "formants": formants}
 
