@@ -102,7 +102,9 @@
 	{#if getComputedDataProp === null}
 		Loading...
 	{:else if paneState.files.length === 0}
-		Drag a file from the file explorer and drop it here to start analyzing!
+		<div class="flex h-full w-full items-center justify-center text-2xl text-muted-foreground">
+			Drag a file from the file explorer and drop it here to start analyzing!
+		</div>
 	{:else}
 		<!--
 			The type of the component is a union of mode components. However, this means that
