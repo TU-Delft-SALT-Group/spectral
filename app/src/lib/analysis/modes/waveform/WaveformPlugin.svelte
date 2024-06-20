@@ -145,7 +145,9 @@
 	bind:this={element}
 	class="waveform w-full flex-1 rounded-tr bg-secondary"
 	role="region"
-	on:wheel={(event) => {
+	on:wheel|nonpassive={(event: WheelEvent) => {
+		if (!event.ctrlKey) return;
+
 		event.preventDefault();
 		event.stopImmediatePropagation();
 

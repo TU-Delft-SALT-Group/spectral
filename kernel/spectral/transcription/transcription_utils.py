@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from spectral.signal_analysis import calculate_signal_duration, get_audio
+from spectral.types import TranscriptionType
 
 
 def fill_gaps(
-    transcriptions_and_language: dict[str, str | list[dict]],
+    transcriptions_and_language: TranscriptionType,
     file: dict,
-) -> dict[str, str | list[dict]]:
+) -> TranscriptionType:
     """
     Fill the gaps between consecutive transcription dictionaries such that all
     time is accounted for.

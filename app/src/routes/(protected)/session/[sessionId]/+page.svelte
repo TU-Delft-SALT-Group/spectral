@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { uploadingStateStore } from '$lib';
 	import * as Resizable from '$lib/components/ui/resizable';
-	import type { PageServerData } from './$types';
+	import type { PageData } from './$types';
 	import FileExplorer from './FileExplorer.svelte';
 	import Workspace from './Workspace.svelte';
 	import type { SessionState } from './workspace';
 
-	export let data: PageServerData;
+	export let data: PageData;
 	let lastUpdate: number = -Infinity;
 
 	// for some reason it complains that timeout doesn't get used, even though it does
@@ -19,6 +20,7 @@
 	 */
 	function attemptSync() {
 		if (!browser || timeout !== null) return;
+		uploadingStateStore.set(true);
 
 		let now = Date.now();
 
@@ -27,6 +29,7 @@
 				syncState(data.state);
 				lastUpdate = Date.now();
 				timeout = null;
+				uploadingStateStore.set(false);
 			},
 			5 * 1000 - (now - lastUpdate)
 		);
@@ -44,7 +47,7 @@
 		lastUpdate = Date.now();
 	}
 
-	$: if (data.state) {
+	$: if (data && data.state) {
 		attemptSync();
 	}
 

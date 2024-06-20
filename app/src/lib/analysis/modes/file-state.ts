@@ -13,6 +13,7 @@ export const transcription = z
 	.object({
 		id: z.string().default('broken-track-id'),
 		name: z.string().default('broken-track-name'),
+		selected: z.boolean().default(true),
 		captions: z.array(caption).default([])
 	})
 	.default({});

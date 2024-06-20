@@ -11,7 +11,7 @@
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 p-6">
-	{#each fileStates as fileState (fileState.id)}
-		<TranscriptionPlugin bind:fileState computedData={getComputedData(fileState)} />
+	{#each fileStates as fileState, i (fileState.id)}
+		<TranscriptionPlugin bind:fileState={fileStates[i]} computedData={getComputedData(fileState)} />
 	{/each}
 </section>

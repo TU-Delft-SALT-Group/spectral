@@ -5,7 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 import jiwer
+from bert_score import BERTScorer
+from jarowinkler import jarowinkler_similarity
 from jiwer import process_characters, process_words
+
+scorer = BERTScorer(model_type="bert-base-uncased")
 
 
 def calculate_error_rates(
@@ -68,7 +72,49 @@ def word_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:
         "reference": processed_data.references[0],
         "hypothesis": processed_data.hypotheses[0],
         "alignments": get_alignments(processed_data.alignments[0]),
+        "bert": calculate_bert_score(reference, hypothesis),
+        "jaroWinkler": calculate_jaro_winkler(reference, hypothesis),
     }
+
+
+def calculate_bert_score(reference: str, hypothesis: str) -> float:
+    """
+    Calculate the BERT score based on reference and hypothesis string.
+
+    Parameters
+    ----------
+    - reference (str): The reference transcription.
+    - hypothesis (str): The hypothesis transcription.
+
+    Returns
+    -------
+    - float: the BERT score.
+
+    """
+    if hypothesis == "":
+        return 0.0
+
+    (p, r, f) = scorer.score([hypothesis], [reference])
+
+    # Return the F1 score
+    return round(f.mean().item(), 2)  # pyright: ignore[reportAttributeAccessIssue]
+
+
+def calculate_jaro_winkler(reference: str, hypothesis: str) -> float:
+    """
+    Calculate the Jaro Winkler score based on reference and hypothesis string.
+
+    Parameters
+    ----------
+    - reference (str): The reference transcription.
+    - hypothesis (str): The hypothesis transcription.
+
+    Returns
+    -------
+    - float: the Jaro Winkler score.
+
+    """
+    return round(jarowinkler_similarity(hypothesis, reference), 2)
 
 
 def character_level_processing(reference: str, hypothesis: str) -> dict[str, Any]:

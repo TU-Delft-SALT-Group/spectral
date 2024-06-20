@@ -22,7 +22,7 @@ services:
     env_file:
        - '.variables.env'
     volumes:
-      - ./data:/data
+      - ./data:/var/lib/postgresql/data
 
   app:
     restart: unless-stopped
