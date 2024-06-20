@@ -40,9 +40,9 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Button variant="link" href="/login" class="w-fit px-0 text-left">Log in instead</Button>
+	<Button variant="link" href="/login" class="w-fit px-0 text-left">Login instead</Button>
 
-	<Form.Button>Submit</Form.Button>
+	<Form.Button>Sign up</Form.Button>
 </form>
 
 <style>
