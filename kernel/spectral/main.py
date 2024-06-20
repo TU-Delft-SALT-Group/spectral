@@ -18,6 +18,7 @@ from .data_objects import (
     TranscriptionSegment,
     TranscriptionsTextgridModel,
     VowelSpaceResponse,
+    WaveformResponse,
 )
 from .database import Database
 from .mode_handler import (
@@ -76,6 +77,7 @@ app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
         VowelSpaceResponse,
         list[list[TranscriptionSegment]],
         ErrorRateResponse,
+        WaveformResponse,
         SpectrogramResponse,
     ],
     responses=signal_modes_response_examples,
