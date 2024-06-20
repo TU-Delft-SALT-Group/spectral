@@ -12,7 +12,8 @@ export const transcriptionData = {
 		.pick({
 			id: true,
 			name: true,
-			transcriptions: true
+			transcriptions: true,
+			frame: true
 		})
 		.default({}),
 
@@ -22,6 +23,7 @@ export const transcriptionData = {
 export function doubleClick(event: MouseEvent) {
 	const element = event.target! as HTMLElement;
 	element.contentEditable = 'true';
+	element.focus();
 }
 
 export function focusOut(event: FocusEvent, toChange: { name: string } | { value: string }) {
@@ -30,9 +32,11 @@ export function focusOut(event: FocusEvent, toChange: { name: string } | { value
 	element.contentEditable = 'false';
 
 	if ('name' in toChange) {
-		toChange.name = element.textContent ?? '';
+		toChange.name = element.innerText ?? '';
+		element.textContent = toChange.name;
 	} else {
-		toChange.value = element.textContent ?? '';
+		toChange.value = element.innerText ?? '';
+		element.textContent = toChange.value;
 	}
 }
 
@@ -50,9 +54,11 @@ export function keyDown(event: KeyboardEvent, toChange: { name: string } | { val
 		element.contentEditable = 'false';
 
 		if ('name' in toChange) {
-			toChange.name = element.textContent ?? '';
+			toChange.name = element.innerText ?? '';
+			element.textContent = toChange.name;
 		} else {
-			toChange.value = element.textContent ?? '';
+			toChange.value = element.innerText ?? '';
+			element.textContent = toChange.value;
 		}
 	}
 }

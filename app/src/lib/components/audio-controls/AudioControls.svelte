@@ -19,13 +19,14 @@
 					selectedStore.set(null);
 					break;
 				case ' ':
-					if (
-						(e.target as HTMLTextAreaElement).tagName.toUpperCase() == 'INPUT' ||
-						selected === null
-					)
-						return;
-					e.preventDefault();
-					selected.togglePlay();
+					// if (
+					// 	(e.target as HTMLTextAreaElement).tagName.toUpperCase() == 'INPUT' ||
+					// 	(e.target as HTMLTextAreaElement).tagName.toUpperCase() == 'SPAN' ||
+					// 	selected === null
+					// )
+					// 	return;
+					// e.preventDefault();
+					// selected.togglePlay();
 					break;
 				case 'ArrowLeft':
 					selected?.seek(-step);

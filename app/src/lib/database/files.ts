@@ -7,7 +7,7 @@ export async function uploadFile(file: File, sessionId: string, userId: string) 
 	const arrayBuffer = await file.arrayBuffer();
 	const buffer = Buffer.from(arrayBuffer);
 
-	await uploadFileAsBuffer(buffer, file.name, sessionId, userId, null);
+	await uploadFileAsBuffer(buffer, file.name, sessionId, userId, '', '');
 	logger.trace(`File ${file.name} uploaded as buffer`);
 }
 
@@ -16,7 +16,8 @@ export async function uploadFileAsBuffer(
 	name: string,
 	sessionId: string,
 	userId: string,
-	groundTruth: string | null
+	groundTruth: string,
+	note: string
 ) {
 	await db.insert(fileTable).values({
 		name,
@@ -24,6 +25,7 @@ export async function uploadFileAsBuffer(
 		uploader: userId,
 		data: buffer,
 		session: sessionId,
-		groundTruth: groundTruth
+		groundTruth,
+		note
 	});
 }

@@ -20,7 +20,9 @@ export const load = (async ({ params: { sessionId } }) => {
 				columns: {
 					id: true,
 					name: true,
-					state: true
+					state: true,
+					note: true,
+					groundTruth: true
 				}
 			}
 		}
@@ -43,7 +45,7 @@ export const load = (async ({ params: { sessionId } }) => {
 }) satisfies PageServerLoad;
 
 async function getFiles(result: {
-	files: { id: string; name: string; state: unknown }[];
+	files: { id: string; name: string; note: string; groundTruth: string; state: unknown }[];
 }): Promise<FileState[]> {
 	const promises = result.files.map(async (file) => {
 		try {
@@ -55,7 +57,9 @@ async function getFiles(result: {
 			return fileState.parse({
 				...file.state,
 				id: file.id,
-				name: file.name
+				name: file.name,
+				note: file.note,
+				groundTruth: file.groundTruth
 			});
 		} catch (err) {
 			logger.trace(`File ${file.id} not found`);
@@ -64,7 +68,9 @@ async function getFiles(result: {
 			return {
 				...defaultState,
 				id: file.id,
-				name: file.name
+				name: file.name,
+				note: file.note,
+				groundTruth: file.groundTruth
 			};
 		}
 	});
