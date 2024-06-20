@@ -132,12 +132,12 @@
 
 			<div class="m-4 h-full flex-1 rounded bg-background p-2 text-left">
 				{#if previewing && previewingIndex !== null}
-					Notes for take {previewingIndex + 1} (t yping auto saves)
+					Notes for take {previewingIndex + 1} (typing auto saves)
 					<Textarea
 						on:focus={disableShortcuts}
 						on:blur={enableShortcuts}
 						bind:value={previewing.note}
-						on:input={(e: InputEvent) => handleNoteChange(e, previewingIndex)}
+						on:input={(e: InputEvent) => {if(previewingIndex){handleNoteChange(e, previewingIndex)}}}
 					/>
 				{/if}
 			</div>
