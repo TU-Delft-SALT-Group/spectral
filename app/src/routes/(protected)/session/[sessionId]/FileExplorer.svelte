@@ -16,6 +16,8 @@
 	import FileEntry from './FileEntry.svelte';
 	import type { FileState } from '$lib/analysis/modes/file-state';
 
+	export let workspace;
+
 	export let files: FileState[];
 	export let sessionId: string;
 	export let onDeleteFile: (fileId: string) => void;
@@ -31,13 +33,16 @@
 </script>
 
 <div class="flex h-full flex-col bg-secondary/75 text-secondary-foreground">
-	<ol class="flex-1 py-2">
+	<div class="h-full flex-1 flex-col py-2">
 		{#each files as file, i (file.id)}
-			<li
-				class="px-2 py-1"
+			<button
+				class="w-full px-2 py-1"
 				animate:flip={{ duration: 400 }}
 				transition:fade={{ duration: 400 }}
 				draggable={true}
+				on:click={() => {
+					workspace.addFileJSON(JSON.stringify(file));
+				}}
 				on:dragstart={(event) => {
 					event.dataTransfer?.setData('application/json', JSON.stringify(file));
 					if (event.dataTransfer) {
@@ -54,11 +59,11 @@
 					bind:contextMenuOpen={filesContextMenu[i]}
 					{closeAllContextMenus}
 				/>
-			</li>
+			</button>
 		{:else}
 			<div class="text-muted-foreground w-full text-center py-3">No files yet!</div>
 		{/each}
-	</ol>
+	</div>
 
 	<Separator class=""></Separator>
 

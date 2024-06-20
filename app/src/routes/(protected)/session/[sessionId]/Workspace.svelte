@@ -20,6 +20,15 @@
 		};
 	};
 
+	export function addFileJSON(fileJSON) {
+		for (const pane of panesApi.panels) {
+			const instance = pane.view.content as SvelteRenderer;
+			(
+				instance.getInstance() as (ComponentType & { addFile: (file) => void }) | undefined
+			)?.addFile(fileJSON);
+		}
+	}
+
 	export function deleteFile(fileId: string) {
 		for (const pane of panesApi.panels) {
 			const instance = pane.view.content as SvelteRenderer;

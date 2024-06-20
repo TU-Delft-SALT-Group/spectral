@@ -56,6 +56,30 @@
 	export function removeFile(fileId: string) {
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
 	}
+
+	export async function addFile(fileJSON) {
+		const { value: json, ok } = JsonSafeParse(fileJSON);
+		if (!ok) {
+			// From Dockview
+			return;
+		}
+
+		const file = fileState.parse(json);
+
+		// Don't add files already present
+		if (paneState.files.some((f) => f.id === file.id)) {
+			// TODO: Show message (in a Sonner)
+			return;
+		}
+
+		// When adding a file, wait until we compute the data to add it in
+		const newFiles = [...paneState.files, file];
+		getComputedDataProp = await getComputedDataFunction(paneState.mode, {
+			...paneState,
+			files: newFiles
+		});
+		paneState.files = newFiles;
+	}
 </script>
 
 <section
@@ -70,26 +94,7 @@
 		event.preventDefault();
 		if (event.dataTransfer) {
 			const transferredData = event.dataTransfer.getData('application/json');
-			const { value: json, ok } = JsonSafeParse(transferredData);
-			if (!ok) {
-				// From Dockview
-				return;
-			}
-
-			const file = fileState.parse(json);
-			// Don't add files already present
-			if (paneState.files.some((f) => f.id === file.id)) {
-				// TODO: Show message (in a Sonner)
-				return;
-			}
-
-			// When adding a file, wait until we compute the data to add it in
-			const newFiles = [...paneState.files, file];
-			getComputedDataProp = await getComputedDataFunction(paneState.mode, {
-				...paneState,
-				files: newFiles
-			});
-			paneState.files = newFiles;
+			addFile(transferredData);
 		}
 	}}
 	role="group"
