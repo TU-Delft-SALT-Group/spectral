@@ -6,6 +6,7 @@
 	import FileExplorer from './FileExplorer.svelte';
 	import Workspace from './Workspace.svelte';
 	import type { SessionState } from './workspace';
+	import { beforeNavigate } from '$app/navigation';
 
 	export let data: PageData;
 	let lastUpdate: number = -Infinity;
@@ -50,6 +51,17 @@
 	$: if (data && data.state) {
 		attemptSync();
 	}
+
+	// subscribe to our own loading store lol
+	let loading: boolean = true;
+	uploadingStateStore.subscribe((val) => {
+		loading = val;
+	});
+
+	// Send alert if closing while loading
+	beforeNavigate(({ type, cancel }) => {
+		if (type === 'leave') cancel();
+	});
 
 	let workspace: Workspace;
 </script>
