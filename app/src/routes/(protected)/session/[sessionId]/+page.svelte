@@ -60,7 +60,7 @@
 
 	// Send alert if closing while loading
 	beforeNavigate(({ type, cancel }) => {
-		if (type === 'leave') cancel();
+		if (type === 'leave' && loading) cancel();
 	});
 
 	let workspace: Workspace;
