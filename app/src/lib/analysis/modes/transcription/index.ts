@@ -23,15 +23,13 @@ export const transcriptionData = {
 export function doubleClick(event: MouseEvent) {
 	const element = event.target! as HTMLElement;
 	element.contentEditable = 'true';
-	element.focus()
+	element.focus();
 }
 
 export function focusOut(event: FocusEvent, toChange: { name: string } | { value: string }) {
 	const element = event.target! as HTMLElement;
 	if (!element.isContentEditable) return;
 	element.contentEditable = 'false';
-
-	console.log(element.textContent)
 
 	if ('name' in toChange) {
 		toChange.name = element.innerText ?? '';

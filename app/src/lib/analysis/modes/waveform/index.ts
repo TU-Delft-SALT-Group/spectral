@@ -8,7 +8,7 @@ export { default as WaveformPlugin } from './WaveformPlugin.svelte';
 export const waveformData = {
 	computedFileData: z.object({
 		pitch: z.array(z.number()),
-		formants:z.array(z.array(z.number()))
+		formants: z.array(z.array(z.number()))
 	}),
 
 	fileState: fileState

@@ -223,7 +223,6 @@
 						{shortcutsEnabled}
 						enableShortcuts={() => {
 							shortcutsEnabled = true;
-							console.log(shortcutsEnabled);
 						}}
 						disableShortcuts={() => {
 							shortcutsEnabled = false;

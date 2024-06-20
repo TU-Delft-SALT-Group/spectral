@@ -50,7 +50,6 @@
 	}
 
 	function handleNoteChange(event: Event, index: number) {
-		console.log(index);
 		const textarea = event.target as HTMLTextAreaElement;
 		prompt.recordings[index].note = textarea.value;
 	}

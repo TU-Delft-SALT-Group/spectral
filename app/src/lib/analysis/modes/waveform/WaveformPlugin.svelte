@@ -89,7 +89,8 @@
 			if (shadowRoot) {
 				const hoverLabel = shadowRoot.querySelector('span[part="hover-label"]');
 				if (hoverLabel) {
-					hoverLabel.innerHTML = numberToTime(wavesurfer.getDuration() * event) + '<br>'+ hoverInfo(event);
+					hoverLabel.innerHTML =
+						numberToTime(wavesurfer.getDuration() * event) + '<br>' + hoverInfo(event);
 				}
 			}
 		});
@@ -167,17 +168,23 @@
 		wavesurfer.destroy();
 	});
 
-	function hoverInfo(time:number) {
-		let res = ""
-		if(!computedData) return res;
-		let pitchPos = Math.min(computedData.pitch.length-1,Math.max(0,Math.floor(computedData.pitch.length*time)));
-		let formantsPos = Math.min(computedData.formants.length-1,Math.max(0,Math.floor(computedData.formants.length*time)));
-		if(pitchPos>=0){
-			res+="pitch: " + computedData.pitch[pitchPos]+"<br>";
+	function hoverInfo(time: number) {
+		let res = '';
+		if (!computedData) return res;
+		let pitchPos = Math.min(
+			computedData.pitch.length - 1,
+			Math.max(0, Math.floor(computedData.pitch.length * time))
+		);
+		let formantsPos = Math.min(
+			computedData.formants.length - 1,
+			Math.max(0, Math.floor(computedData.formants.length * time))
+		);
+		if (pitchPos >= 0) {
+			res += 'pitch: ' + computedData.pitch[pitchPos] + '<br>';
 		}
-		if(formantsPos>=0){
-			res+="f1: " + computedData.formants[formantsPos][0]+"<br>";
-			res+="f2: " + computedData.formants[formantsPos][1]+"<br>";
+		if (formantsPos >= 0) {
+			res += 'f1: ' + computedData.formants[formantsPos][0] + '<br>';
+			res += 'f2: ' + computedData.formants[formantsPos][1] + '<br>';
 		}
 		return res;
 	}
