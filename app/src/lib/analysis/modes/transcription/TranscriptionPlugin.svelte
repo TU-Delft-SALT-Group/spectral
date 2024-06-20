@@ -47,7 +47,7 @@
 	let previousSelection: number[] | null = null;
 
 	let transcriptionType: { label?: string; value: string } = $state({ value: 'no model' });
-	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
+	const models: string[] = ['whisper', 'deepgram', 'allosaurus', 'whisper-torgo-1-epoch'];
 	const trackNameSpace = 150;
 
 	$effect(() => {
