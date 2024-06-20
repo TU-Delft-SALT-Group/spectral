@@ -13,8 +13,8 @@
 			class:z-40={mode === currentMode}
 			style:--index={i}
 			class:opacity-0={mode !== currentMode}
-			class="select relative transition duration-500"
-			animate:flip={{ delay: 1000 }}
+			class="select relative transition duration-300"
+			animate:flip={{ delay: 300 }}
 		>
 			<Button
 				on:click={() => (mode = currentMode)}
@@ -26,7 +26,7 @@
 			</Button>
 
 			<span
-				class="label pointer-events-none absolute right-16 top-2 h-16 w-max pr-2 transition duration-500 ease-in-out"
+				class="label pointer-events-none absolute right-16 top-2 h-16 w-max pr-2 transition duration-300 ease-in-out"
 			>
 				{currentMode}
 			</span>
