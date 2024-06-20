@@ -55,6 +55,7 @@
 	<section class="flex flex-col overflow-x-auto font-mono text-xl tracking-wider">
 		<!-- This one is for showing the reference -> hypothesis -->
 		<h4 class="border-box flex whitespace-nowrap">
+			Ref: 
 			{#each common.alignments as alignment}
 				<div class="w-fit {colors[alignment.type]}">
 					{#if alignment.type === 'substitute'}
@@ -88,6 +89,7 @@
 			{/each}
 		</h4>
 		<h4 class="border-box flex whitespace-nowrap">
+			Hyp:
 			<!-- This one is for showing the  hypothesis -> reference -->
 			{#each common.alignments as alignment}
 				<div class="w-fit {colors[alignment.type]}">
