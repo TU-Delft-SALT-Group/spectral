@@ -14,7 +14,7 @@
 	// now, if the segment looks like an internal ID of the session
 	// just replace it with the actual name of the session
 	// genius? yeah, that's me :)
-	let overrideSegments = {};
+	let overrideSegments: { [id: string]: string } = {};
 	menubarOverrides.subscribe((value) => {
 		overrideSegments = value;
 	});
