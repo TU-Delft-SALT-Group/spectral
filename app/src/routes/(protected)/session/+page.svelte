@@ -88,7 +88,6 @@
 
 	for (let i in data.sessions) {
 		let session = data.sessions[i];
-		console.log(session);
 		menubarOverrides.update((oldStore) => {
 			return { ...oldStore, [session['id']]: session['name'] };
 		});

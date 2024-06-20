@@ -226,7 +226,6 @@
 						}}
 						disableShortcuts={() => {
 							shortcutsEnabled = false;
-							console.log(shortcutsEnabled);
 						}}
 					/>
 				</section>
