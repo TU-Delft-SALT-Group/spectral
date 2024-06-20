@@ -15,19 +15,20 @@
 			class="select relative transition duration-300"
 		>
 			<Button
-				on:click={() => (mode = currentMode)}
-				on:hover={() => onModeHover(currentMode)}
 				variant={mode === currentMode ? 'default' : 'outline'}
 				class="h-10 w-16 shadow-xl"
+				on:click={() => (mode = currentMode)}
+				on:hover={() => onModeHover(currentMode)}
 			>
 				<svelte:component this={modeComponents[currentMode].icon} class="w-12"></svelte:component>
 			</Button>
 
-			<span
-				class="label pointer-events-none absolute right-16 top-2 h-16 w-max pr-2 transition duration-300 ease-in-out"
+			<button
+				class="label absolute right-16 top-0 h-12 w-max pb-2 pr-2 transition duration-300 ease-in-out"
+				on:click={() => (mode = currentMode)}
 			>
 				{currentMode}
-			</span>
+			</button>
 		</div>
 	{/each}
 </div>
@@ -54,15 +55,21 @@
 
 	.main:hover > div {
 		opacity: 1;
+		transition-delay: 0s;
 	}
 
 	.main:hover > div > .label {
 		opacity: 0.7;
-		transition-delay: 0.3s;
+		pointer-events: all;
+		cursor: pointer;
 	}
 
 	.main > div > .label {
 		opacity: 0;
-		transition-delay: 0s;
+		pointer-events: none;
+	}
+
+	.main > div:hover > .label {
+		opacity: 1;
 	}
 </style>
