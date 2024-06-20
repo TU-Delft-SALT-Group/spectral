@@ -59,8 +59,20 @@
 	});
 
 	// Send alert if closing while loading
-	beforeNavigate(({ cancel }) => {
-		if (loading) cancel();
+	beforeNavigate(({ type, cancel }) => {
+		if (loading) {
+			// sync ASAP, but don't block the thread
+			syncState(data.state);
+
+			if (type === 'leave') {
+				// if leaving: nicely suggest to wait
+				cancel();
+			}
+
+			// if any other type of leaving (probably local link)
+			// we actually don't care, since the async process was triggered
+			// so the saving will continue even after you moved
+		}
 	});
 
 	let workspace: Workspace;
