@@ -97,7 +97,7 @@ def get_phoneme_word_splits(
             current_split["word_transcription"] = word_level_transcription[word_pointer]
             phoneme_word_splits.append(current_split)
             current_split = {"phonemes": [], "word_transcription": None}
-            word_pointer += 1
+            word_pointer = 1
             continue
 
         current_split["phonemes"].append(phoneme_level_parsed[phoneme_pointer])
