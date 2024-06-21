@@ -9,7 +9,6 @@
 	export let prompt: PromptResponse;
 	export let focused: boolean;
 	export let recording: boolean = false;
-	export let stopRecording: boolean;
 
 	export let first: boolean;
 	export let last: boolean;
@@ -71,7 +70,6 @@
 		class="delay-50 mb-4 transition duration-200 {focused ? '' : 'opacity-20'}"
 		bind:this={cameraComponent}
 		bind:recording
-		{stopRecording}
 		{cameraInfo}
 		{micInfo}
 		previewing={previewing?.blob ?? null}

@@ -2,7 +2,7 @@
 	import UploadPrompt from './UploadPrompt.svelte';
 	import Recorder from './Recorder.svelte';
 	import type { PromptResponse } from './recorder';
-	import { beforeNavigate, onNavigate } from '$app/navigation';
+	import { beforeNavigate } from '$app/navigation';
 
 	let state: {
 		promptName: string;
@@ -10,12 +10,6 @@
 		participantId: string;
 		participantNote: string;
 	} | null = null;
-
-	let stopRecording = false;
-
-	onNavigate(() => {
-		stopRecording = false;
-	});
 
 	$: dirty = state !== null && state.prompts.some((prompt) => prompt.recordings.length > 0);
 
@@ -26,14 +20,8 @@
 				return;
 			}
 		}
-		stopRecording = true;
-		await delay(1000); // sometimes the stopRecording isn't propegated correctly in time. This ensures it propagates
 		state = null;
 	});
-
-	const delay = (delayInms: number) => {
-		return new Promise((resolve) => setTimeout(resolve, delayInms));
-	};
 </script>
 
 <svelte:head>
@@ -53,7 +41,6 @@
 	/>
 {:else}
 	<Recorder
-		{stopRecording}
 		participantId={state.participantId}
 		participantNote={state.participantNote}
 		bind:promptName={state.promptName}

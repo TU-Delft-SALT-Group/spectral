@@ -66,11 +66,6 @@
 	}
 </script>
 
-<!-- <div class="mx-auto grid h-full w-fit content-center text-center">
-	<div class="mx-auto w-fit pb-4 text-xl">Please upload a prompt to record</div>
-
-	<Input type="file" accept=".txt" onchange={handlePromptUpload} />
-</div> -->
 <div class="flex h-full w-full items-center justify-center">
 	<form on:submit={() => formSubmit()} class="flex h-3/4 w-1/3 flex-col">
 		<h2 class="mb-2 text-2xl font-bold">Prompt Recorder information</h2>
@@ -114,20 +109,3 @@
 		<Button on:click={formSubmit}>Start recording session</Button>
 	</form>
 </div>
-
-<!-- <AlertDialog.Root bind:open={infoOpen}>
-	<AlertDialog.Content>
-		<AlertDialog.Header>
-			<AlertDialog.Title>The upload prompts must have the following format:</AlertDialog.Title>
-			<AlertDialog.Description>
-				&lt;id&gt; &lt;prompt&gt; <br>
-				&lt;id&gt; &lt;prompt&gt; <br>
-				...
-			</AlertDialog.Description>
-		</AlertDialog.Header>
-		<AlertDialog.Footer>
-			<AlertDialog.Cancel>Close menu</AlertDialog.Cancel>
-			<AlertDialog.Action on:click={getSampleSession}>Download sample prompts</AlertDialog.Action>
-		</AlertDialog.Footer>
-	</AlertDialog.Content>
-</AlertDialog.Root> -->

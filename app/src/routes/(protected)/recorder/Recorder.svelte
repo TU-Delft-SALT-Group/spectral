@@ -14,7 +14,6 @@
 	export let participantId: string;
 	export let participantNote: string;
 	export let recording = false;
-	export let stopRecording: boolean;
 
 	let selectedIndex: number = 0;
 	let disableExport: boolean = false;
@@ -227,7 +226,6 @@
 						onPrevious={previous}
 						first={i === 0}
 						last={i === prompts.length - 1}
-						{stopRecording}
 						{shortcutsEnabled}
 						enableShortcuts={() => {
 							shortcutsEnabled = true;

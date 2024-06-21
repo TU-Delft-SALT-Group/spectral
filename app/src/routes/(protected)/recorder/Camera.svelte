@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import { browser } from '$app/environment';
+	import { beforeNavigate } from '$app/navigation';
 
 	export let recording = false;
 	export let previewing: Blob | null = null;
 
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
-
-	export let stopRecording: boolean;
 
 	export let onStopRecording: (blob: Blob) => void = () => {};
 
@@ -56,12 +55,12 @@
 		previewing = null;
 	}
 
-	$: if (stopRecording) {
+	beforeNavigate(async () => {
 		mediaRecorder?.stop();
 		mediaStream
 			?.getTracks() // get all tracks from the MediaStream
 			.forEach((track) => track.stop()); // stop each of them
-	}
+	});
 
 	export function toggleRecording() {
 		if (recording) {
