@@ -27,6 +27,8 @@ export const fileState = z.object({
 	matchStrings: z
 		.array(z.object({ id: z.string(), matchString: z.string(), selected: z.boolean() }))
 		.default([]),
+	groundTruth: z.string().default(''),
+	note: z.string().default(''),
 	reference: z
 		.object({
 			id: z.string(),

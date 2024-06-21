@@ -61,7 +61,8 @@ export const fileTable = pgTable('files', {
 		.references(() => sessionTable.id, { onDelete: 'cascade' })
 		.notNull(),
 	ephemeral: boolean('ephemeral').notNull().default(false),
-	groundTruth: text('ground_truth'),
+	groundTruth: text('ground_truth').notNull().default(''),
+	note: text('note').notNull().default(''),
 	state: jsonb('state')
 		.notNull()
 		.default(sql`'{}'`)

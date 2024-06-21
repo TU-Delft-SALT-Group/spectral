@@ -17,7 +17,9 @@
 		{ label: 'Duration', value: display(computedData.duration, 'seconds') },
 		{ label: 'File size', value: formatHumanSensibleFileSize(computedData.fileSize) },
 		{ label: 'Average pitch', value: display(computedData.averagePitch, 'Hz') },
-		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` }
+		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` },
+		{ label: 'Ground Truth', value: fileState.groundTruth },
+		{ label: 'Note', value: fileState.note }
 	];
 
 	function getFrameData(frame: typeof computedData.frame) {

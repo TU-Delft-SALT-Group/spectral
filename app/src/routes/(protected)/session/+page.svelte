@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
+	import { menubarOverrides } from '$lib/components/ui/menubar/overrides';
 	import type { PageData } from './$types';
 	import SessionCard from './SessionCard.svelte';
 	import { cn } from '$lib/utils';
@@ -12,6 +13,8 @@
 
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
+
+	import { Button } from '$lib/components/ui/button';
 
 	let importingSession: boolean = false;
 	let openContextMenus: boolean[] = [];
@@ -82,6 +85,12 @@
 	}
 
 	export let data: PageData;
+
+	for (const session of data.sessions) {
+		menubarOverrides.update((oldStore) => {
+			return { ...oldStore, [session['id']]: session['name'] };
+		});
+	}
 </script>
 
 <svelte:head>
@@ -117,9 +126,22 @@
 		<Dialog.Header>
 			<Dialog.Title class="text-3xl">Enter new session name</Dialog.Title>
 			<Dialog.Description>
-				<form action="?/createSession" method="POST" use:enhance>
-					<Input disabled={importingSession} type="text" name="sessionName" minlength={1} required
+				<form
+					id="create-session-form"
+					class="flex"
+					action="?/createSession"
+					method="POST"
+					use:enhance
+				>
+					<Input
+						class="mr-1"
+						disabled={importingSession}
+						type="text"
+						name="sessionName"
+						minlength={1}
+						required
 					></Input>
+					<Button type="submit" disabled={importingSession}>Create Session</Button>
 				</form>
 			</Dialog.Description>
 			<Dialog.Title class="text-3xl">Or Import a session</Dialog.Title>

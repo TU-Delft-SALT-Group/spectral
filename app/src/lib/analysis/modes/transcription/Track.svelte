@@ -6,11 +6,15 @@
 	let {
 		captions = $bindable(),
 		duration,
-		isLast
+		isLast,
+		createRegion,
+		resetRegion
 	}: {
 		captions: Caption[];
 		duration: number | null;
 		isLast: boolean;
+		createRegion: (start: number, end: number, currentTime: number[] | null) => void;
+		resetRegion: () => void;
 	} = $props();
 
 	let paneGroup: PaneGroupAPI | undefined = $state(undefined);
@@ -60,6 +64,23 @@
 		};
 
 		captions = [...captions.slice(0, index), newCaption, ...captions.slice(index + 2)];
+
+		resetRegion();
+	}
+
+	function resize() {
+		if (paneGroup === undefined || duration === null) {
+			return;
+		}
+
+		let layout = paneGroup.getLayout()!;
+		let prevEnd = 0;
+
+		for (let i = 0; i < layout.length; i++) {
+			captions[i].start = prevEnd;
+			captions[i].end = prevEnd + duration * (layout[i] / 100);
+			prevEnd = captions[i].end;
+		}
 	}
 </script>
 
@@ -76,14 +97,27 @@
 						tabindex="0"
 						class="flex h-full w-full items-center justify-center overflow-clip rounded-none bg-accent text-accent-foreground"
 						onclick={(event: MouseEvent) => handleCreate(event, caption)}
-						ondblclick={doubleClick}
+						ondblclick={(event: MouseEvent)=>{
+							doubleClick(event)
+							createRegion(caption.start, caption.end, null)
+						}}
 						onfocusout={(event: FocusEvent) => focusOut(event, caption)}
-						onkeydown={(event: KeyboardEvent) => keyDown(event, caption)}>{caption.value}</span
-					>
+						onkeydown={(event: KeyboardEvent) => keyDown(event, caption)}
+						onmouseup={resize}
+						>{caption.value}
+					</span>
 				</Resizable.Pane>
 
 				{#if caption !== captions[captions.length - 1]}
-					<Resizable.Handle class="bg-primary/20" onclick={(event) => handleDelete(event, i)} />
+					<Resizable.Handle
+						class="bg-primary/20"
+						onclick={(event) => handleDelete(event, i)}
+						onmouseup={() => {
+							const currentTime = [caption.start, caption.end];
+							resize();
+							createRegion(caption.start, caption.end, currentTime);
+						}}
+					/>
 				{/if}
 			{/each}
 		{/if}

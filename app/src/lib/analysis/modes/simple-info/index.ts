@@ -38,7 +38,9 @@ export const simpleInfoData = {
 		.pick({
 			id: true,
 			name: true,
-			frame: true
+			frame: true,
+			groundTruth: true,
+			note: true
 		})
 		.default({}),
 

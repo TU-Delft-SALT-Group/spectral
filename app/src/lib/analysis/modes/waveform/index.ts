@@ -6,7 +6,10 @@ export { default as Waveform } from './Waveform.svelte';
 export { default as WaveformPlugin } from './WaveformPlugin.svelte';
 
 export const waveformData = {
-	computedFileData: z.null(),
+	computedFileData: z.object({
+		pitch: z.array(z.number()),
+		formants: z.array(z.array(z.number()))
+	}),
 
 	fileState: fileState
 		.pick({

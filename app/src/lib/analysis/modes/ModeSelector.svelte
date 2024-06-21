@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { flip } from 'svelte/animate';
-	import { modeNames, modeComponents, type mode as modeType } from '.';
+	import { modeNames, modeComponents, niceModeNames, type mode as modeType } from '.';
 
 	export let mode: modeType.Name;
 	export let onModeHover: (mode: modeType.Name) => void = () => {};
@@ -13,23 +12,23 @@
 			class:z-40={mode === currentMode}
 			style:--index={i}
 			class:opacity-0={mode !== currentMode}
-			class="select relative transition duration-500"
-			animate:flip={{ delay: 1000 }}
+			class="select relative transition duration-300"
 		>
 			<Button
-				on:click={() => (mode = currentMode)}
-				on:hover={() => onModeHover(currentMode)}
 				variant={mode === currentMode ? 'default' : 'outline'}
 				class="h-10 w-16 shadow-xl"
+				on:click={() => (mode = currentMode)}
+				on:hover={() => onModeHover(currentMode)}
 			>
 				<svelte:component this={modeComponents[currentMode].icon} class="w-12"></svelte:component>
 			</Button>
 
-			<span
-				class="label pointer-events-none absolute right-16 top-2 h-16 w-max pr-2 transition duration-500 ease-in-out"
+			<button
+				class="label absolute right-16 top-0 h-12 w-max pb-2 pr-2 transition duration-300 ease-in-out"
+				on:click={() => (mode = currentMode)}
 			>
-				{currentMode}
-			</span>
+				{niceModeNames[currentMode]}
+			</button>
 		</div>
 	{/each}
 </div>
@@ -56,15 +55,23 @@
 
 	.main:hover > div {
 		opacity: 1;
+		transition-delay: 0s;
 	}
 
 	.main:hover > div > .label {
 		opacity: 0.7;
-		transition-delay: 1s;
+		pointer-events: all;
+		cursor: pointer;
+		transition-delay: 0s;
 	}
 
-	.main > div > .label {
+	.label {
 		opacity: 0;
-		transition-delay: 0s;
+		pointer-events: none;
+		transition-delay: 0.3s;
+	}
+
+	.main > div:hover > .label {
+		opacity: 1;
 	}
 </style>
