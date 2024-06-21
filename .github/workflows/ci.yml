@@ -72,4 +72,6 @@ jobs:
           poetry install
 
       - name: Run pytest
-        run: poetry run pytest
+        run: |
+          cd kernel
+          poetry run pytest
