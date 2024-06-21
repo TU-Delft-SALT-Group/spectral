@@ -24,7 +24,7 @@ export function parsePromptFile(promptFile: string): Prompt[] {
 	return promptFile
 		.trim()
 		.split(/\r?\n/)
-		.filter((line) => line === '')
+		.filter((line) => line !== '')
 		.map((line, index) => {
 			const [id, ...prompt] = line.split(' ');
 

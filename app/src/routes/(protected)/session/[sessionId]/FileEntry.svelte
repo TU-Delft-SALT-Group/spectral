@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import * as ContextMenu from '$lib/components/ui/context-menu';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -37,12 +36,14 @@
 	}}
 >
 	<ContextMenu.Trigger>
-		<Button class="flex-2 w-full gap-2 rounded text-left" variant="ghost">
-			<FileIcon></FileIcon>
+		<div
+			class="flex-2 inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-left text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+		>
+			<FileIcon />
 			<span class="max-w-full flex-1 overflow-hidden text-ellipsis">
 				{file.name}
 			</span>
-		</Button>
+		</div>
 	</ContextMenu.Trigger>
 
 	<ContextMenu.Content>

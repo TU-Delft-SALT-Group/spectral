@@ -57,8 +57,9 @@
 	}
 
 	$: if (stopRecording) {
+		mediaRecorder?.stop();
 		mediaStream
-			.getTracks() // get all tracks from the MediaStream
+			?.getTracks() // get all tracks from the MediaStream
 			.forEach((track) => track.stop()); // stop each of them
 	}
 

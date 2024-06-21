@@ -2,7 +2,7 @@
 	import UploadPrompt from './UploadPrompt.svelte';
 	import Recorder from './Recorder.svelte';
 	import type { PromptResponse } from './recorder';
-	import { beforeNavigate } from '$app/navigation';
+	import { beforeNavigate, onNavigate } from '$app/navigation';
 
 	let state: {
 		promptName: string;
@@ -13,16 +13,27 @@
 
 	let stopRecording = false;
 
+	onNavigate(() => {
+		stopRecording = false;
+	});
+
 	$: dirty = state !== null && state.prompts.some((prompt) => prompt.recordings.length > 0);
 
-	beforeNavigate(({ cancel }) => {
-		stopRecording = true;
+	beforeNavigate(async ({ cancel }) => {
 		if (dirty) {
 			if (!confirm('Warning: If you leave the page, your recordings will be lost')) {
 				cancel();
+				return;
 			}
 		}
+		stopRecording = true;
+		await delay(1000); // sometimes the stopRecording isn't propegated correctly in time. This ensures it propagates
+		state = null;
 	});
+
+	const delay = (delayInms: number) => {
+		return new Promise((resolve) => setTimeout(resolve, delayInms));
+	};
 </script>
 
 <svelte:head>

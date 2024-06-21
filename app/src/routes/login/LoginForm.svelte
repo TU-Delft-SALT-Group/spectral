@@ -34,7 +34,7 @@
 
 	<Button variant="link" href="/signup" class="w-fit px-0 text-left">Sign up instead</Button>
 
-	<Form.Button>Create Account</Form.Button>
+	<Form.Button>Login</Form.Button>
 </form>
 
 <style>

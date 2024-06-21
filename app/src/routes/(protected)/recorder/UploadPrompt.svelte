@@ -52,7 +52,6 @@
 
 		fileName = file.name;
 		prompts = parsePromptFile(await readAsPlaintext(file));
-		console.log(prompts);
 		promptErrorText = '';
 	}
 
