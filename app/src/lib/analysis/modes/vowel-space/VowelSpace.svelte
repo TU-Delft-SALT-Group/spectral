@@ -168,7 +168,10 @@
 	});
 
 	$effect(() => {
-		if (clientWidth && clientHeight && fileStates) {
+		if (clientWidth && clientHeight) {
+			while (container.hasChildNodes()) {
+				container.firstChild?.remove();
+			}
 			d3Action(container);
 		}
 	});
@@ -180,40 +183,20 @@
 	});
 </script>
 
-<div class="flex h-full w-full">
-	<div class="w-1/6">
-		<h2>Match Strings</h2>
+<div class="flex w-full">
+	<div class="m-2 w-64 border-r-2 pr-2">
+		<h2 class="text-center text-2xl">Match Strings</h2>
 		{#each fileStates as fileState, i}
 			<VowelSpaceSingle computedData={getComputedData(fileState)} bind:fileState={fileStates[i]}
 			></VowelSpaceSingle>
 		{/each}
 	</div>
-	<section class="grid h-full w-5/6 grid-rows-[auto,1fr]" bind:clientWidth bind:clientHeight>
-		<div class="w-full p-2">
-			<div class="flex items-center gap-2">
-				<Label
-					for="terms"
-					class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>Show legend</Label
-				>
-				<Checkbox id="terms" bind:checked={modeState.showLegend} />
-			</div>
-		</div>
-
-		<div use:d3Action bind:this={container}></div>
-		<div class="tooltip" bind:this={tooltip}></div>
-	</section>
-</div>
-<div class="flex h-full w-full">
-	<div class="w-1/6">
-		<h2>Match Strings</h2>
-		{#each fileStates as fileState, i}
-			<VowelSpaceSingle computedData={getComputedData(fileState)} bind:fileState={fileStates[i]}
-			></VowelSpaceSingle>
-		{/each}
-	</div>
-	<section class="grid h-full w-5/6 grid-rows-[auto,1fr]" bind:clientWidth bind:clientHeight>
-		<div class="w-full p-2">
+	<section
+		class="grid min-h-72 w-full min-w-96 grid-rows-[auto,1fr]"
+		bind:clientWidth
+		bind:clientHeight
+	>
+		<div class="p-2">
 			<div class="flex items-center gap-2">
 				<Label
 					for="terms"

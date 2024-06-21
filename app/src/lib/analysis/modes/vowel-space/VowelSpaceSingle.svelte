@@ -33,23 +33,35 @@
 	}
 </script>
 
-<div>
-	<h2>
-		Name: {fileState.name}
-	</h2>
+<div class="mt-2 w-full">
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<h2 class="w-50 break-all text-xl">
+				{fileState.name}
+			</h2>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>
+				name: {fileState.name} <br />
+				id: {fileState.id}
+			</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 	<form
-		class="flex"
+		class="mb-1 w-full text-xl"
 		onsubmit={() => {
 			addMatchString();
 		}}
 	>
-		<Label>New Match String</Label>
-		<Input bind:value={newMatchString} />
+		<div class="flex h-6 w-full align-middle">
+			<Label class="mr-2 h-6 w-40 text-base">New String</Label>
+			<Input class="h-6 text-base" bind:value={newMatchString} />
+		</div>
 	</form>
 	<ul>
 		{#each fileState.matchStrings as matchString}
 			<li>
-				<div class="flex w-full items-center gap-1 border-y">
+				<div class="flex w-full items-center gap-1 border-y p-1">
 					<Tooltip.Root>
 						<Tooltip.Trigger>
 							<Checkbox class="flex h-4 w-4 p-1" bind:checked={matchString.selected} />
@@ -74,39 +86,41 @@
 							<p>Delete Match String</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<span
-								class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
-								>{matchString.matchString}</span
-							>
-						</Tooltip.Trigger>
-						<Tooltip.Content>
-							<p>Match String</p>
-						</Tooltip.Content>
-					</Tooltip.Root>
-					{#if matchString.selected}
+					<div class="flex w-full">
 						<Tooltip.Root>
-							<Tooltip.Trigger>
+							<Tooltip.Trigger class="w-2/3">
 								<span
-									class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
-									>f1:{computedData?.formants
-										.filter((f) => f.matchString === matchString.matchString)
-										.map((f1) => f1.f1)
-										.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0)
-										.toFixed(2)}
-									f2:{computedData?.formants
-										.filter((f) => f.matchString === matchString.matchString)
-										.map((f2) => f2.f2)
-										.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0)
-										.toFixed(2)}
-								</span>
+									class="flex h-full w-full items-center justify-center break-all text-secondary-foreground opacity-80"
+									>{matchString.matchString}</span
+								>
 							</Tooltip.Trigger>
 							<Tooltip.Content>
-								<p>Average score of all captions matching this string</p>
+								<p>Match String</p>
 							</Tooltip.Content>
 						</Tooltip.Root>
-					{/if}
+						{#if matchString.selected}
+							<Tooltip.Root>
+								<Tooltip.Trigger class="w-3/5">
+									<span
+										class="flex h-full w-full items-center justify-center overflow-clip text-secondary-foreground opacity-80"
+										>f1:{computedData?.formants
+											.filter((f) => f.matchString === matchString.matchString)
+											.map((f1) => f1.f1)
+											.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0)
+											.toFixed(2)}
+										f2:{computedData?.formants
+											.filter((f) => f.matchString === matchString.matchString)
+											.map((f2) => f2.f2)
+											.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0)
+											.toFixed(2)}
+									</span>
+								</Tooltip.Trigger>
+								<Tooltip.Content>
+									<p>Average score of all captions matching this string</p>
+								</Tooltip.Content>
+							</Tooltip.Root>
+						{/if}
+					</div>
 				</div>
 			</li>
 		{/each}
