@@ -76,7 +76,7 @@
 			.style('font-weight', 'bold')
 			.text('F1');
 
-		const mouseover = function () {
+		const mouseover = function (this: HTMLElement) {
 			tooltip.style.opacity = '1';
 			d3.select(this).style('stroke', 'black').style('opacity', 1);
 		};
@@ -96,7 +96,7 @@
 			tooltip.style.left = event.layerX + 'px';
 			tooltip.style.top = event.layerY + 'px';
 		};
-		const mouseleave = function () {
+		const mouseleave = function (this: HTMLElement) {
 			tooltip.style.opacity = '0';
 			d3.select(this).style('stroke', 'none').style('opacity', 0.8);
 		};
