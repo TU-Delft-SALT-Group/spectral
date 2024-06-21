@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { modeNames, modeComponents, niceModeNames, type mode as modeType } from '.';
+	import { modeNames, modeComponents, modeDisplayNames, type mode as modeType } from '.';
 
 	export let mode: modeType.Name;
 	export let onModeHover: (mode: modeType.Name) => void = () => {};
@@ -27,7 +27,7 @@
 				class="label absolute right-16 top-0 h-12 w-max pb-2 pr-2 transition duration-300 ease-in-out"
 				on:click={() => (mode = currentMode)}
 			>
-				{niceModeNames[currentMode]}
+				{modeDisplayNames[currentMode]}
 			</button>
 		</div>
 	{/each}
