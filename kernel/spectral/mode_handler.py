@@ -15,7 +15,9 @@ from .frame_analysis import (
     validate_frame_index,
 )
 from .signal_analysis import (
+    calculate_sound_f1_f2,
     calculate_sound_formants_for_spectrogram,
+    calculate_sound_pitch,
     get_audio,
     signal_to_sound,
     simple_signal_info,
@@ -91,9 +93,34 @@ def spectrogram_mode(database: DatabaseType, file_state: FileStateType) -> Any:
     return calculate_sound_formants_for_spectrogram(sound)
 
 
-def waveform_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001
-    """TBD."""
-    return None
+def waveform_mode(database: DatabaseType, file_state: FileStateType) -> dict[str, Any]:
+    """
+    Extract the pitch, f1 and f2 of multiple frames to show in waveform mode.
+
+    Parameters
+    ----------
+    - database: The database object used to fetch the file.
+    - file_state: A dictionary containing the state of the file, including frame indices.
+
+    Returns
+    -------
+    - dict: A dictionary containing the found pitches and formants.
+
+    """
+    file = get_file(database, file_state)
+    audio = get_audio(file)
+    data = audio.get_array_of_samples()
+    sound = signal_to_sound(data, audio.frame_rate)
+
+    pitch_dict = calculate_sound_pitch(sound)
+    pitch = []
+    if pitch_dict is not None:
+        pitch = pitch_dict["data"]
+    formants_dict = calculate_sound_f1_f2(sound)
+    formants = []
+    if formants_dict is not None:
+        formants = formants_dict["data"]
+    return {"pitch": pitch, "formants": formants}
 
 
 def vowel_space_mode(

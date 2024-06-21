@@ -10,7 +10,8 @@
 		"sourceMap": true,
 		"target": "ES2022",
 		"strict": true,
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true
 	}
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	// except $lib which is handled by https://kit.svelte.dev/docs/configuration#files

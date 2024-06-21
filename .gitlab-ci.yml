@@ -19,6 +19,8 @@ stages:
 build:app:
   stage: build
   image: 'node:22.1.0-slim'
+  variables:
+    PUBLIC_KERNEL_ORIGIN: "http://kernel:8000"
   rules:
     - changes:
         - app/**/*
@@ -35,6 +37,8 @@ build:app:
 typecheck:app:
   stage: typecheck
   image: 'node:22.1.0-slim'
+  variables:
+    PUBLIC_KERNEL_ORIGIN: "http://kernel:8000"
   rules:
     - changes:
         - app/**/*
@@ -52,6 +56,8 @@ typecheck:app:
 lint:app:
   stage: lint
   image: 'node:22.1.0-slim'
+  variables:
+    PUBLIC_KERNEL_ORIGIN: "http://kernel:8000"
   rules:
     - changes:
         - app/**/*
@@ -69,6 +75,8 @@ lint:app:
 test:app:
   stage: test
   image: 'node:22.1.0-slim'
+  variables:
+    PUBLIC_KERNEL_ORIGIN: "http://kernel:8000"
   rules:
     - changes:
         - app/**/*

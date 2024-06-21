@@ -17,7 +17,9 @@
 		{ label: 'Duration', value: display(computedData.duration, 'seconds') },
 		{ label: 'File size', value: formatHumanSensibleFileSize(computedData.fileSize) },
 		{ label: 'Average pitch', value: display(computedData.averagePitch, 'Hz') },
-		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` }
+		{ label: 'Date created', value: `${computedData.fileCreationDate.toLocaleString(LOCALE)}` },
+		{ label: 'Ground Truth', value: fileState.groundTruth },
+		{ label: 'Note', value: fileState.note }
 	];
 
 	function getFrameData(frame: typeof computedData.frame) {
@@ -38,7 +40,8 @@
 	$: frameData = getFrameData(computedData.frame);
 </script>
 
-<h1 class="overflow-hidden text-ellipsis text-xl font-bold">{fileState.id}</h1>
+<h1 class="overflow-hidden text-ellipsis text-xl font-bold">{fileState.name}</h1>
+<p class="overflow-hidden text-ellipsis text-xs text-muted-foreground">{fileState.id}</p>
 
 <div class="flex flex-col flex-wrap opacity-80">
 	{#each displayData as { label, value }}

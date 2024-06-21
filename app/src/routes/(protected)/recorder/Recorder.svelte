@@ -17,6 +17,8 @@
 	let disableExport: boolean = false;
 	let disableImport: boolean = false;
 
+	let shortcutsEnabled: boolean = true;
+
 	let selectedCamera: Selected<MediaDeviceInfo | null> = {
 		label: 'Default camera',
 		value: null
@@ -36,11 +38,12 @@
 		const zip = new JSZip();
 		let notes = '';
 		for (let prompt of prompts) {
-			let promptIndexPadded = prependZeros(4, '' + prompt.index);
+			let promptIndexPadded = prependZeros(4, '' + (prompt.index + 1));
 			let promptName = promptIndexPadded + '-' + prompt.id;
 			zip.file(`${promptName}.txt`, prompt.content);
 			for (let i = 0; i < prompt.recordings.length; i++) {
-				let recordingName = promptIndexPadded + '-' + prependZeros(3, '' + i) + '-' + prompt.id;
+				let recordingName =
+					promptIndexPadded + '-' + prependZeros(3, '' + (i + 1)) + '-' + prompt.id;
 				notes += recordingName + ': ' + prompt.recordings[i].note;
 				zip.file(`${recordingName}.webm`, prompt.recordings[i].blob);
 			}
@@ -66,10 +69,15 @@
 		const formData = new FormData();
 		let data = [];
 		for (let prompt of prompts) {
-			let promptIndexPadded = prependZeros(4, '' + prompt.index);
+			let promptIndexPadded = prependZeros(4, '' + (prompt.index + 1));
 			for (let i = 0; i < prompt.recordings.length; i++) {
-				let recordingName = promptIndexPadded + '-' + prependZeros(3, '' + i) + '-' + prompt.id;
-				data.push({ name: recordingName, groundTruth: prompt.content });
+				let recordingName =
+					promptIndexPadded + '-' + prependZeros(3, '' + (i + 1)) + '-' + prompt.id;
+				data.push({
+					name: recordingName,
+					groundTruth: prompt.content,
+					note: prompt.recordings[i].note
+				});
 				formData.append(recordingName, prompt.recordings[i].blob);
 			}
 		}
@@ -96,6 +104,7 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
+		if (!shortcutsEnabled) return;
 		if (event.key === 'ArrowRight') {
 			next();
 		} else if (event.key === 'ArrowLeft') {
@@ -211,6 +220,13 @@
 						micInfo={selectedMic.value}
 						onNext={next}
 						onPrevious={previous}
+						{shortcutsEnabled}
+						enableShortcuts={() => {
+							shortcutsEnabled = true;
+						}}
+						disableShortcuts={() => {
+							shortcutsEnabled = false;
+						}}
 					/>
 				</section>
 			{/each}
