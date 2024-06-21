@@ -10,4 +10,4 @@ RUN pnpm install --prod
 
 RUN pnpm run build
 
-CMD pnpm run preview --host --port 5173 | pnpm exec pino-pretty
+CMD BODY_SIZE_LIMIT=512000000 PORT=5173 node -r dotenv/config build | pnpm exec pino-pretty

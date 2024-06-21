@@ -50,6 +50,21 @@ class SimpleInfoResponse(BaseModel):
     frame: FrameAnalysisResponse | None
 
 
+class WaveformResponse(BaseModel):
+    """
+    WaveformResponse model representing pitches and formants found in a signal.
+
+    Attributes
+    ----------
+        pitch (list[float]): List of pitch frequencies for multiple frames (in Hz).
+        formants (list[list[float]]): List of f1 and f2's for multiple frames (in Hz).
+
+    """
+
+    pitch: list[float]
+    formants: list[list[float]]
+
+
 class VowelSpaceResponse(BaseModel):
     """
     VowelSpaceResponse model representing formant location in the vowel space.
@@ -213,3 +228,10 @@ class TranscriptionsTextgridModel(BaseModel):
     """Textgrid model transcription representation."""
 
     transcriptions: list[TranscriptionTextgridModel]
+
+
+class GeneratedTranscriptionsModel(BaseModel):
+    """Transcriptions that have been generated automatically with one of the possible models."""
+
+    language: str | None
+    transcription: list[TranscriptionSegment]

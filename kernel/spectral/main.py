@@ -12,11 +12,13 @@ from fastapi.responses import JSONResponse
 from .data_objects import (
     ErrorRateResponse,
     FileStateBody,
+    GeneratedTranscriptionsModel,
     SimpleInfoResponse,
     SpectrogramResponse,
     TranscriptionSegment,
     TranscriptionsTextgridModel,
     VowelSpaceResponse,
+    WaveformResponse,
 )
 from .database import Database
 from .mode_handler import (
@@ -75,6 +77,7 @@ app: FastAPI = FastAPI(default_response_class=ORJSONResponse, root_path="/api")
         VowelSpaceResponse,
         list[list[TranscriptionSegment]],
         ErrorRateResponse,
+        WaveformResponse,
         SpectrogramResponse,
     ],
     responses=signal_modes_response_examples,
@@ -133,11 +136,14 @@ async def analyze_signal_mode(
 
 @app.get(
     "/transcription/{model}/{file_id}",
-    response_model=dict[str, str | list[TranscriptionSegment]],
+    response_model=GeneratedTranscriptionsModel,
     responses=transcription_response_examples,
 )
 async def transcribe_file(
-    model: Annotated[str, Path(title="The transcription model")],
+    model: Annotated[
+        Literal["whisper", "deepgram", "allosaurus", "whisper-torgo-1-epoch"],
+        Path(title="The transcription model"),
+    ],
     file_id: Annotated[str, Path(title="The ID of the file")],
     database=Depends(get_db),
 ) -> Any:

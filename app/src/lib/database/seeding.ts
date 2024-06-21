@@ -19,7 +19,8 @@ const sampleUser = {
 	id: 'sample-user',
 	username: 'Sample',
 	email: 'sample@example.com',
-	password: 'password'
+	password: 'password',
+	privacyAck: true
 };
 
 export async function seedSampleUser() {
@@ -46,6 +47,8 @@ const sampleSessionState: SessionState = {
 					frame: null,
 					cycleEnabled: false,
 					transcriptions: [],
+					groundTruth: 'the quick brown fox jumps over the lazy dog',
+					note: 'from Torgo dataset',
 					reference: null,
 					hypothesis: null
 				},
@@ -56,6 +59,8 @@ const sampleSessionState: SessionState = {
 					frame: null,
 					cycleEnabled: true,
 					transcriptions: [],
+					groundTruth: 'the quick brown fox jumps over the lazy dog',
+					note: 'from Torgo dataset',
 					reference: null,
 					hypothesis: null
 				}

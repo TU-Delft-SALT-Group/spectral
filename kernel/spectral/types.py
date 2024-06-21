@@ -12,3 +12,4 @@ AudioType = AudioSegment
 SoundType = parselmouth.Sound
 FileStateType = dict
 DatabaseType = Database | Iterator[Database]
+TranscriptionType = dict[str, str | list[dict] | None]

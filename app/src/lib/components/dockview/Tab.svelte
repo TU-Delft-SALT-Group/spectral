@@ -1,11 +1,14 @@
 <script lang="ts">
 	import type { DockviewPanelApi } from 'dockview-core';
 	import XIcon from 'lucide-svelte/icons/x';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 
 	export let api: DockviewPanelApi;
 	export let title: string | undefined;
 	let previousTitle: string | null = null;
 	let titleElement: HTMLElement;
+
+	let deleteAlertOpen = false;
 
 	function handleClick() {
 		if (titleElement.isContentEditable) {
@@ -46,8 +49,24 @@
 	</button>
 	<button
 		class="ml-auto h-full cursor-pointer items-center justify-center rounded-none p-0 px-1 transition hover:bg-destructive/30"
-		on:mousedown={() => api.close()}
+		on:mousedown={() => (deleteAlertOpen = true)}
 	>
 		<XIcon class="h-4 w-4 text-secondary-foreground"></XIcon>
 	</button>
 </div>
+
+<AlertDialog.Root bind:open={deleteAlertOpen}>
+	<AlertDialog.Content>
+		<AlertDialog.Header>
+			<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+			<AlertDialog.Description>
+				This action cannot be undone. This will permanently delete this pane and the analysis
+				conducted in it.
+			</AlertDialog.Description>
+		</AlertDialog.Header>
+		<AlertDialog.Footer>
+			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Action on:click={() => api.close()}>Continue</AlertDialog.Action>
+		</AlertDialog.Footer>
+	</AlertDialog.Content>
+</AlertDialog.Root>

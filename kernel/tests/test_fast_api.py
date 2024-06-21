@@ -92,8 +92,9 @@ def test_signal_correct_waveform(db_mock, file_state):
     response = client.post("/signals/modes/waveform", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for waveform mode"
     result = response.json()
-    assert result is None, "Expected response to be None"
-    assert db_mock.fetch_file.call_count == 0, "Expected fetch_file not to be called"
+    assert len(result["pitch"]) == 453, "Expected pitch array length to be 453"
+    assert len(result["formants"]) == 723, "Expected formants length to be 723"
+    assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
 
 
 def test_signal_correct_vowel_space(db_mock, file_state):
@@ -245,9 +246,8 @@ def test_transcription_model_found(db_mock):
 
 def test_transcription_model_not_found(db_mock):
     response = client.get("/transcription/non_existant_model/1")
-    assert response.status_code == 404, "Expected status code 404 when model is not found"
-    assert response.json()["detail"] == "Model was not found", "Expected detail message 'Model was not found'"
-    assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
+    assert response.status_code == 422, "Expected status code 422 when model is not part of the allowed list"
+    assert db_mock.fetch_file.call_count == 0, "Expected fetch_file to be called never"
 
 
 def test_analyze_signal_mode_invalid_id(db_mock, file_state):
@@ -261,9 +261,8 @@ def test_analyze_signal_mode_invalid_id(db_mock, file_state):
 
 def test_transcribe_file_invalid_model(db_mock):
     response = client.get("/transcription/invalid_model/1")
-    assert response.status_code == 404, "Expected status code 404 when transcription model is invalid"
-    assert response.json()["detail"] == "Model was not found", "Expected detail message 'Model was not found'"
-    assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
+    assert response.status_code == 422, "Expected status code 404 when transcription model is invalid"
+    assert db_mock.fetch_file.call_count == 0, "Expected fetch_file to be called never"
 
 
 @pytest.mark.skip(reason="Not implemented")
