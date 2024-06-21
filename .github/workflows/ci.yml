@@ -17,7 +17,6 @@ jobs:
       - name: Install pre-commit
         run: |
           python -m pip install --upgrade pip
-          apt install ffmpeg
           pip install pre-commit
 
       - name: Run pre-commit
@@ -67,6 +66,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd kernel
+          sudo apt-get install ffmpeg
           curl -sSL https://install.python-poetry.org | python -
           poetry install
 
