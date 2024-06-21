@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './baseFixtures.ts';
+import { deleteEverything, setupTests } from './utils.ts';
 
 test('can login under sample user', async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -17,6 +19,7 @@ test('can login under sample user', async ({ page }) => {
 });
 
 test('invalid username or password', async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -27,6 +30,4 @@ test('invalid username or password', async ({ page }) => {
 	await expect(page.locator('form')).toContainText('Invalid username or password');
 });
 
-test.afterEach(async ({ page }) => {
-	await page.close();
-});
+test.afterEach(deleteEverything);

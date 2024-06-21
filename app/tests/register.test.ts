@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './baseFixtures.ts';
+import { deleteEverything, setupTests } from './utils.ts';
 
 test.use({
 	viewport: {
@@ -8,6 +9,7 @@ test.use({
 });
 
 test('register and walk through', async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByRole('link', { name: 'Sign up instead' }).click();
@@ -54,6 +56,4 @@ test('register and walk through', async ({ page }) => {
 	await expect(page.locator('h2')).toContainText('new session asdf');
 });
 
-test.afterEach(async ({ page }) => {
-	await page.close();
-});
+test.afterEach(deleteEverything);

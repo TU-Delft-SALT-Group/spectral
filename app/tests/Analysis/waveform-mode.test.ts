@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../baseFixtures.ts';
+import { deleteEverything, setupTests } from '../utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -13,6 +15,8 @@ test.beforeEach(async ({ page }) => {
 	await page.getByRole('button', { name: 'Submit' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
+
+test.afterEach(deleteEverything);
 
 test('playback test', async ({ page }) => {
 	await expect(page.getByRole('group')).toContainText('1.00x');
@@ -66,8 +70,4 @@ test('frame selection test', async ({ page }) => {
 	await page.mouse.move(500, 0);
 	await page.mouse.up();
 	await expect(page.locator('div:nth-child(4) > div')).toBeVisible();
-});
-
-test.afterEach(async ({ page }) => {
-	await page.close();
 });

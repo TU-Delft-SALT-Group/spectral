@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../baseFixtures.ts';
+import { deleteEverything, setupTests } from '../utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -14,6 +16,8 @@ test.beforeEach(async ({ page }) => {
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
 
+test.afterEach(deleteEverything);
+
 test('download textgrid test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
 	await page.locator('div:nth-child(5) > .inline-flex').click();
@@ -21,7 +25,7 @@ test('download textgrid test', async ({ page }) => {
 	await page.waitForTimeout(500);
 	await page.getByRole('option', { name: 'deepgram' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
-	await page.waitForTimeout(2000);
+	await page.waitForTimeout(6000);
 	const downloadPromise = page.waitForEvent('download');
 	await page
 		.getByRole('group')
@@ -56,7 +60,7 @@ test('split test', async ({ page }) => {
 		page.getByRole('group').locator('div').filter({ hasText: 'the quick brown fox jumps' }).nth(1)
 	).toHaveCount(0);
 	await expect(
-		page.getByRole('group').locator('div').filter({ hasText: 'the quick happy brown fox' }).nth(1)
+		page.getByRole('group').locator('div').filter({ hasText: 'the quick happy fox jumps' }).nth(1)
 	).toBeVisible();
 });
 
@@ -72,7 +76,7 @@ test('track test', async ({ page }) => {
 	await page.getByText('empty Create New Track').nth(1).getByRole('combobox').click();
 	await page.getByRole('option', { name: 'deepgram' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(6000);
 	await expect(page.getByText('deepgram-en', { exact: true })).toBeVisible();
 	await expect(
 		page.getByRole('group').locator('div').filter({ hasText: 'the quick brown fox jumps' }).nth(1)
@@ -80,7 +84,7 @@ test('track test', async ({ page }) => {
 	await page.getByText('deepgram Create New Track').getByRole('combobox').click();
 	await page.getByRole('option', { name: 'allosaurus' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
-	await page.waitForTimeout(2000);
+	await page.waitForTimeout(6000);
 	await expect(page.getByText('allosaurus-en', { exact: true })).toBeVisible();
 	await expect(
 		page.getByRole('group').locator('div').filter({ hasText: 'ð æ tʰ k ʁ ɪ tʰ b̥ ɹ a w n f' }).nth(1)
@@ -100,8 +104,4 @@ test('track test', async ({ page }) => {
 		.nth(2)
 		.click();
 	await expect(page.getByText('renamed', { exact: true })).toHaveCount(0);
-});
-
-test.afterEach(async ({ page }) => {
-	await page.close();
 });
