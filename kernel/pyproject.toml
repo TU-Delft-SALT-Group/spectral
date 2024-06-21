@@ -11,8 +11,8 @@ authors = [
 ]
 readme = "README.md"
 homepage = "https://spectral.ewi.tudelft.nl"
-#repository = ""
-#documentation = ""
+repository = "https://github.com/TU-Delft-SALT-Group/spectral"
+documentation = "https://spectral.ewi.tudelft.nl/docs"
 keywords = ["spectral", "atypical speech analysis", "speech recognition"]
 classifiers = [
 		"Development Status :: 2 - Pre-Alpha",
