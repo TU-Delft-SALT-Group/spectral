@@ -1,0 +1,51 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: check-yaml
+    -   id: trailing-whitespace
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.2.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        types_or: [python, pyi, jupyter]
+        args: [--fix]
+        stages: [pre-commit]
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
+        stages: [pre-commit]
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.351
+    hooks:
+    - id: pyright
+      types_or: [python, pyi, jupyter]
+      additional_dependencies: [numpy, pytest, fastapi, torch, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python, jiwer, beartype, openai, mytextgrid, bert-score, jaroWinkler, "--extra-index-url", "https://download.pytorch.org/whl/cpu"]
+      stages: [pre-commit]
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.21.0
+    hooks:
+      - id: typos
+        stages: [pre-commit]
+  - repo: local
+    # the local repository is ignored when running precommit in the ci
+    # but the only way to do this is to ignore the hooks by ids
+    # so if you change the ids of local hooks, make sure to change them
+    # in the .github/workflows and (maybe?) .gitlab/ stuff
+    hooks:
+      - id: prettier
+        name: pnpm prettier
+        language: system
+        stages: [pre-commit]
+        types_or: [ts, javascript, svelte]
+        entry: bash -c 'cd app; pnpm prettier --write $(echo "$@" | sed "s|app/||g")' _
+      - id: eslint
+        name: pnpm eslint
+        language: system
+        stages: [pre-commit]
+        types_or: [ts, javascript, svelte]
+        entry: bash -c 'cd app; pnpm eslint --fix $(echo "$@" | sed "s|app/||g")' _
