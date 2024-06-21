@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../baseFixtures.ts';
+import { deleteEverything, setupTests } from '../utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -10,22 +12,28 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
+
+test.afterEach(deleteEverything);
 
 test('error rate test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
 	await page.locator('div:nth-child(5) > .inline-flex').click();
-	await page.getByText('empty').nth(1).click();
+	await page.getByText('no model').nth(1).click();
 	await page.getByRole('option', { name: 'deepgram' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(6000);
 	await page.getByText('deepgram Create New Track').getByRole('combobox').click();
-	await page.waitForTimeout(5000);
-	await page.getByRole('option', { name: 'whisper' }).click();
+	await page.waitForTimeout(4000);
+	await page.getByRole('option', { name: 'whisper', exact: true }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(5000);
+	await page.getByRole('button', { name: 'brown' }).nth(1).click({
+		clickCount: 3
+	});
+	await page.getByRole('button', { name: 'brown' }).nth(1).fill('red');
 	await page.getByRole('button', { name: 'brown' }).nth(1).click({
 		clickCount: 3
 	});
@@ -48,11 +56,13 @@ test('error rate test', async ({ page }) => {
 	await expect(page.getByText('Reference track').nth(1)).toBeVisible();
 	await expect(page.getByText('Hypothesis track').nth(1)).toBeVisible();
 	await expect(
-		page.getByRole('heading', { name: 'This file has no ground truth.' }).nth(1)
+		page.getByRole('heading', { name: 'Select a non-empty track for' }).nth(1)
 	).toBeVisible();
 	await page.getByRole('combobox').nth(2).click();
+	await page.waitForTimeout(500);
 	await page.getByRole('option', { name: 'deepgram-en' }).click();
 	await page.getByRole('combobox').nth(3).click();
+	await page.waitForTimeout(500);
 	await page.getByRole('option', { name: 'whisper-english' }).click();
 	await expect(
 		page.getByRole('heading', { name: 'This file has no ground truth.' }).nth(1)
@@ -61,7 +71,8 @@ test('error rate test', async ({ page }) => {
 	await expect(page.getByRole('group')).toContainText(
 		'WER: 55.56% MER: 55.56% WIL: 80.25% WIP: 19.75%'
 	);
-	await expect(page.getByRole('group')).toContainText('BERT: 0.74 Jaro Winkler: 0.84');
+	await expect(page.getByRole('group')).toContainText('BERT: 0.74');
+	await expect(page.getByRole('group')).toContainText('Jaro Winkler: 0.84');
 	await expect(page.getByText('hits: 4')).toBeVisible();
 	await expect(page.getByText('substitutions: 5')).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'the   quick   brown fox jumps' })).toBeVisible();
@@ -73,8 +84,4 @@ test('error rate test', async ({ page }) => {
 	await expect(page.getByText('deletions: 2')).toBeVisible();
 	await expect(page.getByRole('heading', { name: 't he quick  b r ow n   f ox' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'T he quick  _ r ed _   b ox' })).toBeVisible();
-});
-
-test.afterEach(async ({ page }) => {
-	await page.close();
 });

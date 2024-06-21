@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../baseFixtures.ts';
+import { deleteEverything, setupTests } from '../utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -10,9 +12,11 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
+
+test.afterEach(deleteEverything);
 
 test('vowel space test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
@@ -44,8 +48,4 @@ test('vowel space test', async ({ page }) => {
 	await expect(
 		page.locator('svg').filter({ hasText: '2,0001,8001,6001,4001,2001,' }).locator('circle').nth(1)
 	).toBeVisible();
-});
-
-test.afterEach(async ({ page }) => {
-	await page.close();
 });

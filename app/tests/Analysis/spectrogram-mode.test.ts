@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../baseFixtures.ts';
+import { deleteEverything, setupTests } from '../utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -10,9 +12,11 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
+
+test.afterEach(deleteEverything);
 
 test('drag and drop test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
@@ -54,9 +58,5 @@ test('playback test', async ({ page }) => {
 	await page.waitForTimeout(3200);
 	await expect(page.getByText('00:00.000/00:04.800')).toHaveCount(0);
 	await page.locator('.wrapper > div:nth-child(5)').first().click();
-	await expect(page.getByRole('group')).toContainText('00:02.398/00:04.800');
-});
-
-test.afterEach(async ({ page }) => {
-	await page.close();
+	await expect(page.getByRole('group')).toContainText('00:02.396/00:04.800');
 });

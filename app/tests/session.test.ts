@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './baseFixtures.ts';
+import { deleteEverything, setupTests } from './utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -10,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 });
 
 test('everything in session is visible', async ({ page }) => {
@@ -37,11 +39,11 @@ test('everything in session is visible', async ({ page }) => {
 			.getByRole('button')
 			.nth(1)
 	).toBeVisible();
-	await expect(page.locator('li').filter({ hasText: 'F01_severe_head_sentence1' })).toBeVisible();
-	await expect(page.locator('li').filter({ hasText: 'F03_moderate_head_sentence1' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'F01_severe_head_sentence1' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'F03_moderate_head_sentence1' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'MC02_control_head_sentence1' })).toBeVisible();
 	await expect(
-		page.getByText('home session sample-session Spectral Show Info Profile')
+		page.getByText('home session Sample Session Spectral Show Info Profile')
 	).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Record' })).toBeVisible();
 	await expect(page.getByRole('textbox')).toBeVisible();
@@ -63,11 +65,14 @@ test('session selection screen test', async ({ page }) => {
 	await page.locator('input[name="sessionName"]').click();
 	await page.locator('input[name="sessionName"]').fill('spectrum');
 	await page.locator('input[name="sessionName"]').press('Enter');
-	await expect(page.locator('ol').filter({ hasText: 'No files yet!' })).toBeVisible();
+	await expect(
+		page
+			.locator('div')
+			.filter({ hasText: /^No files yet!$/ })
+			.first()
+	).toBeVisible();
 	await page.getByRole('link', { name: 'session' }).click();
 	await expect(page.getByRole('link', { name: 'spectrum' })).toBeVisible();
 });
 
-test.afterEach(async ({ page }) => {
-	await page.close();
-});
+test.afterEach(deleteEverything);

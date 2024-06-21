@@ -82,6 +82,7 @@
 		"unified": "^11.0.4",
 		"vite": "^5.3.1",
 		"vitest": "^1.6.0",
+		"vite-plugin-istanbul": "^6.0.2",
 		"wavesurfer.js": "^7.7.15",
 		"webm-to-mp4": "^1.0.0",
 		"zod": "^3.23.8"
