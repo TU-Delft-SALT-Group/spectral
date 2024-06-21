@@ -97,9 +97,9 @@
 						tabindex="0"
 						class="flex h-full w-full items-center justify-center overflow-clip rounded-none bg-accent text-accent-foreground"
 						onclick={(event: MouseEvent) => handleCreate(event, caption)}
-						ondblclick={(event: MouseEvent)=>{
-							doubleClick(event)
-							createRegion(caption.start, caption.end, null)
+						ondblclick={(event: MouseEvent) => {
+							doubleClick(event);
+							createRegion(caption.start, caption.end, null);
 						}}
 						onfocusout={(event: FocusEvent) => focusOut(event, caption)}
 						onkeydown={(event: KeyboardEvent) => keyDown(event, caption)}

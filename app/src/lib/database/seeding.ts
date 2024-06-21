@@ -19,7 +19,8 @@ const sampleUser = {
 	id: 'sample-user',
 	username: 'Sample',
 	email: 'sample@example.com',
-	password: 'password'
+	password: 'password',
+	privacyAck: true
 };
 
 export async function seedSampleUser() {

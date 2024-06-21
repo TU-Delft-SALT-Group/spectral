@@ -137,7 +137,11 @@
 						on:focus={disableShortcuts}
 						on:blur={enableShortcuts}
 						bind:value={previewing.note}
-						on:input={(e: InputEvent) => {if(previewingIndex){handleNoteChange(e, previewingIndex)}}}
+						on:input={(e: InputEvent) => {
+							if (previewingIndex) {
+								handleNoteChange(e, previewingIndex);
+							}
+						}}
 					/>
 				{/if}
 			</div>
