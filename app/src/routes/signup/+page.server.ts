@@ -24,6 +24,7 @@ export const actions: Actions = {
 				form
 			});
 		}
+		console.log(form.data);
 
 		const result = await createUser(form.data);
 
@@ -36,6 +37,11 @@ export const actions: Actions = {
 					});
 				case 'username-in-use':
 					setError(form, 'username', 'Username is already in use');
+					return fail(400, {
+						form
+					});
+				case 'unread-policy':
+					setError(form, 'privacyAck', 'Did not acknowledge privacy policy');
 					return fail(400, {
 						form
 					});

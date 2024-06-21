@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { formSchema, type FormSchema } from './schema';
@@ -13,6 +14,10 @@
 	});
 
 	const { form: formData, enhance } = form;
+
+	let something: boolean = false;
+	$: $formData.privacyAck = something;
+	$: console.log(something);
 </script>
 
 <form method="POST" use:enhance class="flex flex-col">
@@ -40,7 +45,15 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Button variant="link" href="/login" class="w-fit px-0 text-left">Login instead</Button>
+	<Form.Field {form} name="privacyAck">
+		<Form.Control let:attrs>
+			<Form.Label>not password</Form.Label>
+			<Checkbox {...attrs} bind:checked={something} />
+		</Form.Control>
+		<Form.FieldErrors />
+	</Form.Field>
+
+	<Button variant="link" href="/login" class="w-fit px-0 text-left">Log in instead</Button>
 
 	<Form.Button>Sign up</Form.Button>
 </form>
