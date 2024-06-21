@@ -50,7 +50,7 @@ jobs:
         run: cd app && pnpm format
 
       - name: Run pnpm test
-        run: cd app && pnpm test
+        run: cd app && pnpm test:unit # running only unit tests, since integration costs money
 
   pytest:
     runs-on: ubuntu-latest
