@@ -9,6 +9,10 @@
 	export let prompt: PromptResponse;
 	export let focused: boolean;
 	export let recording: boolean = false;
+	export let stopRecording: boolean;
+
+	export let first: boolean;
+	export let last: boolean;
 
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
@@ -67,6 +71,7 @@
 		class="delay-50 mb-4 transition duration-200 {focused ? '' : 'opacity-20'}"
 		bind:this={cameraComponent}
 		bind:recording
+		{stopRecording}
 		{cameraInfo}
 		{micInfo}
 		previewing={previewing?.blob ?? null}
@@ -86,11 +91,11 @@
 				<span class="pl-2 transition"> {recording ? 'Stop recording' : 'Record'} </span>
 			</Button>
 
-			<Button on:click={onPrevious} class="h-full" disabled={recording}>
+			<Button on:click={onPrevious} class="h-full" disabled={recording || first}>
 				<ArrowLeftIcon />
 			</Button>
 
-			<Button on:click={onNext} class="h-full" disabled={recording}>
+			<Button on:click={onNext} class="h-full" disabled={recording || last}>
 				<ArrowRightIcon />
 			</Button>
 		</div>

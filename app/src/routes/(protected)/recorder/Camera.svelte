@@ -8,6 +8,8 @@
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
 
+	export let stopRecording: boolean;
+
 	export let onStopRecording: (blob: Blob) => void = () => {};
 
 	/**
@@ -52,6 +54,12 @@
 
 	$: if (recording) {
 		previewing = null;
+	}
+
+	$: if (stopRecording) {
+		mediaStream
+			.getTracks() // get all tracks from the MediaStream
+			.forEach((track) => track.stop()); // stop each of them
 	}
 
 	export function toggleRecording() {

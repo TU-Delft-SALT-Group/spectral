@@ -7,11 +7,16 @@
 	let state: {
 		promptName: string;
 		prompts: PromptResponse[];
+		participantId: string;
+		participantNote: string;
 	} | null = null;
+
+	let stopRecording = false;
 
 	$: dirty = state !== null && state.prompts.some((prompt) => prompt.recordings.length > 0);
 
 	beforeNavigate(({ cancel }) => {
+		stopRecording = true;
 		if (dirty) {
 			if (!confirm('Warning: If you leave the page, your recordings will be lost')) {
 				cancel();
@@ -26,13 +31,21 @@
 
 {#if state === null}
 	<UploadPrompt
-		onPromptUpload={({ filename, prompts }) => {
+		onFormSubmit={(participantId, participantNote, { fileName, prompts }) => {
 			state = {
-				promptName: filename,
+				participantId,
+				participantNote,
+				promptName: fileName,
 				prompts: prompts.map((prompt) => ({ ...prompt, recordings: [] }))
 			};
 		}}
 	/>
 {:else}
-	<Recorder bind:promptName={state.promptName} bind:prompts={state.prompts} />
+	<Recorder
+		{stopRecording}
+		participantId={state.participantId}
+		participantNote={state.participantNote}
+		bind:promptName={state.promptName}
+		bind:prompts={state.prompts}
+	/>
 {/if}
