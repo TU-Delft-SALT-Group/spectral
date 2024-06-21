@@ -37,7 +37,7 @@
 			<!-- TODO: Add logo -->
 		</div>
 
-		<div class="flex h-full flex-1 justify-end text-muted-foreground">
+		<div class="flex h-full flex-1 items-center justify-end text-muted-foreground">
 			{#if loading}
 				<Spinner />
 			{/if}
