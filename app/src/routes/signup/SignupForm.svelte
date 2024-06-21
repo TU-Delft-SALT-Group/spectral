@@ -14,10 +14,6 @@
 	});
 
 	const { form: formData, enhance } = form;
-
-	let something: boolean = false;
-	$: $formData.privacyAck = something;
-	$: console.log(something);
 </script>
 
 <form method="POST" use:enhance class="flex flex-col">
@@ -45,10 +41,17 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Field {form} name="privacyAck">
+	<Form.Field {form} name="privacyAck" class="mb-4 mt-2 flex items-center gap-1">
 		<Form.Control let:attrs>
-			<Form.Label>not password</Form.Label>
-			<Checkbox {...attrs} bind:checked={something} />
+			<Checkbox {...attrs} bind:checked={$formData.privacyAck} />
+			<Form.Label style="margin-top: 0;"
+				>I accept the <a
+					target="_blank"
+					href="/privacy"
+					class="text-blue-600 underline dark:text-blue-300">policies</a
+				></Form.Label
+			>
+			<input hidden type="checkbox" name={attrs.name} checked={$formData.privacyAck} />
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>

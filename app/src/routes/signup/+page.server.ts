@@ -24,7 +24,6 @@ export const actions: Actions = {
 				form
 			});
 		}
-		console.log(form.data);
 
 		const result = await createUser(form.data);
 
