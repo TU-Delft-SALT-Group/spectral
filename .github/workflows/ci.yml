@@ -33,26 +33,24 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Change directory
-        run: cd app
 
       - name: Install pnpm
-        run: corepack enable pnpm
+        run: cd app && corepack enable pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: cd app && pnpm install
 
       - name: Run pnpm check
-        run: pnpm check
+        run: cd app && pnpm check
 
       - name: Run pnpm lint
-        run: pnpm lint
+        run: cd app && pnpm lint
 
       - name: Run pnpm format
-        run: pnpm format
+        run: cd app && pnpm format
 
       - name: Run pnpm test
-        run: pnpm test
+        run: cd app && pnpm test
 
   pytest:
     runs-on: ubuntu-latest
