@@ -51,7 +51,7 @@
 		attemptSync();
 	}
 
-	let workspace: Workspace;
+	let workspace: Workspace | undefined = undefined;
 </script>
 
 <svelte:head>
@@ -63,8 +63,9 @@
 		<Resizable.Pane defaultSize={20} minSize={11} collapsible={true} collapsedSize={1}>
 			<FileExplorer
 				bind:files={data.files}
+				bind:workspace
 				sessionId={data.sessionId}
-				onDeleteFile={(fileId) => workspace.deleteFile(fileId)}
+				onDeleteFile={(fileId) => workspace?.deleteFile(fileId)}
 			></FileExplorer>
 		</Resizable.Pane>
 

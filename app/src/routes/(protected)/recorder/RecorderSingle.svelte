@@ -23,6 +23,11 @@
 	 */
 	export let onNext: () => void = () => {};
 
+	export let disableShortcuts: () => void;
+	export let enableShortcuts: () => void;
+
+	export let shortcutsEnabled: boolean;
+
 	/**
 	 * The index of the recording that is currently being previewed.
 	 */
@@ -36,11 +41,17 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
+		if (!shortcutsEnabled) return;
 		if (event.key === 'r') {
 			if (focused) {
 				cameraComponent.toggleRecording();
 			}
 		}
+	}
+
+	function handleNoteChange(event: Event, index: number) {
+		const textarea = event.target as HTMLTextAreaElement;
+		prompt.recordings[index].note = textarea.value;
 	}
 </script>
 
@@ -121,8 +132,13 @@
 
 			<div class="m-4 h-full flex-1 rounded bg-background p-2 text-left">
 				{#if previewing && previewingIndex !== null}
-					Notes for take {previewingIndex + 1}
-					<Textarea bind:value={previewing.note}></Textarea>
+					Notes for take {previewingIndex + 1} (typing auto saves)
+					<Textarea
+						on:focus={disableShortcuts}
+						on:blur={enableShortcuts}
+						bind:value={previewing.note}
+						on:input={(e: InputEvent) => {if(previewingIndex){handleNoteChange(e, previewingIndex)}}}
+					/>
 				{/if}
 			</div>
 		</div>

@@ -48,7 +48,8 @@ export const actions: Actions = {
 				file['name'],
 				sessionId,
 				userId,
-				file['groundTruth']
+				file['groundTruth'],
+				file['note']
 			);
 		}
 

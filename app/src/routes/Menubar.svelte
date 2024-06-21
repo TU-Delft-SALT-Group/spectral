@@ -7,8 +7,14 @@
 	import { uploadingStateStore } from '$lib';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { InfoButton } from '$lib/components/InfoButton';
+	import { menubarOverrides } from '$lib/components/ui/menubar/overrides';
 
 	$: segments = $page.url.pathname.split('/');
+
+	// now, if the segment looks like an internal ID of the session
+	// just replace it with the actual name of the session, and in the snippet
+	let overrideSegments: { [id: string]: string } = {};
+	menubarOverrides.subscribe((value) => (overrideSegments = value));
 
 	// Workaround for https://github.com/sveltejs/eslint-plugin-svelte/issues/652
 	page;
@@ -58,7 +64,7 @@
 				<Breadcrumb.Separator></Breadcrumb.Separator>
 
 				<Breadcrumb.Item>
-					<Breadcrumb.Link {href}>{pathSegment}</Breadcrumb.Link>
+					<Breadcrumb.Link {href}>{overrideSegments[pathSegment] || pathSegment}</Breadcrumb.Link>
 				</Breadcrumb.Item>
 			{/each}
 		</Breadcrumb.List>
