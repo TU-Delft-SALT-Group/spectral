@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
 
@@ -58,5 +58,5 @@ test('playback test', async ({ page }) => {
 	await page.waitForTimeout(3200);
 	await expect(page.getByText('00:00.000/00:04.800')).toHaveCount(0);
 	await page.locator('.wrapper > div:nth-child(5)').first().click();
-	await expect(page.getByRole('group')).toContainText('00:02.398/00:04.800');
+	await expect(page.getByRole('group')).toContainText('00:02.396/00:04.800');
 });

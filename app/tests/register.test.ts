@@ -27,7 +27,7 @@ test('register and walk through', async ({ page }) => {
 	await expect(page.getByText('String must contain at least')).toBeVisible();
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Sign up' }).click();
 	await expect(page.getByRole('button')).toBeVisible();
 	await page.waitForTimeout(100);
 	await page.getByRole('button').click();
@@ -52,7 +52,7 @@ test('register and walk through', async ({ page }) => {
 	await page.getByLabel('Username').fill('Roman');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await expect(page.locator('h2')).toContainText('new session asdf');
 });
 

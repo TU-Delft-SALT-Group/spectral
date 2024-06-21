@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
 
@@ -46,18 +46,19 @@ test('file management test', async ({ page }) => {
 	await page.getByRole('textbox').click();
 	await page
 		.getByRole('textbox')
-		.setInputFiles('./static/samples/torgo-dataset/MC02_control_head_sentence1.wav');
+		.setInputFiles('./app/static/samples/torgo-dataset/MC02_control_head_sentence1.wav');
 	await expect(page.getByRole('button', { name: 'MC02_control_head_sentence1.' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'sample' })).toBeVisible();
-	await page
-		.locator('div')
-		.filter({ hasText: /^sample \+$/ })
-		.getByRole('button')
-		.nth(1)
-		.click();
+	await page.locator('.ml-auto').first().click();
+	await expect(page.getByLabel('Are you absolutely sure?')).toBeVisible();
+	await expect(page.getByLabel('Are you absolutely sure?')).toContainText(
+		'This action cannot be undone. This will permanently delete this pane and the analysis conducted in it.'
+	);
+	await page.getByRole('button', { name: 'Continue' }).click();
 	await expect(page.getByRole('button', { name: 'sample' })).toHaveCount(0);
 	await page.getByRole('button', { name: 'New tab' }).click();
 	await expect(page.getByRole('button', { name: 'New Tab' })).toBeVisible();
+	await expect(page.getByText('Drag a file from the file')).toBeVisible();
 });
 
 //Please use chromium (firefox is used as standard) to run this test as Firefox does not support "microphone" permission

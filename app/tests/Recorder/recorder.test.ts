@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 });
 
 test.afterEach(deleteEverything);
@@ -23,7 +23,7 @@ test.afterEach(deleteEverything);
 test('multi-take test', async ({ page, browser }) => {
 	await page.waitForTimeout(1000);
 	await page.getByRole('textbox').click();
-	await page.getByRole('textbox').setInputFiles('./static/samples/prompts/text-7.txt');
+	await page.getByRole('textbox').setInputFiles('./app/static/samples/prompts/text-7.txt');
 	const context = await browser.newContext();
 	await context.grantPermissions(['microphone', 'camera']);
 	await page.waitForTimeout(5000);
@@ -87,15 +87,14 @@ test('multi-take test', async ({ page, browser }) => {
 test('record all prompts test', async ({ page, browser }) => {
 	await page.waitForTimeout(1000);
 	await page.getByRole('textbox').click();
-	await page.getByRole('textbox').setInputFiles('./static/samples/prompts/text-7.txt');
+	await page.getByRole('textbox').setInputFiles('./app/static/samples/prompts/text-7.txt');
 	const context = await browser.newContext();
 	await context.grantPermissions(['microphone', 'camera']);
 	await page.waitForTimeout(5000);
 	await expect(page.getByText('You have recorded 0/7 prompts')).toBeVisible();
 	await page.getByRole('button', { name: 'Record', exact: true }).first().click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).first().click();
-	await page.waitForTimeout(5000);
 	await expect(page.getByText('You have recorded 1/7 prompts')).toBeVisible();
 	await page
 		.locator('section')
@@ -105,7 +104,7 @@ test('record all prompts test', async ({ page, browser }) => {
 		.click();
 	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Record', exact: true }).nth(1).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(1).click();
 	await expect(page.getByText('You have recorded 2/7 prompts')).toBeVisible();
 	await page
@@ -116,7 +115,7 @@ test('record all prompts test', async ({ page, browser }) => {
 		.click();
 	await expect(page.getByText('You have recorded 1/7 prompts')).toBeVisible();
 	await page.getByRole('button', { name: 'Record', exact: true }).nth(1).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(1).click();
 	await page
 		.locator('section')
@@ -126,7 +125,7 @@ test('record all prompts test', async ({ page, browser }) => {
 		.click();
 	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Record', exact: true }).nth(2).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(2).click();
 	await page
 		.locator('section')
@@ -136,7 +135,7 @@ test('record all prompts test', async ({ page, browser }) => {
 		.click();
 	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Record', exact: true }).nth(2).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(2).click();
 	await page
 		.locator('section')
@@ -146,7 +145,7 @@ test('record all prompts test', async ({ page, browser }) => {
 		.click();
 	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Record', exact: true }).nth(2).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(2).click();
 	await page
 		.locator('section')
@@ -155,8 +154,8 @@ test('record all prompts test', async ({ page, browser }) => {
 		.nth(2)
 		.click();
 	await page.waitForTimeout(100);
-	await page.getByRole('button', { name: 'Record', exact: true }).nth(3).click();
-	await page.waitForTimeout(1500);
+	await page.getByRole('button', { name: 'Record' }).nth(3).click();
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(2).click();
 	await page
 		.locator('section')
@@ -164,9 +163,8 @@ test('record all prompts test', async ({ page, browser }) => {
 		.getByRole('button')
 		.nth(2)
 		.click();
-	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Record' }).nth(4).click();
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(100);
 	await page.getByRole('button', { name: 'Stop recording' }).nth(3).click();
 	await expect(page.getByText('You have recorded 7/7 prompts')).toBeVisible();
 	await expect(page.getByText('admires as rapturously as herself 7 Record Take')).toBeVisible();
@@ -182,7 +180,7 @@ test('record all prompts test', async ({ page, browser }) => {
 test('save files test', async ({ page, browser }) => {
 	await page.waitForTimeout(1000);
 	await page.getByRole('textbox').click();
-	await page.getByRole('textbox').setInputFiles('./static/samples/prompts/text-7.txt');
+	await page.getByRole('textbox').setInputFiles('./app/static/samples/prompts/text-7.txt');
 	const context = await browser.newContext();
 	await context.grantPermissions(['microphone', 'camera']);
 	await page.waitForTimeout(5000);
@@ -206,7 +204,7 @@ test('export to session test', async ({ page, browser }) => {
 	await page.getByRole('link', { name: 'Record' }).click();
 	await page.waitForTimeout(1000);
 	await page.getByRole('textbox').click();
-	await page.getByRole('textbox').setInputFiles('./static/samples/prompts/text-7.txt');
+	await page.getByRole('textbox').setInputFiles('./app/static/samples/prompts/text-7.txt');
 	const context = await browser.newContext();
 	await context.grantPermissions(['microphone', 'camera']);
 	await page.waitForTimeout(5000);

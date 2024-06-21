@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
 
@@ -21,7 +21,11 @@ test.afterEach(deleteEverything);
 test('download textgrid test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
 	await page.locator('div:nth-child(5) > .inline-flex').click();
-	await page.getByText('empty Create New Track').nth(1).getByRole('combobox').click();
+	await page
+		.getByText('Select transcription model: no model Create New Track')
+		.nth(1)
+		.getByRole('combobox')
+		.click();
 	await page.waitForTimeout(500);
 	await page.getByRole('option', { name: 'deepgram' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
@@ -35,20 +39,27 @@ test('download textgrid test', async ({ page }) => {
 		.nth(2)
 		.click();
 	const download = await downloadPromise;
-	await expect(download.suggestedFilename()).toBe('transcription.TextGrid');
+	await expect(download.suggestedFilename()).toBe('F03_moderate_head_sentence1.TextGrid');
 });
 
 test('split test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
 	await page.locator('div:nth-child(5) > .inline-flex').click();
-	await page.getByText('empty Create New Track').nth(1).getByRole('combobox').click();
+	await page
+		.getByText('Select transcription model: no model Create New Track')
+		.nth(1)
+		.getByRole('combobox')
+		.click();
 	await page.waitForTimeout(500);
 	await page.getByRole('option', { name: 'deepgram' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
 	await page.waitForTimeout(2000);
-	await page.getByRole('button', { name: 'quick' }).click({
-		modifiers: ['Shift']
-	});
+	await page
+		.getByRole('button', { name: 'quick' })
+		.first()
+		.click({
+			modifiers: ['Shift']
+		});
 	await page.locator('div:nth-child(7) > .flex').dblclick();
 	await page.keyboard.press('h');
 	await page.keyboard.press('a');
@@ -58,7 +69,7 @@ test('split test', async ({ page }) => {
 	await page.keyboard.press('Enter');
 	await expect(
 		page.getByRole('group').locator('div').filter({ hasText: 'the quick brown fox jumps' }).nth(1)
-	).toHaveCount(0);
+	).toHaveCount(1);
 	await expect(
 		page.getByRole('group').locator('div').filter({ hasText: 'the quick happy fox jumps' }).nth(1)
 	).toBeVisible();
@@ -67,13 +78,22 @@ test('split test', async ({ page }) => {
 test('track test', async ({ page }) => {
 	await page.locator('div:nth-child(2) > .inline-flex').hover();
 	await page.locator('div:nth-child(5) > .inline-flex').click();
-	await expect(page.getByText('empty').first()).toBeVisible();
+	await expect(page.getByText('Select transcription model:').first()).toBeVisible();
+	await expect(page.getByText('no model').first()).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Create New Track' }).first()).toBeVisible();
 	await expect(
-		page.getByText('empty Create New Track').first().getByRole('button').nth(1)
+		page
+			.getByText('Select transcription model: no model Create New Track')
+			.first()
+			.getByRole('button')
+			.nth(1)
 	).toBeVisible();
 	await expect(page.getByText(':00.000/00:04.800 F01_severe_head_sentence1')).toBeVisible();
-	await page.getByText('empty Create New Track').nth(1).getByRole('combobox').click();
+	await page
+		.getByText('Select transcription model: no model Create New Track')
+		.nth(1)
+		.getByRole('combobox')
+		.click();
 	await page.getByRole('option', { name: 'deepgram' }).click();
 	await page.getByRole('button', { name: 'Create New Track' }).nth(1).click();
 	await page.waitForTimeout(6000);

@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
 
@@ -46,11 +46,7 @@ test('playback test', async ({ page }) => {
 	).toHaveCount(0);
 	await page
 		.getByRole('button', { name: 'MC02_control_head_sentence1' })
-		.dragTo(
-			page.getByText(
-				'simple-info waveform spectrogram vowel-space transcription error-rate 00.511.'
-			)
-		);
+		.dragTo(page.locator('canvas').nth(2));
 	await expect(
 		page
 			.getByRole('group')
