@@ -1,4 +1,3 @@
-import { PUBLIC_KERNEL_ORIGIN } from '$env/static/public';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { z } from 'zod';
@@ -38,7 +37,7 @@ export const POST: RequestHandler = async ({ request, params: { path }, locals: 
 		error(404, `File not found (id: ${id})`);
 	}
 
-	const url = new URL(path, PUBLIC_KERNEL_ORIGIN);
+	const url = new URL(path, process.env.PUBLIC_KERNEL_ORIGIN);
 	return await fetch(url, {
 		method: 'POST',
 		headers: {
