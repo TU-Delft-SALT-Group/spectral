@@ -47,7 +47,7 @@
 			<Form.Label style="margin-top: 0;"
 				>I accept the <a
 					target="_blank"
-					href="/privacy"
+					href="/policy"
 					class="text-blue-600 underline dark:text-blue-300">policies</a
 				></Form.Label
 			>
