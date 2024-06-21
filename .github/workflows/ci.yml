@@ -37,7 +37,7 @@ jobs:
         run: cd app
 
       - name: Install pnpm
-        run: SHELL=sh curl -fsSL https://get.pnpm.io/install.sh | sh -
+        run: corepack enable pnpm
 
       - name: Install dependencies
         run: pnpm install
