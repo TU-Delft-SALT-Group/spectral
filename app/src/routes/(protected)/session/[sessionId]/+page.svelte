@@ -52,13 +52,9 @@
 		attemptSync();
 	}
 
-	// subscribe to our own loading store lol
-	let loading: boolean = true;
-	uploadingStateStore.subscribe((val) => (loading = val));
-
 	// Send alert if closing while loading
 	beforeNavigate(({ type, cancel }) => {
-		if (loading) {
+		if ($uploadingStateStore) {
 			// sync ASAP, but don't block the thread
 			syncState(data.state);
 
