@@ -6,16 +6,16 @@ We believe that Spectral will be of significant help to all ASR researchers, whi
 
 Want to learn more about Spectral? [Read me.](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2023-2024/cluster-n/11c/atypical-speech-project/-/blob/main/README.md?ref_type=heads)
 
-Spectral is open sourced! Check out our repo [here](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2023-2024/cluster-n/11c/atypical-speech-project) on GitHub!
+Spectral is open source! Check out our [Github repo](https://github.com/tu-delft-salt-group/spectral)!
 
 ## About Us
 
 Meet the original team!
 
-- Roman Knyazhitskiy
-- Odysseas Machairas &nbsp; --> &nbsp; ([Github](https://github.com/Odilf))
-- Thijs Houben
-- Yousef Bakri &nbsp; --> &nbsp; ([Github](https://github.com/dprin))
+- Yousef Bakri ([Github](https://github.com/dprin))
 - Quinton den Haan
+- Thijs Houben
+- Roman Knyazhitskiy
+- Odysseas Machairas ([Github](https://github.com/Odilf))
 
-We are a group of TU Delft students and we created Spectral for our Software Project as a part of our CSE Bachelor. Therefore we will not be the ones updating or maintaining the application in the future.
+Spectral was created for the Software Project course of the CSE Bachelor at TU Delft, during 9 weeks. The mantle has now been passed to the Multimedia Computing group of TU Delft.
