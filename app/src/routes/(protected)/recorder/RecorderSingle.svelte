@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { ArrowLeftIcon, ArrowRightIcon, MicIcon, TrashIcon } from 'lucide-svelte';
 	import Camera from './Camera.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -86,13 +87,29 @@
 				<span class="pl-2 transition"> {recording ? 'Stop recording' : 'Record'} </span>
 			</Button>
 
-			<Button on:click={onPrevious} class="h-full" disabled={recording}>
-				<ArrowLeftIcon />
-			</Button>
+			<Tooltip.Root openDelay={200}>
+				<Tooltip.Trigger>
+					<Button on:click={onPrevious} class="h-full" disabled={recording}>
+						<ArrowLeftIcon />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Go to previous prompt</p>
+					<p>(shortcut: left arrow)</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
 
-			<Button on:click={onNext} class="h-full" disabled={recording}>
-				<ArrowRightIcon />
-			</Button>
+			<Tooltip.Root openDelay={200}>
+				<Tooltip.Trigger>
+					<Button on:click={onNext} class="h-full" disabled={recording}>
+						<ArrowRightIcon />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Go to next prompt</p>
+					<p>(shortcut: right arrow)</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
 		</div>
 
 		<div class="flex h-full">
@@ -132,7 +149,7 @@
 
 			<div class="m-4 h-full flex-1 rounded bg-background p-2 text-left">
 				{#if previewing && previewingIndex !== null}
-					Notes for take {previewingIndex + 1} (typing auto saves)
+					Notes for take {previewingIndex + 1} (auto-saved)
 					<Textarea
 						on:focus={disableShortcuts}
 						on:blur={enableShortcuts}

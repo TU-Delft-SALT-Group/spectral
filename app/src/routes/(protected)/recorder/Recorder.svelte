@@ -8,6 +8,7 @@
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import type { Selected } from 'bits-ui';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	export let prompts: PromptResponse[];
 	export let promptName: string;
@@ -169,7 +170,7 @@
 			<div class="flex-1"></div>
 
 			<Select.Root bind:selected={selectedCamera}>
-				<Select.Trigger class="h-fit">
+				<Select.Trigger class="h-fit opacity-80 transition hover:opacity-100">
 					{selectedCamera.label}
 				</Select.Trigger>
 				{#if videoDevices !== null}
@@ -182,7 +183,7 @@
 			</Select.Root>
 
 			<Select.Root bind:selected={selectedMic}>
-				<Select.Trigger class="h-fit">
+				<Select.Trigger class="h-fit opacity-80 transition hover:opacity-100">
 					{selectedMic.label}
 				</Select.Trigger>
 				{#if audioDevices !== null}
@@ -193,6 +194,8 @@
 					</Select.Content>
 				{/if}
 			</Select.Root>
+
+			<Separator />
 
 			<Button disabled={disableImport} on:click={importSession}>Export recording to session</Button>
 			<Button disabled={disableExport} on:click={downloadAllRecordings} variant="outline"
