@@ -423,7 +423,7 @@
 		{/each}
 	</div>
 	<!-- Inserting/Exporting track stuff down here -->
-	<div class="flex w-full justify-center gap-5 pt-2">
+	<div class="flex w-full justify-center gap-5 py-2">
 		<div class="flex items-center">
 			<span class="mr-2 flex"> Select transcription model: </span>
 			<Select.Root bind:selected={transcriptionType}>
