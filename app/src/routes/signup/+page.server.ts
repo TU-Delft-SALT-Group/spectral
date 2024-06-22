@@ -39,6 +39,11 @@ export const actions: Actions = {
 					return fail(400, {
 						form
 					});
+				case 'unread-policy':
+					setError(form, 'privacyAck', 'Did not acknowledge privacy policy');
+					return fail(400, {
+						form
+					});
 			}
 		}
 

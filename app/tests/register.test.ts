@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './baseFixtures.ts';
+import { deleteEverything, setupTests } from './utils.ts';
 
 test.use({
 	viewport: {
@@ -8,6 +9,7 @@ test.use({
 });
 
 test('register and walk through', async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByRole('link', { name: 'Sign up instead' }).click();
@@ -25,7 +27,7 @@ test('register and walk through', async ({ page }) => {
 	await expect(page.getByText('String must contain at least')).toBeVisible();
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Sign up' }).click();
 	await expect(page.getByRole('button')).toBeVisible();
 	await page.waitForTimeout(100);
 	await page.getByRole('button').click();
@@ -50,10 +52,8 @@ test('register and walk through', async ({ page }) => {
 	await page.getByLabel('Username').fill('Roman');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await expect(page.locator('h2')).toContainText('new session asdf');
 });
 
-test.afterEach(async ({ page }) => {
-	await page.close();
-});
+test.afterEach(deleteEverything);

@@ -3,7 +3,7 @@
 	<div></div>
 </div>
 
-<style>
+<style lang="postcss">
 	.lds-ripple {
 		display: inline-block;
 		position: relative;
@@ -12,7 +12,7 @@
 	}
 	.lds-ripple div {
 		position: absolute;
-		border: 2px solid #fff;
+		border: 2px solid theme(colors.foreground);
 		opacity: 50%;
 		border-radius: 50%;
 		animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;

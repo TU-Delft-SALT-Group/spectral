@@ -8,22 +8,31 @@ export async function createUser({
 	id,
 	username,
 	password,
-	email
+	email,
+	privacyAck
 }: {
 	id?: string;
 	username: string;
 	password: string;
 	email: string;
+	privacyAck: boolean;
 }): Promise<
 	| {
 			success: false;
-			reason: 'email-in-use' | 'username-in-use';
+			reason: 'email-in-use' | 'username-in-use' | 'unread-policy';
 	  }
 	| {
 			success: true;
 			userId: string;
 	  }
 > {
+	if (privacyAck === false) {
+		return {
+			success: false,
+			reason: 'unread-policy'
+		};
+	}
+
 	const userId = id ?? generateIdFromEntropySize(10);
 	const hashedPassword = await hash(password, {
 		// recommended minimum parameters
