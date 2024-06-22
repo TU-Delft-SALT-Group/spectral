@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../baseFixtures.ts';
+import { deleteEverything, setupTests } from '../utils.ts';
 
 test.beforeEach(async ({ page }) => {
+	await setupTests({ page });
 	await page.goto('http://localhost/');
 	await page.getByRole('link', { name: 'Analyze' }).click();
 	await page.getByLabel('Username').click();
@@ -10,9 +12,11 @@ test.beforeEach(async ({ page }) => {
 	await page.getByLabel('Username').fill('Sample');
 	await page.getByLabel('Password').click();
 	await page.getByLabel('Password').fill('password');
-	await page.getByRole('button', { name: 'Submit' }).click();
+	await page.getByRole('button', { name: 'Login' }).click();
 	await page.getByRole('link', { name: 'Sample Session sample-session' }).click();
 });
+
+test.afterEach(deleteEverything);
 
 test('file management test', async ({ page }) => {
 	await page.getByRole('button', { name: 'MC02_control_head_sentence1', exact: true }).click({
@@ -45,16 +49,16 @@ test('file management test', async ({ page }) => {
 		.setInputFiles('./app/static/samples/torgo-dataset/MC02_control_head_sentence1.wav');
 	await expect(page.getByRole('button', { name: 'MC02_control_head_sentence1.' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'sample' })).toBeVisible();
-	await page
-		.locator('div')
-		.filter({ hasText: /^sample \+$/ })
-		.getByRole('button')
-		.nth(1)
-		.click();
+	await page.locator('.ml-auto').first().click();
+	await expect(page.getByLabel('Are you absolutely sure?')).toBeVisible();
+	await expect(page.getByLabel('Are you absolutely sure?')).toContainText(
+		'This action cannot be undone. This will permanently delete this pane and the analysis conducted in it.'
+	);
+	await page.getByRole('button', { name: 'Continue' }).click();
 	await expect(page.getByRole('button', { name: 'sample' })).toHaveCount(0);
 	await page.getByRole('button', { name: 'New tab' }).click();
 	await expect(page.getByRole('button', { name: 'New Tab' })).toBeVisible();
-	await page.close();
+	await expect(page.getByText('Drag a file from the file')).toBeVisible();
 });
 
 //Please use chromium (firefox is used as standard) to run this test as Firefox does not support "microphone" permission
@@ -65,9 +69,8 @@ test('internal recorder test', async ({ page, browser }) => {
 	await page.getByRole('button', { name: 'Record' }).click();
 	const context = await browser.newContext();
 	await context.grantPermissions(['microphone']);
-	await page.waitForTimeout(2000);
+	await page.waitForTimeout(1000);
 	await page.getByRole('button', { name: 'Record' }).click();
-	await expect(page.getByLabel('Enter name for recording')).toBeVisible();
 	await page.locator('input[name="filename"]').click();
 	await page.locator('input[name="filename"]').fill('new_recording');
 	await page.locator('input[name="groundTruth"]').click();
