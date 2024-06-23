@@ -64,7 +64,7 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def fetch_key(self: Self, user_id: str, model_name: str) -> str | None:
+    def fetch_apikey(self: Self, user_id: str, model_name: str) -> str | None:
         """
         Fetch an api key for a certain model from a particular user.
 
