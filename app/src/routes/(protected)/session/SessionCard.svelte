@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
 	import { sessionTable } from '$lib/database/schema';
 	import { humanSensibleDate } from '$lib/time';
-	import * as Tooltip from '$lib/components/ui/tooltip';
 
+	import * as Tooltip from '$lib/components/ui/tooltip';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import * as ContextMenu from '$lib/components/ui/context-menu';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
@@ -14,6 +16,8 @@
 	export let onDeleteSession: (fileId: string) => void;
 
 	let deleteAlertOpen = false;
+	let renameDialogOpen = false;
+	let tmpName: string;
 
 	async function deleteSession() {
 		await fetch('?/deleteSession', {
@@ -22,6 +26,17 @@
 		}).then(async (response) => {
 			if ((await response.json()).status == 204) {
 				onDeleteSession(session.id);
+			}
+		});
+	}
+
+	async function renameSession(newName: string) {
+		await fetch('?/renameSession', {
+			method: 'POST',
+			body: JSON.stringify({ id: session.id, newName })
+		}).then(async (res) => {
+			if ((await res.json()).status === 204) {
+				session.name = newName;
 			}
 		});
 	}
@@ -90,6 +105,7 @@
 			</ContextMenu.Trigger>
 			<ContextMenu.Content>
 				<ContextMenu.Item on:click={() => exportSession()}>Export</ContextMenu.Item>
+				<ContextMenu.Item on:click={() => (renameDialogOpen = true)}>Rename</ContextMenu.Item>
 				<ContextMenu.Item on:click={() => (deleteAlertOpen = true)}>Delete</ContextMenu.Item>
 			</ContextMenu.Content>
 		</ContextMenu.Root>
@@ -115,3 +131,23 @@
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>
+
+<Dialog.Root bind:open={renameDialogOpen}>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>Rename Session</Dialog.Title>
+		</Dialog.Header>
+		<Input
+			placeholder={session.name}
+			bind:value={tmpName}
+			on:keydown={async (event: KeyboardEvent) => {
+				if (event.key !== 'Enter' || tmpName === undefined || tmpName.length === 0) {
+					return;
+				}
+
+				await renameSession(tmpName);
+				renameDialogOpen = false;
+			}}
+		/>
+	</Dialog.Content>
+</Dialog.Root>

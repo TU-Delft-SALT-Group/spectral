@@ -123,6 +123,26 @@ export const actions: Actions = {
 		const sessionId = await createSession(userId, sessionName);
 
 		redirect(301, `session/${sessionId}`);
+	},
+	renameSession: async ({ request }) => {
+		const formData = await request.json();
+		const sessionId = formData.id;
+		const newName = formData.newName;
+
+		if (typeof sessionId !== 'string' || typeof newName !== 'string') {
+			error(400, { message: '`id` or `name` were not string' });
+		}
+
+		if (newName.length < 1) {
+			error(400, { message: "`sessionName` can't be empty" });
+		}
+
+		await db
+			.update(sessionTable)
+			.set({
+				name: newName
+			})
+			.where(eq(sessionTable.id, sessionId));
 	}
 };
 
