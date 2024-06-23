@@ -84,7 +84,7 @@ class Database:
             WHERE table_name = 'user'
         """)
         column_data = self.cursor.fetchall()
-        self.cursor.execute("SELECT * FROM user WHERE id = %s", [user_id])
+        self.cursor.execute("SELECT * FROM user")
         db_res = self.cursor.fetchone()  # type: ignore
 
         print("!!!!!!!!!!!!!")
