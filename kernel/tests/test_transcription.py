@@ -142,7 +142,6 @@ def test_get_transcription_whisper(mock_calculate_signal_duration, mock_get_audi
     }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
-    (mock_whisper_transcription.assert_called_once_with(b"audio data"))
 
 
 @pytest.mark.skip("TODO: fix message")

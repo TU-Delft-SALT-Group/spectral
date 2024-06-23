@@ -97,7 +97,10 @@ def hf_transcription(data: bytes, model_name: str) -> TranscriptionType:
             signal_analysis.get_audio({"data": data})
         )
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Something went wrong when transcribing") from e
+        raise HTTPException(
+            status_code=401,
+            detail="Something went wrong when transcribing using custom HF model, sorry.",
+        ) from e
     else:
         return {
             "language": "unk",

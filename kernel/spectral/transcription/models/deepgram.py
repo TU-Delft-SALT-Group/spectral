@@ -62,5 +62,7 @@ def deepgram_transcription(data: bytes, api_key: str | None = None) -> Transcrip
         }
 
     except Exception as e:
-        print("No API key for Deepgram is found")  # noqa
-        raise HTTPException(status_code=401, detail="Something went wrong when transcribing") from e
+        raise HTTPException(
+            status_code=401,
+            detail="Something went wrong when transcribing. Probably the API key for Deepgram is wrong.",
+        ) from e
