@@ -15,7 +15,7 @@
 
 <style lang="postcss">
 	main :global(h2) {
-		@apply pb-3 pt-6 text-3xl;
+		@apply pb-1 pt-6 text-3xl;
 	}
 
 	main :global(p) {
