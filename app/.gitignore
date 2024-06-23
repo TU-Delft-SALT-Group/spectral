@@ -13,3 +13,4 @@ vite.config.ts.timestamp-*
 *.db
 coverage
 test-results
+.nyc_output

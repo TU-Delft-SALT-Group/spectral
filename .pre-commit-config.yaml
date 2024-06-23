@@ -24,7 +24,7 @@ repos:
     hooks:
     - id: pyright
       types_or: [python, pyi, jupyter]
-      additional_dependencies: [numpy, pytest, fastapi, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python, jiwer, beartype, openai, mytextgrid, bert-score, jaroWinkler]
+      additional_dependencies: [numpy, pytest, fastapi, torch, praat-parselmouth, orjson, pydantic, scipy, psycopg, deepgram-sdk, pydub, ffmpeg-python, jiwer, beartype, openai, mytextgrid, bert-score, jaroWinkler, "--extra-index-url", "https://download.pytorch.org/whl/cpu"]
       stages: [pre-commit]
   - repo: https://github.com/crate-ci/typos
     rev: v1.21.0
@@ -32,6 +32,10 @@ repos:
       - id: typos
         stages: [pre-commit]
   - repo: local
+    # the local repository is ignored when running precommit in the ci
+    # but the only way to do this is to ignore the hooks by ids
+    # so if you change the ids of local hooks, make sure to change them
+    # in the .github/workflows and (maybe?) .gitlab/ stuff
     hooks:
       - id: prettier
         name: pnpm prettier

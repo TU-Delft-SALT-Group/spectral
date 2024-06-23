@@ -22,17 +22,18 @@ services:
     env_file:
        - '.variables.env'
     volumes:
-      - ./data:/data
+      - ./data:/var/lib/postgresql/data
 
   app:
     restart: unless-stopped
     stop_grace_period: 5s
     environment:
-      PUBLIC_KERNEL_ORIGIN: http://kernel
+      PUBLIC_KERNEL_ORIGIN: http://kernel:8000
       PG_CONNECTION_STRING: postgres://user:password@postgres:5432/spectral_db
     build:
       context: ./app
       dockerfile: Dockerfile.prod
+    image: knyazer/spectral-app
     expose:
       - "5173"
     depends_on:
@@ -48,6 +49,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /certs:/certs:ro
     depends_on:
       - app
 
@@ -57,6 +59,7 @@ services:
     build:
       context: ./kernel
       dockerfile: Dockerfile.prod
+    image: knyazer/spectral-kernel
     expose:
       - "8000"
     depends_on:

@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 500ms
     environment:
-      PUBLIC_KERNEL_ORIGIN: http://kernel
+      PUBLIC_KERNEL_ORIGIN: http://kernel:8000
       PG_CONNECTION_STRING: postgres://user:password@postgres:5432/spectral_db
     build:
       context: ./app

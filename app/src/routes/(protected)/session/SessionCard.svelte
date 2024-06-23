@@ -5,8 +5,26 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	import * as ContextMenu from '$lib/components/ui/context-menu';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
 	export let session: typeof sessionTable.$inferSelect;
+	export let closeAllContextMenus: () => void;
+	export let isContextMenuOpen = false;
+
+	export let onDeleteSession: (fileId: string) => void;
+
+	let deleteAlertOpen = false;
+
+	async function deleteSession() {
+		await fetch('?/deleteSession', {
+			method: 'POST',
+			body: JSON.stringify(session.id)
+		}).then(async (response) => {
+			if ((await response.json()).status == 204) {
+				onDeleteSession(session.id);
+			}
+		});
+	}
 
 	async function exportSession() {
 		let response = await fetch('?/exportSession', {
@@ -40,7 +58,15 @@
 
 <Tooltip.Root>
 	<Tooltip.Trigger>
-		<ContextMenu.Root>
+		<ContextMenu.Root
+			bind:open={isContextMenuOpen}
+			onOpenChange={(isOpened) => {
+				if (!isOpened) return;
+
+				closeAllContextMenus();
+				isContextMenuOpen = true;
+			}}
+		>
 			<ContextMenu.Trigger>
 				<Button class="h-fit px-6 py-8" variant="outline" href="session/{session.id}">
 					<section class="flex flex-col items-start">
@@ -64,6 +90,7 @@
 			</ContextMenu.Trigger>
 			<ContextMenu.Content>
 				<ContextMenu.Item on:click={() => exportSession()}>Export</ContextMenu.Item>
+				<ContextMenu.Item on:click={() => (deleteAlertOpen = true)}>Delete</ContextMenu.Item>
 			</ContextMenu.Content>
 		</ContextMenu.Root>
 	</Tooltip.Trigger>
@@ -72,3 +99,19 @@
 		<p>{session.name}</p>
 	</Tooltip.Content>
 </Tooltip.Root>
+
+<AlertDialog.Root bind:open={deleteAlertOpen}>
+	<AlertDialog.Content>
+		<AlertDialog.Header>
+			<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+			<AlertDialog.Description>
+				This action cannot be undone. This will permanently delete your session and remove your data
+				from our servers.
+			</AlertDialog.Description>
+		</AlertDialog.Header>
+		<AlertDialog.Footer>
+			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Action on:click={() => deleteSession()}>Continue</AlertDialog.Action>
+		</AlertDialog.Footer>
+	</AlertDialog.Content>
+</AlertDialog.Root>

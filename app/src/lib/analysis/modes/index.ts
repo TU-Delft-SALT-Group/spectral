@@ -62,6 +62,18 @@ export const modes = {
 } as const satisfies Record<string, ModeValidator>;
 
 /**
+ * Better worded, extended names for the modes, to be shown to the user.
+ */
+export const niceModeNames: { [id: string]: string } = {
+	'simple-info': 'General information',
+	waveform: 'Waveform',
+	spectrogram: 'Spectrogram',
+	'vowel-space': 'Vowel space',
+	transcription: 'Transcription',
+	'error-rate': 'Error rate'
+};
+
+/**
  * The names of the modes
  *
  * This helper is useful because `Object.keys(modes)` returns a `string[]` instead of a `Mode.Name[]`.

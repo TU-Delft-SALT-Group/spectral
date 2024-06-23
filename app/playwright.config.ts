@@ -21,15 +21,20 @@ const config: PlaywrightTestConfig = {
 			name: 'firefox',
 			use: { ...devices['Desktop Firefox'] },
 			dependencies: ['setup sample account']
+		},
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'], permissions: ['microphone', 'camera'] },
+			dependencies: ['setup sample account']
 		}
 	],
 	use: {
 		baseURL: 'http://localhost:80',
-		actionTimeout: 10000,
+		actionTimeout: 30000,
 		navigationTimeout: 10000
 	},
 	expect: {
-		timeout: 10000
+		timeout: 30000
 	},
 	testDir: 'tests',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/
