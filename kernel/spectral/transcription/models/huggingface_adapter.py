@@ -38,6 +38,8 @@ from transformers import WhisperForConditionalGeneration, WhisperProcessor
 from spectral import signal_analysis
 from spectral.types import TranscriptionType
 
+from fastapi import HTTPException
+
 
 @lru_cache
 def _get_model_by_name(model_name: str) -> tuple:
@@ -94,8 +96,8 @@ def hf_transcription(data: bytes, model_name: str) -> TranscriptionType:
         duration = signal_analysis.calculate_signal_duration(
             signal_analysis.get_audio({"data": data})
         )
-    except RuntimeError:
-        return {}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Something went wrong when transcribing") from e
     else:
         return {
             "language": "unk",

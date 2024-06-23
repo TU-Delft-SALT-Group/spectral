@@ -62,9 +62,6 @@ const handleRequest: RequestHandler = async ({
 			request.headers.set('apikey', foundKeys[0].key);
 		}
 	}
-
-	console.log(request.headers.get('apikey'));
-
 	const url = getUrlFromPath(path);
 	// undici doesn't support the connection header
 	request.headers.delete('connection');

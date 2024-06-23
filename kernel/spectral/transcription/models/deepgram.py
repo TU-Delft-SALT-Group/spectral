@@ -6,6 +6,8 @@ import os
 
 from deepgram import DeepgramClient, PrerecordedOptions
 
+from fastapi import HTTPException
+
 from spectral.types import TranscriptionType
 
 
@@ -59,6 +61,6 @@ def deepgram_transcription(data: bytes, api_key: str | None = None) -> Transcrip
             "transcription": res,
         }
 
-    except Exception:
+    except Exception as e:
         print("No API key for Deepgram is found")  # noqa
-        return {"language": "", "transcription": []}
+        raise HTTPException(status_code=401, detail="Something went wrong when transcribing") from e

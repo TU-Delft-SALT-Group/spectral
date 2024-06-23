@@ -6,6 +6,7 @@ import os
 import tempfile
 from pathlib import Path
 from typing import Any
+from fastapi import HTTPException
 
 from openai import OpenAI
 
@@ -28,8 +29,8 @@ def whisper_transcription(data: bytes, api_key: str | None = None) -> Transcript
     try:
         transcription = get_whisper_transcription(data, api_key)
 
-    except Exception:
-        return {"language": "", "transcription": []}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Something went wrong when transcribing") from e
     else:
         res = []
 

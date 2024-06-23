@@ -37,7 +37,7 @@ def test_get_transcription_deepgram(mock_calculate_signal_duration, mock_get_aud
     }
     mock_get_audio.return_value = Mock()
     mock_calculate_signal_duration.return_value = 4.565
-    result = get_transcription("deepgram", {"data": b"audio data"})
+    result = get_transcription("deepgram", {"data": b"audio data"}, api_key="abc")
 
     expected_result = {
         "language": "en",
@@ -51,10 +51,8 @@ def test_get_transcription_deepgram(mock_calculate_signal_duration, mock_get_aud
     }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"
-    (mock_deepgram_transcription.assert_called_once_with(b"audio data"))
 
 
-@patch.dict(os.environ, {"DG_KEY": "test_key"}, clear=True)
 @patch("spectral.transcription.models.deepgram.DeepgramClient")
 def test_deepgram_transcription(mock_deepgram_client):
     mock_client_instance = Mock()
@@ -79,7 +77,7 @@ def test_deepgram_transcription(mock_deepgram_client):
     mock_client_instance.listen.prerecorded.v("1").transcribe_file.return_value = mock_response
 
     data = b"audio data"
-    result = deepgram_transcription(data)
+    result = deepgram_transcription(data, "test_key")
 
     expected_result = {
         "language": "en",
@@ -94,13 +92,12 @@ def test_deepgram_transcription(mock_deepgram_client):
     (mock_client_instance.listen.prerecorded.v("1").transcribe_file.assert_called_once())
 
 
-@patch.dict(os.environ, {}, clear=True)
-def test_deepgram_transcription_no_api_key(capfd):
-    deepgram_transcription(b"audio data")
-    captured = capfd.readouterr()
-
-    expected_message = "No API key for Deepgram is found"
-    assert expected_message in captured.out, f"Expected output '{expected_message}' but got {captured.out}"
+def test_deepgram_transcription_no_api_key():
+    try:
+        deepgram_transcription(b"audio data")
+        assert "Should respond with 401 code"
+    except HTTPException as e:
+        assert e.status_code == 401
 
 
 def test_get_phoneme_transcription_empty_transcription():
