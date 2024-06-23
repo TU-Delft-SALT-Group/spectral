@@ -42,6 +42,11 @@ const handleRequest: RequestHandler = async ({
 	const fileId = getFileId(request);
 	verifyFileOwnership(fileId, user.id);
 
+	// very janky fix to be able to append user id
+	if (path.startsWith('transcription/')) {
+		path += `/${user.id}`;
+	}
+
 	const url = getUrlFromPath(path);
 	// undici doesn't support the connection header
 	request.headers.delete('connection');
