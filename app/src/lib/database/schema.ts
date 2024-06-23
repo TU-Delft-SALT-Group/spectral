@@ -7,7 +7,7 @@ export const userTable = pgTable('user', {
 	username: text('username').unique().notNull(),
 	hashedPassword: text('hashed_password').notNull(),
 	creationTime: timestamp('creation_time').default(sql`CURRENT_TIMESTAMP`),
-	apiKeys: jsonb("api_keys").notNull().default({})
+	apiKeys: jsonb('api_keys').notNull().default([])
 });
 
 export const userRelations = relations(userTable, ({ many }) => ({
