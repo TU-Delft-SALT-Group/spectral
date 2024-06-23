@@ -76,15 +76,15 @@ class Database:
         Returns:
         -------
             str | None: either an api key or None
-        """
 
+        """
         self.cursor.execute("""
             SELECT column_name, ordinal_position
             FROM information_schema.columns
-            WHERE table_name = 'users'
+            WHERE table_name = 'user'
         """)
         column_data = self.cursor.fetchall()
-        self.cursor.execute("SELECT * FROM files WHERE id = %s", [user_id])
+        self.cursor.execute("SELECT * FROM user WHERE id = %s", [user_id])
         db_res = self.cursor.fetchone()  # type: ignore
 
         print("!!!!!!!!!!!!!")

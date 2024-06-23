@@ -180,8 +180,8 @@ async def transcribe_file(
     apikey = None
     try:
         apikey = db_session.fetch_apikey(user_id, model)
-    except Exception as _:
-        print(f"Api key for {model} (user {user_id}) not found, ignoring")  # noqa: T201
+    except Exception as e:
+        print(f"Api key for {model} (user {user_id}) not found, ignoring w {e}")  # noqa: T201
 
     return get_transcription(model, file, apikey)
 
