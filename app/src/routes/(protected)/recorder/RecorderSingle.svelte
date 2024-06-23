@@ -16,6 +16,7 @@
 
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
+	export let navigationCanceledCount: number;
 
 	/**
 	 * Called when requesting to go to previous prompt
@@ -78,6 +79,7 @@
 			prompt.recordings.push({ blob, note: '' });
 			prompt = prompt;
 		}}
+		{navigationCanceledCount}
 	/>
 
 	<div class="mx-auto max-w-xl">

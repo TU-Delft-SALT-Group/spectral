@@ -8,6 +8,7 @@
 
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
+	export let navigationCanceledCount: number;
 
 	export let onStopRecording: (blob: Blob) => void = () => {};
 
@@ -104,7 +105,7 @@
 			});
 	}
 
-	$: browser && loadVideo(cameraInfo, micInfo);
+	$: browser && navigationCanceledCount + 1 && loadVideo(cameraInfo, micInfo);
 </script>
 
 <video
