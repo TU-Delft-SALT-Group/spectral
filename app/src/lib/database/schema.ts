@@ -56,13 +56,14 @@ export const fileTable = pgTable('files', {
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
 	uploader: text('uploader')
-		.references(() => userTable.id)
+		.references(() => userTable.id, { onDelete: 'cascade' })
 		.notNull(),
 	session: text('session')
-		.references(() => sessionTable.id)
+		.references(() => sessionTable.id, { onDelete: 'cascade' })
 		.notNull(),
 	ephemeral: boolean('ephemeral').notNull().default(false),
-	groundTruth: text('ground_truth'),
+	groundTruth: text('ground_truth').notNull().default(''),
+	note: text('note').notNull().default(''),
 	state: jsonb('state')
 		.notNull()
 		.default(sql`'{}'`)
@@ -85,7 +86,7 @@ export const sessionTable = pgTable('session', {
 	name: text('name').notNull(),
 	owner: text('owner')
 		.notNull()
-		.references(() => userTable.id),
+		.references(() => userTable.id, { onDelete: 'cascade' }),
 	creationTime: timestamp('creation_time')
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),

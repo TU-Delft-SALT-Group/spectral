@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
+	import { menubarOverrides } from '$lib/components/ui/menubar/overrides';
 	import type { PageData } from './$types';
 	import SessionCard from './SessionCard.svelte';
 	import { cn } from '$lib/utils';
@@ -13,7 +14,16 @@
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner';
 
+	import { Button } from '$lib/components/ui/button';
+
 	let importingSession: boolean = false;
+	let openContextMenus: boolean[] = [];
+
+	function closeAllContextMenus() {
+		for (let i = 0; i < openContextMenus.length; i++) {
+			openContextMenus[i] = false;
+		}
+	}
 
 	async function handleFileUpload(event: Event) {
 		importingSession = true;
@@ -75,6 +85,12 @@
 	}
 
 	export let data: PageData;
+
+	for (const session of data.sessions) {
+		menubarOverrides.update((oldStore) => {
+			return { ...oldStore, [session['id']]: session['name'] };
+		});
+	}
 </script>
 
 <svelte:head>
@@ -91,9 +107,16 @@
 				</Dialog.Trigger>
 			</li>
 
-			{#each data.sessions as session}
+			{#each data.sessions as session, i}
 				<li>
-					<SessionCard {session}></SessionCard>
+					<SessionCard
+						{session}
+						{closeAllContextMenus}
+						bind:isContextMenuOpen={openContextMenus[i]}
+						onDeleteSession={() => {
+							data.sessions = data.sessions.filter((s) => s.id !== session.id);
+						}}
+					></SessionCard>
 				</li>
 			{/each}
 		</ul>
@@ -103,12 +126,27 @@
 		<Dialog.Header>
 			<Dialog.Title class="text-3xl">Enter new session name</Dialog.Title>
 			<Dialog.Description>
-				<form action="?/createSession" method="POST" use:enhance>
-					<Input disabled={importingSession} type="text" name="sessionName" minlength={1} required
+				<form
+					id="create-session-form"
+					class="flex flex-col"
+					action="?/createSession"
+					method="POST"
+					use:enhance
+				>
+					<Input
+						class="mr-1"
+						disabled={importingSession}
+						type="text"
+						name="sessionName"
+						minlength={1}
+						required
 					></Input>
+					<Button type="submit" class="mt-2 w-fit" disabled={importingSession}
+						>Create Session</Button
+					>
 				</form>
 			</Dialog.Description>
-			<Dialog.Title class="text-3xl">Or Import a session</Dialog.Title>
+			<Dialog.Title class="text-1xl pt-8 font-medium">Or import a session from a file</Dialog.Title>
 			<Dialog.Description>
 				<Input
 					name="file"

@@ -50,9 +50,24 @@ class SimpleInfoResponse(BaseModel):
     frame: FrameAnalysisResponse | None
 
 
-class VowelSpaceResponse(BaseModel):
+class WaveformResponse(BaseModel):
     """
-    VowelSpaceResponse model representing formant location in the vowel space.
+    WaveformResponse model representing pitches and formants found in a signal.
+
+    Attributes
+    ----------
+        pitch (list[float]): List of pitch frequencies for multiple frames (in Hz).
+        formants (list[list[float]]): List of f1 and f2's for multiple frames (in Hz).
+
+    """
+
+    pitch: list[float]
+    formants: list[list[float]]
+
+
+class Formants(BaseModel):
+    """
+    Formants model representing formant location in the vowel space.
 
     Attributes
     ----------
@@ -63,6 +78,22 @@ class VowelSpaceResponse(BaseModel):
 
     f1: float
     f2: float
+    start: float
+    end: float
+    matchString: str | None
+
+
+class VowelSpaceResponse(BaseModel):
+    """
+    VowelSpaceResponse model representing a list of formant location in the vowel space.
+
+    Attributes
+    ----------
+        formants (list[Formants]): list of formants used for vowel space
+
+    """
+
+    formants: list[Formants]
 
 
 class TranscriptionSegment(BaseModel):

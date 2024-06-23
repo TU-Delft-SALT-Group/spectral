@@ -6,6 +6,7 @@
 	import FileExplorer from './FileExplorer.svelte';
 	import Workspace from './Workspace.svelte';
 	import type { SessionState } from './workspace';
+	import { beforeNavigate } from '$app/navigation';
 
 	export let data: PageData;
 	let lastUpdate: number = -Infinity;
@@ -51,7 +52,24 @@
 		attemptSync();
 	}
 
-	let workspace: Workspace;
+	// Send alert if closing while loading
+	beforeNavigate(({ type, cancel }) => {
+		if ($uploadingStateStore) {
+			// sync ASAP, but don't block the thread
+			syncState(data.state);
+
+			if (type === 'leave') {
+				// if leaving: nicely suggest to wait
+				cancel();
+			}
+
+			// if any other type of leaving (probably local link)
+			// we actually don't care, since the async process was triggered
+			// so the saving will continue even after you moved
+		}
+	});
+
+	let workspace: Workspace | undefined = undefined;
 </script>
 
 <svelte:head>
@@ -63,8 +81,9 @@
 		<Resizable.Pane defaultSize={20} minSize={11} collapsible={true} collapsedSize={1}>
 			<FileExplorer
 				bind:files={data.files}
+				bind:workspace
 				sessionId={data.sessionId}
-				onDeleteFile={(fileId) => workspace.deleteFile(fileId)}
+				onDeleteFile={(fileId) => workspace?.deleteFile(fileId)}
 			></FileExplorer>
 		</Resizable.Pane>
 

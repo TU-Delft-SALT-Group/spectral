@@ -17,6 +17,9 @@
 	import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 	import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.esm.js';
 	import type { Action } from 'svelte/action';
+	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
+	import type { Frame } from '$lib/analysis/kernel/framing';
+	import { fetchKernel } from '$lib/analysis/kernel/communication';
 
 	let {
 		fileState = $bindable(),
@@ -34,6 +37,7 @@
 	let wavesurfer: WaveSurfer;
 	let timeline: TimelinePlugin;
 	let hover: HoverPlugin;
+	let regions: RegionsPlugin;
 
 	let width: number = $state(100);
 	let minZoom: number;
@@ -41,8 +45,10 @@
 	let current: number = $state(0);
 	let playing: boolean = $state(false);
 
-	let transcriptionType: { label?: string; value: string } = $state({ value: 'empty' });
-	const models: string[] = ['whisper', 'deepgram', 'allosaurus'];
+	let previousSelection: number[] | null = null;
+
+	let transcriptionType: { label?: string; value: string } = $state({ value: 'no model' });
+	const models: string[] = ['whisper', 'deepgram', 'allosaurus', 'whisper-torgo-1-epoch'];
 	const trackNameSpace = 150;
 
 	$effect(() => {
@@ -69,6 +75,8 @@
 				secondaryLabelInterval: 0.5
 			})
 		);
+
+		regions = wavesurfer.registerPlugin(RegionsPlugin.create());
 
 		hover = wavesurfer.registerPlugin(
 			HoverPlugin.create({
@@ -110,9 +118,54 @@
 			});
 		});
 
-		wavesurfer.on('timeupdate', (time) => (current = time));
-		wavesurfer.on('play', () => (playing = true));
+		wavesurfer.on('timeupdate', () => {
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+				wavesurfer.setTime(wavesurfer.getDuration());
+			if (regions.getRegions().length == 1) {
+				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
+					wavesurfer.pause();
+					wavesurfer.setTime(regions.getRegions()[0].end);
+				}
+			}
+			current = wavesurfer.getCurrentTime();
+		});
+		wavesurfer.on('play', () => {
+			if (regions.getRegions().length == 1) {
+				wavesurfer.setTime(regions.getRegions()[0].start);
+			}
+			playing = true;
+		});
 		wavesurfer.on('pause', () => (playing = false));
+
+		// regions.enableDragSelection(
+		// 	{
+		// 		color: 'rgba(255, 0, 0, 0.1)'
+		// 	},
+		// 	10
+		// );
+
+		regions.on('region-created', (region: Region) => {
+			regions.getRegions().forEach((r) => {
+				if (r.id === region.id) return;
+				r.remove();
+			});
+
+			let frame: Frame = {
+				startIndex: Math.floor(region.start * wavesurfer.options.sampleRate),
+				endIndex: Math.ceil(region.end * wavesurfer.options.sampleRate)
+			};
+
+			fileState.frame = frame;
+		});
+
+		window.addEventListener('keydown', (e: KeyboardEvent) => {
+			switch (e.key) {
+				case 'Escape':
+					regions.clearRegions();
+					previousSelection = null;
+					break;
+			}
+		});
 	});
 
 	onDestroy(() => {
@@ -124,7 +177,7 @@
 	async function exportTextGrid() {
 		let text;
 		try {
-			const response = await fetch('/api/transcription/textgrid', {
+			const response = await fetchKernel('/api/transcription/textgrid', fileState.id, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -151,7 +204,7 @@
 
 		a.style.display = 'none';
 		a.href = url;
-		a.download = 'transcription.TextGrid';
+		a.download = `${fileState.name}.TextGrid`;
 
 		document.body.appendChild(a);
 		a.click();
@@ -178,12 +231,12 @@
 	async function addTrack() {
 		if (duration === null) return;
 
-		if (transcriptionType.value === 'empty') {
+		if (transcriptionType.value === 'no model') {
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: 'new track',
+					name: 'track name',
 					selected: true,
 					captions: [
 						{
@@ -195,22 +248,44 @@
 				}
 			];
 		} else if (models.includes(transcriptionType.value)) {
+			const model = transcriptionType.value;
 			let response = await (
-				await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
+				await fetchKernel(
+					`/api/transcription/${transcriptionType.value}/${fileState.id}`,
+					fileState.id
+				)
 			).json();
 			logger.trace(response);
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
 					id: generateIdFromEntropySize(10),
-					name: transcriptionType.value + (response.language ? '-' + response.language : ''),
+					name: model + (response.language ? '-' + response.language : ''),
 					selected: true,
 					captions: response.transcription
+				},
+				{
+					id: generateIdFromEntropySize(10),
+					name: model + '-sentence' + (response.language ? '-' + response.language : ''),
+					selected: true,
+					captions: sentenceCaption(response.transcription)
 				}
 			];
 		} else {
 			logger.error('no match for: ' + transcriptionType.value);
 		}
+	}
+
+	function sentenceCaption(captions: { start: number; end: number; value: string }[]) {
+		let sentence = '';
+		for (const caption of captions) {
+			if (caption.value === '') continue;
+			sentence += caption.value + ' ';
+		}
+		if (sentence.charAt(sentence.length - 1) === ' ') {
+			sentence = sentence.substring(0, sentence.length - 1);
+		}
+		return [{ start: captions[0].start, end: captions[captions.length - 1].end, value: sentence }];
 	}
 
 	const nonPassiveWheel: Action<HTMLElement, (event: WheelEvent) => void> = (node, callback) => {
@@ -222,6 +297,25 @@
 			}
 		};
 	};
+
+	function createRegion(start: number, end: number, currentTime: number[] | null) {
+		if (currentTime != null && previousSelection != null) {
+			if (Math.abs(previousSelection[0] - currentTime[1]) < 0.00001) {
+				start = end;
+				end = previousSelection[1];
+			}
+			if (start > end) {
+				start = end;
+			}
+		}
+		previousSelection = [start, end];
+		regions.addRegion({ start, end, drag: false, resize: false, color: 'rgba(255, 0, 0, 0.1)' });
+	}
+
+	function resetRegion() {
+		regions.clearRegions();
+		previousSelection = null;
+	}
 </script>
 
 <section bind:this={referenceElement} bind:clientWidth={width} class="w-full bg-accent/50">
@@ -307,7 +401,7 @@
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<Tooltip.Root>
-					<Tooltip.Trigger>
+					<Tooltip.Trigger class="h-full w-full">
 						<span
 							role="button"
 							tabindex="0"
@@ -326,23 +420,29 @@
 			<Track
 				bind:captions={transcription.captions}
 				{duration}
+				{createRegion}
+				{resetRegion}
 				isLast={i === fileState.transcriptions.length - 1}
 			/>
 		{/each}
 	</div>
 	<!-- Inserting/Exporting track stuff down here -->
-	<div class="flex w-full justify-center gap-5 pt-2">
-		<Select.Root bind:selected={transcriptionType}>
-			<Select.Trigger class="m-0 w-32">
-				{transcriptionType.value}
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Item value="empty">empty</Select.Item>
-				{#each models as model}
-					<Select.Item value={model}>{model}</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
+	<div class="flex w-full justify-center gap-5 py-2">
+		<div class="flex items-center">
+			<span class="mr-2 flex"> Select transcription model: </span>
+			<Select.Root bind:selected={transcriptionType}>
+				<Select.Trigger class="m-0 w-32">
+					{transcriptionType.value}
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="no model">no model</Select.Item>
+					{#each models as model}
+						<Select.Item value={model}>{model}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+
 		<Button class="w-fit" variant="secondary" on:click={addTrack}>Create New Track</Button>
 
 		<Tooltip.Root>
@@ -350,7 +450,7 @@
 				<Button class="m-0 w-fit" on:click={exportTextGrid} variant="outline"><Download /></Button>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
-				<p>Export to TextGrid</p>
+				<p>Export the transcriptions to TextGrid</p>
 			</Tooltip.Content>
 		</Tooltip.Root>
 	</div>

@@ -6,6 +6,9 @@
 	import UserIcon from 'lucide-svelte/icons/user';
 	import { uploadingStateStore } from '$lib';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { InfoButton } from '$lib/components/InfoButton';
+	import { menubarOverrides } from '$lib/components/ui/menubar/overrides';
+	import { fade, fly } from 'svelte/transition';
 
 	$: segments = $page.url.pathname.split('/');
 
@@ -13,6 +16,8 @@
 	page;
 
 	let loading: boolean = false;
+	$: isInSession = segments.length > 2 && segments[1] === 'session';
+
 	uploadingStateStore.subscribe((val) => (loading = val));
 </script>
 
@@ -28,9 +33,16 @@
 			<!-- TODO: Add logo -->
 		</div>
 
-		<div class="flex h-full flex-1 justify-end text-muted-foreground">
+		<div class="flex h-full flex-1 items-center justify-end text-muted-foreground">
 			{#if loading}
-				<Spinner />
+				<div class="relative h-full p-2" transition:fade>
+					<Spinner />
+				</div>
+			{/if}
+			{#if isInSession}
+				<div transition:fly={{ y: 20 }}>
+					<InfoButton />
+				</div>
 			{/if}
 			<Button href="/profile" variant="ghost">
 				<div class="pr-3">Profile</div>
@@ -52,7 +64,7 @@
 				<Breadcrumb.Separator></Breadcrumb.Separator>
 
 				<Breadcrumb.Item>
-					<Breadcrumb.Link {href}>{pathSegment}</Breadcrumb.Link>
+					<Breadcrumb.Link {href}>{$menubarOverrides[pathSegment] || pathSegment}</Breadcrumb.Link>
 				</Breadcrumb.Item>
 			{/each}
 		</Breadcrumb.List>

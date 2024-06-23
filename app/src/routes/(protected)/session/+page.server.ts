@@ -102,6 +102,10 @@ export const actions: Actions = {
 		}
 		redirect(301, `session/${sessionId}`);
 	},
+	deleteSession: async ({ request }) => {
+		const sessionId = await request.json();
+		await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+	},
 	createSession: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const sessionName = formData.get('sessionName');

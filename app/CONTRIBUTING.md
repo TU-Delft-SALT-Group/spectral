@@ -1,6 +1,6 @@
 # Contributing to app
 
-Make sure to take a look to the [general contributing guidelines](../CONTRIBUTING.md).
+Make sure to take a look to the [general contributing guidelines](https://github.com/TU-Delft-SALT-Group/spectral/CONTRIBUTING.md).
 
 There are two main aspects one might want to contribute to in this repo: adding a new mode or general contributing. Each one has different considerations, both of which are outlined below.
 

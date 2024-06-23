@@ -12,8 +12,10 @@
 
 <script lang="ts">
 	import { modeComponents, modeNames, type ModeComponent, type mode } from '$lib/analysis/modes';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import { memoize, deepEqual, JsonSafeParse } from '$lib/utils';
 	import { snapshotState } from '$lib/utils.svelte';
+	import { fade } from 'svelte/transition';
 	import type { PaneState } from './analysis-pane';
 	import { getComputedFileData } from './kernel/communication';
 	import ModeSelector from './modes/ModeSelector.svelte';
@@ -56,6 +58,30 @@
 	export function removeFile(fileId: string) {
 		paneState.files = paneState.files.filter((file) => file.id !== fileId);
 	}
+
+	export async function addFile(fileJSON: string) {
+		const { value: json, ok } = JsonSafeParse(fileJSON);
+		if (!ok) {
+			// From Dockview
+			return;
+		}
+
+		const file = fileState.parse(json);
+
+		// Don't add files already present
+		if (paneState.files.some((f) => f.id === file.id)) {
+			// TODO: Show message (in a Sonner)
+			return;
+		}
+
+		// When adding a file, wait until we compute the data to add it in
+		const newFiles = [...paneState.files, file];
+		getComputedDataProp = await getComputedDataFunction(paneState.mode, {
+			...paneState,
+			files: newFiles
+		});
+		paneState.files = newFiles;
+	}
 </script>
 
 <section
@@ -70,27 +96,7 @@
 		event.preventDefault();
 		if (event.dataTransfer) {
 			const transferredData = event.dataTransfer.getData('application/json');
-			const { value: json, ok } = JsonSafeParse(transferredData);
-			if (!ok) {
-				// From Dockview
-				return;
-			}
-
-			const file = fileState.parse(json);
-
-			// Don't add files already present
-			if (paneState.files.some((f) => f.id === file.id)) {
-				// TODO: Show message (in a Sonner)
-				return;
-			}
-
-			// When adding a file, wait until we compute the data to add it in
-			const newFiles = [...paneState.files, file];
-			getComputedDataProp = await getComputedDataFunction(paneState.mode, {
-				...paneState,
-				files: newFiles
-			});
-			paneState.files = newFiles;
+			addFile(transferredData);
 		}
 	}}
 	role="group"
@@ -101,26 +107,37 @@
 	></ModeSelector>
 
 	{#if getComputedDataProp === null}
-		Loading...
+		<div class="grid h-full w-full content-center text-center" in:fade>
+			<div class="mx-auto h-16 w-16">
+				<Spinner />
+			</div>
+			Loading...
+		</div>
+	{:else if paneState.files.length === 0}
+		<div class="flex h-full w-full items-center justify-center text-2xl text-muted-foreground">
+			Drag a file from the file explorer and drop it here to start analyzing!
+		</div>
 	{:else}
-		<!--
-			The type of the component is a union of mode components. However, this means that
-			the resulting type only accepts the *intersection* of all modeState and fileData.
+		<div in:fade class="h-full w-full">
+			<!--
+				The type of the component is a union of mode components. However, this means that
+				the resulting type only accepts the *intersection* of all modeState and fileData.
 
-			We can use (or abuse?) contravariance, setting the component as a component that accepts
-			the modeState and fileData of *any* mode. This is technically incorrect, but I've found
-			no way to make the types realize that we're passing *one* mode in two places.
+				We can use (or abuse?) contravariance, setting the component as a component that accepts
+				the modeState and fileData of *any* mode. This is technically incorrect, but I've found
+				no way to make the types realize that we're passing *one* mode in two places.
 
-			This is particularly tricky because of the computed data :/
+				This is particularly tricky because of the computed data :/
 
-			(prepend every word of this with an "I think")
-		-->
-		<svelte:component
-			this={modeComponents[activeMode].component as ModeComponent<mode.Name>}
-			bind:modeState={paneState.modeState[activeMode]}
-			bind:fileStates={paneState.files}
-			getComputedData={getComputedDataProp}
-			onRemoveFile={removeFile}
-		></svelte:component>
+				(prepend every word of this with an "I think")
+			-->
+			<svelte:component
+				this={modeComponents[activeMode].component as ModeComponent<mode.Name>}
+				bind:modeState={paneState.modeState[activeMode]}
+				bind:fileStates={paneState.files}
+				getComputedData={getComputedDataProp}
+				onRemoveFile={removeFile}
+			></svelte:component>
+		</div>
 	{/if}
 </section>
