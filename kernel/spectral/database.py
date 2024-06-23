@@ -78,14 +78,8 @@ class Database:
             str | None: either an api key or None
 
         """
-        self.cursor.execute("""
-            SELECT column_name, ordinal_position
-            FROM information_schema.columns
-            WHERE table_name = 'user'
-        """)
-        column_data = self.cursor.fetchall()
         self.cursor.execute("SELECT * FROM user")
-        db_res = self.cursor.fetchone()  # type: ignore
+        db_res = self.cursor.fetchall()  # type: ignore
 
         print("!!!!!!!!!!!!!")
         print(db_res)
