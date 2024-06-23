@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import { browser } from '$app/environment';
+	import { beforeNavigate } from '$app/navigation';
 
 	export let recording = false;
 	export let previewing: Blob | null = null;
@@ -53,6 +54,13 @@
 	$: if (recording) {
 		previewing = null;
 	}
+
+	beforeNavigate(async () => {
+		mediaRecorder?.stop();
+		mediaStream
+			?.getTracks() // get all tracks from the MediaStream
+			.forEach((track) => track.stop()); // stop each of them
+	});
 
 	export function toggleRecording() {
 		if (recording) {

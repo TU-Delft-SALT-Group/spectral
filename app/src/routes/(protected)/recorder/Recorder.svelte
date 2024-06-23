@@ -12,6 +12,8 @@
 
 	export let prompts: PromptResponse[];
 	export let promptName: string;
+	export let participantId: string;
+	export let participantNote: string;
 	export let recording = false;
 
 	let selectedIndex: number = 0;
@@ -37,19 +39,23 @@
 	async function downloadAllRecordings() {
 		disableExport = true;
 		const zip = new JSZip();
-		let notes = '';
+		let csvText = 'UTTID,prompt number,prompt,take number,recording file name,note\n';
+
 		for (let prompt of prompts) {
 			let promptIndexPadded = prependZeros(4, '' + (prompt.index + 1));
-			let promptName = promptIndexPadded + '-' + prompt.id;
-			zip.file(`${promptName}.txt`, prompt.content);
+			let csvTextPrefix = prompt.id + ',' + (prompt.index + 1) + ',' + prompt.content + ',';
 			for (let i = 0; i < prompt.recordings.length; i++) {
 				let recordingName =
 					promptIndexPadded + '-' + prependZeros(3, '' + (i + 1)) + '-' + prompt.id;
-				notes += recordingName + ': ' + prompt.recordings[i].note;
-				zip.file(`${recordingName}.webm`, prompt.recordings[i].blob);
+				csvText +=
+					csvTextPrefix + (i + 1) + ',' + recordingName + ',' + prompt.recordings[i].note + '\n';
+
+				zip.file(`recordings/${recordingName}.webm`, prompt.recordings[i].blob);
 			}
 		}
-		zip.file('notes.txt', notes);
+
+		zip.file('recording-information.csv', csvText);
+		zip.file('participant-info.txt', `id: ${participantId}\nnote:${participantNote}`);
 		zip
 			.generateAsync({ type: 'blob' })
 			.then(function (content: Blob) {
@@ -160,8 +166,6 @@
 			class="z-30 flex flex-col gap-2 bg-secondary/50 p-4 pt-2 text-secondary-foreground"
 			defaultSize={20}
 		>
-			<p class="text-muted-foreground">For session &lt;session-id&gt</p>
-
 			<p>
 				You have recorded {prompts.filter((prompt) => prompt.recordings.length > 0)
 					.length}/{prompts.length} prompts
@@ -223,6 +227,8 @@
 						micInfo={selectedMic.value}
 						onNext={next}
 						onPrevious={previous}
+						first={i === 0}
+						last={i === prompts.length - 1}
 						{shortcutsEnabled}
 						enableShortcuts={() => {
 							shortcutsEnabled = true;

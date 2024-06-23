@@ -11,6 +11,9 @@
 	export let focused: boolean;
 	export let recording: boolean = false;
 
+	export let first: boolean;
+	export let last: boolean;
+
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
 
@@ -86,10 +89,9 @@
 				<MicIcon class="h-5 w-5 transition"></MicIcon>
 				<span class="pl-2 transition"> {recording ? 'Stop recording' : 'Record'} </span>
 			</Button>
-
 			<Tooltip.Root openDelay={200}>
 				<Tooltip.Trigger>
-					<Button on:click={onPrevious} class="h-full" disabled={recording}>
+					<Button on:click={onPrevious} class="h-full" disabled={recording || first}>
 						<ArrowLeftIcon />
 					</Button>
 				</Tooltip.Trigger>
@@ -101,7 +103,7 @@
 
 			<Tooltip.Root openDelay={200}>
 				<Tooltip.Trigger>
-					<Button on:click={onNext} class="h-full" disabled={recording}>
+					<Button on:click={onNext} class="h-full" disabled={recording || last}>
 						<ArrowRightIcon />
 					</Button>
 				</Tooltip.Trigger>
