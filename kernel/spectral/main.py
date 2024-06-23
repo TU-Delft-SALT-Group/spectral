@@ -6,7 +6,7 @@ import os
 from typing import Annotated, Any, Literal, Self, Union
 
 import orjson
-from fastapi import Depends, FastAPI, HTTPException, Path, Header
+from fastapi import Depends, FastAPI, Header, HTTPException, Path
 from fastapi.responses import JSONResponse
 
 from .data_objects import (
@@ -145,7 +145,7 @@ async def transcribe_file(
         Path(title="The transcription model"),
     ],
     file_id: Annotated[str, Path(title="The ID of the file")],
-    apikey: Annotated[str | None, Header()] = None,
+    apikey: Annotated[str | None, Header()],
     database=Depends(get_db),
 ) -> Any:
     """
