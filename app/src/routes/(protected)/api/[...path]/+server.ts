@@ -48,7 +48,6 @@ const handleRequest: RequestHandler = async ({
 	// very janky fix to be able to append user id
 	if (path.startsWith('transcription/')) {
 		const model = path.split('/')[1];
-		console.log(model, model in models);
 
 		if (models.includes(model)) {
 			const foundKeys = (user.apiKeys as { model: string; key: string }[]).filter(

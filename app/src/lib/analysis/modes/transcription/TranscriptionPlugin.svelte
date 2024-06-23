@@ -255,9 +255,9 @@
 				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
 				fileState.id
 			).then(async (res) => {
-				console.log(res.status);
 				if (res.status !== 200) {
-					toast.error((await res.json()).message);
+					const errorObject = await res.json();
+					toast.error(errorObject.message || errorObject.detail);
 					return;
 				}
 				response = await res.json();
@@ -468,4 +468,4 @@
 		</Tooltip.Root>
 	</div>
 </section>
-<Toaster />
+<Toaster class="absolute" />
