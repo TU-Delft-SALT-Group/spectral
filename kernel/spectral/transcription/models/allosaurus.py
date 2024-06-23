@@ -11,6 +11,8 @@ from spectral.types import FileStateType, TranscriptionType
 
 from .deepgram import deepgram_transcription
 
+from fastapi import HTTPException
+
 
 def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
     """
@@ -29,11 +31,13 @@ def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
         temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
 
-    word_level_transcription = fill_gaps({"language": "unk", "transcription": []}, file)
     try:
         word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
     except Exception as e:
-        print(f"Caught {e} while doing stuff in allosaurus.")
+        raise HTTPException(
+            401,
+            "Allosaurus requires valid Deepgram API key to work. Probably the key for Deepgram is wrong.",
+        ) from e
 
     model = read_recognizer()
     phoneme_level_transcription = model.recognize(
