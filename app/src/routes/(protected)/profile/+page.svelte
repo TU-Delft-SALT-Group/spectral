@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance as exitEnhance } from '$app/forms';
+	import type { Selected } from 'bits-ui';
 	import * as Select from '$lib/components/ui/select';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Form from '$lib/components/ui/form';
@@ -13,9 +14,11 @@
 
 	export let data: PageData;
 
+	const models = ['whisper', 'deepgram'] as const;
+	type Model = typeof models[number];
+
 	let open = false;
-	let modelName;
-	const models = ['whisper', 'deepgram'];
+	let modelName: Selected<Model>;
 
 	const form = superForm(data.form, {
 		validators: zodClient(formSchema)

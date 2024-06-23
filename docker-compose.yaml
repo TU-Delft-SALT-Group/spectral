@@ -68,7 +68,6 @@ services:
       - postgres
     env_file:
        - '.variables.env'
-       - '.apikeys.env'
 
 volumes:
   postgres_data:
