@@ -135,7 +135,7 @@ async def analyze_signal_mode(
 
 
 @app.get(
-    "/transcription/{model}/{file_id}/{user_id}",
+    "/transcription/{model}/{file_id}/{api_key}",
     response_model=GeneratedTranscriptionsModel,
     responses=transcription_response_examples,
 )
@@ -145,7 +145,7 @@ async def transcribe_file(
         Path(title="The transcription model"),
     ],
     file_id: Annotated[str, Path(title="The ID of the file")],
-    user_id: Annotated[str, Path(title="The ID of the user performing the request")],
+    api_key: Annotated[str, Path(title="The key for the model")],
     database=Depends(get_db),
 ) -> Any:
     """
@@ -177,13 +177,7 @@ async def transcribe_file(
 
     file["data"] = convert_to_wav(file["data"])
 
-    apikey = None
-    try:
-        apikey = db_session.fetch_apikey(user_id, model)
-    except Exception as e:
-        print(f"Api key for {model} (user {user_id}) not found, ignoring w {e}")  # noqa: T201
-
-    return get_transcription(model, file, apikey)
+    return get_transcription(model, file, api_key)
 
 
 @app.post(
