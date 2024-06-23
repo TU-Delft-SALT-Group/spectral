@@ -9,7 +9,7 @@ from deepgram import DeepgramClient, PrerecordedOptions
 from spectral.types import TranscriptionType
 
 
-def deepgram_transcription(data: bytes) -> TranscriptionType:
+def deepgram_transcription(data: bytes, apikey: str | None = None) -> TranscriptionType:
     """
     Transcribe audio data using Deepgram API.
 
@@ -30,8 +30,8 @@ def deepgram_transcription(data: bytes) -> TranscriptionType:
     """
     try:
         # STEP 1: Create a Deepgram client using the API key
-        key = os.getenv("DG_KEY")
         deepgram = None
+        key = apikey
         if key is None:
             raise Exception("No API key for Deepgram is found")  # noqa
         deepgram = DeepgramClient(key)  # type: ignore
