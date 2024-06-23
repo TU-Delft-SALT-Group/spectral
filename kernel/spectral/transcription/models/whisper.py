@@ -12,7 +12,7 @@ from openai import OpenAI
 from spectral.types import TranscriptionType
 
 
-def whisper_transcription(data: bytes, apikey: str | None = None) -> TranscriptionType:
+def whisper_transcription(data: bytes, api_key: str | None = None) -> TranscriptionType:
     """
     Get transcription from whisper from an list of WAV bytes.
 
@@ -26,7 +26,7 @@ def whisper_transcription(data: bytes, apikey: str | None = None) -> Transcripti
 
     """
     try:
-        transcription = get_whisper_transcription(data, apikey)
+        transcription = get_whisper_transcription(data, api_key)
 
     except Exception:
         return {"language": "", "transcription": []}
@@ -57,7 +57,7 @@ def get_whisper_transcription(data: bytes, apikey: str | None = None) -> Any:
         Any: Transcription object from OpenAi
 
     """
-    client = OpenAI(api_key=os.getenv("WHISPER_KEY"))
+    client = OpenAI(api_key=apikey)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(data)
         temp_wav_filename = temp_wav.name

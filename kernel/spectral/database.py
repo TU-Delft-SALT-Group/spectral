@@ -64,27 +64,6 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def fetch_apikey(self: Self, user_id: str, model_name: str) -> str | None:
-        """
-        Fetch an api key for a certain model from a particular user.
-
-        Args:
-        ----
-            user_id (str): the id of the user.
-            model_name (str): the name of the model for which api key is requested.
-
-        Returns:
-        -------
-            str | None: either an api key or None
-
-        """
-        self.cursor.execute("SELECT * FROM user")
-        db_res = self.cursor.fetchall()  # type: ignore
-
-        print("!!!!!!!!!!!!!")
-        print(db_res)
-        return None
-
     def fetch_file(self: Self, file_id: str) -> dict:
         """
         Fetch a file record from the database by its ID.
