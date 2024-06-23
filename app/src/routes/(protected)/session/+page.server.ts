@@ -6,8 +6,6 @@ import { error, redirect } from '@sveltejs/kit';
 import { generateIdFromEntropySize } from 'lucia';
 import { unwrap } from '$lib/utils';
 
-export const ssr = false;
-
 export const load: PageServerLoad = async ({ parent }) => {
 	const { user } = await parent();
 
