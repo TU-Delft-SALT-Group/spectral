@@ -203,3 +203,48 @@ def validate_frame_index(data: array, file_state: FileStateType):
             detail="endIndex should be lower than the file length",
         )
     return {"startIndex": start_index, "endIndex": end_index}
+
+
+def get_matching_captions(file_state: FileStateType) -> list[dict]:
+    """
+    Return the matching captions in a file based on the matchedStrings parameter.
+
+    Parameters
+    ----------
+    - file_state: A dictionary containing the state of the file,
+                  including transcriptions and the match strings.
+
+    Returns
+    -------
+    - A dictionary with matched captions.
+
+    """
+    response = []
+
+    for match_string in file_state["matchStrings"]:
+        if not match_string["selected"]:
+            continue
+
+        for transcription in file_state["transcriptions"]:
+            # check if the transcription has been selected
+            if not transcription["selected"]:
+                continue
+
+            for caption in transcription["captions"]:
+                # check if the match string is present in the caption
+                value: str = caption["value"]
+                if value != match_string["matchString"]:
+                    continue
+
+                for matched_caption in response:
+                    # check if the caption is not already in the response
+                    if (
+                        matched_caption["start"] == caption["start"]
+                        and matched_caption["end"] == caption["end"]
+                        and matched_caption["value"] == caption["value"]
+                    ):
+                        continue
+                caption["matchString"] = match_string["matchString"]
+                caption["transcriptionId"] = transcription["id"]
+                response.append(caption)
+    return response

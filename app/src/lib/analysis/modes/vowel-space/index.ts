@@ -6,22 +6,33 @@ import { fileState } from '../file-state';
 export const vowelSpaceData = {
 	computedFileData: z
 		.object({
-			/**
-			 * First formant
-			 */
-			f1: z.number(),
+			formants: z.array(
+				z.object({
+					/**
+					 * First formant
+					 */
+					f1: z.number(),
 
-			/**
-			 * Second formant
-			 */
-			f2: z.number()
+					/**
+					 * Second formant
+					 */
+					f2: z.number(),
+
+					start: z.number(),
+
+					end: z.number(),
+
+					matchString: z.string().nullable()
+				})
+			)
 		})
 		.nullable(),
 
 	fileState: fileState
 		.pick({
 			id: true,
-			name: true
+			name: true,
+			matchStrings: true
 		})
 		.default({}),
 

@@ -64,14 +64,14 @@ export const modes = {
 /**
  * Better worded, extended names for the modes, to be shown to the user.
  */
-export const niceModeNames: { [id: string]: string } = {
+export const modeDisplayNames = {
 	'simple-info': 'General information',
 	waveform: 'Waveform',
 	spectrogram: 'Spectrogram',
 	'vowel-space': 'Vowel space',
 	transcription: 'Transcription',
 	'error-rate': 'Error rate'
-};
+} as const satisfies Partial<Record<mode.Name, string>>;
 
 /**
  * The names of the modes

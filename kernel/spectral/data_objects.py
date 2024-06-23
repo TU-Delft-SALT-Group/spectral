@@ -65,9 +65,9 @@ class WaveformResponse(BaseModel):
     formants: list[list[float]]
 
 
-class VowelSpaceResponse(BaseModel):
+class Formants(BaseModel):
     """
-    VowelSpaceResponse model representing formant location in the vowel space.
+    Formants model representing formant location in the vowel space.
 
     Attributes
     ----------
@@ -78,6 +78,22 @@ class VowelSpaceResponse(BaseModel):
 
     f1: float
     f2: float
+    start: float
+    end: float
+    matchString: str | None
+
+
+class VowelSpaceResponse(BaseModel):
+    """
+    VowelSpaceResponse model representing a list of formant location in the vowel space.
+
+    Attributes
+    ----------
+        formants (list[Formants]): list of formants used for vowel space
+
+    """
+
+    formants: list[Formants]
 
 
 class TranscriptionSegment(BaseModel):
