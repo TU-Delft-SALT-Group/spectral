@@ -24,6 +24,21 @@ export function getURL(path: string, base = 'api/'): URL {
 }
 
 /**
+ * Fetches data from the kernel. It has the exact same API as fetch, but with an additional fileId parameter.
+ *
+ * This is needed to verify that the file being accessed is owned by the user.
+ */
+export async function fetchKernel(input: RequestInfo | URL, fileId: string, init?: RequestInit) {
+	return fetch(input, {
+		...init,
+		headers: {
+			...init?.headers,
+			'file-id': fileId
+		}
+	});
+}
+
+/**
  * Fetches the data for a specific mode
  */
 export async function getComputedFileData<M extends modeType.Name>({
@@ -36,12 +51,12 @@ export async function getComputedFileData<M extends modeType.Name>({
 	const url = getURL(`signals/modes/${mode}`);
 	// url.searchParams.set('fileState', JSON.stringify(fileState));
 
-	const response = await fetch(url, {
+	const response = await fetchKernel(url, fileState.id, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ fileState: fileState })
+		body: JSON.stringify({ fileState })
 	});
 
 	const jsonResponse = (await response.json()) as unknown;
