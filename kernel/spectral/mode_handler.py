@@ -11,6 +11,7 @@ from fastapi import HTTPException
 from .error_rates import calculate_error_rates
 from .frame_analysis import (
     calculate_frame_f1_f2,
+    get_matching_captions,
     simple_frame_info,
     validate_frame_index,
 )
@@ -126,7 +127,7 @@ def waveform_mode(database: DatabaseType, file_state: FileStateType) -> dict[str
 def vowel_space_mode(
     database: DatabaseType,
     file_state: FileStateType,
-) -> dict[str, float] | None:
+) -> dict[str, list[dict[str, float]]] | None:
     """
     Extract and return the first and second formants of a specified frame.
 
@@ -154,12 +155,40 @@ def vowel_space_mode(
     data = audio.get_array_of_samples()
     frame_index = validate_frame_index(data, file_state)
 
-    if frame_index is None:
-        return None
+    response = []
 
-    frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
-    formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
-    return {"f1": formants[0], "f2": formants[1]}
+    if frame_index is not None:
+        frame_data = data[frame_index["startIndex"] : frame_index["endIndex"]]
+        formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
+
+        response.append(
+            {
+                "f1": formants[0],
+                "f2": formants[1],
+                "matchString": None,
+                "start": audio.duration_seconds * frame_index["startIndex"] / len(data),
+                "end": audio.duration_seconds * frame_index["endIndex"] / len(data),
+            }
+        )
+
+    for caption in get_matching_captions(file_state):
+        frame_data = data[
+            int(len(data) / audio.duration_seconds * caption["start"]) : int(
+                len(data) / audio.duration_seconds * caption["end"]
+            )
+        ]
+        formants = calculate_frame_f1_f2(frame_data, audio.frame_rate)
+        response.append(
+            {
+                "f1": formants[0],
+                "f2": formants[1],
+                "matchString": caption["matchString"],
+                "start": caption["start"],
+                "end": caption["end"],
+            }
+        )
+
+    return {"formants": response}
 
 
 def transcription_mode(database: DatabaseType, file_state: FileStateType) -> Any:  # noqa: ARG001

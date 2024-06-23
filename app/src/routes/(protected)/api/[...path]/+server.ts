@@ -1,49 +1,54 @@
 import { PUBLIC_KERNEL_ORIGIN } from '$env/static/public';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { z } from 'zod';
 import { db } from '$lib/database';
 import { and, eq } from 'drizzle-orm';
 import { fileTable } from '$lib/database/schema';
 
-export const POST: RequestHandler = async ({ request, params: { path }, locals: { user } }) => {
+function getUrlFromPath(path: string) {
+	return new URL(path, PUBLIC_KERNEL_ORIGIN);
+}
+
+function verifyFileOwnership(fileId: string, userId: string) {
+	const file = db.query.fileTable.findFirst({
+		where: and(eq(fileTable.id, fileId), eq(fileTable.uploader, userId)),
+		columns: { id: true }
+	});
+
+	if (!file) {
+		error(404, `File not found (id: ${fileId})`);
+	}
+}
+
+function getFileId(request: Request) {
+	const fileId = request.headers.get('file-id');
+	if (!fileId) {
+		error(400, 'No file-id header');
+	}
+
+	return fileId;
+}
+
+const handleRequest: RequestHandler = async ({
+	fetch,
+	request,
+	params: { path },
+	locals: { user }
+}) => {
 	if (!user) {
 		error(401, 'Not logged in');
 	}
 
-	const json = (await request.json()) as unknown;
+	const fileId = getFileId(request);
+	verifyFileOwnership(fileId, user.id);
 
-	const jsonShape = z.object({
-		fileState: z.object({
-			id: z.string()
-		})
-	});
+	const url = getUrlFromPath(path);
+	// undici doesn't support the connection header
+	request.headers.delete('connection');
 
-	const result = jsonShape.safeParse(json);
-
-	if (!result.success) {
-		error(400, 'Invalid JSON or no fileState.id');
-	}
-
-	const {
-		fileState: { id }
-	} = result.data;
-
-	const dbFile = await db.query.fileTable.findFirst({
-		where: and(eq(fileTable.id, id), eq(fileTable.uploader, user.id)),
-		columns: { id: true }
-	});
-
-	if (!dbFile) {
-		error(404, `File not found (id: ${id})`);
-	}
-
-	const url = new URL(path, PUBLIC_KERNEL_ORIGIN);
-	return await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(json)
-	});
+	// Forward the request as-is to the kernel
+	return await fetch(new Request(url, request));
 };
+
+export const GET = handleRequest;
+export const POST = handleRequest;

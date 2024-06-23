@@ -128,7 +128,7 @@
 			<Dialog.Description>
 				<form
 					id="create-session-form"
-					class="flex"
+					class="flex flex-col"
 					action="?/createSession"
 					method="POST"
 					use:enhance
@@ -141,10 +141,12 @@
 						minlength={1}
 						required
 					></Input>
-					<Button type="submit" disabled={importingSession}>Create Session</Button>
+					<Button type="submit" class="mt-2 w-fit" disabled={importingSession}
+						>Create Session</Button
+					>
 				</form>
 			</Dialog.Description>
-			<Dialog.Title class="text-3xl">Or Import a session</Dialog.Title>
+			<Dialog.Title class="text-1xl pt-8 font-medium">Or import a session from a file</Dialog.Title>
 			<Dialog.Description>
 				<Input
 					name="file"

@@ -1,6 +1,6 @@
 <p>This mode is used to transcribe audio.</p>
 <p>In addition, it can generate a transcription with a model of choice.</p>
-<h1 class="text-xl">Keybinds</h1>
+<h1 class="my-2 text-xl">Keybinds</h1>
 <ul class="ml-5 list-disc gap-1">
 	<li>
 		<span class="rounded bg-accent p-1 font-mono">esc</span> To undo an edit in a caption.

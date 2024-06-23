@@ -6,14 +6,13 @@
 	<h1 class="w-full text-2xl">Recordee's Consent</h1>
 	<p>
 		Please get the recordee's consent in a lawful manner. By using Spectral, we assume that all
-		recorded audios were attained lawfully and do not bare any responsibility.
+		recorded audios/videos were attained lawfully and do not bare any responsibility.
 	</p>
 	<h1 class="mt-6 w-full text-2xl">Consumer Data</h1>
 
 	<p>
 		Internally, audio/video files are stored in the TU Delft servers, where they are properly
-		secured by the using a hashed ID, this means people with access to this ID have access to the
-		files.
+		secured, meaning only the owner can access the file.
 	</p>
 
 	<p>

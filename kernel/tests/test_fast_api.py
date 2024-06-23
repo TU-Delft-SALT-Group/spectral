@@ -34,6 +34,7 @@ def file_state():
             "endIndex": 200,
         },
         "transcriptions": [[]],
+        "matchStrings": [],
     }
 
 
@@ -100,10 +101,15 @@ def test_signal_correct_waveform(db_mock, file_state):
 def test_signal_correct_vowel_space(db_mock, file_state):
     response = client.post("/signals/modes/vowel-space", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for vowel-space mode"
-    assert response.json() == {
+    result = response.json()
+    assert len(result["formants"]) == 1, "Expected 1 formant pair"
+    assert result["formants"][0] == {
         "f1": 1242.857422568559,
         "f2": 2503.8350190318893,
-    }, "Expected f1 and f2 values"
+        "start": 6.25e-05,
+        "end": 0.0125,
+        "matchString": None,
+    }, "Expected formants for frame"
     assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
 
 
@@ -206,8 +212,8 @@ def test_signal_mode_vowel_space_mode_with_frame(db_mock, file_state):
     response = client.post("/signals/modes/vowel-space", json={"fileState": file_state})
     assert response.status_code == 200, "Expected status code 200 for vowel-space mode with frame"
     result = response.json()
-    assert result["f1"] == pytest.approx(623.19, 0.1), "Expected frame f1 to be approximately 623.19"
-    assert result["f2"] == pytest.approx(1635.4, 0.1), "Expected frame f2 to be approximately 1635.4"
+    assert result["formants"][0]["f1"] == pytest.approx(623.19, 0.1), "Expected frame f1 to be approximately 623.19"
+    assert result["formants"][0]["f2"] == pytest.approx(1635.4, 0.1), "Expected frame f2 to be approximately 1635.4"
     assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
 
 

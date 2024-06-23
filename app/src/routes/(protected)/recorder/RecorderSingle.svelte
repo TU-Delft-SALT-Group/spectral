@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { ArrowLeftIcon, ArrowRightIcon, MicIcon, TrashIcon } from 'lucide-svelte';
 	import Camera from './Camera.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -9,6 +10,9 @@
 	export let prompt: PromptResponse;
 	export let focused: boolean;
 	export let recording: boolean = false;
+
+	export let first: boolean;
+	export let last: boolean;
 
 	export let cameraInfo: MediaDeviceInfo | null;
 	export let micInfo: MediaDeviceInfo | null;
@@ -85,14 +89,29 @@
 				<MicIcon class="h-5 w-5 transition"></MicIcon>
 				<span class="pl-2 transition"> {recording ? 'Stop recording' : 'Record'} </span>
 			</Button>
+			<Tooltip.Root openDelay={200}>
+				<Tooltip.Trigger>
+					<Button on:click={onPrevious} class="h-full" disabled={recording || first}>
+						<ArrowLeftIcon />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Go to previous prompt</p>
+					<p>(shortcut: left arrow)</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
 
-			<Button on:click={onPrevious} class="h-full" disabled={recording}>
-				<ArrowLeftIcon />
-			</Button>
-
-			<Button on:click={onNext} class="h-full" disabled={recording}>
-				<ArrowRightIcon />
-			</Button>
+			<Tooltip.Root openDelay={200}>
+				<Tooltip.Trigger>
+					<Button on:click={onNext} class="h-full" disabled={recording || last}>
+						<ArrowRightIcon />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Go to next prompt</p>
+					<p>(shortcut: right arrow)</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
 		</div>
 
 		<div class="flex h-full">
@@ -132,7 +151,7 @@
 
 			<div class="m-4 h-full flex-1 rounded bg-background p-2 text-left">
 				{#if previewing && previewingIndex !== null}
-					Notes for take {previewingIndex + 1} (typing auto saves)
+					Notes for take {previewingIndex + 1} (auto-saved)
 					<Textarea
 						on:focus={disableShortcuts}
 						on:blur={enableShortcuts}
