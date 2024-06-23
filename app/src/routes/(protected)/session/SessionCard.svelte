@@ -15,8 +15,7 @@
 
 	export let onDeleteSession: (fileId: string) => void;
 
-	let deleteAlertOpen = false;
-	let renameDialogOpen = false;
+	let openedDialog: 'delete' | 'rename' | 'none' = 'none';
 	let tmpName: string;
 
 	async function deleteSession() {
@@ -105,8 +104,8 @@
 			</ContextMenu.Trigger>
 			<ContextMenu.Content>
 				<ContextMenu.Item on:click={() => exportSession()}>Export</ContextMenu.Item>
-				<ContextMenu.Item on:click={() => (renameDialogOpen = true)}>Rename</ContextMenu.Item>
-				<ContextMenu.Item on:click={() => (deleteAlertOpen = true)}>Delete</ContextMenu.Item>
+				<ContextMenu.Item on:click={() => (openedDialog = 'rename')}>Rename</ContextMenu.Item>
+				<ContextMenu.Item on:click={() => (openedDialog = 'delete')}>Delete</ContextMenu.Item>
 			</ContextMenu.Content>
 		</ContextMenu.Root>
 	</Tooltip.Trigger>
@@ -116,7 +115,7 @@
 	</Tooltip.Content>
 </Tooltip.Root>
 
-<AlertDialog.Root bind:open={deleteAlertOpen}>
+<AlertDialog.Root open={openedDialog === 'delete'}>
 	<AlertDialog.Content>
 		<AlertDialog.Header>
 			<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
@@ -132,7 +131,7 @@
 	</AlertDialog.Content>
 </AlertDialog.Root>
 
-<Dialog.Root bind:open={renameDialogOpen}>
+<Dialog.Root open={openedDialog === 'rename'}>
 	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>Rename Session</Dialog.Title>
@@ -146,7 +145,7 @@
 				}
 
 				await renameSession(tmpName);
-				renameDialogOpen = false;
+				openedDialog = 'none';
 			}}
 		/>
 	</Dialog.Content>
