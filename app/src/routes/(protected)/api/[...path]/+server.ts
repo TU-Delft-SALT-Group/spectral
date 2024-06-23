@@ -39,7 +39,7 @@ const handleRequest: RequestHandler = async ({
 		error(401, 'Not logged in');
 	}
 
-	const models = ['whisper', 'deepgram'] as const;
+	const models = ['whisper', 'deepgram'];
 
 	const fileId = getFileId(request);
 	verifyFileOwnership(fileId, user.id);
@@ -49,7 +49,7 @@ const handleRequest: RequestHandler = async ({
 	if (path.startsWith('transcription/')) {
 		const model = path.split('/')[1];
 
-		if (model in models) {
+		if (models.includes(model)) {
 			const foundKeys = (user.apiKeys as { model: string; key: string }[]).filter(
 				(x) => x.model === model
 			);
@@ -61,9 +61,6 @@ const handleRequest: RequestHandler = async ({
 			request.headers.set('apikey', foundKeys[0].key);
 		}
 	}
-
-	console.log(request.headers.get('apikey'));
-
 	const url = getUrlFromPath(path);
 	// undici doesn't support the connection header
 	request.headers.delete('connection');
