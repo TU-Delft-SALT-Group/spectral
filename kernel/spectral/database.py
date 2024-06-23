@@ -64,7 +64,7 @@ class Database:
         )
         self.cursor = self.conn.cursor()
 
-    def fetch_key(self: Self, user_id: str, model_name: str) -> str | None:
+    def fetch_apikey(self: Self, user_id: str, model_name: str) -> str | None:
         """
         Fetch an api key for a certain model from a particular user.
 
@@ -84,7 +84,7 @@ class Database:
             WHERE table_name = 'user'
         """)
         column_data = self.cursor.fetchall()
-        self.cursor.execute("SELECT * FROM user WHERE id = %s", [user_id])
+        self.cursor.execute("SELECT * FROM user")
         db_res = self.cursor.fetchone()  # type: ignore
 
         print("!!!!!!!!!!!!!")
