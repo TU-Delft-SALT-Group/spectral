@@ -48,6 +48,7 @@ const handleRequest: RequestHandler = async ({
 	// very janky fix to be able to append user id
 	if (path.startsWith('transcription/')) {
 		const model = path.split('/')[1];
+		console.log(model, model in models);
 
 		if (models.includes(model)) {
 			const foundKeys = (user.apiKeys as { model: string; key: string }[]).filter(
@@ -55,7 +56,7 @@ const handleRequest: RequestHandler = async ({
 			);
 
 			if (foundKeys.length === 0) {
-				error(404, 'No key provided for API');
+				throw error(404, `No key provided for ${model}.`);
 			}
 
 			request.headers.set('apikey', foundKeys[0].key);

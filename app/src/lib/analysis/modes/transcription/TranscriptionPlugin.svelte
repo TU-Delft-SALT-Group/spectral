@@ -1,5 +1,6 @@
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
+	import { toast } from 'svelte-sonner';
 	import type { mode } from '..';
 	import { onDestroy, onMount } from 'svelte';
 	import { used } from '$lib/utils';
@@ -20,6 +21,7 @@
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import type { Frame } from '$lib/analysis/kernel/framing';
 	import { fetchKernel } from '$lib/analysis/kernel/communication';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let {
 		fileState = $bindable(),
@@ -137,13 +139,6 @@
 		});
 		wavesurfer.on('pause', () => (playing = false));
 
-		// regions.enableDragSelection(
-		// 	{
-		// 		color: 'rgba(255, 0, 0, 0.1)'
-		// 	},
-		// 	10
-		// );
-
 		regions.on('region-created', (region: Region) => {
 			regions.getRegions().forEach((r) => {
 				if (r.id === region.id) return;
@@ -249,13 +244,31 @@
 			];
 		} else if (models.includes(transcriptionType.value)) {
 			const model = transcriptionType.value;
-			let response = await (
-				await fetchKernel(
-					`/api/transcription/${transcriptionType.value}/${fileState.id}`,
-					fileState.id
-				)
-			).json();
+			let response: {
+				transcription: { start: number; end: number; value: string }[];
+				language: string;
+			} = {
+				transcription: [],
+				language: 'unk'
+			};
+			await fetchKernel(
+				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
+				fileState.id
+			).then(async (res) => {
+				console.log(res.status);
+				if (res.status !== 200) {
+					toast.error((await res.json()).message);
+					return;
+				}
+				response = await res.json();
+			});
+
+			if (response.language === 'unk') {
+				return;
+			}
+
 			logger.trace(response);
+
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
@@ -455,3 +468,4 @@
 		</Tooltip.Root>
 	</div>
 </section>
+<Toaster />
