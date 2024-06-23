@@ -145,7 +145,7 @@ async def transcribe_file(
         Path(title="The transcription model"),
     ],
     file_id: Annotated[str, Path(title="The ID of the file")],
-    apikey: Annotated[str | None, Header()],
+    apikey: Annotated[str | None, Header(None)],
     database=Depends(get_db),
 ) -> Any:
     """
