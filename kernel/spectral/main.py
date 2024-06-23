@@ -6,7 +6,7 @@ import os
 from typing import Annotated, Any, Literal, Self, Union
 
 import orjson
-from fastapi import Depends, FastAPI, HTTPException, Path
+from fastapi import Depends, FastAPI, HTTPException, Path, Header
 from fastapi.responses import JSONResponse
 
 from .data_objects import (
@@ -135,7 +135,7 @@ async def analyze_signal_mode(
 
 
 @app.get(
-    "/transcription/{model}/{file_id}/{api_key}",
+    "/transcription/{model}/{file_id}",
     response_model=GeneratedTranscriptionsModel,
     responses=transcription_response_examples,
 )
@@ -145,7 +145,7 @@ async def transcribe_file(
         Path(title="The transcription model"),
     ],
     file_id: Annotated[str, Path(title="The ID of the file")],
-    api_key: Annotated[str, Path(title="The key for the model")],
+    apikey: Annotated[str | None, Header()],
     database=Depends(get_db),
 ) -> Any:
     """
@@ -177,7 +177,7 @@ async def transcribe_file(
 
     file["data"] = convert_to_wav(file["data"])
 
-    return get_transcription(model, file, api_key)
+    return get_transcription(model, file, apikey)
 
 
 @app.post(
