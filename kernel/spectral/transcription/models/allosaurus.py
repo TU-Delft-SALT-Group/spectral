@@ -29,7 +29,11 @@ def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
         temp_wav.write(file["data"])
         temp_wav_filename = temp_wav.name
 
-    word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
+    word_level_transcription = fill_gaps({"language": "unk", "transcription": []}, file)
+    try:
+        word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
+    except Exception as e:
+        print(f"Caught {e} while doing stuff in allosaurus.")
 
     model = read_recognizer()
     phoneme_level_transcription = model.recognize(
