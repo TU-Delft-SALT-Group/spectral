@@ -20,6 +20,7 @@ export const vowelSpaceData = {
 
 	fileState: fileState
 		.pick({
+			id: true,
 			name: true
 		})
 		.default({}),

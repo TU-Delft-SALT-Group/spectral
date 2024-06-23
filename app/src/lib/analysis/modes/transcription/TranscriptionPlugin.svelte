@@ -19,6 +19,7 @@
 	import type { Action } from 'svelte/action';
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import type { Frame } from '$lib/analysis/kernel/framing';
+	import { fetchKernel } from '$lib/analysis/kernel/communication';
 
 	let {
 		fileState = $bindable(),
@@ -176,7 +177,7 @@
 	async function exportTextGrid() {
 		let text;
 		try {
-			const response = await fetch('/api/transcription/textgrid', {
+			const response = await fetchKernel('/api/transcription/textgrid', fileState.id, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -249,7 +250,10 @@
 		} else if (models.includes(transcriptionType.value)) {
 			const model = transcriptionType.value;
 			let response = await (
-				await fetch(`/api/transcription/${transcriptionType.value}/${fileState.id}`)
+				await fetchKernel(
+					`/api/transcription/${transcriptionType.value}/${fileState.id}`,
+					fileState.id
+				)
 			).json();
 			logger.trace(response);
 			fileState.transcriptions = [
