@@ -8,6 +8,7 @@
 	import type { mode } from '..';
 
 	import VowelSpaceSingle from './VowelSpaceSingle.svelte';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	let {
 		fileStates = $bindable<mode.FileState<'vowel-space'>[]>(),
@@ -183,16 +184,19 @@
 	});
 </script>
 
-<div class="flex w-full">
-	<div class="m-2 w-64 border-r-2 pr-2">
-		<h2 class="text-center text-2xl">Match Strings</h2>
+<div class="flex h-full w-full">
+	<div class="min-w-xl m-2 pr-2">
+		<h2 class="text-balance text-center text-2xl">Match Strings</h2>
 		{#each fileStates as fileState, i}
 			<VowelSpaceSingle computedData={getComputedData(fileState)} bind:fileState={fileStates[i]}
 			></VowelSpaceSingle>
 		{/each}
 	</div>
+
+	<Separator orientation="vertical" />
+
 	<section
-		class="grid min-h-72 w-full min-w-96 grid-rows-[auto,1fr]"
+		class="grid h-full min-h-72 w-full min-w-96 grid-rows-[auto,1fr]"
 		bind:clientWidth
 		bind:clientHeight
 	>

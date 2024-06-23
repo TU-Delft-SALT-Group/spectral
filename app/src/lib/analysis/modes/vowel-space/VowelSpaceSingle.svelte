@@ -36,7 +36,7 @@
 <div class="mt-2 w-full">
 	<Tooltip.Root>
 		<Tooltip.Trigger>
-			<h2 class="w-50 break-all text-xl">
+			<h2 class="w-50 text-balanced mb-4 break-all text-center text-sm text-muted-foreground">
 				{fileState.name}
 			</h2>
 		</Tooltip.Trigger>
@@ -48,13 +48,13 @@
 		</Tooltip.Content>
 	</Tooltip.Root>
 	<form
-		class="mb-1 w-full text-xl"
+		class="mb-1 w-full"
 		onsubmit={() => {
 			addMatchString();
 		}}
 	>
 		<div class="flex h-6 w-full align-middle">
-			<Label class="mr-2 h-6 w-40 text-base">New String</Label>
+			<Label class="mr-2 h-6 w-40 text-base">New string</Label>
 			<Input class="h-6 text-base" bind:value={newMatchString} />
 		</div>
 	</form>
