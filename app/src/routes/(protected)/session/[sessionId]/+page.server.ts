@@ -7,6 +7,9 @@ import { error, fail } from '@sveltejs/kit';
 import { uploadFile } from '$lib/database/files';
 import { fileState, type FileState } from '$lib/analysis/modes/file-state';
 import { logger } from '$lib/logger';
+import { dev } from '$app/environment';
+
+export const ssr = !dev;
 
 export const load = (async ({ params: { sessionId } }) => {
 	const result = await db.query.sessionTable.findFirst({
