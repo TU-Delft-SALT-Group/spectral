@@ -11,12 +11,15 @@
 		participantNote: string;
 	} | null = null;
 
+	let navigationCanceledCount = 0;
+
 	$: dirty = state !== null && state.prompts.some((prompt) => prompt.recordings.length > 0);
 
 	beforeNavigate(async ({ cancel }) => {
 		if (dirty) {
 			if (!confirm('Warning: If you leave the page, your recordings will be lost')) {
 				cancel();
+				navigationCanceledCount++;
 				return;
 			}
 		}
@@ -45,5 +48,6 @@
 		participantNote={state.participantNote}
 		bind:promptName={state.promptName}
 		bind:prompts={state.prompts}
+		{navigationCanceledCount}
 	/>
 {/if}
