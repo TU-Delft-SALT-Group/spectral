@@ -5,13 +5,12 @@ from __future__ import annotations
 import tempfile
 
 from allosaurus.app import read_recognizer  # type: ignore
+from fastapi import HTTPException
 
 from spectral.transcription.transcription_utils import fill_gaps
 from spectral.types import FileStateType, TranscriptionType
 
 from .deepgram import deepgram_transcription
-
-from fastapi import HTTPException
 
 
 def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
@@ -36,7 +35,10 @@ def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
     except Exception as e:
         raise HTTPException(
             401,
-            "Allosaurus requires valid Deepgram API key to work. Probably the key for Deepgram is wrong.",
+            """
+            Allosaurus requires valid Deepgram API key to work.
+            Probably the key for Deepgram is wrong.
+            """,
         ) from e
 
     model = read_recognizer()
@@ -105,7 +107,7 @@ def get_phoneme_word_splits(
             current_split["word_transcription"] = word_level_transcription[word_pointer]
             phoneme_word_splits.append(current_split)
             current_split = {"phonemes": [], "word_transcription": None}
-            word_pointer = 1
+            word_pointer += 1
             continue
 
         current_split["phonemes"].append(phoneme_level_parsed[phoneme_pointer])

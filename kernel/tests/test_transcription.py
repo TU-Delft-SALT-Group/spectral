@@ -168,7 +168,7 @@ def test_whisper_transcription(mock_whisper_client):
     mock_client_instance.audio.transcriptions.create.return_value = mock_response
 
     data = b"0"
-    result = whisper_transcription(data)
+    result = whisper_transcription(data, api_key="test_key")
 
     expected_result = {
         "language": "english",
@@ -184,7 +184,10 @@ def test_whisper_transcription(mock_whisper_client):
 
 
 def test_hf_transcription_no_model():
-    assert hf_transcription(b"audio data", "arst") == {}
+    with pytest.raises(HTTPException) as httpException:
+        hf_transcription(b"audio data", "arst")
+    assert httpException.value.status_code == 401
+    assert httpException.value.detail == "Something went wrong when transcribing using custom HF model, sorry."
 
 
 @patch("spectral.signal_analysis.get_audio")

@@ -219,7 +219,7 @@ def test_signal_mode_vowel_space_mode_with_frame(db_mock, file_state):
 
 def test_signal_mode_transcription_db_problem(db_mock):
     db_mock.fetch_file.side_effect = HTTPException(status_code=500, detail="database error")
-    response = client.get("/transcription/deepgram/1")
+    response = client.get("/transcription/deepgram/1", headers={"apikey": "test-key"})
     assert response.status_code == 404, "Expected status code 404 when there is a database error"
     assert response.json()["detail"] == "File not found", "Expected detail message 'File not found'"
     assert db_mock.fetch_file.call_count == 1, "Expected fetch_file to be called once"
@@ -234,7 +234,7 @@ def test_transcription_model_found(db_mock):
                 {"value": "word2", "start": 1.5, "end": 2.0},
             ],
         }
-        response = client.get("/transcription/deepgram/1")
+        response = client.get("/transcription/deepgram/1", headers={"apikey": "test-key"})
         assert response.status_code == 200, "Expected status code 200 for deepgram transcription"
         result = response.json()
         assert result == {
@@ -580,7 +580,7 @@ def test_phone_transcription(db_mock, file_state):
                 {"value": "", "start": 4.02, "end": 4.565},
             ],
         }
-        response = client.get("/transcription/allosaurus/1")
+        response = client.get("/transcription/allosaurus/1", headers={"apikey": "test-key"})
         assert response.status_code == 200, "Expected status code 200 for allosaurus transcription"
         result = response.json()
         assert result == {
@@ -632,7 +632,7 @@ def test_phone_transcription_no_words(db_mock, file_state):
             "language": "en",
             "transcription": [],
         }
-        response = client.get("/transcription/allosaurus/1")
+        response = client.get("/transcription/allosaurus/1", headers={"apikey": "test-key"})
         assert response.status_code == 200, "Expected status code 200 for allosaurus transcription with no words"
         result = response.json()
         assert result == {
