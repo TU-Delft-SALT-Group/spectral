@@ -30,6 +30,9 @@
 			ret += joinString + '_'.repeat(amount) + right[rightStart + i];
 		}
 
+		if (ret[0] === ' ') ret = '\u00A0' + ret.substring(1);
+		if (ret[ret.length - 1] === ' ') ret = ret.substring(0, ret.length - 1) + '\u00A0';
+
 		return ret;
 	}
 
