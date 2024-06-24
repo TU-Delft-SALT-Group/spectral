@@ -251,21 +251,16 @@
 				transcription: [],
 				language: 'unk'
 			};
-			await fetchKernel(
+			const res = await fetchKernel(
 				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
 				fileState.id
-			).then(async (res) => {
-				if (res.status !== 200) {
-					const errorObject = await res.json();
-					toast.error(errorObject.message || errorObject.detail);
-					return;
-				}
-				response = await res.json();
-			});
-
-			if (response.language === 'unk') {
+			)
+			if (res.status !== 200) {
+				const errorObject = await res.json();
+				toast.error(errorObject.message || errorObject.detail);
 				return;
 			}
+			response = await res.json();
 
 			logger.trace(response);
 
