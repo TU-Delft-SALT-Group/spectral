@@ -249,7 +249,7 @@
 				language: string;
 			} = {
 				transcription: [],
-				language: 'unk'
+				language: '??'
 			};
 			const res = await fetchKernel(
 				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
@@ -261,6 +261,9 @@
 				return;
 			}
 			response = await res.json();
+
+			if (response.language == "??")
+				return;
 
 			logger.trace(response);
 

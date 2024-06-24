@@ -4,7 +4,7 @@ In 2024, we were tasked by the MultiMedia Computing (MMC) Group of TU Delft to c
 
 We believe that Spectral will be of significant help to all ASR researchers, which in turn makes it easier for specialists to help people in need!
 
-Want to learn more about Spectral? [Read me.](https://github.com/TU-Delft-SALT-Group/spectral/README.md)
+Want to learn more about Spectral? [Read me.](https://github.com/TU-Delft-SALT-Group/spectral/blob/main/README.md)
 
 Spectral is open source! Check out our [Github repo](https://github.com/TU-Delft-SALT-Group/spectral)!
 

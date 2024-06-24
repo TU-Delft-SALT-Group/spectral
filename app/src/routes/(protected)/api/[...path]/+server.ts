@@ -6,7 +6,7 @@ import { and, eq } from 'drizzle-orm';
 import { fileTable } from '$lib/database/schema';
 
 function getUrlFromPath(path: string) {
-	return new URL(path, PUBLIC_KERNEL_ORIGIN);
+	return new URL(path, process.env.PUBLIC_KERNEL_ORIGIN);
 }
 
 function verifyFileOwnership(fileId: string, userId: string) {
