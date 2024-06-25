@@ -121,12 +121,14 @@
 		});
 
 		wavesurfer.on('timeupdate', () => {
-			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration()) {
 				wavesurfer.setTime(wavesurfer.getDuration());
+				wavesurfer.pause();
+			}
 			if (regions.getRegions().length == 1) {
 				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
-					wavesurfer.pause();
 					wavesurfer.setTime(regions.getRegions()[0].end);
+					wavesurfer.pause();
 				}
 			}
 			current = wavesurfer.getCurrentTime();
@@ -273,12 +275,6 @@
 					name: model + (response.language ? '-' + response.language : ''),
 					selected: true,
 					captions: response.transcription
-				},
-				{
-					id: generateIdFromEntropySize(10),
-					name: model + '-sentence' + (response.language ? '-' + response.language : ''),
-					selected: true,
-					captions: sentenceCaption(response.transcription)
 				}
 			];
 		} else {

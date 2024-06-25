@@ -15,6 +15,7 @@
 	export let participantId: string;
 	export let participantNote: string;
 	export let recording = false;
+	export let navigationCanceledCount: number;
 
 	let selectedIndex: number = 0;
 	let disableExport: boolean = false;
@@ -237,6 +238,7 @@
 						disableShortcuts={() => {
 							shortcutsEnabled = false;
 						}}
+						{navigationCanceledCount}
 					/>
 				</section>
 			{/each}
