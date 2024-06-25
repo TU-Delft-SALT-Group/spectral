@@ -282,18 +282,6 @@
 		}
 	}
 
-	function sentenceCaption(captions: Caption[]) {
-		let sentence = '';
-		for (const caption of captions) {
-			if (caption.value === '') continue;
-			sentence += caption.value + ' ';
-		}
-		if (sentence.charAt(sentence.length - 1) === ' ') {
-			sentence = sentence.substring(0, sentence.length - 1);
-		}
-		return [{ start: captions[0].start, end: captions[captions.length - 1].end, value: sentence }];
-	}
-
 	const nonPassiveWheel: Action<HTMLElement, (event: WheelEvent) => void> = (node, callback) => {
 		node.addEventListener('wheel', callback, { passive: false });
 
