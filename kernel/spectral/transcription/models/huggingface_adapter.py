@@ -33,12 +33,11 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from fastapi import HTTPException
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
 from spectral import signal_analysis
 from spectral.types import TranscriptionType
-
-from fastapi import HTTPException
 
 
 @lru_cache

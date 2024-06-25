@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Resizable from '$lib/components/ui/resizable';
 	import type { PaneGroupAPI } from 'paneforge';
-	import { doubleClick, focusOut, keyDown } from '.';
+	import { doubleClick, focusOut, keyDown, type Caption } from '.';
 
 	let {
 		captions = $bindable(),
@@ -18,12 +18,6 @@
 	} = $props();
 
 	let paneGroup: PaneGroupAPI | undefined = $state(undefined);
-
-	type Caption = {
-		start: number;
-		end: number;
-		value: string;
-	};
 
 	function handleCreate(event: MouseEvent, caption: Caption) {
 		if (!(event.target instanceof HTMLElement)) {

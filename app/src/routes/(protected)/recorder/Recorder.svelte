@@ -71,7 +71,7 @@
 			});
 	}
 
-	function importSession() {
+	async function importSession() {
 		disableImport = true;
 		const formData = new FormData();
 		let data = [];
@@ -90,24 +90,25 @@
 		}
 		formData.append('data', JSON.stringify(data));
 		formData.append('sessionName', promptName);
-		fetch('?/importAudio', {
+		const response = await fetch('?/importAudio', {
 			method: 'POST',
 			body: formData
-		}).then(async (response) => {
-			if (response.status == 200) {
-				let data = JSON.parse((await response.json()).data);
-				toast.success('Session ' + data[0] + ' has been created.', {
-					description: 'Go to the session',
-					action: {
-						label: 'Session',
-						onClick: () => {
-							window.location.href = '/session/' + data[0];
-						}
-					}
-				});
-			}
-			disableImport = false;
 		});
+
+		if (response.status == 200) {
+			let data = JSON.parse((await response.json()).data);
+			toast.success('Session ' + data[0] + ' has been created.', {
+				description: 'Go to the session',
+				action: {
+					label: 'Session',
+					onClick: () => {
+						window.location.href = '/session/' + data[0];
+					}
+				}
+			});
+		}
+
+		disableImport = false;
 	}
 
 	function handleKeydown(event: KeyboardEvent) {

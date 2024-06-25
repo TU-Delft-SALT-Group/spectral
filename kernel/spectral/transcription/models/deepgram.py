@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import os
-
 from deepgram import DeepgramClient, PrerecordedOptions
-
 from fastapi import HTTPException
 
 from spectral.types import TranscriptionType
@@ -64,5 +61,6 @@ def deepgram_transcription(data: bytes, api_key: str | None = None) -> Transcrip
     except Exception as e:
         raise HTTPException(
             status_code=401,
-            detail="Something went wrong when transcribing. Probably the API key for Deepgram is wrong.",
+            detail="Something went wrong when transcribing. \
+            Probably the API key for Deepgram is wrong.",
         ) from e

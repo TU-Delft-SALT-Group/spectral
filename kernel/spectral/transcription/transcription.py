@@ -1,6 +1,7 @@
 """Orchestrates different trancribing methods."""
 
 from __future__ import annotations
+
 from fastapi import HTTPException
 
 from spectral.types import FileStateType, TranscriptionType

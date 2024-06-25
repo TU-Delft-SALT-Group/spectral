@@ -11,7 +11,7 @@
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
 	import { logger } from '$lib/logger';
-	import { doubleClick, focusOut, keyDown } from '.';
+	import { doubleClick, focusOut, keyDown, type Caption } from '.';
 	import { numberToTime } from '$lib/components/audio-controls';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
@@ -244,24 +244,21 @@
 			];
 		} else if (models.includes(transcriptionType.value)) {
 			const model = transcriptionType.value;
-			let response: {
-				transcription: { start: number; end: number; value: string }[];
-				language: string;
-			} = {
-				transcription: [],
-				language: 'unk'
-			};
-			await fetchKernel(
+			const kernelResponse = await fetchKernel(
 				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
 				fileState.id
-			).then(async (res) => {
-				if (res.status !== 200) {
-					const errorObject = await res.json();
-					toast.error(errorObject.message || errorObject.detail);
-					return;
-				}
-				response = await res.json();
-			});
+			);
+
+			if (kernelResponse.status !== 200) {
+				const errorObject = await kernelResponse.json();
+				toast.error(errorObject.message || errorObject.detail);
+				return;
+			}
+
+			const response = (await kernelResponse.json()) as {
+				transcription: Caption[];
+				language: string;
+			};
 
 			if (response.language === 'unk') {
 				return;
@@ -289,7 +286,7 @@
 		}
 	}
 
-	function sentenceCaption(captions: { start: number; end: number; value: string }[]) {
+	function sentenceCaption(captions: Caption[]) {
 		let sentence = '';
 		for (const caption of captions) {
 			if (caption.value === '') continue;
