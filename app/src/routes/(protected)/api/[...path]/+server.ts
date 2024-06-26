@@ -39,9 +39,28 @@ const handleRequest: RequestHandler = async ({
 		error(401, 'Not logged in');
 	}
 
+	const models = ['whisper', 'deepgram'];
+
 	const fileId = getFileId(request);
 	verifyFileOwnership(fileId, user.id);
 
+	request.headers.set('apikey', 'non-existent...'); // Not sure if this is needed
+	// very janky fix to be able to append user id
+	if (path.startsWith('transcription/')) {
+		const model = path.split('/')[1];
+
+		if (models.includes(model)) {
+			const foundKeys = (user.apiKeys as { model: string; key: string }[]).filter(
+				(x) => x.model === model
+			);
+
+			if (foundKeys.length === 0) {
+				throw error(404, `No key provided for ${model}.`);
+			}
+
+			request.headers.set('apikey', foundKeys[0].key);
+		}
+	}
 	const url = getUrlFromPath(path);
 	// undici doesn't support the connection header
 	request.headers.delete('connection');

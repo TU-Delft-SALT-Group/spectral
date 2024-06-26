@@ -19,14 +19,14 @@
 	let tmpName: string;
 
 	async function deleteSession() {
-		await fetch('?/deleteSession', {
+		const response = await fetch('?/deleteSession', {
 			method: 'POST',
 			body: JSON.stringify(session.id)
-		}).then(async (response) => {
-			if ((await response.json()).status == 204) {
-				onDeleteSession(session.id);
-			}
 		});
+
+		if ((await response.json()).status == 204) {
+			onDeleteSession(session.id);
+		}
 	}
 
 	async function renameSession(newName: string) {

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import os
-
 from deepgram import DeepgramClient, PrerecordedOptions
+from fastapi import HTTPException
 
 from spectral.types import TranscriptionType
 
 
-def deepgram_transcription(data: bytes) -> TranscriptionType:
+def deepgram_transcription(data: bytes, api_key: str | None = None) -> TranscriptionType:
     """
     Transcribe audio data using Deepgram API.
 
@@ -30,11 +29,10 @@ def deepgram_transcription(data: bytes) -> TranscriptionType:
     """
     try:
         # STEP 1: Create a Deepgram client using the API key
-        key = os.getenv("DG_KEY")
         deepgram = None
-        if key is None:
+        if api_key is None:
             raise Exception("No API key for Deepgram is found")  # noqa
-        deepgram = DeepgramClient(key)  # type: ignore
+        deepgram = DeepgramClient(api_key)  # type: ignore
 
         payload = {
             "buffer": data,
@@ -60,6 +58,9 @@ def deepgram_transcription(data: bytes) -> TranscriptionType:
             "transcription": res,
         }
 
-    except Exception:
-        print("No API key for Deepgram is found")  # noqa
-        return {"language": "", "transcription": []}
+    except Exception as e:
+        raise HTTPException(
+            status_code=401,
+            detail="Something went wrong when transcribing. \
+            Probably the API key for Deepgram is wrong.",
+        ) from e

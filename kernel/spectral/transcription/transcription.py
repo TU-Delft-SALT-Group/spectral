@@ -1,5 +1,7 @@
 """Orchestrates different trancribing methods."""
 
+from __future__ import annotations
+
 from fastapi import HTTPException
 
 from spectral.types import FileStateType, TranscriptionType
@@ -11,7 +13,9 @@ from .models.whisper import whisper_transcription
 from .transcription_utils import fill_gaps
 
 
-def get_transcription(model: str, file: FileStateType) -> TranscriptionType:
+def get_transcription(
+    model: str, file: FileStateType, api_key: str | None = None
+) -> TranscriptionType:
     """
     Get transcription of an audio file using the specified model.
 
@@ -32,9 +36,9 @@ def get_transcription(model: str, file: FileStateType) -> TranscriptionType:
 
     """
     if model == "deepgram":
-        return fill_gaps(deepgram_transcription(file["data"]), file)
+        return fill_gaps(deepgram_transcription(file["data"], api_key=api_key), file)
     if model == "whisper":
-        return fill_gaps(whisper_transcription(file["data"]), file)
+        return fill_gaps(whisper_transcription(file["data"], api_key=api_key), file)
     if model == "whisper-torgo-1-epoch":
         # name torgo here does not correspond to an actual hf model, it is the path to the local
         # folder containing the model. We do this because most hf models require patching.

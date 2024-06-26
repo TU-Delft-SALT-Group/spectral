@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-import os
 import tempfile
 from pathlib import Path
 from typing import Any
 
+from fastapi import HTTPException
 from openai import OpenAI
 
 from spectral.types import TranscriptionType
 
 
-def whisper_transcription(data: bytes) -> TranscriptionType:
+def whisper_transcription(data: bytes, api_key: str | None = None) -> TranscriptionType:
     """
     Get transcription from whisper from an list of WAV bytes.
 
@@ -26,10 +26,10 @@ def whisper_transcription(data: bytes) -> TranscriptionType:
 
     """
     try:
-        transcription = get_whisper_transcription(data)
+        transcription = get_whisper_transcription(data, api_key)
 
-    except Exception:
-        return {"language": "", "transcription": []}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Something went wrong when transcribing") from e
     else:
         res = []
 
@@ -44,7 +44,7 @@ def whisper_transcription(data: bytes) -> TranscriptionType:
         return {"language": transcription.language, "transcription": res}
 
 
-def get_whisper_transcription(data: bytes) -> Any:
+def get_whisper_transcription(data: bytes, apikey: str | None = None) -> Any:
     """
     Get the Transcription from whisper.
 
@@ -57,7 +57,7 @@ def get_whisper_transcription(data: bytes) -> Any:
         Any: Transcription object from OpenAi
 
     """
-    client = OpenAI(api_key=os.getenv("WHISPER_KEY"))
+    client = OpenAI(api_key=apikey)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
         temp_wav.write(data)
         temp_wav_filename = temp_wav.name

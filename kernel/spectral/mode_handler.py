@@ -57,7 +57,6 @@ def simple_info_mode(
     audio = get_audio(file)
 
     result = simple_signal_info(audio)
-
     result["fileSize"] = len(file["data"])
     result["fileCreationDate"] = file["creationTime"]
 
