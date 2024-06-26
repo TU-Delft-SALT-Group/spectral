@@ -1,5 +1,6 @@
 <script lang="ts">
 	import WaveSurfer from 'wavesurfer.js';
+	import { toast } from 'svelte-sonner';
 	import type { mode } from '..';
 	import { onDestroy, onMount } from 'svelte';
 	import { used } from '$lib/utils';
@@ -10,7 +11,7 @@
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
 	import { logger } from '$lib/logger';
-	import { doubleClick, focusOut, keyDown } from '.';
+	import { doubleClick, focusOut, keyDown, type Caption } from '.';
 	import { numberToTime } from '$lib/components/audio-controls';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
@@ -20,6 +21,7 @@
 	import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.js';
 	import type { Frame } from '$lib/analysis/kernel/framing';
 	import { fetchKernel } from '$lib/analysis/kernel/communication';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let {
 		fileState = $bindable(),
@@ -244,13 +246,28 @@
 			];
 		} else if (models.includes(transcriptionType.value)) {
 			const model = transcriptionType.value;
-			let response = await (
-				await fetchKernel(
-					`/api/transcription/${transcriptionType.value}/${fileState.id}`,
-					fileState.id
-				)
-			).json();
+			const kernelResponse = await fetchKernel(
+				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
+				fileState.id
+			);
+
+			if (kernelResponse.status !== 200) {
+				const errorObject = await kernelResponse.json();
+				toast.error(errorObject.message || errorObject.detail);
+				return;
+			}
+
+			const response = (await kernelResponse.json()) as {
+				transcription: Caption[];
+				language: string;
+			};
+
+			if (response.language === 'unk') {
+				return;
+			}
+
 			logger.trace(response);
+
 			fileState.transcriptions = [
 				...fileState.transcriptions,
 				{
@@ -432,3 +449,4 @@
 		</Tooltip.Root>
 	</div>
 </section>
+<Toaster class="absolute" />

@@ -33,6 +33,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from fastapi import HTTPException
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
 from spectral import signal_analysis
@@ -94,8 +95,11 @@ def hf_transcription(data: bytes, model_name: str) -> TranscriptionType:
         duration = signal_analysis.calculate_signal_duration(
             signal_analysis.get_audio({"data": data})
         )
-    except RuntimeError:
-        return {}
+    except Exception as e:
+        raise HTTPException(
+            status_code=401,
+            detail="Something went wrong when transcribing using custom HF model, sorry.",
+        ) from e
     else:
         return {
             "language": "unk",

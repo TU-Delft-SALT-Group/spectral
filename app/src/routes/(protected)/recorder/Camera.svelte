@@ -77,32 +77,28 @@
 		camneraInfo: MediaDeviceInfo | null,
 		audioInfo: MediaDeviceInfo | null
 	) {
-		navigator.mediaDevices
-			.getUserMedia({
-				video: {
-					deviceId: camneraInfo?.deviceId,
-					width: { min: 1280 },
-					height: { min: 720 }
-				},
-				audio: {
-					deviceId: audioInfo?.deviceId
-				}
-			})
-			.then((obtainedStream) => {
-				mediaStream = obtainedStream;
+		mediaStream = await navigator.mediaDevices.getUserMedia({
+			video: {
+				deviceId: camneraInfo?.deviceId,
+				width: { min: 1280 },
+				height: { min: 720 }
+			},
+			audio: {
+				deviceId: audioInfo?.deviceId
+			}
+		});
 
-				mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
+		mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
 
-				mediaRecorder.ondataavailable = (event: BlobEvent) => {
-					recordingChunks.push(event.data);
-				};
+		mediaRecorder.ondataavailable = (event: BlobEvent) => {
+			recordingChunks.push(event.data);
+		};
 
-				mediaRecorder.onstop = () => {
-					const blob = new Blob(recordingChunks, { type: 'video/webm' });
-					recordingChunks = [];
-					onStopRecording(blob);
-				};
-			});
+		mediaRecorder.onstop = () => {
+			const blob = new Blob(recordingChunks, { type: 'video/webm' });
+			recordingChunks = [];
+			onStopRecording(blob);
+		};
 	}
 
 	$: browser && navigationCanceledCount + 1 && loadVideo(cameraInfo, micInfo);
