@@ -124,14 +124,32 @@ export const actions = {
 
 		const formData = await request.formData();
 
-		const file = formData.get('file');
-		if (!(file instanceof File)) {
-			logger.trace('No proper file was provided');
-			return fail(400, { message: 'No file provided' });
-		}
+		const formEntry = formData.getAll('file');
 
-		await uploadFile(file, sessionId, user.id);
-		logger.trace(`File ${file.name} successfully uploaded`);
+		// Lambda that checks if file is uploadable, and uploads it or errors
+		const tryUploadFiles = async (files: FormDataEntryValue[]) => {
+			// First check if all files are valid
+			for (const file of files) {
+				if (!(file instanceof File)) {
+					logger.trace('No proper file was provided');
+					return fail(400, { message: 'No file provided' });
+				}
+			}
+
+			// Only once you check all files entries valid, upload them
+			await Promise.all(
+				(files as File[]).map(async (file) => {
+					await uploadFile(file, sessionId, user.id);
+					logger.trace(`File ${file.name} successfully uploaded`);
+				})
+			);
+		};
+
+		if (Array.isArray(formEntry)) {
+			await tryUploadFiles(formEntry);
+		} else {
+			await tryUploadFiles([formEntry]);
+		}
 	},
 
 	deleteFile: async ({ request }) => {

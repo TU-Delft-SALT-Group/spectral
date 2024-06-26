@@ -104,7 +104,9 @@
 			<AlertDialog.Description>
 				<Input type="text" name="filename" minlength={1} required bind:value={filename}></Input>
 			</AlertDialog.Description>
-			<AlertDialog.Title>Enter the ground truth</AlertDialog.Title>
+			<AlertDialog.Title class="pt-4 text-sm font-medium"
+				>Enter the ground truth transcription (optional)</AlertDialog.Title
+			>
 			<AlertDialog.Description>
 				<Input type="text" name="groundTruth" bind:value={groundTruth}></Input>
 			</AlertDialog.Description>

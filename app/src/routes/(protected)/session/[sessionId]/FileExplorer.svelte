@@ -66,7 +66,7 @@
 		{/each}
 	</div>
 
-	<Separator class=""></Separator>
+	<Separator></Separator>
 
 	<div class="relative h-fit p-4">
 		<form
@@ -79,7 +79,7 @@
 			<Input
 				name="file"
 				type="file"
-				multiple
+				multiple={true}
 				accept="audio/*"
 				class={cn(buttonVariants({ variant: 'ghost' }))}
 				on:change={() => submitButton.click()}
