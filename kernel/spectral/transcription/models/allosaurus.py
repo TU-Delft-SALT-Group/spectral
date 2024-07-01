@@ -13,7 +13,7 @@ from spectral.types import FileStateType, TranscriptionType
 from .deepgram import deepgram_transcription
 
 
-def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
+def allosaurus_transcription(file: FileStateType, api_key) -> TranscriptionType:
     """
     Calculate the transcription on phoneme level using the allosaurus model.
 
@@ -31,7 +31,7 @@ def allosaurus_transcription(file: FileStateType) -> TranscriptionType:
         temp_wav_filename = temp_wav.name
 
     try:
-        word_level_transcription = fill_gaps(deepgram_transcription(file["data"]), file)
+        word_level_transcription = fill_gaps(deepgram_transcription(file["data"], api_key), file)
     except Exception as e:
         raise HTTPException(
             401,

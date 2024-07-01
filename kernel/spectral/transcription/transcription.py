@@ -45,7 +45,7 @@ def get_transcription(
         # If you want to change this, look into hf_transcription implementation, it has more info
         return fill_gaps(hf_transcription(file["data"], model_name="torgo"), file)
     if model == "allosaurus":
-        return fill_gaps(allosaurus_transcription(file), file)
+        return fill_gaps(allosaurus_transcription(file, api_key=api_key), file)
     # When adding a new mode make sure you also change it in the main.py, where the fastapi request
     # is validated with pydantic. Otherwise you will just get 422 as a response.
     # And add it in /app/src/lib/analysis/modes/transcription/TranscriptionPlugin.svelte

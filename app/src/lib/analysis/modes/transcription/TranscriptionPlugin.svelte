@@ -246,25 +246,27 @@
 			];
 		} else if (models.includes(transcriptionType.value)) {
 			const model = transcriptionType.value;
-			const kernelResponse = await fetchKernel(
+
+			let response: {
+				transcription: { start: number; end: number; value: string }[];
+				language: string;
+			} = {
+				transcription: [],
+				language: '??'
+			};
+			const res = await fetchKernel(
 				`/api/transcription/${transcriptionType.value}/${fileState.id}`,
 				fileState.id
-			);
-
-			if (kernelResponse.status !== 200) {
-				const errorObject = await kernelResponse.json();
+			)
+			if (res.status !== 200) {
+				const errorObject = await res.json();
 				toast.error(errorObject.message || errorObject.detail);
 				return;
 			}
+			response = await res.json();
 
-			const response = (await kernelResponse.json()) as {
-				transcription: Caption[];
-				language: string;
-			};
-
-			if (response.language === 'unk') {
+			if (response.language == "??")
 				return;
-			}
 
 			logger.trace(response);
 

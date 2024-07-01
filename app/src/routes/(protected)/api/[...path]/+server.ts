@@ -6,7 +6,7 @@ import { and, eq } from 'drizzle-orm';
 import { fileTable } from '$lib/database/schema';
 
 function getUrlFromPath(path: string) {
-	return new URL(path, PUBLIC_KERNEL_ORIGIN);
+	return new URL(path, process.env.PUBLIC_KERNEL_ORIGIN);
 }
 
 function verifyFileOwnership(fileId: string, userId: string) {
@@ -47,7 +47,10 @@ const handleRequest: RequestHandler = async ({
 	request.headers.set('apikey', 'non-existent...'); // Not sure if this is needed
 	// very janky fix to be able to append user id
 	if (path.startsWith('transcription/')) {
-		const model = path.split('/')[1];
+		let model = path.split('/')[1];
+		if (model == 'allosaurus') {
+			model = 'deepgram';
+		}
 
 		if (models.includes(model)) {
 			const foundKeys = (user.apiKeys as { model: string; key: string }[]).filter(
