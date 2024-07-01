@@ -15,7 +15,7 @@
 	export let data: PageData;
 
 	const models = ['whisper', 'deepgram'] as const;
-	type Model = typeof models[number];
+	type Model = (typeof models)[number];
 
 	let open = false;
 	let modelName: Selected<Model>;
@@ -75,7 +75,7 @@
 						<p class="italic text-gray-400">{key.model}</p>
 					</div>
 
-					<form method="POST" class="flex flex-col" action="?/deletekey">
+					<form method="POST" use:enhance class="flex flex-col" action="?/deletekey">
 						<input hidden value={key.name} id="name" name="name" />
 						<Button variant="destructive" type="submit">Delete</Button>
 					</form>

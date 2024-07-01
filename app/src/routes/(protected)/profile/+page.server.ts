@@ -7,6 +7,16 @@ import { fileTable, sessionTable, userTable } from '$lib/database/schema';
 import { formSchema, deleteFormSchema } from './schema';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
+import { used } from '$lib/utils';
+
+const apiKeysSchema = z.array(
+	z.object({
+		model: z.string(),
+		name: z.string(),
+		key: z.string()
+	})
+);
 
 export const load: PageServerLoad = async ({ parent }) => {
 	const { user } = await parent();
@@ -20,16 +30,21 @@ export const load: PageServerLoad = async ({ parent }) => {
 		.select({ value: count() })
 		.from(sessionTable)
 		.where(eq(sessionTable.owner, user.id));
-	let [{ key: apiKeysUnsafe }] = await db
+	const [{ key: apiKeysUnsafeUnparsed }] = await db
 		.select({ key: userTable.apiKeys })
 		.from(userTable)
 		.where(eq(userTable.id, user.id));
 
+	const apiKeysUnsafe = apiKeysSchema.parse(apiKeysUnsafeUnparsed);
+
 	// we don't want to pass the actual api keys to the client: unsafe!!
-	// so we strip the keys, so the user gets only a list of already sat up 
+	// so we strip the keys, so the user gets only a list of already sat up
 	// api keys, like instead of {'deepgram': key1, 'whisper': key2}
 	// user get the ['deepgram', 'whisper']
-	const keyData = apiKeysUnsafe.map(({ key, ...rest }) => (rest));
+	const keyData = apiKeysUnsafe.map(({ key, ...rest }) => {
+		used(key);
+		return rest;
+	});
 
 	return {
 		user,
@@ -60,22 +75,23 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(formSchema));
 		if (event.locals.user !== null) {
 			// get the keys
-			let oldKeys = event.locals.user.apiKeys || [];
-			let newKeys = [...oldKeys, form.data];
+			const oldKeys = apiKeysSchema.parse(event.locals.user.apiKeys) || [];
+			const newKeys = [...oldKeys, form.data];
 
 			// check there is no other key for the same model
-			if (oldKeys.some((el) => (el.model === form.data.model))) {
-				setError(form, "model", "Key for this model already exists.");
+			if (oldKeys.some((el) => el.model === form.data.model)) {
+				setError(form, 'model', 'Key for this model already exists.');
 				return fail(400, { form });
 			}
 
 			// check there is no old key with the same name
-			if (oldKeys.some((el) => (el.name === form.data.name))) {
-				setError(form, "name", "Key with such name already exists, choose another name");
+			if (oldKeys.some((el) => el.name === form.data.name)) {
+				setError(form, 'name', 'Key with such name already exists, choose another name');
 				return fail(400, { form });
 			}
 
-			await db.update(userTable)
+			await db
+				.update(userTable)
 				.set({ apiKeys: newKeys })
 				.where(eq(userTable.id, event.locals.user.id));
 		}
@@ -84,10 +100,11 @@ export const actions: Actions = {
 	deletekey: async (event) => {
 		const form = await superValidate(event, zod(deleteFormSchema));
 		if (event.locals.user !== null) {
-			let oldKeys = event.locals.user.apiKeys || [];
-			let newKeys = oldKeys.filter((el) => (el.name !== form.data.name))
+			const oldKeys = apiKeysSchema.parse(event.locals.user.apiKeys) || [];
+			const newKeys = oldKeys.filter((el) => el.name !== form.data.name);
 
-			await db.update(userTable)
+			await db
+				.update(userTable)
 				.set({ apiKeys: newKeys })
 				.where(eq(userTable.id, event.locals.user.id));
 		}

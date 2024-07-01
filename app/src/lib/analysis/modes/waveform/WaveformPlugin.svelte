@@ -134,12 +134,14 @@
 		});
 
 		wavesurfer.on('timeupdate', () => {
-			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration()) {
 				wavesurfer.setTime(wavesurfer.getDuration());
+				wavesurfer.pause();
+			}
 			if (regions.getRegions().length == 1) {
 				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
-					wavesurfer.pause();
 					wavesurfer.setTime(regions.getRegions()[0].end);
+					wavesurfer.pause();
 				}
 			}
 			current = wavesurfer.getCurrentTime();

@@ -114,7 +114,9 @@
 			Loading...
 		</div>
 	{:else if paneState.files.length === 0}
-		<div class="flex h-full w-full items-center justify-center text-2xl text-muted-foreground">
+		<div
+			class="grid h-full w-full content-center text-balance text-center text-2xl text-muted-foreground"
+		>
 			Drag a file from the file explorer and drop it here to start analyzing!
 		</div>
 	{:else}

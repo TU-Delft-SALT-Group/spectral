@@ -62,3 +62,9 @@ export function keyDown(event: KeyboardEvent, toChange: { name: string } | { val
 		}
 	}
 }
+
+export type Caption = {
+	start: number;
+	end: number;
+	value: string;
+};

@@ -11,7 +11,7 @@
 	import { generateIdFromEntropySize } from 'lucia';
 	import Track from './Track.svelte';
 	import { logger } from '$lib/logger';
-	import { doubleClick, focusOut, keyDown } from '.';
+	import { doubleClick, focusOut, keyDown, type Caption } from '.';
 	import { numberToTime } from '$lib/components/audio-controls';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Download, PauseIcon, PlayIcon, TrashIcon } from 'lucide-svelte';
@@ -121,12 +121,14 @@
 		});
 
 		wavesurfer.on('timeupdate', () => {
-			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration())
+			if (wavesurfer.getCurrentTime() > wavesurfer.getDuration()) {
 				wavesurfer.setTime(wavesurfer.getDuration());
+				wavesurfer.pause();
+			}
 			if (regions.getRegions().length == 1) {
 				if (wavesurfer.getCurrentTime() > regions.getRegions()[0].end) {
-					wavesurfer.pause();
 					wavesurfer.setTime(regions.getRegions()[0].end);
+					wavesurfer.pause();
 				}
 			}
 			current = wavesurfer.getCurrentTime();
@@ -244,6 +246,7 @@
 			];
 		} else if (models.includes(transcriptionType.value)) {
 			const model = transcriptionType.value;
+
 			let response: {
 				transcription: { start: number; end: number; value: string }[];
 				language: string;
@@ -274,29 +277,11 @@
 					name: model + (response.language ? '-' + response.language : ''),
 					selected: true,
 					captions: response.transcription
-				},
-				{
-					id: generateIdFromEntropySize(10),
-					name: model + '-sentence' + (response.language ? '-' + response.language : ''),
-					selected: true,
-					captions: sentenceCaption(response.transcription)
 				}
 			];
 		} else {
 			logger.error('no match for: ' + transcriptionType.value);
 		}
-	}
-
-	function sentenceCaption(captions: { start: number; end: number; value: string }[]) {
-		let sentence = '';
-		for (const caption of captions) {
-			if (caption.value === '') continue;
-			sentence += caption.value + ' ';
-		}
-		if (sentence.charAt(sentence.length - 1) === ' ') {
-			sentence = sentence.substring(0, sentence.length - 1);
-		}
-		return [{ start: captions[0].start, end: captions[captions.length - 1].end, value: sentence }];
 	}
 
 	const nonPassiveWheel: Action<HTMLElement, (event: WheelEvent) => void> = (node, callback) => {

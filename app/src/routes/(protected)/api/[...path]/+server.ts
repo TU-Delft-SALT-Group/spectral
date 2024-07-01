@@ -44,7 +44,7 @@ const handleRequest: RequestHandler = async ({
 	const fileId = getFileId(request);
 	verifyFileOwnership(fileId, user.id);
 
-	request.headers.set('apikey', 'non-existent...');
+	request.headers.set('apikey', 'non-existent...'); // Not sure if this is needed
 	// very janky fix to be able to append user id
 	if (path.startsWith('transcription/')) {
 		let model = path.split('/')[1];

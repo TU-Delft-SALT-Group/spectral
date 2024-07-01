@@ -41,16 +41,18 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Field {form} name="privacyAck" class="mb-4 mt-2 flex items-center gap-1">
+	<Form.Field {form} name="privacyAck">
 		<Form.Control let:attrs>
-			<Checkbox {...attrs} bind:checked={$formData.privacyAck} />
-			<Form.Label style="margin-top: 0;"
-				>I accept the <a
-					target="_blank"
-					href="/policy"
-					class="text-blue-600 underline dark:text-blue-300">policies</a
-				></Form.Label
-			>
+			<div class="mb-4 mt-2 flex items-center gap-1">
+				<Checkbox {...attrs} bind:checked={$formData.privacyAck} />
+				<Form.Label style="margin-top: 0;"
+					>I accept the <a
+						target="_blank"
+						href="/policy"
+						class="text-blue-600 underline dark:text-blue-300">policies</a
+					>.</Form.Label
+				>
+			</div>
 			<input hidden type="checkbox" name={attrs.name} checked={$formData.privacyAck} />
 		</Form.Control>
 		<Form.FieldErrors />
