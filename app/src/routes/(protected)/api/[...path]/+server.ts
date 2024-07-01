@@ -47,7 +47,10 @@ const handleRequest: RequestHandler = async ({
 	request.headers.set('apikey', 'non-existent...');
 	// very janky fix to be able to append user id
 	if (path.startsWith('transcription/')) {
-		const model = path.split('/')[1];
+		let model = path.split('/')[1];
+		if (model == 'allosaurus') {
+			model = 'deepgram';
+		}
 
 		if (models.includes(model)) {
 			const foundKeys = (user.apiKeys as { model: string; key: string }[]).filter(
